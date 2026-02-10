@@ -1,0 +1,36 @@
+html {
+  scroll-behavior: smooth;
+  background-color: #f8f8f8;
+}
+
+html.dark {
+  background-color: theme("colors.darkmode.900");
+}
+
+html.dark body {
+  color: theme("colors.slate.300");
+}
+
+html.dark *,
+html.dark ::before,
+html.dark ::after {
+  border-color: theme("colors.white" / 8%);
+}
+
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+  padding: theme("spacing.3");
+  font-family: theme("fontFamily.public-sans");
+  font-size: theme("fontSize.sm");
+  line-height: theme("lineHeight.6");
+  color: theme("colors.slate.700");
+}
+
+@media screen(sm) {
+  body {
+    padding-left: theme("spacing.8");
+    padding-right: theme("spacing.8");
+  }
+}

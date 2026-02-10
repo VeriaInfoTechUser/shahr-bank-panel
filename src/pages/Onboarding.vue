@@ -285,7 +285,7 @@ async function refreshToken() {
         <!-- BEGIN: Login Form -->
         <div class="flex h-screen py-5 my-10 xl:h-auto xl:py-0 xl:my-0 w-full">
           <div
-              class="w-full px-5 pb-8 mx-auto my-auto bg-white rounded-md shadow-md xl:ml-20 dark:bg-darkmode-600 xl:bg-transparent sm:px-8 xl:p-0 xl:shadow-none sm:w-3/4 lg:w-2/4 xl:w-full"
+              class="w-full px-5  mx-auto my-auto bg-white rounded-md shadow-md xl:ml-20 dark:bg-darkmode-600 xl:bg-transparent sm:px-8 xl:p-0 xl:shadow-none sm:w-3/4 lg:w-2/4 xl:w-full"
           >
 
             <div class="w-full my-4 border-b border-gray-200 grid grid-cols-3 gap-4 py-2">

@@ -58,7 +58,7 @@ onMounted(() => {
 
 <template>
   <div
-    class="pt-4 pb-8 min-h-screen before:content-[''] before:absolute before:inset-0 before:bg-fixed before:bg-no-repeat before:bg-skew-pattern dark:before:bg-skew-pattern-dark"
+    class="pb-8 min-h-screen before:content-[''] before:absolute before:inset-0 before:bg-fixed before:bg-no-repeat before:bg-skew-pattern dark:before:bg-skew-pattern-dark"
   >
 <!--    <DarkModeSwitcher />-->
 <!--    <MainColorSwitcher />-->
@@ -84,7 +84,7 @@ onMounted(() => {
       >
         <!-- BEGIN: Side Menu -->
         <nav
-          class="side-nav hidden md:block w-[105px] xl:w-[200px] px-5 pt-8 pb-16 overflow-x-hidden"
+          class="side-nav hidden md:block w-[105px] xl:w-[200px] ps-2 pe-5 pt-8 pb-16 overflow-x-hidden"
         >
           <ul>
             <!-- BEGIN: First Child -->
@@ -295,7 +295,7 @@ onMounted(() => {
         <!-- END: Side Menu -->
         <!-- BEGIN: Content -->
         <div
-          class="px-4 md:px-6 max-w-full md:max-w-auto rounded-xl flex-1 min-w-0 min-h-screen pb-10 bg-white dark:bg-darkmode-800 before:content-[''] before:w-full before:h-px before:block border border-slate-200/70 dark:border-darkmode-700/80 shadow-sm"
+          class="pt-2 max-w-full md:max-w-auto rounded-xl flex-1 min-w-0 min-h-screen bg-white dark:bg-darkmode-800 before:content-[''] before:w-full before:h-px before:block border border-slate-200/70 dark:border-darkmode-700/80 shadow-sm"
         >
           <RouterView />
         </div>

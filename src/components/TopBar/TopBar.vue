@@ -77,7 +77,7 @@ onMounted(()=>{
     </div>
     <!-- BEGIN: Top Bar -->
     <div
-        class="top-bar-boxed h-[64px] z-[51] relative bg-slate-900 border border-white/10 mt-6 mb-6 px-4 md:px-6 rounded-xl shadow-md"
+        class="top-bar-boxed h-[64px] z-[51] relative bg-slate-900 border border-white/10 my-1 px-4 md:px-6 rounded-xl shadow-md"
     >
       <div class="flex items-center h-full">
         <!-- BEGIN: Logo -->

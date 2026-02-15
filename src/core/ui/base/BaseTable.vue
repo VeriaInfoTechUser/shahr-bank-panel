@@ -316,12 +316,12 @@ const tableColumns = computed(() => effectiveColumns.value);
           </slot>
         </template>
 
-        <!-- Selection column: checkbox (multiple) or radio (single) -->
+        <!-- Selection column: checkbox (multiple) or radio (single) - xs size via CSS -->
         <Column
           v-if="selectable"
           :selectionMode="selectionMode"
           :exportable="false"
-          :style="{ width: '48px', minWidth: '48px' }"
+          :style="{ width: '40px', minWidth: '40px' }"
           bodyClass="text-center"
         />
 
@@ -408,5 +408,19 @@ const tableColumns = computed(() => effectiveColumns.value);
 }
 .dark .base-table__datatable :deep(.p-datatable-tbody tr.p-row-odd) {
   background-color: rgb(30 41 59 / 0.2);
+}
+
+/* Selection column: xs-size checkboxes (header + row) */
+.base-table__datatable :deep(.p-checkbox) {
+  width: 0.875rem;
+  height: 0.875rem;
+}
+.base-table__datatable :deep(.p-checkbox-box) {
+  width: 0.875rem;
+  height: 0.875rem;
+  border-radius: 0.25rem;
+}
+.base-table__datatable :deep(.p-checkbox-icon) {
+  font-size: 0.5rem;
 }
 </style>

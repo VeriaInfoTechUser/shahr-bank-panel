@@ -226,7 +226,7 @@ const tableColumns = computed(() => effectiveColumns.value);
         <input
           :value="searchInput"
           type="search"
-          class="w-full rounded-lg border border-slate-200 bg-white py-2 pl-10 pr-4 text-sm text-slate-800 placeholder-slate-400 shadow-sm transition focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/20 dark:border-darkmode-600 dark:bg-darkmode-800 dark:text-slate-100 dark:placeholder-slate-500"
+          class="w-full rounded-lg border border-slate-200 bg-white py-1.5 pl-9 pr-3 text-xs text-slate-800 placeholder-slate-400 shadow-sm transition focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/20 dark:border-darkmode-600 dark:bg-darkmode-800 dark:text-slate-100 dark:placeholder-slate-500"
           :placeholder="searchPlaceholder"
           autocomplete="off"
           @input="onSearchInput(($event.target as HTMLInputElement).value)"
@@ -259,7 +259,7 @@ const tableColumns = computed(() => effectiveColumns.value);
         :sortField="effectiveSortField"
         :sortOrder="effectiveSortOrder"
         stripedRows
-        class="base-table__datatable w-full text-sm"
+        class="base-table__datatable w-full text-xs"
         :pt="{
           root: { class: 'border-0' },
           table: { class: 'w-full border-collapse' },
@@ -271,20 +271,20 @@ const tableColumns = computed(() => effectiveColumns.value);
           },
           column: {
             header: {
-              class: 'base-table__th whitespace-nowrap px-4 py-2.5 text-left text-xs font-medium tracking-wide text-slate-500 dark:text-slate-400 align-middle border-0 border-b border-slate-200/70 dark:border-darkmode-600/80',
+              class: 'base-table__th min-w-0 px-3 py-2 text-left text-[11px] font-medium tracking-wide text-slate-500 dark:text-slate-400 align-middle border-0 border-b border-slate-200/70 dark:border-darkmode-600/80 overflow-hidden text-ellipsis whitespace-nowrap',
             },
-            sortIcon: { class: 'ml-1.5 inline-block text-slate-400 opacity-70' },
+            sortIcon: { class: 'ml-1 inline-block shrink-0 text-slate-400 opacity-70' },
             bodyCell: {
-              class: 'base-table__td align-middle px-4 py-2.5 text-slate-700 dark:text-slate-200 border-0 border-b border-slate-100/80 dark:border-darkmode-700/50',
+              class: 'base-table__td align-middle px-3 py-2 text-xs text-slate-700 dark:text-slate-200 border-0 border-b border-slate-100/80 dark:border-darkmode-700/50',
             },
           },
           bodyRow: {
             class: 'base-table__row transition-colors [&.p-highlight]:bg-primary/10 dark:[&.p-highlight]:bg-primary/15',
           },
           paginator: {
-            class: 'border-0 border-t border-slate-200/60 dark:border-darkmode-700/60 bg-slate-50/50 dark:bg-darkmode-800/80 text-slate-600 dark:text-slate-400 px-4 py-2.5 text-xs',
+            class: 'border-0 border-t border-slate-200/60 dark:border-darkmode-700/60 bg-slate-50/50 dark:bg-darkmode-800/80 text-slate-600 dark:text-slate-400 px-3 py-2 text-[11px]',
           },
-          emptyMessage: { class: 'text-center py-12 text-sm text-slate-500 dark:text-slate-400' },
+          emptyMessage: { class: 'text-center py-10 text-xs text-slate-500 dark:text-slate-400' },
         }"
         @page="onPage"
         @sort="onSort"
@@ -296,7 +296,7 @@ const tableColumns = computed(() => effectiveColumns.value);
 
         <template #empty>
           <slot name="empty">
-            <div class="py-12 text-center text-slate-500 dark:text-slate-400">
+            <div class="py-10 text-center text-xs text-slate-500 dark:text-slate-400">
               {{ emptyMessage }}
             </div>
           </slot>
@@ -378,6 +378,14 @@ const tableColumns = computed(() => effectiveColumns.value);
 }
 .base-table__datatable :deep(.p-datatable-thead th) {
   border-top: none;
+}
+.base-table__datatable :deep(.base-table__th) {
+  min-width: 0;
+}
+.base-table__datatable :deep(.base-table__th .p-column-title) {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .base-table__datatable :deep(.p-datatable-header) {
   border-top: none;

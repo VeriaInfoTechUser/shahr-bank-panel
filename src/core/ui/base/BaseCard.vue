@@ -13,19 +13,19 @@ withDefaults(
   >
     <div
       v-if="title || $slots.header"
-      class="px-6 py-4 border-b border-slate-200/70 dark:border-darkmode-700/70"
+      class="px-5 py-3 border-b border-slate-200/70 dark:border-darkmode-700/70"
     >
-      <h2 v-if="title" class="text-lg font-semibold text-slate-900 dark:text-slate-100">
+      <h2 v-if="title" class="text-sm font-semibold text-slate-900 dark:text-slate-100">
         {{ title }}
       </h2>
       <slot name="header" />
     </div>
-    <div class="px-6 py-5">
+    <div class="px-5 py-4 text-sm">
       <slot />
     </div>
     <div
       v-if="$slots.footer"
-      class="px-6 py-4 border-t border-slate-200/70 dark:border-darkmode-700/70 bg-slate-50/60 dark:bg-darkmode-700/40"
+      class="px-5 py-3 border-t border-slate-200/70 dark:border-darkmode-700/70 bg-slate-50/60 dark:bg-darkmode-700/40 text-sm"
     >
       <slot name="footer" />
     </div>

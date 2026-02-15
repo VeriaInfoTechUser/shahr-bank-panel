@@ -31,8 +31,8 @@ function onHide() {
     class="modal"
     :pt="{
       root: { class: 'modal-box' },
-      header: { class: 'text-lg font-bold' },
-      content: { class: 'py-4' },
+      header: { class: 'text-sm font-semibold' },
+      content: { class: 'py-4 text-sm' },
       footer: { class: 'modal-action' },
     }"
     @update:visible="emit('update:visible', $event)"

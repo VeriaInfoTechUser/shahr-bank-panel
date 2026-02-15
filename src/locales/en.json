@@ -46,6 +46,7 @@
     "close": "Close",
     "department": "Department",
     "title": "Title",
+    "category": "Category",
     "updated-at": "Updated At",
     "closed-at": "Closed At",
     "vm-instance": "VM Instance",

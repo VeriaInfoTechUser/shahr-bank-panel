@@ -12,13 +12,16 @@ export interface BreadcrumbSlotContent {
  * Call setContent(component, props) in onMounted and clear() in onUnmounted.
  */
 export function useBreadcrumbSlot() {
-  const breadcrumbExtraRef = inject<Ref<BreadcrumbSlotContent | null> | null>(
-    'breadcrumbExtra',
-    null
-  );
+  const breadcrumbExtraRef = inject<Ref<BreadcrumbSlotContent | null> | null>('breadcrumbExtra', null);
 
   function setContent(component: Component, props?: Record<string, unknown>) {
-    if (breadcrumbExtraRef) breadcrumbExtraRef.value = { component, props };
+    if (breadcrumbExtraRef) {
+      breadcrumbExtraRef.value = { component, props };
+    } else {
+      if (import.meta.env.DEV) {
+        console.warn('[breadcrumb] Missing provider: call useBreadcrumbSlot() inside SideMenu layout context.');
+      }
+    }
   }
 
   function clear() {

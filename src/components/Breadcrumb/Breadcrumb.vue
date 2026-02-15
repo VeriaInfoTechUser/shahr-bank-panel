@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { inject } from 'vue';
+import { inject, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useBreadcrumb, type BreadcrumbSlotContent } from '@/composables/useBreadcrumb';
 
@@ -7,7 +7,11 @@ const { t } = useI18n();
 const { items } = useBreadcrumb();
 
 /** Injected by layout (SideMenu). Set from any page via useBreadcrumbSlot().setContent(component, props) */
-const breadcrumbExtra = inject<{ value: BreadcrumbSlotContent | null } | null>('breadcrumbExtra', null);
+const breadcrumbExtra = inject<ReturnType<typeof ref<BreadcrumbSlotContent | null>> | null>(
+  'breadcrumbExtra',
+  null
+);
+const extraContent = computed(() => breadcrumbExtra?.value ?? null);
 </script>
 
 <template>
@@ -65,9 +69,9 @@ const breadcrumbExtra = inject<{ value: BreadcrumbSlotContent | null } | null>('
     <!-- Slot: content injected by page via useBreadcrumbSlot().setContent(component, props) -->
     <div class="breadcrumb-extra flex shrink-0 items-center justify-end gap-2">
       <component
-        v-if="breadcrumbExtra?.value"
-        :is="breadcrumbExtra.value.component"
-        v-bind="breadcrumbExtra.value.props"
+        v-if="extraContent"
+        :is="extraContent.component"
+        v-bind="extraContent.props"
       />
     </div>
   </div>

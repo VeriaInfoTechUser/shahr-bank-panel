@@ -67,7 +67,7 @@ const login = async (values) => {
           class="w-80"
           :src="logoUrl"
         />
-        <div class="mt-8 text-2xl font-semibold text-slate-800 dark:text-slate-200">
+        <div class="mt-8 text-2xl font-semibold text-slate-900 dark:text-slate-100">
           {{ $t('title.panel-title') }}
         </div>
         <p class="mt-2 text-slate-600 dark:text-slate-400">
@@ -83,9 +83,9 @@ const login = async (values) => {
           </div>
 
           <div
-            class="bg-white dark:bg-darkmode-600 rounded-xl shadow-lg border border-slate-200 dark:border-darkmode-500 p-8"
+            class="bg-white dark:bg-darkmode-800 rounded-xl shadow-sm border border-slate-200/70 dark:border-darkmode-700/80 p-8"
           >
-            <h2 class="text-xl font-semibold text-slate-800 dark:text-slate-200 mb-6">
+            <h2 class="text-xl font-semibold text-slate-900 dark:text-slate-100 mb-6">
               ورود به پنل
             </h2>
 
@@ -106,7 +106,7 @@ const login = async (values) => {
                 <FormInput
                   v-bind="field"
                   type="text"
-                  class="block w-full px-4 py-3 rounded-lg border border-slate-300 dark:border-darkmode-500 focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors"
+                  class="block w-full px-4 py-3 rounded-lg border border-slate-300 dark:border-darkmode-600 focus:ring-2 focus:ring-slate-900/20 focus:border-slate-400 transition-colors"
                   dir="ltr"
                   :class="{ 'border-danger': errors.length > 0 }"
                   :placeholder="$t('input.username')"
@@ -121,7 +121,7 @@ const login = async (values) => {
                 <FormInput
                   v-bind="field"
                   type="password"
-                  class="block w-full px-4 py-3 rounded-lg border border-slate-300 dark:border-darkmode-500 focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors"
+                  class="block w-full px-4 py-3 rounded-lg border border-slate-300 dark:border-darkmode-600 focus:ring-2 focus:ring-slate-900/20 focus:border-slate-400 transition-colors"
                   dir="ltr"
                   :class="{ 'border-danger': errors.length > 0 }"
                   :placeholder="$t('input.password')"
@@ -133,7 +133,7 @@ const login = async (values) => {
                 <Button
                   v-if="!loginMutation.isLoading.value && !isSubmitting"
                   variant="primary"
-                  class="w-full py-3 rounded-lg font-medium"
+                  class="w-full py-3 rounded-lg font-medium bg-slate-900 hover:bg-slate-800 border-slate-900"
                   type="submit"
                 >
                   {{ $t('button.login') }}
@@ -151,9 +151,9 @@ const login = async (values) => {
 
 <style scoped>
 .login-page-bg {
-  background: linear-gradient(135deg, #f0f4ff 0%, #f8fafc 50%, #f1f5f9 100%);
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 45%, #e2e8f0 100%);
 }
 .dark .login-page-bg {
-  background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+  background: linear-gradient(135deg, #0f172a 0%, #111827 45%, #0b1220 100%);
 }
 </style>

@@ -15,7 +15,11 @@ core/
 │   ├── BaseForm.vue
 │   └── BaseCard.vue
 ├── table/            # Data table system
-│   ├── useDataTable.ts
+│   ├── useDataTable.ts      # Legacy: fetch + state
+│   ├── useTable.ts          # New: state only (server-side)
+│   ├── useTablePagination.ts
+│   ├── useTableSearch.ts
+│   ├── useTableSelection.ts
 │   ├── columnBuilder.ts
 │   └── exportUtils.ts
 ├── form/             # Form builder
@@ -39,21 +43,36 @@ core/
 
 ## Usage
 
-### BaseTable
-```ts
-import { useDataTable, createColumn } from '@core';
-import BaseTable from '@core/ui/base/BaseTable.vue';
+### BaseTable (wrapper — no direct PrimeVue)
 
-const table = useDataTable({
-  endpoint: 'admin/user/profile/list',
+BaseTable is the only table component; pages never use PrimeVue DataTable directly.
+
+**New API (recommended):** props + events; parent owns data and fetch.
+
+```ts
+import BaseTable from '@core/ui/base/BaseTable.vue';
+import { useTable, createColumn } from '@core';
+
+const table = useTable({
   columns: [
-    createColumn({ key: 'email', label: 'Email', sortable: true }),
-    createColumn({ key: 'name', label: 'Name' }),
+    createColumn({ key: 'id', label: 'ID', sortable: true }),
+    createColumn({ key: 'name', label: 'Name', sortable: true }),
   ],
-  selectable: true,
-  exportEnabled: true,
-  cacheKey: 'users-list',
+  rowKey: 'id',
+  initialLimit: 10,
+  searchDebounceMs: 400,
 });
+
+// After fetch: table.setRows(data); table.setTotal(count);
+// Bind to BaseTable: :columns, :rows, :loading, :total, :page, :limit, v-model:search, v-model:selected
+// Listen: @update:page, @update:limit, @search, @sort, @edit, @delete
+```
+
+**Legacy API:** pass `useDataTable()` return as `table` prop (same as before).
+
+```ts
+const table = useDataTable({ endpoint: '...', columns: [...], cacheKey: '...' });
+// <BaseTable :table="table" />
 ```
 
 ### BaseForm

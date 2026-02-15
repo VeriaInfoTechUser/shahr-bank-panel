@@ -67,6 +67,30 @@
     "panel-owner": "بنك شهر",
     "logo-alt": "بنك شهر - نظام الامتثال والامتثال للمخاطر"
   },
+  "general": {
+    "id": "المعرف",
+    "title": "العنوان",
+    "code": "الرمز",
+    "description": "الوصف",
+    "no-data": "لا توجد بيانات.",
+    "loading": "جاري التحميل..."
+  },
+  "rule": {
+    "rule": "القاعدة",
+    "section-letter-number": "رقم القسم/الكتاب",
+    "law": "القانون",
+    "author": "الجهة التشريعية",
+    "approval-at": "تاريخ الاعتماد",
+    "promulgation-at": "تاريخ النشر",
+    "cancellation-at": "تاريخ الإلغاء",
+    "requirement": "الإلزام",
+    "requirement-yes": "نعم",
+    "requirement-no": "لا",
+    "validity": "الحالة",
+    "validity-active": "نشط",
+    "validity-inactive": "غير نشط",
+    "settings": "الإعدادات"
+  },
   "menu": {
     "reset-password": "إعادة تعيين كلمة المرور",
     "profile": "الملف الشخصي",

@@ -41,63 +41,75 @@ const routes = [
                         path: "dashboard",
                         name: "app-dashboard",
                         component: Dashboard,
+                        meta: { breadcrumbLabel: 'menu.dashboard' },
                     },
                     {
                         path: "account",
                         name: "app-account",
                         component: AppAccount,
+                        meta: { breadcrumbLabel: 'menu.profile' },
                         children: [
                             {
                                 path: "profile",
                                 name: "app-account-profile",
                                 component: AppAccountProfile,
+                                meta: { breadcrumbLabel: 'menu.profile' },
                             },
                             {
                                 path: "password",
                                 name: "app-account-password",
                                 component: AppAccountPassword,
+                                meta: { breadcrumbLabel: 'title.new-password' },
                             },
                             {
                                 path: "edit",
                                 name: "app-account-edit",
                                 component: AppAccountEdit,
+                                meta: { breadcrumbLabel: 'title.update' },
                             },
                             {
                                 path: "history",
                                 name: "app-account-history",
                                 component: AppAccountHistory,
+                                meta: { breadcrumbLabel: 'title.history' },
                             },
                             {
                                 path: "notification",
                                 name: "app-account-notification",
                                 component: AppAccountNotification,
+                                meta: { breadcrumbLabel: 'title.notification' },
                             },
                         ]
                     },
                     {
                         path: "user",
                         name: "app-user",
+                        meta: { breadcrumbLabel: 'menu.users' },
                         children: [
                             {
                                 path: "list",
                                 name: "app-user-list",
                                 component: AppUserList,
+                                meta: { breadcrumbLabel: 'menu.list' },
                             },
                         ]
                     },
                     {
                         path: "base-info",
                         name: "app-base-info",
+                        meta: { breadcrumbLabel: 'menu.base-info' },
                         children: [
                             {
                                 path: "rules-regulations",
                                 name: "app-base-info-rules-regulations",
                                 component: BaseInfoRulesRegulations,
+                                meta: { breadcrumbLabel: 'menu.rules-regulations' },
                             },
                             {
                                 path: "duties",
                                 name: "app-base-info-duties",
                                 component: BaseInfoDuties,
+                                meta: { breadcrumbLabel: 'menu.duties' },
                             },
                         ]
                     },

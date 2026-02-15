@@ -10,6 +10,29 @@ export type FetchFn = (params: {
   filters?: Record<string, unknown>;
 }) => Promise<{ list: Record<string, unknown>[]; count: number }>;
 
+/** In-memory cache for list responses: key -> { list, count, timestamp } */
+const listDataCache = new Map<
+  string,
+  { list: Record<string, unknown>[]; count: number; timestamp: number }
+>();
+
+function buildListCacheKey(
+  cacheKey: string,
+  page: number,
+  limit: number,
+  sortField: string | null,
+  sortOrder: number,
+  filters: Record<string, unknown>
+): string {
+  const sortPart = sortField ? `${sortField}:${sortOrder}` : '';
+  const filtersJson = JSON.stringify(
+    Object.keys(filters)
+      .sort()
+      .reduce((acc, k) => ({ ...acc, [k]: filters[k] }), {})
+  );
+  return `${cacheKey}:${page}:${limit}:${sortPart}:${filtersJson}`;
+}
+
 export interface DataTableOptions {
   endpoint?: string;
   fetchFn?: FetchFn;
@@ -18,7 +41,10 @@ export interface DataTableOptions {
   exportEnabled?: boolean;
   filtersEnabled?: boolean;
   pageSize?: number;
+  /** Persists column visibility in localStorage and enables list response cache when using fetchFn */
   cacheKey?: string;
+  /** List cache TTL in ms. 0 = use cache until invalidateListCache() is called. Default 0. */
+  listCacheStaleTime?: number;
 }
 
 export function useDataTable(options: DataTableOptions) {
@@ -30,6 +56,7 @@ export function useDataTable(options: DataTableOptions) {
     exportEnabled = true,
     pageSize = 10,
     cacheKey,
+    listCacheStaleTime = 0,
   } = options;
 
   const data = ref<Record<string, unknown>[]>([]);
@@ -73,17 +100,55 @@ export function useDataTable(options: DataTableOptions) {
   }
 
   async function fetch() {
+    const params = {
+      page: page.value,
+      limit: limit.value,
+      sort: sortField.value ? { [sortField.value]: sortOrder.value } : undefined,
+      filters: filters.value,
+    };
+
+    if (fetchFn && cacheKey) {
+      const key = buildListCacheKey(
+        cacheKey,
+        params.page,
+        params.limit,
+        sortField.value,
+        sortOrder.value,
+        params.filters ?? {}
+      );
+      const cached = listDataCache.get(key);
+      const now = Date.now();
+      const useCache =
+        cached &&
+        (listCacheStaleTime === 0 || now - cached.timestamp < listCacheStaleTime);
+      if (useCache) {
+        data.value = cached.list || [];
+        total.value = cached.count ?? 0;
+        return;
+      }
+    }
+
     loading.value = true;
     try {
       if (fetchFn) {
-        const result = await fetchFn({
-          page: page.value,
-          limit: limit.value,
-          sort: sortField.value ? { [sortField.value]: sortOrder.value } : undefined,
-          filters: filters.value,
-        });
+        const result = await fetchFn(params);
         data.value = result.list || [];
         total.value = result.count || 0;
+        if (cacheKey) {
+          const key = buildListCacheKey(
+            cacheKey,
+            params.page,
+            params.limit,
+            sortField.value,
+            sortOrder.value,
+            params.filters ?? {}
+          );
+          listDataCache.set(key, {
+            list: data.value,
+            count: total.value,
+            timestamp: Date.now(),
+          });
+        }
       } else if (endpoint) {
         const body = {
           page: page.value,
@@ -147,6 +212,14 @@ export function useDataTable(options: DataTableOptions) {
     exportToExcel(rows, columnSettings.value);
   }
 
+  /** Clear cached list data for this table. Call after add/update/delete so next fetch hits the API. */
+  function invalidateListCache() {
+    if (!cacheKey) return;
+    for (const key of listDataCache.keys()) {
+      if (key.startsWith(`${cacheKey}:`)) listDataCache.delete(key);
+    }
+  }
+
   return {
     data,
     loading,
@@ -169,5 +242,6 @@ export function useDataTable(options: DataTableOptions) {
     toggleColumn,
     exportCSV,
     exportExcel,
+    invalidateListCache,
   };
 }

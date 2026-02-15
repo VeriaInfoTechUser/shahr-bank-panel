@@ -1,0 +1,103 @@
+/* Minimal PrimeVue styling aligned to panel slate theme */
+
+:root {
+  --pv-surface: #ffffff;
+  --pv-surface-alt: #f8fafc;
+  --pv-surface-dark: #0f172a;
+  --pv-border: #e2e8f0;
+  --pv-border-dark: #1f2937;
+  --pv-text: #0f172a;
+  --pv-text-muted: #475569;
+  --pv-primary: #0f172a;
+  --pv-primary-contrast: #ffffff;
+  --pv-radius: 12px;
+  --pv-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+}
+
+.dark {
+  --pv-surface: #0b1220;
+  --pv-surface-alt: #111827;
+  --pv-border: #1f2937;
+  --pv-border-dark: #0b1220;
+  --pv-text: #e2e8f0;
+  --pv-text-muted: #94a3b8;
+  --pv-primary: #e2e8f0;
+  --pv-primary-contrast: #0b1220;
+  --pv-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+}
+
+/* Buttons */
+.p-button {
+  border-radius: calc(var(--pv-radius) - 4px);
+  padding: 0.65rem 1.1rem;
+  font-weight: 600;
+  border: 1px solid var(--pv-primary);
+  background: var(--pv-primary);
+  color: var(--pv-primary-contrast);
+  box-shadow: none;
+}
+.p-button:enabled:hover {
+  background: #1f2937;
+  border-color: #1f2937;
+}
+.p-button:enabled:focus-visible {
+  outline: 2px solid rgba(15, 23, 42, 0.35);
+  outline-offset: 2px;
+}
+.p-button.p-button-secondary {
+  background: var(--pv-surface-alt);
+  color: var(--pv-text);
+  border-color: var(--pv-border);
+}
+
+/* Inputs */
+.p-inputtext {
+  border-radius: 10px;
+  border: 1px solid var(--pv-border);
+  background: var(--pv-surface);
+  color: var(--pv-text);
+  padding: 0.65rem 0.85rem;
+}
+.p-inputtext:focus {
+  border-color: #1f2937;
+  box-shadow: 0 0 0 2px rgba(15, 23, 42, 0.12);
+}
+
+/* Dropdown / Select */
+.p-select {
+  border-radius: 10px;
+  border: 1px solid var(--pv-border);
+  background: var(--pv-surface);
+  color: var(--pv-text);
+}
+
+/* DataTable & Paginator: styled by Aura theme (@primeuix/themes/aura) */
+
+/* Dialog */
+.p-dialog {
+  border-radius: var(--pv-radius);
+  box-shadow: var(--pv-shadow);
+}
+.p-dialog .p-dialog-header {
+  border-bottom: 1px solid var(--pv-border);
+  padding: 1rem 1.25rem;
+}
+.p-dialog .p-dialog-content {
+  padding: 1rem 1.25rem;
+}
+.p-dialog .p-dialog-footer {
+  border-top: 1px solid var(--pv-border);
+  padding: 0.75rem 1.25rem;
+}
+
+/* Checkbox / Radio basics */
+.p-checkbox-box,
+.p-radiobutton-box {
+  border-color: var(--pv-border);
+  background: var(--pv-surface);
+}
+.p-checkbox-box.p-highlight,
+.p-radiobutton-box.p-highlight {
+  background: var(--pv-primary);
+  border-color: var(--pv-primary);
+}

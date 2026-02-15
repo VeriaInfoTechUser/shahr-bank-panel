@@ -35,9 +35,6 @@
    |
    */
 @import "simplebar/src/simplebar.css";
-@import "tom-select/dist/css/tom-select.css";
-@import "toastify-js/src/toastify.css";
-@import "highlight.js/styles/github.css";
 @import "tippy.js/dist/tippy.css";
 @import "tippy.js/themes/light.css";
 @import "tippy.js/dist/svg-arrow.css";
@@ -65,7 +62,6 @@
 @import "./components/_tippy.css";
 @import "./components/_toastify.css";
 @import "./components/_zoom-vanilla.css";
-@import "./components/_tom-select.css";
 @import "./components/_ckeditor.css";
 @import "./components/_litepicker.css";
 @import "./components/_full-calendar.css";

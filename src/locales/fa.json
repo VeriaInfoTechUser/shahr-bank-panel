@@ -216,6 +216,30 @@
     "description": "توضیحات",
     "meta_info": "اطلاعات متا"
   },
+  "general": {
+    "id": "شناسه",
+    "title": "عنوان",
+    "code": "کد",
+    "description": "توضیحات",
+    "no-data": "داده‌ای یافت نشد.",
+    "loading": "در حال بارگذاری..."
+  },
+  "rule": {
+    "rule": "مقرره",
+    "section-letter-number": "شماره بخش نامه",
+    "law": "قانون",
+    "author": "مرجع قانون گذار",
+    "approval-at": "تاریخ تصویب",
+    "promulgation-at": "تاریخ ابلاغ",
+    "cancellation-at": "تاریخ نسخ",
+    "requirement": "الزام",
+    "requirement-yes": "دارد",
+    "requirement-no": "ندارد",
+    "validity": "اعتبار",
+    "validity-active": "دارد",
+    "validity-inactive": "ندارد",
+    "settings": "تنظیمات"
+  },
   "menu": {
     "searchcomments": "جستجوی نظرات",
     "comment": "نظر",

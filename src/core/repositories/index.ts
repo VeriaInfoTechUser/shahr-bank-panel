@@ -5,3 +5,4 @@ export { dashboardRepo } from './dashboardRepo';
 export { riskRepo } from './riskRepo';
 export { reportRepo } from './reportRepo';
 export { notificationRepo } from './notificationRepo';
+export { ermRepo } from './ermRepo';

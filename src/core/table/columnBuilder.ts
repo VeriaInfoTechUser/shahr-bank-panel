@@ -1,14 +1,20 @@
 export type FilterType = 'text' | 'select' | 'date' | 'number' | 'boolean';
 
+export type ColumnAlign = 'left' | 'center' | 'right';
+
+/** Column config for BaseTable. Supports slots and dynamic rendering. */
 export interface ColumnConfig {
   key: string;
   label: string;
   sortable?: boolean;
+  filterable?: boolean;
   visible?: boolean;
   exportable?: boolean;
   filter?: FilterType;
   width?: string;
-  align?: 'left' | 'center' | 'right';
+  align?: ColumnAlign;
+  /** When true, use #cell-{key} slot for this column */
+  slot?: boolean;
   bodyCell?: (row: Record<string, unknown>) => unknown;
 }
 

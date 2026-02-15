@@ -3,6 +3,7 @@ import { useRoute, useRouter } from "vue-router";
 import Tippy from "../../base-components/Tippy";
 import Lucide from "../../base-components/Lucide";
 import TopBar from "../../components/TopBar";
+import Breadcrumb from "../../components/Breadcrumb/Breadcrumb.vue";
 import DarkModeSwitcher from "../../components/DarkModeSwitcher";
 import MainColorSwitcher from "../../components/MainColorSwitcher";
 import MobileMenu from "../../components/MobileMenu";
@@ -297,6 +298,9 @@ onMounted(() => {
         <div
           class="pt-2 max-w-full md:max-w-auto rounded-xl flex-1 min-w-0 min-h-screen bg-white dark:bg-darkmode-800 before:content-[''] before:w-full before:h-px before:block border border-slate-200/70 dark:border-darkmode-700/80 shadow-sm"
         >
+          <div class="border-b border-slate-200/60 px-4 md:px-6 dark:border-darkmode-700/60">
+            <Breadcrumb />
+          </div>
           <RouterView />
         </div>
         <!-- END: Content -->

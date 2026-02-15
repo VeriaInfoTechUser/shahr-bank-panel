@@ -45,5 +45,10 @@ export const endpoints = {
         list: 'admin/logger/history/list',
       },
     },
+    erm: {
+      rule: {
+        list: 'erm/rule/list',
+      },
+    },
   },
 };

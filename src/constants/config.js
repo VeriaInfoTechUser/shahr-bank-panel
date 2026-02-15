@@ -50,6 +50,11 @@ export const uri = {
         list: 'admin/logger/history/list',
       },
     },
+    erm: {
+      rule: {
+        list: 'erm/rule/list',
+      },
+    },
   },
 };
 

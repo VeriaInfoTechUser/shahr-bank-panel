@@ -197,6 +197,30 @@
   "text": {
     "web-bio": " A few more clicks to sign in to your account.\nManage all your requests in one place "
   },
+  "general": {
+    "id": "ID",
+    "title": "Title",
+    "code": "Code",
+    "description": "Description",
+    "no-data": "No data found.",
+    "loading": "Loading..."
+  },
+  "rule": {
+    "rule": "Rule",
+    "section-letter-number": "Section/Letter No.",
+    "law": "Law",
+    "author": "Legislative authority",
+    "approval-at": "Approval date",
+    "promulgation-at": "Promulgation date",
+    "cancellation-at": "Cancellation date",
+    "requirement": "Requirement",
+    "requirement-yes": "Yes",
+    "requirement-no": "No",
+    "validity": "Validity",
+    "validity-active": "Active",
+    "validity-inactive": "Inactive",
+    "settings": "Settings"
+  },
   "menu": {
     "comments": "Comments",
     "blogs": "News",

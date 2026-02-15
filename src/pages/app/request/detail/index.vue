@@ -8,9 +8,9 @@ import {useRoute} from 'vue-router';
 import {uri} from "@/constants/config.js";
 import router from "@/router/index.ts";
 import {useDownload} from "@/composables/useDownload.js";
-import EditRequestDialog from "@/pages/request/detail/EditRequestDialog.vue";
+import EditRequestDialog from "./EditRequestDialog.vue";
 import ViewRequestDialog from "./ViewRequestDialog.vue";
-import ChatComponent from "@/pages/request/detail/ChatComponent.vue";
+import ChatComponent from "./ChatComponent.vue";
 import {getCurrentUser} from "@/utils/cookie";
 import avatar from "@/assets/images/avatar.png";
 

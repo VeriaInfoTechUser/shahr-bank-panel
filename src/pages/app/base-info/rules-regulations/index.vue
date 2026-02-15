@@ -5,8 +5,11 @@ import { useDataTable, createColumn, type FetchFn } from '@core';
 import BaseTable from '@core/ui/base/BaseTable.vue';
 import BaseCard from '@core/ui/base/BaseCard.vue';
 import { ermRepo } from '@/core/repositories/ermRepo';
+import { useBreadcrumbSlot } from '@/composables/useBreadcrumb';
+import RulesBreadcrumbToolbar from './RulesBreadcrumbToolbar.vue';
 
 const { t } = useI18n();
+const { setContent: setBreadcrumbSlot } = useBreadcrumbSlot();
 
 const fetchRules: FetchFn = async ({ page, limit, sort, filters }) => {
   const res = await ermRepo.list({
@@ -115,6 +118,12 @@ const table = useDataTable({
 
 onMounted(() => {
   table.fetch();
+  setBreadcrumbSlot(RulesBreadcrumbToolbar, {
+    onImport: onImportRules,
+    onExport: onExportRules,
+    onTrash: onTrashRules,
+    onAdd: onAddRule,
+  });
 });
 
 /** Debug: selected rows for <pre> display */
@@ -131,11 +140,31 @@ function onDeleteRule(row: Record<string, unknown>) {
   // TODO: confirm and call delete API
   console.log('Delete rule', row);
 }
+
+function onAddRule() {
+  // TODO: open add modal or navigate to create page
+  console.log('Add rule');
+}
+
+function onImportRules() {
+  // TODO: open import dialog / file picker
+  console.log('Import rules');
+}
+
+function onExportRules() {
+  table.exportCSV();
+}
+
+function onTrashRules() {
+  // TODO: confirm and delete selected rows (table.selectedRows)
+  const selected = table.selectedRows.value;
+  if (selected.length === 0) return;
+  console.log('Delete selected', selected.length, selected);
+}
 </script>
 
 <template>
   <div class="grid grid-cols-12 gap-2 p-2">
-
     <div class="col-span-12">
         <BaseTable
           :table="table"

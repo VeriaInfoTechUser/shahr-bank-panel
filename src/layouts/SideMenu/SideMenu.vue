@@ -19,6 +19,11 @@ import {
   leave,
 } from "./side-menu";
 import { watch, reactive, ref, computed, onMounted, provide } from "vue";
+import type { BreadcrumbSlotContent } from "@/composables/useBreadcrumb";
+
+/** Ref for breadcrumb slot: pages can set a component to render at the end of the breadcrumb row */
+const breadcrumbExtraRef = ref<BreadcrumbSlotContent | null>(null);
+provide("breadcrumbExtra", breadcrumbExtraRef);
 
 const route: Route = useRoute();
 const router = useRouter();

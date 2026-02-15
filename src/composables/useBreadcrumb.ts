@@ -1,6 +1,34 @@
-import { computed } from 'vue';
+import { computed, inject, onUnmounted, type Component, type Ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import type { RouteRecordNormalized } from 'vue-router';
+
+export interface BreadcrumbSlotContent {
+  component: Component;
+  props?: Record<string, unknown>;
+}
+
+/**
+ * Use from a page to render content at the end of the breadcrumb row (e.g. toolbar).
+ * Call setContent(component, props) in onMounted and clear() in onUnmounted.
+ */
+export function useBreadcrumbSlot() {
+  const breadcrumbExtraRef = inject<Ref<BreadcrumbSlotContent | null> | null>(
+    'breadcrumbExtra',
+    null
+  );
+
+  function setContent(component: Component, props?: Record<string, unknown>) {
+    if (breadcrumbExtraRef) breadcrumbExtraRef.value = { component, props };
+  }
+
+  function clear() {
+    if (breadcrumbExtraRef) breadcrumbExtraRef.value = null;
+  }
+
+  onUnmounted(clear);
+
+  return { setContent, clear };
+}
 
 export interface BreadcrumbItem {
   path: string;

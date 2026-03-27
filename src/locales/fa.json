@@ -241,6 +241,22 @@
     "validity-inactive": "ندارد",
     "settings": "تنظیمات"
   },
+  "duty": {
+    "code": "کد",
+    "title": "عنوان تعهد",
+    "rule": "قانون مرتبط",
+    "rule-code": "شماره بخش نامه",
+    "section": "بخش",
+    "warranty": "ضمانت",
+    "mandatory-unit": "واحد اجرایی",
+    "status": "وضعیت",
+    "status-active": "فعال",
+    "status-inactive": "غیرفعال",
+    "progress-level": "سطح پیشرفت",
+    "progress-status": "وضعیت پیشرفت",
+    "assignee": "مسئول",
+    "settings": "تنظیمات"
+  },
   "menu": {
     "searchcomments": "جستجوی نظرات",
     "comment": "نظر",

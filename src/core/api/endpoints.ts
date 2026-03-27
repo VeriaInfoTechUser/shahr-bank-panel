@@ -49,6 +49,9 @@ export const endpoints = {
       rule: {
         list: 'erm/rule/list',
       },
+      task: {
+        list: 'erm/task/list',
+      },
     },
   },
 };

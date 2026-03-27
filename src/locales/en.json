@@ -222,6 +222,22 @@
     "validity-inactive": "Inactive",
     "settings": "Settings"
   },
+  "duty": {
+    "code": "Code",
+    "title": "Duty Title",
+    "rule": "Related Rule",
+    "rule-code": "Rule Code",
+    "section": "Section",
+    "warranty": "Warranty",
+    "mandatory-unit": "Mandatory Unit",
+    "status": "Status",
+    "status-active": "Active",
+    "status-inactive": "Inactive",
+    "progress-level": "Progress Level",
+    "progress-status": "Progress Status",
+    "assignee": "Assignee",
+    "settings": "Settings"
+  },
   "menu": {
     "comments": "Comments",
     "blogs": "News",

@@ -24,6 +24,10 @@ export class ErmRepo extends BaseRepo {
   async list(params: RuleListParams) {
     return this.post<RuleListResponse>(endpoints.admin.erm.rule.list, params);
   }
+
+  async taskList(params: RuleListParams) {
+    return this.post<RuleListResponse>(endpoints.admin.erm.task.list, params);
+  }
 }
 
 export const ermRepo = new ErmRepo();

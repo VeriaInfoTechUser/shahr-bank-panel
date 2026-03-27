@@ -173,14 +173,17 @@ const selectionModel = computed({
    ------------------------------------------------------------------------- */
 
 function onPage(e: { page: number; rows: number }) {
-  const page = e.page + 1;
-  const limit = e.rows;
+  const newPage = e.page + 1;
+  const newLimit = e.rows;
   if (props.table) {
-    props.table.setPage(page);
-    props.table.setLimit(limit);
+    if (newLimit !== props.table.limit.value) {
+      props.table.setLimit(newLimit);
+    } else {
+      props.table.setPage(newPage);
+    }
   }
-  emit('update:page', page);
-  emit('update:limit', limit);
+  emit('update:page', newPage);
+  emit('update:limit', newLimit);
 }
 
 /* -------------------------------------------------------------------------

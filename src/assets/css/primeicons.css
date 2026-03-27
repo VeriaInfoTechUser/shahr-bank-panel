@@ -1,2 +1,103 @@
-/* PrimeIcons via CDN fallback; replace with local files when available */
-@import url('https://unpkg.com/primeicons/primeicons.css');
+/* PrimeIcons - Local Font Files */
+
+/*TODO:resolve*/
+/*@font-face {*/
+/*  font-family: 'PrimeIcons';*/
+/*  src: url('@/assets/fonts/primeicons.eot');*/
+/*  src: url('@/assets/fonts/primeicons.eot?#iefix') format('embedded-opentype'),*/
+/*       url('@/assets/fonts/primeicons.woff') format('woff'),*/
+/*       url('@/assets/fonts/primeicons.ttf') format('truetype'),*/
+/*       url('@/assets/fonts/primeicons.svg#primeicons') format('svg');*/
+/*  font-weight: normal;*/
+/*  font-style: normal;*/
+/*}*/
+
+.pi {
+  font-family: 'PrimeIcons';
+  speak: none;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  text-align: center;
+}
+
+.pi:before {
+  content: "\e900";
+}
+
+.pi-home:before { content: "\e900"; }
+.pi-search:before { content: "\e901"; }
+.pi-user:before { content: "\e902"; }
+.pi-plus:before { content: "\e903"; }
+.pi-minus:before { content: "\e904"; }
+.pi-times:before { content: "\e905"; }
+.pi-check:before { content: "\e906"; }
+.pi-arrow-down:before { content: "\e907"; }
+.pi-arrow-left:before { content: "\e908"; }
+.pi-arrow-right:before { content: "\e909"; }
+.pi-arrow-up:before { content: "\e90a"; }
+.pi-bars:before { content: "\e90b"; }
+.pi-bell:before { content: "\e90c"; }
+.pi-calendar:before { content: "\e90d"; }
+.pi-cog:before { content: "\e90e"; }
+.pi-compass:before { content: "\e90f"; }
+.pi-dashboard:before { content: "\e910"; }
+.pi-download:before { content: "\e911"; }
+.pi-external-link:before { content: "\e912"; }
+.pi-filter:before { content: "\e913"; }
+.pi-file:before { content: "\e914"; }
+.pi-filter-slash:before { content: "\e915"; }
+.pi-flag:before { content: "\e916"; }
+.pi-flag-checkered:before { content: "\e917"; }
+.pi-folder:before { content: "\e918"; }
+.pi-globe:before { content: "\e919"; }
+.pi-home:before { content: "\e91a"; }
+.pi-inbox:before { content: "\e91b"; }
+.pi-info:before { content: "\e91c"; }
+.pi-list:before { content: "\e91d"; }
+.pi-lock:before { content: "\e91e"; }
+.pi-map:before { content: "\e91f"; }
+.pi-moon:before { content: "\e920"; }
+.pi-paperclip:before { content: "\e921"; }
+.pi-pencil:before { content: "\e922"; }
+.pi-print:before { content: "\e923"; }
+.pi-receipt:before { content: "\e924"; }
+.pi-save:before { content: "\e925"; }
+.pi-server:before { content: "\e926"; }
+.pi-shopping-cart:before { content: "\e927"; }
+.pi-spinner:before { content: "\e928"; }
+.pi-star:before { content: "\e929"; }
+.pi-th-large:before { content: "\e92a"; }
+.pi-trash:before { content: "\e92b"; }
+.pi-upload:before { content: "\e92c"; }
+.pi-eye:before { content: "\e92d"; }
+.pi-eye-slash:before { content: "\e92e"; }
+.pi-sync:before { content: "\e92f"; }
+.pi-exclamation-circle:before { content: "\e930"; }
+.pi-exclamation-triangle:before { content: "\e931"; }
+.pi-question-circle:before { content: "\e932"; }
+.pi-chevron-circle-down:before { content: "\e933"; }
+.pi-chevron-circle-left:before { content: "\e934"; }
+.pi-chevron-circle-right:before { content: "\e935"; }
+.pi-chevron-circle-up:before { content: "\e936"; }
+.pi-chevron-down:before { content: "\e937"; }
+.pi-chevron-left:before { content: "\e938"; }
+.pi-chevron-right:before { content: "\e939"; }
+.pi-chevron-up:before { content: "\e93a"; }
+.pi-chevron-square-down:before { content: "\e93b"; }
+.pi-chevron-square-left:before { content: "\e93c"; }
+.pi-chevron-square-right:before { content: "\e93d"; }
+.pi-chevron-square-up:before { content: "\e93e"; }
+.pi-angle-down:before { content: "\e93f"; }
+.pi-angle-left:before { content: "\e940"; }
+.pi-angle-right:before { content: "\e941"; }
+.pi-angle-up:before { content: "\e942"; }
+.pi-angle-double-down:before { content: "\e943"; }
+.pi-angle-double-left:before { content: "\e944"; }
+.pi-angle-double-right:before { content: "\e945"; }
+.pi-angle-double-up:before { content: "\e946"; }

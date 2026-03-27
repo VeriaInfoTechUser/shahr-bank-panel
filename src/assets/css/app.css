@@ -67,8 +67,8 @@
 @import "./components/_full-calendar.css";
 @import "./components/_tabulator.css";
 
-
-@import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@100..900&display=swap');
+/*TODO:resolve*/
+/*@import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@100..900&display=swap');*/
 
 .font-rtl {
     font-family: 'Vazirmatn', sans-serif;

@@ -131,6 +131,11 @@ const selectedForDebug = computed(() =>
   JSON.stringify(table.selectedRows.value ?? [], null, 2)
 );
 
+function onAttachmentRule(row: Record<string, unknown>) {
+  // TODO: open attachments dialog / file list
+  console.log('Attachment rule', row);
+}
+
 function onEditRule(row: Record<string, unknown>) {
   // TODO: open edit modal / navigate to edit page
   console.log('Edit rule', row);
@@ -203,6 +208,17 @@ function onTrashRules() {
           <!-- Custom actions cell: use #actions with row prop -->
           <template #actions="{ row }">
             <div class="flex items-center justify-center gap-1">
+              <button
+                type="button"
+                class="rounded p-1.5 text-slate-500 transition hover:bg-slate-100 hover:text-primary dark:text-slate-400 dark:hover:bg-darkmode-600 dark:hover:text-primary"
+                :aria-label="t('rule.attachment')"
+                :title="t('rule.attachment')"
+                @click.stop="onAttachmentRule(row)"
+              >
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                </svg>
+              </button>
               <button
                 type="button"
                 class="rounded p-1.5 text-slate-500 transition hover:bg-slate-100 hover:text-primary dark:text-slate-400 dark:hover:bg-darkmode-600 dark:hover:text-primary"

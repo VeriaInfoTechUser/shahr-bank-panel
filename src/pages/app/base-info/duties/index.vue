@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n';
-import { computed, onMounted } from 'vue';
+import { onMounted } from 'vue';
 import { useDataTable, createColumn, type FetchFn } from '@core';
 import BaseTable from '@core/ui/base/BaseTable.vue';
 import { ermRepo } from '@/core/repositories/ermRepo';
@@ -22,17 +22,19 @@ const fetchDuties: FetchFn = async ({ page, limit, sort, filters }) => {
   return { list: Array.isArray(list) ? list : [], count };
 };
 
-function ruleCell(row: Record<string, unknown>) {
+function ruleTextCell(row: Record<string, unknown>) {
   const rule = row.rule as Record<string, unknown> | undefined;
   return rule && typeof rule.rule === 'string' ? rule.rule : '—';
 }
 
-function ruleCodeCell(row: Record<string, unknown>) {
+function dutyTypeCell(row: Record<string, unknown>) {
   const rule = row.rule as Record<string, unknown> | undefined;
-  return rule && typeof rule.code === 'string' ? rule.code : '—';
+  if (!rule) return '—';
+  const info = rule.type_information as Record<string, unknown> | undefined;
+  return info && typeof info.title === 'string' ? info.title : (typeof rule.type === 'string' ? rule.type : '—');
 }
 
-function sectionCell(row: Record<string, unknown>) {
+function ruleSubjectCell(row: Record<string, unknown>) {
   const section = row.section as Record<string, unknown> | undefined;
   if (!section) return '—';
   const children = section.children as Record<string, unknown> | undefined;
@@ -42,39 +44,24 @@ function sectionCell(row: Record<string, unknown>) {
   return typeof section.title === 'string' ? section.title : '—';
 }
 
-function warrantyCell(row: Record<string, unknown>) {
-  const warranty = row.warranty as Record<string, unknown> | undefined;
-  return warranty && typeof warranty.title === 'string' ? warranty.title : '—';
-}
-
 function mandatoryUnitCell(row: Record<string, unknown>) {
   const units = row.mandatory_unit as Array<Record<string, unknown>> | undefined;
   if (!Array.isArray(units) || units.length === 0) return '—';
   return units.map((u) => u.title ?? '').filter(Boolean).join('، ');
 }
 
-function progressLevelCell(row: Record<string, unknown>) {
-  const progress = row.progress as Record<string, unknown> | undefined;
-  if (!progress || typeof progress.level !== 'string') return '—';
-  return progress.level;
-}
-
-function progressStatusCell(row: Record<string, unknown>) {
-  const progress = row.progress as Record<string, unknown> | undefined;
-  if (!progress || typeof progress.status !== 'string') return '—';
-  return progress.status;
-}
-
-function assigneeCell(row: Record<string, unknown>) {
-  const progress = row.progress as Record<string, unknown> | undefined;
-  if (!progress) return '—';
-  const user = progress.user as Record<string, unknown> | undefined;
-  return user && typeof user.name === 'string' ? user.name : '—';
+function clauseCell(row: Record<string, unknown>) {
+  return row.has_clause === 1 ? t('duty.clause-yes') : t('duty.clause-no');
 }
 
 const table = useDataTable({
   fetchFn: fetchDuties,
   columns: [
+    createColumn({
+      key: 'rule_text',
+      label: t('duty.rule-text'),
+      bodyCell: ruleTextCell,
+    }),
     createColumn({
       key: 'code',
       label: t('duty.code'),
@@ -82,30 +69,14 @@ const table = useDataTable({
       bodyCell: (row) => row.code ?? '—',
     }),
     createColumn({
-      key: 'title',
-      label: t('duty.title'),
-      sortable: true,
-      bodyCell: (row) => row.title ?? '—',
+      key: 'duty_type',
+      label: t('duty.duty-type'),
+      bodyCell: dutyTypeCell,
     }),
     createColumn({
-      key: 'rule',
-      label: t('duty.rule'),
-      bodyCell: ruleCell,
-    }),
-    createColumn({
-      key: 'rule_code',
-      label: t('duty.rule-code'),
-      bodyCell: ruleCodeCell,
-    }),
-    createColumn({
-      key: 'section',
-      label: t('duty.section'),
-      bodyCell: sectionCell,
-    }),
-    createColumn({
-      key: 'warranty',
-      label: t('duty.warranty'),
-      bodyCell: warrantyCell,
+      key: 'rule_subject',
+      label: t('duty.rule-subject'),
+      bodyCell: ruleSubjectCell,
     }),
     createColumn({
       key: 'mandatory_unit',
@@ -113,25 +84,14 @@ const table = useDataTable({
       bodyCell: mandatoryUnitCell,
     }),
     createColumn({
-      key: 'status',
-      label: t('duty.status'),
-      bodyCell: (row) =>
-          row.status === 1 ? t('duty.status-active') : t('duty.status-inactive'),
+      key: 'has_clause',
+      label: t('duty.clause'),
+      bodyCell: clauseCell,
     }),
     createColumn({
-      key: 'progress_level',
-      label: t('duty.progress-level'),
-      bodyCell: progressLevelCell,
-    }),
-    createColumn({
-      key: 'progress_status',
-      label: t('duty.progress-status'),
-      bodyCell: progressStatusCell,
-    }),
-    createColumn({
-      key: 'assignee',
-      label: t('duty.assignee'),
-      bodyCell: assigneeCell,
+      key: 'file',
+      label: t('duty.file'),
+      bodyCell: () => '—',
     }),
   ],
   selectable: false,
@@ -149,6 +109,10 @@ onMounted(() => {
     onAdd: onAddDuty,
   });
 });
+
+function onAttachmentDuty(row: Record<string, unknown>) {
+  console.log('Attachment duty', row);
+}
 
 function onEditDuty(row: Record<string, unknown>) {
   console.log('Edit duty', row);
@@ -185,40 +149,36 @@ function onTrashDuties() {
           :actions-header="t('duty.settings')"
           :show-search="false"
       >
-        <template #cell-status="{ row }">
-            <span
-                :class="[
-                'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium',
-                row.status === 1
-                  ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300'
-                  : 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-400',
-              ]"
-            >
-              {{ row.status === 1 ? t('duty.status-active') : t('duty.status-inactive') }}
-            </span>
-        </template>
-        <template #cell-progress_level="{ row }">
-            <span
-                :class="[
-                'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium',
-                (row.progress as any)?.level === 'approve'
-                  ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300'
-                  : (row.progress as any)?.level === 'reject'
-                    ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300'
-                    : (row.progress as any)?.level === 'done'
-                      ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300'
-                      : 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300',
-              ]"
-            >
-              {{ progressLevelCell(row) }}
-            </span>
+        <template #cell-has_clause="{ row }">
+          <span
+              :class="[
+              'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium',
+              row.has_clause === 1
+                ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300'
+                : 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-400',
+            ]"
+          >
+            {{ row.has_clause === 1 ? t('duty.clause-yes') : t('duty.clause-no') }}
+          </span>
         </template>
         <template #actions="{ row }">
           <div class="flex items-center justify-center gap-1">
             <button
                 type="button"
                 class="rounded p-1.5 text-slate-500 transition hover:bg-slate-100 hover:text-primary dark:text-slate-400 dark:hover:bg-darkmode-600 dark:hover:text-primary"
+                :aria-label="t('duty.attachment')"
+                :title="t('duty.attachment')"
+                @click.stop="onAttachmentDuty(row)"
+            >
+              <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+              </svg>
+            </button>
+            <button
+                type="button"
+                class="rounded p-1.5 text-slate-500 transition hover:bg-slate-100 hover:text-primary dark:text-slate-400 dark:hover:bg-darkmode-600 dark:hover:text-primary"
                 :aria-label="t('title.update')"
+                :title="t('title.update')"
                 @click.stop="onEditDuty(row)"
             >
               <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -228,7 +188,8 @@ function onTrashDuties() {
             <button
                 type="button"
                 class="rounded p-1.5 text-slate-500 transition hover:bg-red-50 hover:text-red-600 dark:text-slate-400 dark:hover:bg-darkmode-600 dark:hover:text-red-400"
-                :aria-label="'Delete'"
+                :aria-label="t('duty.delete')"
+                :title="t('duty.delete')"
                 @click.stop="onDeleteDuty(row)"
             >
               <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

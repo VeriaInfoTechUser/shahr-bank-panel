@@ -32,7 +32,7 @@
     "detail": "Detail",
     "quantity-unit": "Quantity unit",
     "first-name": "First name",
-    "last-name":"Last name",
+    "last-name": "Last name",
     "mobile": "Mobile",
     "subject": "Subject",
     "is-registered": "Is registered",
@@ -110,7 +110,7 @@
     "filter-user": "Filter user",
     "add-user": "Add user",
     "otp": "OTP",
-    "password":"Password",
+    "password": "Password",
     "update-password": "Update password",
     "edit-user": "Edit user",
     "confirmation": "Confirmation",
@@ -220,7 +220,8 @@
     "validity": "Validity",
     "validity-active": "Active",
     "validity-inactive": "Inactive",
-    "settings": "Settings"
+    "settings": "Settings",
+    "attachment": "Attachment"
   },
   "duty": {
     "code": "Code",
@@ -236,7 +237,17 @@
     "progress-level": "Progress Level",
     "progress-status": "Progress Status",
     "assignee": "Assignee",
-    "settings": "Settings"
+    "settings": "Settings",
+    "rule-text": "Rule Text",
+    "duty-type": "Duty Type",
+    "rule-subject": "Rule Subject",
+    "clause": "Clause",
+    "clause-yes": "Yes",
+    "clause-no": "No",
+    "file": "File",
+    "attachment": "Attachment",
+    "delete": "Delete",
+    "edit": "Edit"
   },
   "menu": {
     "comments": "Comments",
@@ -286,7 +297,6 @@
     "sign-out": "Sing out",
     "login": "Login",
     "sign-in": "Sign in"
-
   },
   "input": {
     "mobile": "Mobile",
@@ -360,7 +370,7 @@
     "quantity": "Quantity",
     "quantity-unit": "Quantity unit",
     "first-name": "First name",
-    "last-name":"Last name",
+    "last-name": "Last name",
     "email": "Email",
     "mobile": "Mobile",
     "country": "Country",
@@ -416,7 +426,7 @@
     "quantity-unit": "Quantity unit",
     "logo": "Logo",
     "first-name": "First name",
-    "last-name":"Last name",
+    "last-name": "Last name",
     "email": "Email",
     "mobile": "Mobile",
     "country": "Country",
@@ -548,12 +558,12 @@
     "verify-new-password": "Verify new password"
   },
   "products": {
-    "title":"Products",
-    "noProducts":"No products found",
-    "noProductsDescription":"There are currently no products available.",
-    "loadError":"Failed to load products. Please try again later.",
-    "switchToGrid":"Switch to grid view",
-    "switchToList":"Switch to list vie",
+    "title": "Products",
+    "noProducts": "No products found",
+    "noProductsDescription": "There are currently no products available.",
+    "loadError": "Failed to load products. Please try again later.",
+    "switchToGrid": "Switch to grid view",
+    "switchToList": "Switch to list vie",
     "searchPlaceholder": "Search products...",
     "listView": "List View",
     "gridView": "Grid View",
@@ -563,8 +573,8 @@
   "pagination": {
     "products": "products",
     "blogs": "news",
-    "previous":"Previous",
-    "next":"Next",
+    "previous": "Previous",
+    "next": "Next",
     "itemsPerPage": "Items per page",
     "showing": "Showing",
     "to": "to",
@@ -584,7 +594,6 @@
     "error-upload-thumbnail": "Failed to upload thumbnail.",
     "error-upload-related-images": "Failed to upload related images."
   },
-
   "blogs": {
     "create": "Create News",
     "slug": "Slug",
@@ -628,7 +637,7 @@
     "searchBlogs": "Search news",
     "pagination": {
       "products": "products",
-      "previous":"Previous",
+      "previous": "Previous",
       "itemsPerPage": "Items per page",
       "showing": "Showing",
       "to": "to",
@@ -713,7 +722,6 @@
     "bulkActionSuccess": "Bulk action completed successfully",
     "bulkActionError": "Error performing bulk action"
   },
-
   "common": {
     "save": "Save",
     "select": "Select",
@@ -748,7 +756,6 @@
     "abstract": "Abstract",
     "meta_info": "Meta Information"
   },
-
   "order": {
     "undefined": "Undefined",
     "done": "Done",

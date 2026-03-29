@@ -73,8 +73,27 @@ src/
 ├── core/         # Core utilities and composables
 ├── examples/     # Example implementations (may use external APIs)
 ├── pages/        # Page components
+│   └── app/
+│       └── base-info/
+│           ├── rules-regulations/  # Rules & Regulations CRUD table
+│           └── duties/             # Tasks (duties) table — POST erm/task/list
 └── router/       # Vue Router configuration
 ```
+
+### Tasks Page (`/app/base-info/duties`)
+
+Displays a paginated table of tasks fetched via `POST /erm/task/list`. Columns:
+
+| Column | Source Field |
+|--------|-------------|
+| متن قانون (Rule Text) | `row.rule.rule` |
+| کد (Code) | `row.code` |
+| نوع تعهد (Duty Type) | `row.rule.type_information.title` |
+| موضوع قانون (Rule Subject) | `row.section.title / row.section.children.title` |
+| واحد مکلف (Mandatory Unit) | `row.mandatory_unit[].title` |
+| تبصره (Clause) | `row.has_clause` (1 = دارد, 0 = ندارد) |
+| فایل (File) | — |
+| تنظیمات (Settings) | Actions: attachment, edit, delete |
 
 ## Offline Notes
 

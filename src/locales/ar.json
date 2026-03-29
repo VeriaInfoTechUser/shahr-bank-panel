@@ -90,7 +90,8 @@
     "validity": "الحالة",
     "validity-active": "نشط",
     "validity-inactive": "غير نشط",
-    "settings": "الإعدادات"
+    "settings": "الإعدادات",
+    "attachment": "المرفق"
   },
   "menu": {
     "reset-password": "إعادة تعيين كلمة المرور",

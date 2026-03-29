@@ -90,7 +90,7 @@ onMounted(() => {
       >
         <!-- BEGIN: Side Menu -->
         <nav
-          class="side-nav hidden md:block w-[105px] xl:w-[200px] ps-2 pe-5 pt-8 pb-16 overflow-x-hidden"
+          class="side-nav hidden md:block w-[65px] xl:w-[200px] ps-1 pe-2 pt-8 pb-10 xl:ps-0 xl:pe-5 xl:pb-16 overflow-x-hidden"
         >
           <ul>
             <!-- BEGIN: First Child -->
@@ -144,9 +144,9 @@ onMounted(() => {
                     },
                   ]"
                 >
-                  <div class="side-menu__icon">
-                    <Lucide :icon="menu.icon" />
-                  </div>
+                <div class="side-menu__icon side-menu__icon--root">
+                  <Lucide :icon="menu.icon" />
+                </div>
                   <div class="side-menu__title">
                     {{ $t(menu.title) }}
                     <div
@@ -207,9 +207,9 @@ onMounted(() => {
                         setFormattedMenu([...formattedMenu]);
                       }"
                       >
-                        <div class="side-menu__icon">
-                          <Lucide :icon="subMenu.icon" />
-                        </div>
+                    <div class="side-menu__icon side-menu__icon--sub">
+                      <Lucide :icon="subMenu.icon" />
+                    </div>
                         <div class="side-menu__title">
                           {{ $t(subMenu.title) }}
                           <div
@@ -280,9 +280,9 @@ onMounted(() => {
                               setFormattedMenu([...formattedMenu]);
                             }"
                             >
-                              <div class="side-menu__icon">
-                                <Lucide :icon="lastSubMenu.icon" />
-                              </div>
+                        <div class="side-menu__icon side-menu__icon--sub-nested">
+                          <Lucide :icon="lastSubMenu.icon" />
+                        </div>
                               <div class="side-menu__title">
                                 {{$t(lastSubMenu.title) }}
                               </div>

@@ -132,7 +132,7 @@ onMounted(() => {
               "
               :class="[menu.active ? 'menu menu--active' : 'menu']"
             >
-              <div class="menu__icon">
+              <div class="menu__icon menu__icon--root">
                 <Lucide :icon="menu.icon" />
               </div>
               <div class="menu__title">
@@ -180,7 +180,7 @@ onMounted(() => {
                     "
                     :class="[subMenu.active ? 'menu menu--active' : 'menu']"
                   >
-                    <div class="menu__icon">
+                    <div class="menu__icon menu__icon--sub">
                       <Lucide :icon="subMenu.icon" />
                     </div>
                     <div class="menu__title">
@@ -230,7 +230,7 @@ onMounted(() => {
                             lastSubMenu.active ? 'menu menu--active' : 'menu',
                           ]"
                         >
-                          <div class="menu__icon">
+                          <div class="menu__icon menu__icon--sub-nested">
                             <Lucide :icon="lastSubMenu.icon" />
                           </div>
                           <div class="menu__title">

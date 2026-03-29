@@ -33,9 +33,9 @@ function ruleTextCell(row: Record<string, unknown>) {
 }
 
 function taskTypeCell(row: Record<string, unknown>) {
-  const warrenty = row.warrenty as Record<string, unknown> | undefined;
-  if (!warrenty) return '—'; 
-  return warrenty && typeof warrenty.title === 'string' ? warrenty.title : (typeof warrenty.type === 'string' ? warrenty.type : '—');
+  const warranty = row.warranty as Record<string, unknown> | undefined;
+  if (!warranty) return '—';
+  return warranty && typeof warranty.title === 'string' ? warranty.title : (typeof warranty.type === 'string' ? warranty.type : '—');
 }
 
 function ruleSubjectCell(row: Record<string, unknown>) {
@@ -73,7 +73,7 @@ const table = useDataTable({
       bodyCell: taskNameCell,
     }),
     createColumn({
-      key: 'duty_type',
+      key: 'warrenty',
       label: t('task.task-type'),
       bodyCell: taskTypeCell,
     }),

@@ -46,6 +46,8 @@ const props = withDefaults(
     actions?: boolean;
     /** Header label for actions column (e.g. "تنظیمات" / "Settings") */
     actionsHeader?: string;
+    /** Min width for actions column when many icons (default 100px) */
+    actionsColumnMinWidth?: string;
     rowKey?: string;
     emptyMessage?: string;
     showSearch?: boolean;
@@ -70,6 +72,7 @@ const props = withDefaults(
     selectionMode: 'multiple',
     actions: false,
     actionsHeader: '',
+    actionsColumnMinWidth: '100px',
     rowKey: 'id',
     emptyMessage: 'No records found',
     showSearch: true,
@@ -337,6 +340,8 @@ const tableColumns = computed(() => effectiveColumns.value);
           :sortable="col.sortable ?? false"
           :style="col.width ? { width: col.width, minWidth: col.width } : undefined"
           :exportable="col.exportable !== false"
+          :header-class="col.align === 'center' ? 'text-center' : undefined"
+          :body-class="col.align === 'center' ? 'text-center' : undefined"
         >
           <template #body="{ data: row }">
             <!-- Legacy #cell with row + column; else per-column #cell-{key}; else default -->
@@ -354,8 +359,9 @@ const tableColumns = computed(() => effectiveColumns.value);
           key="_actions"
           :exportable="false"
           :header="actionsHeader"
-          :style="{ width: '100px', minWidth: '100px' }"
-          bodyClass="text-center"
+          header-class="text-center"
+          :style="{ width: actionsColumnMinWidth, minWidth: actionsColumnMinWidth }"
+          body-class="text-center"
         >
           <template #body="{ data: row }">
             <!-- Custom content only via #actions slot (no default edit/delete) -->

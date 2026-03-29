@@ -318,6 +318,11 @@
     "settings-liaisons": "رابطین",
     "settings-legislative-authority": "مرجع قانون گذار",
     "settings-law-type": "نوع قانون",
+    "compliance": "تطبیق",
+    "risk": "ریسک",
+    "compliance-operations": "عملیات تطبیق",
+    "risk-operations": "عملیات ریسک",
+    "performance-report": "گزارش عملکرد",
     "user-list": "فهرست کاربران",
     "request": "درخواست",
     "request-list": "فهرست",
@@ -328,7 +333,25 @@
     "sign-in": "ورود"
   },
   "settings-page": {
-    "guide-intro": "در این بخش می‌توانید راهنمای استفاده از سامانه را قرار دهید. این صفحه فاقد جدول داده است."
+    "add-member": "افزودن رابط",
+    "add-legislative-authority": "افزودن مرجع قانون گذار",
+    "add-law-type": "افزودن نوع قانون",
+    "law-type-col-name": "نوع قانون",
+    "legislative-authority-col-name": "نام مرجع قانون گذار",
+    "guide-intro": "در این بخش می‌توانید راهنمای استفاده از سامانه را قرار دهید. این صفحه فاقد جدول داده است.",
+    "liaisons-col-name": "نام",
+    "liaisons-col-role": "نقش",
+    "liaisons-col-org-unit": "واحد سازمانی",
+    "liaisons-col-org-post": "پست سازمانی",
+    "liaisons-col-email": "ایمیل",
+    "liaisons-col-mobile": "شماره موبایل",
+    "liaisons-col-registered-at": "تاریخ ثبت",
+    "liaisons-col-status": "وضعیت",
+    "liaisons-col-mandatory-unit": "واحد مکلف",
+    "liaisons-action-edit": "ویرایش",
+    "liaisons-action-change-password": "تغییر کلمه عبور",
+    "liaisons-action-logs": "لاگ‌ها",
+    "liaisons-action-delete": "حذف"
   },
   "input": {
     "mobile": "موبایل",

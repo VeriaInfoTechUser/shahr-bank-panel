@@ -11,13 +11,13 @@ import AppAccountPassword from "@/pages/app/account/password/index.vue";
 import AppAccountEdit from "@/pages/app/account/edit/index.vue";
 import AppAccountHistory from "@/pages/app/account/history/index.vue";
 import AppAccountNotification from "@/pages/app/account/notification/index.vue";
-import AppUserList from "@/pages/app/user/list/index.vue";
 import BaseInfoRulesRegulations from "@/pages/app/base-info/rules-regulations/index.vue";
 import BaseInfoTasks from "@/pages/app/base-info/tasks/index.vue";
 import SettingsGuide from "@/pages/app/settings/guide/index.vue";
 import SettingsLiaisons from "@/pages/app/settings/liaisons/index.vue";
 import SettingsLegislativeAuthority from "@/pages/app/settings/legislative-authority/index.vue";
 import SettingsLawType from "@/pages/app/settings/law-type/index.vue";
+import SectionPlaceholderPage from "@/pages/app/shared/SectionPlaceholderPage.vue";
 import AuthLogin from "@/pages/auth/login/index.vue";
 
 const routes = [
@@ -86,19 +86,6 @@ const routes = [
                         ]
                     },
                     {
-                        path: "user",
-                        name: "app-user",
-                        meta: { breadcrumbLabel: 'menu.users' },
-                        children: [
-                            {
-                                path: "list",
-                                name: "app-user-list",
-                                component: AppUserList,
-                                meta: { breadcrumbLabel: 'menu.list' },
-                            },
-                        ]
-                    },
-                    {
                         path: "base-info",
                         name: "app-base-info",
                         meta: { breadcrumbLabel: 'menu.base-info' },
@@ -146,6 +133,58 @@ const routes = [
                                 name: "app-settings-law-type",
                                 component: SettingsLawType,
                                 meta: { breadcrumbLabel: 'menu.settings-law-type' },
+                            },
+                        ],
+                    },
+                    {
+                        path: "compliance",
+                        name: "app-compliance",
+                        redirect: { name: "app-compliance-dashboard" },
+                        meta: { breadcrumbLabel: 'menu.compliance' },
+                        children: [
+                            {
+                                path: "dashboard",
+                                name: "app-compliance-dashboard",
+                                component: SectionPlaceholderPage,
+                                meta: { breadcrumbLabel: 'menu.dashboard' },
+                            },
+                            {
+                                path: "operations",
+                                name: "app-compliance-operations",
+                                component: SectionPlaceholderPage,
+                                meta: { breadcrumbLabel: 'menu.compliance-operations' },
+                            },
+                            {
+                                path: "performance-report",
+                                name: "app-compliance-performance-report",
+                                component: SectionPlaceholderPage,
+                                meta: { breadcrumbLabel: 'menu.performance-report' },
+                            },
+                        ],
+                    },
+                    {
+                        path: "risk",
+                        name: "app-risk",
+                        redirect: { name: "app-risk-dashboard" },
+                        meta: { breadcrumbLabel: 'menu.risk' },
+                        children: [
+                            {
+                                path: "dashboard",
+                                name: "app-risk-dashboard",
+                                component: SectionPlaceholderPage,
+                                meta: { breadcrumbLabel: 'menu.dashboard' },
+                            },
+                            {
+                                path: "operations",
+                                name: "app-risk-operations",
+                                component: SectionPlaceholderPage,
+                                meta: { breadcrumbLabel: 'menu.risk-operations' },
+                            },
+                            {
+                                path: "performance-report",
+                                name: "app-risk-performance-report",
+                                component: SectionPlaceholderPage,
+                                meta: { breadcrumbLabel: 'menu.performance-report' },
                             },
                         ],
                     },

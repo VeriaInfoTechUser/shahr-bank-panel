@@ -29,18 +29,6 @@ export const useSideMenuStore = defineStore("sideMenu", {
                 ],
             },
             {
-                icon: "Users",
-                pageName: "app-user",
-                title: "menu.users",
-                subMenu: [
-                    {
-                        icon: "List",
-                        pageName: "app-user-list",
-                        title: "menu.list",
-                    },
-                ],
-            },
-            {
                 icon: "Database",
                 pageName: "app-base-info",
                 title: "menu.base-info",
@@ -54,6 +42,50 @@ export const useSideMenuStore = defineStore("sideMenu", {
                         icon: "ClipboardList",
                         pageName: "app-base-info-tasks",
                         title: "menu.tasks",
+                    },
+                ],
+            },
+            {
+                icon: "ShieldCheck",
+                pageName: "app-compliance",
+                title: "menu.compliance",
+                subMenu: [
+                    {
+                        icon: "LayoutDashboard",
+                        pageName: "app-compliance-dashboard",
+                        title: "menu.dashboard",
+                    },
+                    {
+                        icon: "GitBranch",
+                        pageName: "app-compliance-operations",
+                        title: "menu.compliance-operations",
+                    },
+                    {
+                        icon: "BarChart3",
+                        pageName: "app-compliance-performance-report",
+                        title: "menu.performance-report",
+                    },
+                ],
+            },
+            {
+                icon: "AlertTriangle",
+                pageName: "app-risk",
+                title: "menu.risk",
+                subMenu: [
+                    {
+                        icon: "LayoutDashboard",
+                        pageName: "app-risk-dashboard",
+                        title: "menu.dashboard",
+                    },
+                    {
+                        icon: "GitBranch",
+                        pageName: "app-risk-operations",
+                        title: "menu.risk-operations",
+                    },
+                    {
+                        icon: "BarChart3",
+                        pageName: "app-risk-performance-report",
+                        title: "menu.performance-report",
                     },
                 ],
             },

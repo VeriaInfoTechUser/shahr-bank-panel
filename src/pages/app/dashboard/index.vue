@@ -3,57 +3,28 @@ import { ref, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import Lucide from '@/base-components/Lucide/Lucide.vue';
 import { useI18n } from 'vue-i18n';
-import { dashboardRepo } from '@/core/repositories/dashboardRepo';
-
 const { t } = useI18n();
 const router = useRouter();
-
-const stats = ref({
-  users: { count: 0, loading: true },
-});
 
 const recentLogs = ref([]);
 const logsLoading = ref(true);
 
-const dashboardCards = computed(() => [
-  {
-    title: t('menu.users'),
-    icon: 'Users',
-    iconColor: 'text-primary',
-    bgColor: 'bg-primary-muted',
-    count: stats.value.users.count,
-    loading: stats.value.users.loading,
-    route: 'app-user-list',
-    description: 'مدیریت کاربران سیستم',
-  },
-]);
+const dashboardCards = computed(() => []);
 
 const quickActions = computed(() => [
   {
-    title: t('menu.users'),
-    icon: 'Users',
-    route: 'app-user-list',
+    title: t('menu.compliance'),
+    icon: 'ShieldCheck',
+    route: 'app-compliance-dashboard',
+    color: 'bg-primary-muted',
+  },
+  {
+    title: t('menu.risk'),
+    icon: 'AlertTriangle',
+    route: 'app-risk-dashboard',
     color: 'bg-primary-muted',
   },
 ]);
-
-async function fetchUsersCount() {
-  stats.value.users.loading = true;
-  stats.value.users.count = 0;
-  try {
-    const result = await dashboardRepo.getUsersCount();
-    if (result?.data?.paginator?.count !== undefined) {
-      stats.value.users.count = result.data.paginator.count;
-    }
-  } catch (err) {
-    // 403 = user lacks admin permission; show 0 silently
-    if (err?.response?.status !== 403) {
-      throw err;
-    }
-  } finally {
-    stats.value.users.loading = false;
-  }
-}
 
 function fetchRecentLogs() {
   return;
@@ -152,7 +123,6 @@ const navigateTo = (routeName: string) => {
 
 // Initialize
 onMounted(() => {
-  fetchUsersCount();
   fetchRecentLogs();
 });
 </script>

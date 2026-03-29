@@ -298,6 +298,11 @@
     "settings-liaisons": "Liaisons",
     "settings-legislative-authority": "Legislative authority",
     "settings-law-type": "Law type",
+    "compliance": "Compliance",
+    "risk": "Risk",
+    "compliance-operations": "Compliance operations",
+    "risk-operations": "Risk operations",
+    "performance-report": "Performance report",
     "user-list": "User list",
     "request": "Request",
     "request-list": "Request list",
@@ -308,7 +313,25 @@
     "sign-in": "Sign in"
   },
   "settings-page": {
-    "guide-intro": "Documentation and help content for the system can be added here. This page does not include a data table."
+    "add-member": "Add member",
+    "add-legislative-authority": "Add legislative authority",
+    "add-law-type": "Add law type",
+    "law-type-col-name": "Law type",
+    "legislative-authority-col-name": "Legislative authority name",
+    "guide-intro": "Documentation and help content for the system can be added here. This page does not include a data table.",
+    "liaisons-col-name": "Name",
+    "liaisons-col-role": "Role",
+    "liaisons-col-org-unit": "Organizational unit",
+    "liaisons-col-org-post": "Organizational position",
+    "liaisons-col-email": "Email",
+    "liaisons-col-mobile": "Mobile",
+    "liaisons-col-registered-at": "Registered at",
+    "liaisons-col-status": "Status",
+    "liaisons-col-mandatory-unit": "Mandatory unit",
+    "liaisons-action-edit": "Edit",
+    "liaisons-action-change-password": "Change password",
+    "liaisons-action-logs": "Logs",
+    "liaisons-action-delete": "Delete"
   },
   "input": {
     "mobile": "Mobile",

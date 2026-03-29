@@ -137,6 +137,11 @@
     "settings-liaisons": "الجهات المرتبطة",
     "settings-legislative-authority": "الجهة التشريعية",
     "settings-law-type": "نوع القانون",
+    "compliance": "الامتثال",
+    "risk": "المخاطر",
+    "compliance-operations": "عمليات الامتثال",
+    "risk-operations": "عمليات المخاطر",
+    "performance-report": "تقرير الأداء",
     "user-list": "قائمة المستخدمين",
     "blogs": "أخبار",
     "request": "الطلب",
@@ -148,7 +153,25 @@
     "sign-in": "تسجيل الدخول"
   },
   "settings-page": {
-    "guide-intro": "يمكن إضافة محتوى التوثيق والمساعدة هنا. هذه الصفحة لا تحتوي على جدول بيانات."
+    "add-member": "إضافة جهة مرتبطة",
+    "add-legislative-authority": "إضافة جهة تشريعية",
+    "add-law-type": "إضافة نوع قانون",
+    "law-type-col-name": "نوع القانون",
+    "legislative-authority-col-name": "اسم الجهة التشريعية",
+    "guide-intro": "يمكن إضافة محتوى التوثيق والمساعدة هنا. هذه الصفحة لا تحتوي على جدول بيانات.",
+    "liaisons-col-name": "الاسم",
+    "liaisons-col-role": "الدور",
+    "liaisons-col-org-unit": "الوحدة التنظيمية",
+    "liaisons-col-org-post": "المنصب التنظيمي",
+    "liaisons-col-email": "البريد الإلكتروني",
+    "liaisons-col-mobile": "الجوال",
+    "liaisons-col-registered-at": "تاريخ التسجيل",
+    "liaisons-col-status": "الحالة",
+    "liaisons-col-mandatory-unit": "الوحدة الإلزامية",
+    "liaisons-action-edit": "تعديل",
+    "liaisons-action-change-password": "تغيير كلمة المرور",
+    "liaisons-action-logs": "السجلات",
+    "liaisons-action-delete": "حذف"
   },
   "input": {
     "username": "اسم المستخدم",

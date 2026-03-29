@@ -340,7 +340,7 @@ const tableColumns = computed(() => effectiveColumns.value);
           :sortable="col.sortable ?? false"
           :style="col.width ? { width: col.width, minWidth: col.width } : undefined"
           :exportable="col.exportable !== false"
-          :header-class="col.align === 'center' ? 'text-center' : undefined"
+          :header-class="`${col.align === 'center' ? 'text-center ' : ''}whitespace-nowrap min-w-0`"
           :body-class="col.align === 'center' ? 'text-center' : undefined"
         >
           <template #body="{ data: row }">
@@ -359,7 +359,7 @@ const tableColumns = computed(() => effectiveColumns.value);
           key="_actions"
           :exportable="false"
           :header="actionsHeader"
-          header-class="text-center"
+          header-class="text-center whitespace-nowrap min-w-0"
           :style="{ width: actionsColumnMinWidth, minWidth: actionsColumnMinWidth }"
           body-class="text-center"
         >
@@ -387,13 +387,26 @@ const tableColumns = computed(() => effectiveColumns.value);
 }
 .base-table__datatable :deep(.p-datatable-thead th) {
   border-top: none;
+  white-space: nowrap;
+  vertical-align: middle;
 }
 .base-table__datatable :deep(.base-table__th) {
   min-width: 0;
 }
+.base-table__datatable :deep(.p-datatable-thead th .p-column-header-content) {
+  display: inline-flex;
+  max-width: 100%;
+  min-width: 0;
+  align-items: center;
+  gap: 0.25rem;
+}
 .base-table__datatable :deep(.base-table__th .p-column-title) {
   overflow: hidden;
   text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.base-table__datatable :deep(.p-datatable-thead th a),
+.base-table__datatable :deep(.p-datatable-thead th span:not(.p-sortable-column-icon)) {
   white-space: nowrap;
 }
 .base-table__datatable :deep(.p-datatable-header) {

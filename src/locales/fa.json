@@ -353,6 +353,19 @@
     "liaisons-action-logs": "لاگ‌ها",
     "liaisons-action-delete": "حذف"
   },
+  "compliance-page": {
+    "col-code": "کد",
+    "col-commitment": "تعهد",
+    "col-deadline": "مهلت پاسخگویی",
+    "col-status": "وضعیت",
+    "status-todo": "در انتظار اجرا",
+    "status-doing": "در حال انجام",
+    "status-done": "انجام شده",
+    "status-approve": "تایید شده",
+    "status-reject": "رد شده",
+    "status-pending-assignment": "در انتظار ارجاع",
+    "status-clauses": "تبصره‌ها"
+  },
   "input": {
     "mobile": "موبایل",
     "username": "نام کاربری",

@@ -333,6 +333,19 @@
     "liaisons-action-logs": "Logs",
     "liaisons-action-delete": "Delete"
   },
+  "compliance-page": {
+    "col-code": "Code",
+    "col-commitment": "Commitment",
+    "col-deadline": "Response deadline",
+    "col-status": "Status",
+    "status-todo": "Pending",
+    "status-doing": "In progress",
+    "status-done": "Completed",
+    "status-approve": "Approved",
+    "status-reject": "Rejected",
+    "status-pending-assignment": "Pending assignment",
+    "status-clauses": "Clauses"
+  },
   "input": {
     "mobile": "Mobile",
     "username": "Username",

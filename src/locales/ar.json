@@ -173,6 +173,19 @@
     "liaisons-action-logs": "السجلات",
     "liaisons-action-delete": "حذف"
   },
+  "compliance-page": {
+    "col-code": "الرمز",
+    "col-commitment": "الالتزام",
+    "col-deadline": "مهلة الاستجابة",
+    "col-status": "الحالة",
+    "status-todo": "قيد التنفيذ",
+    "status-doing": "قيد الإنجاز",
+    "status-done": "مكتمل",
+    "status-approve": "معتمد",
+    "status-reject": "مرفوض",
+    "status-pending-assignment": "في انتظار الإحالة",
+    "status-clauses": "البنود التوضيحية"
+  },
   "input": {
     "username": "اسم المستخدم",
     "password": "كلمة المرور"

@@ -40,6 +40,10 @@ export class ErmRepo extends BaseRepo {
   async ruleTypeList(params: RuleListParams) {
     return this.post<RuleListResponse>(endpoints.admin.erm.ruleType.list, params);
   }
+
+  async complianceList(params: RuleListParams) {
+    return this.post<RuleListResponse>(endpoints.admin.erm.compliance.list, params);
+  }
 }
 
 export const ermRepo = new ErmRepo();

@@ -52,8 +52,8 @@ export const useSideMenuStore = defineStore("sideMenu", {
                     },
                     {
                         icon: "ClipboardList",
-                        pageName: "app-base-info-duties",
-                        title: "menu.duties",
+                        pageName: "app-base-info-tasks",
+                        title: "menu.tasks",
                     },
                 ],
             },

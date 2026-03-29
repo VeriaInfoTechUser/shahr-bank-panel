@@ -10,7 +10,7 @@ import TasksBreadcrumbToolbar from './TasksBreadcrumbToolbar.vue';
 const { t } = useI18n();
 const { setContent: setBreadcrumbSlot } = useBreadcrumbSlot();
 
-const fetchDuties: FetchFn = async ({ page, limit, sort, filters }) => {
+const fetchTasks: FetchFn = async ({ page, limit, sort, filters }) => {
   const res = await ermRepo.taskList({
     page,
     limit,
@@ -22,16 +22,20 @@ const fetchDuties: FetchFn = async ({ page, limit, sort, filters }) => {
   return { list: Array.isArray(list) ? list : [], count };
 };
 
+function taskNameCell(row: Record<string, unknown>) {
+  const v = row.title;
+  return typeof v === 'string' && v.trim() ? v : '—';
+}
+
 function ruleTextCell(row: Record<string, unknown>) {
   const rule = row.rule as Record<string, unknown> | undefined;
   return rule && typeof rule.rule === 'string' ? rule.rule : '—';
 }
 
-function dutyTypeCell(row: Record<string, unknown>) {
-  const rule = row.rule as Record<string, unknown> | undefined;
-  if (!rule) return '—';
-  const info = rule.type_information as Record<string, unknown> | undefined;
-  return info && typeof info.title === 'string' ? info.title : (typeof rule.type === 'string' ? rule.type : '—');
+function taskTypeCell(row: Record<string, unknown>) {
+  const warrenty = row.warrenty as Record<string, unknown> | undefined;
+  if (!warrenty) return '—'; 
+  return warrenty && typeof warrenty.title === 'string' ? warrenty.title : (typeof warrenty.type === 'string' ? warrenty.type : '—');
 }
 
 function ruleSubjectCell(row: Record<string, unknown>) {
@@ -51,86 +55,86 @@ function mandatoryUnitCell(row: Record<string, unknown>) {
 }
 
 function clauseCell(row: Record<string, unknown>) {
-  return row.has_clause === 1 ? t('duty.clause-yes') : t('duty.clause-no');
+  return row.has_clause === 1 ? t('task.clause-yes') : t('task.clause-no');
 }
 
 const table = useDataTable({
-  fetchFn: fetchDuties,
+  fetchFn: fetchTasks,
   columns: [
     createColumn({
-      key: 'rule_text',
-      label: t('duty.rule-text'),
-      bodyCell: ruleTextCell,
-    }),
-    createColumn({
       key: 'code',
-      label: t('duty.code'),
+      label: t('task.code'),
       sortable: true,
       bodyCell: (row) => row.code ?? '—',
     }),
     createColumn({
+      key: 'title',
+      label: t('task.name'),
+      bodyCell: taskNameCell,
+    }),
+    createColumn({
       key: 'duty_type',
-      label: t('duty.duty-type'),
-      bodyCell: dutyTypeCell,
+      label: t('task.task-type'),
+      bodyCell: taskTypeCell,
     }),
     createColumn({
       key: 'rule_subject',
-      label: t('duty.rule-subject'),
+      label: t('task.subject'),
       bodyCell: ruleSubjectCell,
     }),
     createColumn({
+      key: 'rule_text',
+      label: t('task.law'),
+      bodyCell: ruleTextCell,
+    }),
+    createColumn({
       key: 'mandatory_unit',
-      label: t('duty.mandatory-unit'),
+      label: t('task.mandatory-unit'),
       bodyCell: mandatoryUnitCell,
     }),
     createColumn({
       key: 'has_clause',
-      label: t('duty.clause'),
+      label: t('task.clause-column'),
       bodyCell: clauseCell,
-    }),
-    createColumn({
-      key: 'file',
-      label: t('duty.file'),
-      bodyCell: () => '—',
     }),
   ],
   selectable: false,
   exportEnabled: true,
   pageSize: 10,
-  cacheKey: 'duties-list',
+  cacheKey: 'tasks-list',
   listCacheStaleTime: 0,
 });
 
 onMounted(() => {
   table.fetch();
   setBreadcrumbSlot(TasksBreadcrumbToolbar, {
-    onExport: onExportDuties,
-    onTrash: onTrashDuties,
-    onAdd: onAddDuty,
+    onExport: onExportTasks,
+    onTrash: onTrashTasks,
+    onAdd: onAddTask,
   });
 });
 
-function onAttachmentDuty(row: Record<string, unknown>) {
-  console.log('Attachment duty', row);
+function onAttachmentTask(row: Record<string, unknown>) {
+  console.log('Attachment task', row);
 }
 
-function onEditDuty(row: Record<string, unknown>) {
-  console.log('Edit duty', row);
+function onEditTask(row: Record<string, unknown>) {
+  console.log('Edit task', row);
 }
 
-function onDeleteDuty(row: Record<string, unknown>) {
-  console.log('Delete duty', row);
+function onDeleteTask(row: Record<string, unknown>) {
+  console.log('Delete task', row);
 }
 
-function onAddDuty() {
-  console.log('Add duty');
+function onAddTask() {
+  console.log('Add task');
 }
 
-function onExportDuties() {
+function onExportTasks() {
   table.exportCSV();
 }
 
-function onTrashDuties() {
+function onTrashTasks() {
   const selected = table.selectedRows.value;
   if (selected.length === 0) return;
   console.log('Delete selected', selected.length, selected);
@@ -146,7 +150,7 @@ function onTrashDuties() {
           :export-enabled="table.exportEnabled"
           :empty-message="t('general.no-data')"
           :actions="true"
-          :actions-header="t('duty.settings')"
+          :actions-header="t('task.settings')"
           :show-search="false"
       >
         <template #cell-has_clause="{ row }">
@@ -158,7 +162,7 @@ function onTrashDuties() {
                 : 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-400',
             ]"
           >
-            {{ row.has_clause === 1 ? t('duty.clause-yes') : t('duty.clause-no') }}
+            {{ row.has_clause === 1 ? t('task.clause-yes') : t('task.clause-no') }}
           </span>
         </template>
         <template #actions="{ row }">
@@ -166,9 +170,9 @@ function onTrashDuties() {
             <button
                 type="button"
                 class="rounded p-1.5 text-slate-500 transition hover:bg-slate-100 hover:text-primary dark:text-slate-400 dark:hover:bg-darkmode-600 dark:hover:text-primary"
-                :aria-label="t('duty.attachment')"
-                :title="t('duty.attachment')"
-                @click.stop="onAttachmentDuty(row)"
+                :aria-label="t('task.attachment')"
+                :title="t('task.attachment')"
+                @click.stop="onAttachmentTask(row)"
             >
               <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
@@ -179,7 +183,7 @@ function onTrashDuties() {
                 class="rounded p-1.5 text-slate-500 transition hover:bg-slate-100 hover:text-primary dark:text-slate-400 dark:hover:bg-darkmode-600 dark:hover:text-primary"
                 :aria-label="t('title.update')"
                 :title="t('title.update')"
-                @click.stop="onEditDuty(row)"
+                @click.stop="onEditTask(row)"
             >
               <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -188,9 +192,9 @@ function onTrashDuties() {
             <button
                 type="button"
                 class="rounded p-1.5 text-slate-500 transition hover:bg-red-50 hover:text-red-600 dark:text-slate-400 dark:hover:bg-darkmode-600 dark:hover:text-red-400"
-                :aria-label="t('duty.delete')"
-                :title="t('duty.delete')"
-                @click.stop="onDeleteDuty(row)"
+                :aria-label="t('task.delete')"
+                :title="t('task.delete')"
+                @click.stop="onDeleteTask(row)"
             >
               <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />

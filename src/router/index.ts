@@ -13,7 +13,7 @@ import AppAccountHistory from "@/pages/app/account/history/index.vue";
 import AppAccountNotification from "@/pages/app/account/notification/index.vue";
 import AppUserList from "@/pages/app/user/list/index.vue";
 import BaseInfoRulesRegulations from "@/pages/app/base-info/rules-regulations/index.vue";
-import BaseInfoDuties from "@/pages/app/base-info/duties/index.vue";
+import BaseInfoTasks from "@/pages/app/base-info/tasks/index.vue";
 import AuthLogin from "@/pages/auth/login/index.vue";
 
 const routes = [
@@ -106,10 +106,10 @@ const routes = [
                                 meta: { breadcrumbLabel: 'menu.rules-regulations' },
                             },
                             {
-                                path: "duties",
-                                name: "app-base-info-duties",
-                                component: BaseInfoDuties,
-                                meta: { breadcrumbLabel: 'menu.duties' },
+                                path: "tasks",
+                                name: "app-base-info-tasks",
+                                component: BaseInfoTasks,
+                                meta: { breadcrumbLabel: 'menu.tasks' },
                             },
                         ]
                     },

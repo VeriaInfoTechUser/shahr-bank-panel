@@ -76,11 +76,11 @@ src/
 │   └── app/
 │       └── base-info/
 │           ├── rules-regulations/  # Rules & Regulations CRUD table
-│           └── duties/             # Tasks (duties) table — POST erm/task/list
+│           └── tasks/              # Tasks table — POST erm/task/list
 └── router/       # Vue Router configuration
 ```
 
-### Tasks Page (`/app/base-info/duties`)
+### Tasks Page (`/app/base-info/tasks`)
 
 Displays a paginated table of tasks fetched via `POST /erm/task/list`. Columns:
 

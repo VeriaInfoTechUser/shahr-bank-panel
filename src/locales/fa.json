@@ -241,9 +241,10 @@
     "settings": "تنظیمات",
     "attachment": "فایل ضمیمه"
   },
-  "duty": {
+  "task": {
     "code": "کد",
     "title": "عنوان تعهد",
+    "name": "تعهد",
     "rule": "قانون مرتبط",
     "rule-code": "شماره بخش نامه",
     "section": "بخش",
@@ -256,8 +257,11 @@
     "progress-status": "وضعیت پیشرفت",
     "assignee": "مسئول",
     "settings": "تنظیمات",
+    "subject": "موضوع",
+    "law": "قانون",
+    "clause-column": "تبصره (دارد ندارد)",
     "rule-text": "متن قانون",
-    "duty-type": "نوع تعهد",
+    "task-type": "نوع تعهد",
     "rule-subject": "موضوع قانون",
     "clause": "تبصره",
     "clause-yes": "دارد",
@@ -308,7 +312,7 @@
     "users": "کاربران",
     "base-info": "اطلاعات پایه",
     "rules-regulations": "قوانین مقررات",
-    "duties": "تکالیف",
+    "tasks": "تکالیف و تعهدات",
     "user-list": "فهرست کاربران",
     "request": "درخواست",
     "request-list": "فهرست",

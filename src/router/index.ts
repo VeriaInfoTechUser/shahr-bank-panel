@@ -18,6 +18,7 @@ import SettingsLiaisons from "@/pages/app/settings/liaisons/index.vue";
 import SettingsLegislativeAuthority from "@/pages/app/settings/legislative-authority/index.vue";
 import SettingsLawType from "@/pages/app/settings/law-type/index.vue";
 import ComplianceOperations from "@/pages/app/compliance/operations/index.vue";
+import RiskOperations from "@/pages/app/risk/operations/index.vue";
 import SectionPlaceholderPage from "@/pages/app/shared/SectionPlaceholderPage.vue";
 import AuthLogin from "@/pages/auth/login/index.vue";
 
@@ -178,7 +179,7 @@ const routes = [
                             {
                                 path: "operations",
                                 name: "app-risk-operations",
-                                component: SectionPlaceholderPage,
+                                component: RiskOperations,
                                 meta: { breadcrumbLabel: 'menu.risk-operations' },
                             },
                             {

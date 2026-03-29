@@ -55,6 +55,9 @@ export const endpoints = {
       compliance: {
         list: 'erm/compliance/list',
       },
+      risk: {
+        list: 'erm/risk/list',
+      },
       member: {
         list: 'erm/member/list',
       },

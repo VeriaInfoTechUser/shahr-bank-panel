@@ -14,6 +14,10 @@ import AppAccountNotification from "@/pages/app/account/notification/index.vue";
 import AppUserList from "@/pages/app/user/list/index.vue";
 import BaseInfoRulesRegulations from "@/pages/app/base-info/rules-regulations/index.vue";
 import BaseInfoTasks from "@/pages/app/base-info/tasks/index.vue";
+import SettingsGuide from "@/pages/app/settings/guide/index.vue";
+import SettingsLiaisons from "@/pages/app/settings/liaisons/index.vue";
+import SettingsLegislativeAuthority from "@/pages/app/settings/legislative-authority/index.vue";
+import SettingsLawType from "@/pages/app/settings/law-type/index.vue";
 import AuthLogin from "@/pages/auth/login/index.vue";
 
 const routes = [
@@ -112,6 +116,38 @@ const routes = [
                                 meta: { breadcrumbLabel: 'menu.tasks' },
                             },
                         ]
+                    },
+                    {
+                        path: "settings",
+                        name: "app-settings",
+                        redirect: { name: "app-settings-guide" },
+                        meta: { breadcrumbLabel: 'menu.settings' },
+                        children: [
+                            {
+                                path: "guide",
+                                name: "app-settings-guide",
+                                component: SettingsGuide,
+                                meta: { breadcrumbLabel: 'menu.settings-guide' },
+                            },
+                            {
+                                path: "liaisons",
+                                name: "app-settings-liaisons",
+                                component: SettingsLiaisons,
+                                meta: { breadcrumbLabel: 'menu.settings-liaisons' },
+                            },
+                            {
+                                path: "legislative-authority",
+                                name: "app-settings-legislative-authority",
+                                component: SettingsLegislativeAuthority,
+                                meta: { breadcrumbLabel: 'menu.settings-legislative-authority' },
+                            },
+                            {
+                                path: "law-type",
+                                name: "app-settings-law-type",
+                                component: SettingsLawType,
+                                meta: { breadcrumbLabel: 'menu.settings-law-type' },
+                            },
+                        ],
                     },
                 ]
             },

@@ -293,6 +293,11 @@
     "base-info": "Base Information",
     "rules-regulations": "Rules & Regulations",
     "tasks": "Tasks",
+    "settings": "Settings",
+    "settings-guide": "Guide",
+    "settings-liaisons": "Liaisons",
+    "settings-legislative-authority": "Legislative authority",
+    "settings-law-type": "Law type",
     "user-list": "User list",
     "request": "Request",
     "request-list": "Request list",
@@ -301,6 +306,9 @@
     "sign-out": "Sing out",
     "login": "Login",
     "sign-in": "Sign in"
+  },
+  "settings-page": {
+    "guide-intro": "Documentation and help content for the system can be added here. This page does not include a data table."
   },
   "input": {
     "mobile": "Mobile",

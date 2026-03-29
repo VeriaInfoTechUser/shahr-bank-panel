@@ -52,6 +52,15 @@ export const endpoints = {
       task: {
         list: 'erm/task/list',
       },
+      member: {
+        list: 'erm/member/list',
+      },
+      ruleAuthor: {
+        list: 'erm/rule/author/list',
+      },
+      ruleType: {
+        list: 'erm/rule/type/list',
+      },
     },
   },
 };

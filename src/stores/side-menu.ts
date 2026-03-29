@@ -57,6 +57,33 @@ export const useSideMenuStore = defineStore("sideMenu", {
                     },
                 ],
             },
+            {
+                icon: "Settings",
+                pageName: "app-settings",
+                title: "menu.settings",
+                subMenu: [
+                    {
+                        icon: "BookOpen",
+                        pageName: "app-settings-guide",
+                        title: "menu.settings-guide",
+                    },
+                    {
+                        icon: "Link2",
+                        pageName: "app-settings-liaisons",
+                        title: "menu.settings-liaisons",
+                    },
+                    {
+                        icon: "Landmark",
+                        pageName: "app-settings-legislative-authority",
+                        title: "menu.settings-legislative-authority",
+                    },
+                    {
+                        icon: "FileType",
+                        pageName: "app-settings-law-type",
+                        title: "menu.settings-law-type",
+                    },
+                ],
+            },
         ],
     }),
 });

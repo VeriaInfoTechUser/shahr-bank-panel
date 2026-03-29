@@ -132,6 +132,11 @@
     "base-info": "المعلومات الأساسية",
     "rules-regulations": "القوانين واللوائح",
     "tasks": "المهام",
+    "settings": "الإعدادات",
+    "settings-guide": "دليل الاستخدام",
+    "settings-liaisons": "الجهات المرتبطة",
+    "settings-legislative-authority": "الجهة التشريعية",
+    "settings-law-type": "نوع القانون",
     "user-list": "قائمة المستخدمين",
     "blogs": "أخبار",
     "request": "الطلب",
@@ -141,6 +146,9 @@
     "sign-out": "تسجيل الخروج",
     "login": "تسجيل الدخول",
     "sign-in": "تسجيل الدخول"
+  },
+  "settings-page": {
+    "guide-intro": "يمكن إضافة محتوى التوثيق والمساعدة هنا. هذه الصفحة لا تحتوي على جدول بيانات."
   },
   "input": {
     "username": "اسم المستخدم",

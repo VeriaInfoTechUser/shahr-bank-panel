@@ -313,6 +313,11 @@
     "base-info": "اطلاعات پایه",
     "rules-regulations": "قوانین مقررات",
     "tasks": "تکالیف و تعهدات",
+    "settings": "تنظیمات",
+    "settings-guide": "راهنما",
+    "settings-liaisons": "رابطین",
+    "settings-legislative-authority": "مرجع قانون گذار",
+    "settings-law-type": "نوع قانون",
     "user-list": "فهرست کاربران",
     "request": "درخواست",
     "request-list": "فهرست",
@@ -321,6 +326,9 @@
     "sign-out": "خروج",
     "login": "ورود",
     "sign-in": "ورود"
+  },
+  "settings-page": {
+    "guide-intro": "در این بخش می‌توانید راهنمای استفاده از سامانه را قرار دهید. این صفحه فاقد جدول داده است."
   },
   "input": {
     "mobile": "موبایل",

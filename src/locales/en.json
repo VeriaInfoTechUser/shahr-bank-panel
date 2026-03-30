@@ -206,6 +206,16 @@
     "no-data": "No data found.",
     "loading": "Loading..."
   },
+  "dashboard-page": {
+    "subtitle": "Pick a workspace to continue.",
+    "date-prefix": "Today",
+    "spot-compliance-desc": "Track commitments, deadlines, and execution status",
+    "spot-risk-desc": "Review registered risks and their status",
+    "spot-rules-desc": "Browse laws, regulations, and circulars",
+    "spot-settings-desc": "Guide, liaisons, legislative authority, and system settings",
+    "footer-hint": "All other areas remain available from the side menu.",
+    "cta": "Open"
+  },
   "rule": {
     "rule": "Rule",
     "section-letter-number": "Section/Letter No.",

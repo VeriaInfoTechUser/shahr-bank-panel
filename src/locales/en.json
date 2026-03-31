@@ -207,7 +207,12 @@
     "loading": "Loading..."
   },
   "dashboard-page": {
-    "subtitle": "Pick a workspace to continue.",
+    "subtitle": "This system supports managing compliance with laws, regulations, and standards in your organization through coordination with compliance liaisons, and produces the required reports at managerial and expert levels.",
+    "profile-card-title": "Signed-in user",
+    "profile-load-error": "Could not load user profile.",
+    "profile-email": "Email",
+    "profile-identity": "Role",
+    "profile-last-login": "Last sign-in",
     "date-prefix": "Today",
     "spot-compliance-desc": "Track commitments, deadlines, and execution status",
     "spot-risk-desc": "Review registered risks and their status",

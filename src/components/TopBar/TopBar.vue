@@ -1,5 +1,6 @@
 <script setup>
-import {onMounted, ref} from "vue";
+import {computed, onMounted, onUnmounted, ref} from "vue";
+import {useI18n} from "vue-i18n";
 import Lucide from "../../base-components/Lucide";
 import logoUrl from "@/assets/shahr/logo.png";
 import Breadcrumb from "../../base-components/Breadcrumb";
@@ -19,6 +20,24 @@ import router from "@/router/index";
 
 const userStore = useUserStore();
 const {formatNumber} = useNumberFormat();
+const {locale} = useI18n();
+
+const now = ref(new Date());
+let clockIntervalId = null;
+
+const headerDateTime = computed(() => {
+  const loc = locale.value;
+  const tag = loc === "fa" ? "fa-IR" : loc === "ar" ? "ar" : "en-US";
+  const d = now.value;
+  const dateStr = d.toLocaleDateString(tag, {dateStyle: "long"});
+  const timeStr = d.toLocaleTimeString(tag, {
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false,
+  });
+  return {dateStr, timeStr, iso: d.toISOString()};
+});
 
 const route = useRoute()
 const id = ref(route.params.id)
@@ -57,11 +76,20 @@ function changeLanguage(data) {
   localeStore.changeLang(locale)
 }
 
-onMounted(()=>{
-  if(setting.wallet.isActive){
-    getWallet()
+onMounted(() => {
+  clockIntervalId = setInterval(() => {
+    now.value = new Date();
+  }, 1000);
+  if (setting.wallet.isActive) {
+    getWallet();
   }
-})
+});
+
+onUnmounted(() => {
+  if (clockIntervalId) {
+    clearInterval(clockIntervalId);
+  }
+});
 
 </script>
 
@@ -121,6 +149,24 @@ onMounted(()=>{
           </div>
         </div>
         <!-- END: Wallet -->
+        <!-- BEGIN: Live date/time (کنار منوی کاربر) -->
+        <div
+            class="me-2 flex flex-col items-end justify-center tabular-nums text-white/85 sm:me-3 rtl:items-start"
+        >
+          <time
+              class="max-w-[11rem] truncate text-end text-[10px] leading-tight opacity-90 sm:max-w-none sm:text-xs"
+              :datetime="headerDateTime.iso"
+          >
+            {{ headerDateTime.dateStr }}
+          </time>
+          <time
+              class="text-end text-[11px] font-semibold leading-tight text-white sm:text-sm"
+              :datetime="headerDateTime.iso"
+          >
+            {{ headerDateTime.timeStr }}
+          </time>
+        </div>
+        <!-- END: Live date/time -->
         <!-- BEGIN: Account Menu -->
         <Menu>
           <Menu.Button

@@ -1,11 +1,53 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import Lucide from '@/base-components/Lucide/Lucide.vue';
+import { userRepo } from '@/core/repositories/userRepo';
 
-const { t, locale } = useI18n();
+const { t } = useI18n();
 const router = useRouter();
+
+/** پاسخ POST user/profile/view */
+interface ProfilePayload {
+  name?: string;
+  first_name?: string;
+  last_name?: string;
+  email?: string;
+  identity?: string;
+  mobile?: string;
+  last_login_view?: string;
+}
+
+const profile = ref<ProfilePayload | null>(null);
+const profileLoading = ref(true);
+const profileError = ref(false);
+
+const displayName = computed(() => {
+  const p = profile.value;
+  if (!p) return '';
+  if (p.name?.trim()) return p.name.trim();
+  const fn = p.first_name?.trim() ?? '';
+  const ln = p.last_name?.trim() ?? '';
+  const joined = [fn, ln].filter(Boolean).join('\u00A0');
+  return joined || '—';
+});
+
+onMounted(async () => {
+  profileError.value = false;
+  try {
+    const res = await userRepo.getProfile();
+    if (res?.result && res?.data && typeof res.data === 'object') {
+      profile.value = res.data as ProfilePayload;
+    } else {
+      profileError.value = true;
+    }
+  } catch {
+    profileError.value = true;
+  } finally {
+    profileLoading.value = false;
+  }
+});
 
 type PrimaryRoute =
   | 'app-compliance-operations'
@@ -47,12 +89,6 @@ const spots = computed<Spot[]>(() => [
   },
 ]);
 
-const todayLabel = computed(() => {
-  const loc = locale.value;
-  const tag = loc === 'fa' ? 'fa-IR' : loc === 'ar' ? 'ar' : 'en-US';
-  return new Date().toLocaleDateString(tag, { dateStyle: 'long' });
-});
-
 function go(name: PrimaryRoute) {
   router.push({ name });
 }
@@ -66,29 +102,101 @@ function go(name: PrimaryRoute) {
       class="mb-10 md:mb-14"
     >
       <div
-        class="flex flex-col gap-6 border-b border-slate-200/80 pb-8 dark:border-darkmode-600 sm:flex-row sm:items-end sm:justify-between"
+        class="flex flex-col gap-6 border-b border-slate-200/80 pb-8 dark:border-darkmode-600 lg:flex-row lg:items-start lg:justify-between lg:gap-8"
       >
-        <div class="space-y-2">
-          <h1
-            class="text-2xl font-semibold tracking-tight text-slate-900 dark:text-slate-50 md:text-3xl"
-          >
-            {{ t('menu.dashboard') }}
-          </h1>
+        <div class="min-w-0 flex-1 space-y-2">
           <p
-            class="max-w-xl text-sm leading-relaxed text-slate-500 dark:text-slate-400"
+            class="max-w-3xl text-base font-medium leading-relaxed text-slate-700 dark:text-slate-300 md:text-[1.05rem]"
           >
             {{ t('dashboard-page.subtitle') }}
           </p>
         </div>
-        <time
-          class="shrink-0 text-xs tabular-nums text-slate-400 dark:text-slate-500"
-          :datetime="new Date().toISOString()"
+
+        <div
+          class="w-full shrink-0 lg:max-w-sm"
         >
-          <span class="text-slate-500 dark:text-slate-400">{{
-            t('dashboard-page.date-prefix')
-          }}</span>
-          {{ '\u00A0' }}{{ todayLabel }}
-        </time>
+          <div
+            v-if="profileLoading"
+            class="animate-pulse rounded-2xl border border-slate-200/90 bg-slate-50/80 p-5 dark:border-darkmode-600 dark:bg-darkmode-800/80"
+          >
+            <div class="mb-3 h-4 w-2/3 rounded bg-slate-200 dark:bg-darkmode-600" />
+            <div class="mb-2 h-3 w-full rounded bg-slate-100 dark:bg-darkmode-700" />
+            <div class="h-3 w-4/5 rounded bg-slate-100 dark:bg-darkmode-700" />
+          </div>
+          <div
+            v-else-if="profileError"
+            class="rounded-2xl border border-danger/25 bg-danger/5 p-4 text-sm text-danger dark:border-danger/40 dark:bg-danger/10"
+          >
+            {{ t('dashboard-page.profile-load-error') }}
+          </div>
+          <div
+            v-else-if="profile"
+            class="rounded-2xl border border-slate-200/90 bg-white p-5 shadow-sm dark:border-darkmode-600 dark:bg-darkmode-800"
+          >
+            <p
+              class="mb-3 text-xs font-medium uppercase tracking-wide text-slate-400 dark:text-slate-500"
+            >
+              {{ t('dashboard-page.profile-card-title') }}
+            </p>
+            <p
+              class="mb-4 text-base font-semibold text-slate-900 dark:text-slate-50"
+            >
+              {{ displayName }}
+            </p>
+            <dl class="space-y-2.5 text-sm">
+              <div
+                v-if="profile.email"
+                class="flex flex-col gap-0.5 sm:flex-row sm:items-baseline sm:gap-2"
+              >
+                <dt class="shrink-0 text-slate-400 dark:text-slate-500">
+                  {{ t('dashboard-page.profile-email') }}
+                </dt>
+                <dd
+                  class="min-w-0 break-all text-slate-700 dark:text-slate-200"
+                  dir="ltr"
+                >
+                  {{ profile.email }}
+                </dd>
+              </div>
+              <div
+                v-if="profile.identity"
+                class="flex flex-col gap-0.5 sm:flex-row sm:items-baseline sm:gap-2"
+              >
+                <dt class="shrink-0 text-slate-400 dark:text-slate-500">
+                  {{ t('dashboard-page.profile-identity') }}
+                </dt>
+                <dd class="text-slate-700 dark:text-slate-200">
+                  {{ profile.identity }}
+                </dd>
+              </div>
+              <div
+                v-if="profile.mobile"
+                class="flex flex-col gap-0.5 sm:flex-row sm:items-baseline sm:gap-2"
+              >
+                <dt class="shrink-0 text-slate-400 dark:text-slate-500">
+                  {{ t('title.mobile') }}
+                </dt>
+                <dd
+                  class="min-w-0 text-slate-700 dark:text-slate-200"
+                  dir="ltr"
+                >
+                  {{ profile.mobile }}
+                </dd>
+              </div>
+              <div
+                v-if="profile.last_login_view"
+                class="flex flex-col gap-0.5 sm:flex-row sm:items-baseline sm:gap-2"
+              >
+                <dt class="shrink-0 text-slate-400 dark:text-slate-500">
+                  {{ t('dashboard-page.profile-last-login') }}
+                </dt>
+                <dd class="text-slate-700 dark:text-slate-200">
+                  {{ profile.last_login_view }}
+                </dd>
+              </div>
+            </dl>
+          </div>
+        </div>
       </div>
     </header>
 

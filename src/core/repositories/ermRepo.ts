@@ -30,6 +30,10 @@ export class ErmRepo extends BaseRepo {
     return this.post<ApiResult<unknown>>(endpoints.admin.erm.rule.add, payload);
   }
 
+  async editRule(payload: Record<string, unknown>) {
+    return this.post<ApiResult<unknown>>(endpoints.admin.erm.rule.edit, payload);
+  }
+
   async ruleCategoryList(params: RuleListParams) {
     return this.post<RuleListResponse>(endpoints.admin.erm.ruleCategory.list, params);
   }

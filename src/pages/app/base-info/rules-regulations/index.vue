@@ -166,7 +166,17 @@ function onAttachmentClick(row: Record<string, unknown>) {
 }
 
 function onEditClick(row: Record<string, unknown>) {
-  console.log('Edit clicked', row);
+  openModal({
+    component: AddRuleModal,
+    props: {
+      mode: 'edit',
+      rule: row,
+    },
+    onSuccess: () => {
+      table.invalidateListCache();
+      table.setPage(1);
+    },
+  });
 }
 
 function onDeleteClick(row: Record<string, unknown>) {

@@ -11,9 +11,17 @@ import BaseDatePicker from '@/core/ui/base/BaseDatePicker.vue';
 import Button from '@/base-components/Button';
 import { ermRepo } from '@/core/repositories/ermRepo';
 
-const props = defineProps<{
-  show: boolean;
-}>();
+const props = withDefaults(
+  defineProps<{
+    show: boolean;
+    mode?: 'add' | 'edit';
+    rule?: Record<string, unknown> | null;
+  }>(),
+  {
+    mode: 'add',
+    rule: null,
+  }
+);
 
 const emit = defineEmits<{
   (e: 'update:show', v: boolean): void;
@@ -52,6 +60,18 @@ const formKey = ref(0);
 const categoryOptions = ref<{ value: string; label: string }[]>([]);
 const typeOptions = ref<{ value: string; label: string }[]>([]);
 const authorOptions = ref<{ value: string; label: string }[]>([]);
+const initialValues = ref({
+  rule: '',
+  code: '',
+  category: '',
+  type: '',
+  author: '',
+  approval_at: '',
+  promulgation_at: '',
+  cancellation_at: '',
+  is_creditable: false,
+  requirement: false,
+});
 
 function normalizeList(res: unknown): { value: string; label: string }[] {
   // APIهای مختلف ممکن است داده را در سطح‌های متفاوت برگردانند:
@@ -114,29 +134,65 @@ async function loadOptions() {
   }
 }
 
+function normalizeDate(v: unknown): string {
+  if (typeof v !== 'string') return '';
+  if (/^\d{4}-\d{2}-\d{2}$/.test(v)) return v;
+  if (/^\d{4}-\d{2}-\d{2}T/.test(v)) return v.slice(0, 10);
+  return v;
+}
+
+function valueFromInfo(source: Record<string, unknown> | null | undefined): string {
+  if (!source) return '';
+  return String(source.value ?? source.slug ?? source.id ?? '');
+}
+
+function buildInitialValues() {
+  if (props.mode !== 'edit' || !props.rule) {
+    initialValues.value = {
+      rule: '',
+      code: '',
+      category: '',
+      type: '',
+      author: '',
+      approval_at: '',
+      promulgation_at: '',
+      cancellation_at: '',
+      is_creditable: false,
+      requirement: false,
+    };
+    return;
+  }
+
+  const row = props.rule;
+  const categoryInfo = row.category_information as Record<string, unknown> | undefined;
+  const typeInfo = row.type_information as Record<string, unknown> | undefined;
+  const authorInfo = row.author_information as Record<string, unknown> | undefined;
+
+  initialValues.value = {
+    rule: String(row.rule ?? ''),
+    code: String(row.code ?? ''),
+    category: String(row.category ?? valueFromInfo(categoryInfo)),
+    type: String(row.type ?? valueFromInfo(typeInfo)),
+    author: String(row.author ?? valueFromInfo(authorInfo)),
+    approval_at: normalizeDate(row.approval_at),
+    promulgation_at: normalizeDate(row.promulgation_at),
+    cancellation_at: normalizeDate(row.cancellation_at),
+    is_creditable: row.is_creditable === 1 || row.is_creditable === true || row.validity === 1 || row.validity === true,
+    requirement: row.requirement === 1 || row.requirement === true,
+  };
+}
+
 watch(
-  () => props.show,
-  (v) => {
-    if (v) {
+  () => [props.show, props.mode, props.rule] as const,
+  ([show]) => {
+    if (show) {
+      buildInitialValues();
       formKey.value += 1;
       void loadOptions();
     }
   },
   { immediate: true }
 );
-
-const initialValues = {
-  rule: '',
-  code: '',
-  category: '',
-  type: '',
-  author: '',
-  approval_at: '',
-  promulgation_at: '',
-  cancellation_at: '',
-  is_creditable: false,
-  requirement: false,
-};
 
 function close() {
   emit('update:show', false);
@@ -170,20 +226,47 @@ async function onSubmit(values: Record<string, unknown>) {
       payload.cancellation_at = cancellation;
     }
 
-    const result = await ermRepo.addRule(payload);
+    if (props.mode === 'edit') {
+      const id = props.rule?.id;
+      if (id === null || id === undefined || id === '') {
+        toast(t('rule.form-add-error'), { type: 'error' });
+        return;
+      }
+      payload.id = id;
+    }
+
+    const result = props.mode === 'edit'
+      ? await ermRepo.editRule(payload)
+      : await ermRepo.addRule(payload);
     if (result?.result) {
-      toast(t('rule.form-add-success'), { type: 'success' });
+      toast(
+        props.mode === 'edit' ? t('rule.form-edit-success') : t('rule.form-add-success'),
+        { type: 'success' }
+      );
       emit('success');
       close();
     } else {
-      toast(String(result?.error?.message ?? t('rule.form-add-error')), {
+      toast(
+        String(
+          result?.error?.message ??
+            (props.mode === 'edit' ? t('rule.form-edit-error') : t('rule.form-add-error'))
+        ),
+        {
         type: 'error',
-      });
+        }
+      );
     }
   } catch (e) {
-    toast(e instanceof Error ? e.message : t('rule.form-add-error'), {
+    toast(
+      e instanceof Error
+        ? e.message
+        : props.mode === 'edit'
+          ? t('rule.form-edit-error')
+          : t('rule.form-add-error'),
+      {
       type: 'error',
-    });
+      }
+    );
   } finally {
     saving.value = false;
   }
@@ -193,7 +276,7 @@ async function onSubmit(values: Record<string, unknown>) {
 <template>
   <BaseModal
     :visible="show"
-    :title="t('rule.modal-add-title')"
+    :title="props.mode === 'edit' ? t('rule.modal-edit-title') : t('rule.modal-add-title')"
     @update:visible="onDialogVisible"
   >
     <div v-if="optionsLoading" class="py-8 text-center text-sm text-slate-500">
@@ -328,7 +411,7 @@ async function onSubmit(values: Record<string, unknown>) {
           form="add-rule-modal-form"
           :disabled="saving"
         >
-          {{ t('rule.form-submit') }}
+          {{ props.mode === 'edit' ? t('rule.form-edit-submit') : t('rule.form-submit') }}
         </Button>
       </div>
     </template>

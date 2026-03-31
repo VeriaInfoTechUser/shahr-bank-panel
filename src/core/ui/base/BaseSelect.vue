@@ -15,6 +15,10 @@ const props = withDefaults(
 );
 
 const { value, errorMessage, handleBlur, handleChange } = useField(props.name);
+
+function onChange(event: { value: unknown }) {
+  handleChange(event.value);
+}
 </script>
 
 <template>
@@ -29,10 +33,10 @@ const { value, errorMessage, handleBlur, handleChange } = useField(props.name);
       optionValue="value"
       :placeholder="placeholder"
       :disabled="disabled"
-      class="select select-bordered w-full !h-8 !min-h-0 py-0 pl-2 pr-8 text-xs font-light leading-snug [&_.p-select-label]:py-0 [&_.p-select-label]:text-xs [&_.p-select-label]:font-light [&_.p-select-label.p-placeholder]:text-slate-400 dark:[&_.p-select-label.p-placeholder]:text-slate-500"
+      class="select select-bordered w-full !h-8 !min-h-0 pl-2 pr-8 text-xs font-light leading-snug [&_.p-select-label]:flex [&_.p-select-label]:items-center [&_.p-select-label]:text-xs [&_.p-select-label]:font-light [&_.p-select-label.p-placeholder]:text-slate-400 dark:[&_.p-select-label.p-placeholder]:text-slate-500"
       :class="{ 'select-error': errorMessage }"
       @blur="handleBlur"
-      @change="handleChange"
+      @change="onChange"
     />
     <label v-if="errorMessage" class="label min-h-0 py-0 pt-0.5">
       <span class="label-text-alt text-error text-xs">{{ errorMessage }}</span>

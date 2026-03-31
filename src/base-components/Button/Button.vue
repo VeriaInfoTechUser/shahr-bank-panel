@@ -65,7 +65,7 @@ const generalStyles = [
 ];
 
 // Sizes
-const small = ["text-xs py-0.5 px-1"];
+const small = ["text-xs py-1.5 px-3"];
 const large = ["text-lg py-1.5 px-4"];
 
 // Main Colors

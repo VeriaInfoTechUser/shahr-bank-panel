@@ -222,7 +222,8 @@
     "code": "کد",
     "description": "توضیحات",
     "no-data": "داده‌ای یافت نشد.",
-    "loading": "در حال بارگذاری..."
+    "loading": "در حال بارگذاری...",
+    "select-filter-placeholder": "جستجو…"
   },
   "dashboard-page": {
     "identity-label": "شناسه سامانه:",

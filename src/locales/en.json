@@ -204,7 +204,8 @@
     "code": "Code",
     "description": "Description",
     "no-data": "No data found.",
-    "loading": "Loading..."
+    "loading": "Loading...",
+    "select-filter-placeholder": "Search…"
   },
   "dashboard-page": {
     "identity-label": "System ID:",

@@ -74,7 +74,8 @@
     "code": "الرمز",
     "description": "الوصف",
     "no-data": "لا توجد بيانات.",
-    "loading": "جاري التحميل..."
+    "loading": "جاري التحميل...",
+    "select-filter-placeholder": "بحث…"
   },
   "dashboard-page": {
     "identity-label": "معرّف النظام:",

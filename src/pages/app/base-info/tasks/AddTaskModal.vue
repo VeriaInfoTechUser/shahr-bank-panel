@@ -7,6 +7,7 @@ import { toast } from 'vue3-toastify';
 import BaseModal from '@/core/ui/base/BaseModal.vue';
 import BaseInput from '@/core/ui/base/BaseInput.vue';
 import BaseSelect from '@/core/ui/base/BaseSelect.vue';
+import BaseMultiSelect from '@/core/ui/base/BaseMultiSelect.vue';
 import Button from '@/base-components/Button';
 import { ermRepo } from '@/core/repositories/ermRepo';
 
@@ -41,10 +42,46 @@ const selectedDomainId = ref('');
 
 const domainTree = ref<DomainNode[]>([]);
 const domainOptions = ref<Option[]>([]);
+const warrantyRows = ref<Record<string, unknown>[]>([]);
 const warrantyOptions = ref<Option[]>([]);
 const ruleOptions = ref<Option[]>([]);
 const mandatoryUnitOptions = ref<Option[]>([]);
 const mandatoryUnitsRaw = ref<Record<string, unknown>[]>([]);
+
+function extractErmList(res: unknown): Record<string, unknown>[] {
+  if (Array.isArray(res)) return res as Record<string, unknown>[];
+  const r = res as { data?: unknown; list?: unknown[] };
+  const d = r?.data;
+  if (Array.isArray(d)) return d as Record<string, unknown>[];
+  if (d && typeof d === 'object' && 'list' in d && Array.isArray((d as { list: unknown[] }).list)) {
+    return (d as { list: Record<string, unknown>[] }).list;
+  }
+  if (Array.isArray(r?.list)) return r.list as Record<string, unknown>[];
+  return [];
+}
+
+function mapRowsToIdFirstOptions(rows: Record<string, unknown>[]): Option[] {
+  return rows
+    .map((row) => {
+      const value = String(row.id ?? row.value ?? row.slug ?? '');
+      const label = String(row.title ?? row.name ?? value);
+      return { value, label };
+    })
+    .filter((x) => x.value);
+}
+
+function mapWarrantyRowsToOptions(rows: Record<string, unknown>[]): Option[] {
+  return rows
+    .map((row) => {
+      const numId = Number(row.id ?? row.warranty_id ?? row.value);
+      if (!Number.isFinite(numId)) return null;
+      return {
+        value: String(numId),
+        label: String(row.title ?? row.name ?? row.id ?? ''),
+      };
+    })
+    .filter((x): x is Option => x != null);
+}
 
 const initialValues = ref({
   domain_id: '',
@@ -53,7 +90,7 @@ const initialValues = ref({
   code: '',
   has_clause: '0',
   rule_id: '',
-  mandatory_unit_id: '',
+  mandatory_unit_ids: [] as string[],
   title: '',
 });
 
@@ -65,7 +102,10 @@ const validationSchema = computed(() =>
     code: yup.string().optional(),
     has_clause: yup.string().required(),
     rule_id: yup.string().required(t('task.validation-rule-required')),
-    mandatory_unit_id: yup.string().required(t('task.validation-mandatory-unit-required')),
+    mandatory_unit_ids: yup
+      .array()
+      .of(yup.string())
+      .min(1, t('task.validation-mandatory-unit-required')),
     title: yup.string().required(t('task.validation-title-required')),
   })
 );
@@ -76,41 +116,6 @@ watch(locale, async () => {
   await exposed?.validate?.();
 });
 
-function normalizeList(res: unknown): Option[] {
-  if (Array.isArray(res)) {
-    return res
-      .map((item) => {
-        const row = item as Record<string, unknown>;
-        const value = String(row.value ?? row.slug ?? row.id ?? '');
-        const label = String(row.title ?? row.name ?? value);
-        return { value, label };
-      })
-      .filter((x) => x.value);
-  }
-
-  const r = res as { data?: { list?: unknown[] } | unknown[] };
-  let list: unknown[] = [];
-  const d = r?.data;
-  if (Array.isArray(d)) list = d;
-  else if (
-    d &&
-    typeof d === 'object' &&
-    'list' in d &&
-    Array.isArray((d as { list: unknown[] }).list)
-  ) {
-    list = (d as { list: unknown[] }).list;
-  }
-
-  return list
-    .map((item) => {
-      const row = item as Record<string, unknown>;
-      const value = String(row.value ?? row.slug ?? row.id ?? '');
-      const label = String(row.title ?? row.name ?? value);
-      return { value, label };
-    })
-    .filter((x) => x.value);
-}
-
 const subjectOptions = computed<Option[]>(() => {
   const domain = domainTree.value.find((d) => String(d.id) === selectedDomainId.value);
   const children = Array.isArray(domain?.children) ? domain.children : [];
@@ -119,6 +124,60 @@ const subjectOptions = computed<Option[]>(() => {
     label: String(c.title ?? c.name ?? c.id ?? ''),
   })).filter((x) => x.value);
 });
+
+/** حوزه = گرهٔ والد در درخت؛ موضوع = برگ. API گاهی `section.children` (موضوع) و گاهی `section.parent_id` (حوزه) می‌دهد */
+function resolveDomainAndSectionIds(row: TaskRow): { domainId: string; sectionId: string } {
+  const section = row.section as Record<string, unknown> | undefined;
+  const topSectionId =
+    row.section_id != null && row.section_id !== '' ? String(row.section_id) : '';
+  const domainFromRow = row.domain as Record<string, unknown> | undefined;
+
+  if (!section) {
+    return {
+      domainId: String(row.domain_id ?? domainFromRow?.id ?? ''),
+      sectionId: topSectionId,
+    };
+  }
+
+  const childrenRaw = section.children;
+  if (childrenRaw != null) {
+    if (Array.isArray(childrenRaw) && childrenRaw.length > 0) {
+      const matched =
+        topSectionId.length > 0
+          ? childrenRaw.find(
+              (c) => String((c as Record<string, unknown>).id) === topSectionId
+            )
+          : undefined;
+      const child = (matched ?? childrenRaw[0]) as Record<string, unknown>;
+      return {
+        domainId: String(section.id ?? ''),
+        sectionId: String(child.id ?? topSectionId),
+      };
+    }
+    if (typeof childrenRaw === 'object') {
+      const child = childrenRaw as Record<string, unknown>;
+      return {
+        domainId: String(section.id ?? ''),
+        sectionId: String(child.id ?? topSectionId),
+      };
+    }
+  }
+
+  const parentId = section.parent_id;
+  if (parentId != null && parentId !== '') {
+    return {
+      domainId: String(parentId),
+      sectionId: String(section.id ?? topSectionId),
+    };
+  }
+
+  return {
+    domainId: String(
+      domainFromRow?.id ?? row.domain_id ?? section.domain_id ?? section.id ?? ''
+    ),
+    sectionId: String(topSectionId || (section.id ?? '')),
+  };
+}
 
 function buildInitialValues() {
   if (props.mode !== 'edit' || !props.task) {
@@ -130,15 +189,14 @@ function buildInitialValues() {
       code: '',
       has_clause: '0',
       rule_id: '',
-      mandatory_unit_id: '',
+      mandatory_unit_ids: [],
       title: '',
     };
     return;
   }
 
   const row = props.task;
-  const section = row.section as Record<string, unknown> | undefined;
-  const domainId = section ? String(section.parent_id ?? section.id ?? '') : '';
+  const { domainId, sectionId } = resolveDomainAndSectionIds(row);
   const mandatory = row.mandatory_unit as Array<Record<string, unknown>> | undefined;
   const warranty = row.warranty as Record<string, unknown> | undefined;
   const rule = row.rule as Record<string, unknown> | undefined;
@@ -146,12 +204,18 @@ function buildInitialValues() {
   selectedDomainId.value = domainId;
   initialValues.value = {
     domain_id: domainId,
-    section_id: String(section?.id ?? row.section_id ?? ''),
-    warranty_id: String(warranty?.id ?? row.warranty_id ?? ''),
+    section_id: sectionId,
+    warranty_id: String(
+      warranty?.id ?? warranty?.warranty_id ?? row.warranty_id ?? ''
+    ),
     code: String(row.code ?? ''),
     has_clause: row.has_clause === 1 || row.has_clause === true ? '1' : '0',
     rule_id: String(rule?.id ?? row.rule_id ?? ''),
-    mandatory_unit_id: String(mandatory?.[0]?.id ?? ''),
+    mandatory_unit_ids: Array.isArray(mandatory)
+      ? mandatory
+          .map((m) => String(m.id ?? ''))
+          .filter((id) => id !== '')
+      : [],
     title: String(row.title ?? ''),
   };
 }
@@ -174,7 +238,8 @@ async function loadOptions() {
       label: String(d.title ?? d.name ?? d.id ?? ''),
     })).filter((x) => x.value);
 
-    warrantyOptions.value = normalizeList(warrantyRes);
+    warrantyRows.value = extractErmList(warrantyRes);
+    warrantyOptions.value = mapWarrantyRowsToOptions(warrantyRows.value);
     const rulesData = (rulesRes as { data?: { list?: unknown[] } | unknown[] })?.data;
     const rulesList = Array.isArray(rulesData)
       ? rulesData
@@ -190,20 +255,35 @@ async function loadOptions() {
         };
       })
       .filter((x) => x.value);
-    mandatoryUnitsRaw.value = Array.isArray((mandatoryRes as { data?: unknown[] })?.data)
-      ? ((mandatoryRes as { data?: unknown[] }).data as Record<string, unknown>[])
-      : [];
-    mandatoryUnitOptions.value = normalizeList(mandatoryRes);
+    mandatoryUnitsRaw.value = extractErmList(mandatoryRes);
+    mandatoryUnitOptions.value = mapRowsToIdFirstOptions(mandatoryUnitsRaw.value);
   } catch {
     toast(t('rule.form-load-options-error'), { type: 'error' });
     domainTree.value = [];
     domainOptions.value = [];
+    warrantyRows.value = [];
     warrantyOptions.value = [];
     ruleOptions.value = [];
     mandatoryUnitOptions.value = [];
     mandatoryUnitsRaw.value = [];
   } finally {
     optionsLoading.value = false;
+    if (props.show && props.mode === 'edit' && props.task && domainTree.value.length > 0) {
+      const { domainId, sectionId } = resolveDomainAndSectionIds(props.task);
+      selectedDomainId.value = domainId;
+      initialValues.value = {
+        ...initialValues.value,
+        domain_id: domainId,
+        section_id: sectionId,
+      };
+      await nextTick();
+      await nextTick();
+      const formApi = formRef.value as {
+        setFieldValue?: (n: string, v: unknown, shouldValidate?: boolean) => void;
+      } | null;
+      formApi?.setFieldValue?.('domain_id', domainId, false);
+      formApi?.setFieldValue?.('section_id', sectionId, false);
+    }
   }
 }
 
@@ -238,18 +318,65 @@ function onDomainChanged(
   setFieldValue('section_id', '');
 }
 
+function buildMandatoryUnitPayload(ids: string[]): { id: number; slug: string; title: string }[] {
+  return ids
+    .map((raw) => String(raw ?? '').trim())
+    .filter(Boolean)
+    .map((id) => {
+      const row = mandatoryUnitsRaw.value.find(
+        (x) =>
+          String(x.id) === id ||
+          String(x.slug ?? '') === id ||
+          String(x.value ?? '') === id
+      );
+      if (!row || row.id == null) return null;
+      const nid = Number(row.id);
+      if (!Number.isFinite(nid)) return null;
+      return {
+        id: nid,
+        slug: String(row.slug ?? ''),
+        title: String(row.title ?? row.name ?? ''),
+      };
+    })
+    .filter((x): x is { id: number; slug: string; title: string } => x != null);
+}
+
 async function onSubmit(values: Record<string, unknown>) {
   saving.value = true;
   try {
-    const mandatoryId = String(values.mandatory_unit_id ?? '');
-    const mandatoryRaw = mandatoryUnitsRaw.value.find((x) => String(x.id ?? '') === mandatoryId);
-    const mandatoryTitle = String(mandatoryRaw?.title ?? '');
-    const mandatorySlug = String(mandatoryRaw?.slug ?? '');
+    const rawMandatoryIds = Array.isArray(values.mandatory_unit_ids)
+      ? (values.mandatory_unit_ids as unknown[])
+          .map((x) => String(x ?? ''))
+          .filter((id) => id !== '')
+      : [];
+    const mandatory_unit = buildMandatoryUnitPayload(rawMandatoryIds);
+
+    if (mandatory_unit.length === 0) {
+      toast(t('task.validation-mandatory-unit-required'), { type: 'error' });
+      return;
+    }
+
+    const warrantyIdStr = String(values.warranty_id ?? '').trim();
+    let warrantyNumId = Number(warrantyIdStr);
+    if (Number.isNaN(warrantyNumId)) {
+      const found = warrantyRows.value.find(
+        (x) =>
+          String(x.id ?? '') === warrantyIdStr ||
+          String(x.warranty_id ?? '') === warrantyIdStr ||
+          String(x.slug ?? '') === warrantyIdStr ||
+          String(x.value ?? '') === warrantyIdStr
+      );
+      warrantyNumId = Number(found?.id ?? found?.warranty_id);
+    }
+    if (Number.isNaN(warrantyNumId)) {
+      toast(t('task.validation-type-required'), { type: 'error' });
+      return;
+    }
 
     const payload: Record<string, unknown> = {
       id: props.mode === 'edit' ? props.task?.id ?? null : null,
       rule_id: Number(values.rule_id),
-      warranty_id: Number(values.warranty_id),
+      warranty_id: warrantyNumId,
       section_id: Number(values.section_id),
       has_clause: String(values.has_clause) === '1' ? 1 : 0,
       reference_id: 0,
@@ -269,13 +396,7 @@ async function onSubmit(values: Record<string, unknown>) {
       risk_response_type: '',
       min_risk: '',
       max_risk: '',
-      mandatory_unit: [
-        {
-          id: Number(mandatoryId),
-          slug: mandatorySlug,
-          title: mandatoryTitle,
-        },
-      ],
+      mandatory_unit,
     };
 
     const result = props.mode === 'edit'
@@ -351,6 +472,7 @@ const clauseOptions = computed<Option[]>(() => [
           :placeholder="t('rule.form-select-placeholder')"
           :required="true"
           :disabled="ruleOptions.length === 0"
+          :filter="true"
         />
       </div>
       <div class="grid grid-cols-1 gap-3 md:grid-cols-2 md:gap-x-4 md:gap-y-3">
@@ -361,6 +483,7 @@ const clauseOptions = computed<Option[]>(() => [
           :placeholder="t('rule.form-select-placeholder')"
           :required="true"
           :disabled="domainOptions.length === 0"
+          :filter="true"
           @change="(v) => onDomainChanged(v, setFieldValue)"
         />
         <BaseSelect
@@ -383,20 +506,20 @@ const clauseOptions = computed<Option[]>(() => [
           name="code"
           :label="t('task.form-code')"
         />
+        <BaseMultiSelect
+          name="mandatory_unit_ids"
+          :label="t('task.form-mandatory-unit')"
+          :options="mandatoryUnitOptions"
+          :placeholder="t('rule.form-select-placeholder')"
+          :required="true"
+          :disabled="mandatoryUnitOptions.length === 0"
+        />
         <BaseSelect
           name="has_clause"
           :label="t('task.form-clause')"
           :options="clauseOptions"
           :placeholder="t('rule.form-select-placeholder')"
           :required="true"
-        />
-        <BaseSelect
-          name="mandatory_unit_id"
-          :label="t('task.form-mandatory-unit')"
-          :options="mandatoryUnitOptions"
-          :placeholder="t('rule.form-select-placeholder')"
-          :required="true"
-          :disabled="mandatoryUnitOptions.length === 0"
         />
       </div>
     </Form>

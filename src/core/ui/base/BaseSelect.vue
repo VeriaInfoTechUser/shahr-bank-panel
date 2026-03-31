@@ -14,10 +14,17 @@ const props = withDefaults(
   { options: () => [], required: false, disabled: false }
 );
 
+const emit = defineEmits<{
+  (e: 'update:modelValue', value: unknown): void;
+  (e: 'change', value: unknown): void;
+}>();
+
 const { value, errorMessage, handleBlur, handleChange } = useField(props.name);
 
 function onChange(event: { value: unknown }) {
   handleChange(event.value);
+  emit('update:modelValue', event.value);
+  emit('change', event.value);
 }
 </script>
 

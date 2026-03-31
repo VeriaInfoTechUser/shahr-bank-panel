@@ -1,0 +1,427 @@
+<script setup lang="ts">
+import { computed, nextTick, ref, watch } from 'vue';
+import { Form } from 'vee-validate';
+import * as yup from 'yup';
+import { useI18n } from 'vue-i18n';
+import { toast } from 'vue3-toastify';
+import BaseModal from '@/core/ui/base/BaseModal.vue';
+import BaseInput from '@/core/ui/base/BaseInput.vue';
+import BaseSelect from '@/core/ui/base/BaseSelect.vue';
+import Button from '@/base-components/Button';
+import { ermRepo } from '@/core/repositories/ermRepo';
+
+type TaskRow = Record<string, unknown>;
+type Option = { value: string; label: string };
+type DomainNode = Record<string, unknown> & { children?: DomainNode[] };
+
+const props = withDefaults(
+  defineProps<{
+    show: boolean;
+    mode?: 'add' | 'edit';
+    task?: TaskRow | null;
+  }>(),
+  {
+    mode: 'add',
+    task: null,
+  }
+);
+
+const emit = defineEmits<{
+  (e: 'update:show', v: boolean): void;
+  (e: 'close'): void;
+  (e: 'success'): void;
+}>();
+
+const { t, locale } = useI18n();
+const formRef = ref<InstanceType<typeof Form> | null>(null);
+const optionsLoading = ref(true);
+const saving = ref(false);
+const formKey = ref(0);
+const selectedDomainId = ref('');
+
+const domainTree = ref<DomainNode[]>([]);
+const domainOptions = ref<Option[]>([]);
+const warrantyOptions = ref<Option[]>([]);
+const ruleOptions = ref<Option[]>([]);
+const mandatoryUnitOptions = ref<Option[]>([]);
+const mandatoryUnitsRaw = ref<Record<string, unknown>[]>([]);
+
+const initialValues = ref({
+  domain_id: '',
+  section_id: '',
+  warranty_id: '',
+  code: '',
+  has_clause: '0',
+  rule_id: '',
+  mandatory_unit_id: '',
+  title: '',
+});
+
+const validationSchema = computed(() =>
+  yup.object({
+    domain_id: yup.string().required(t('task.validation-domain-required')),
+    section_id: yup.string().required(t('task.validation-subject-required')),
+    warranty_id: yup.string().required(t('task.validation-type-required')),
+    code: yup.string().optional(),
+    has_clause: yup.string().required(),
+    rule_id: yup.string().required(t('task.validation-rule-required')),
+    mandatory_unit_id: yup.string().required(t('task.validation-mandatory-unit-required')),
+    title: yup.string().required(t('task.validation-title-required')),
+  })
+);
+
+watch(locale, async () => {
+  await nextTick();
+  const exposed = formRef.value as { validate?: () => Promise<unknown> } | null;
+  await exposed?.validate?.();
+});
+
+function normalizeList(res: unknown): Option[] {
+  if (Array.isArray(res)) {
+    return res
+      .map((item) => {
+        const row = item as Record<string, unknown>;
+        const value = String(row.value ?? row.slug ?? row.id ?? '');
+        const label = String(row.title ?? row.name ?? value);
+        return { value, label };
+      })
+      .filter((x) => x.value);
+  }
+
+  const r = res as { data?: { list?: unknown[] } | unknown[] };
+  let list: unknown[] = [];
+  const d = r?.data;
+  if (Array.isArray(d)) list = d;
+  else if (
+    d &&
+    typeof d === 'object' &&
+    'list' in d &&
+    Array.isArray((d as { list: unknown[] }).list)
+  ) {
+    list = (d as { list: unknown[] }).list;
+  }
+
+  return list
+    .map((item) => {
+      const row = item as Record<string, unknown>;
+      const value = String(row.value ?? row.slug ?? row.id ?? '');
+      const label = String(row.title ?? row.name ?? value);
+      return { value, label };
+    })
+    .filter((x) => x.value);
+}
+
+const subjectOptions = computed<Option[]>(() => {
+  const domain = domainTree.value.find((d) => String(d.id) === selectedDomainId.value);
+  const children = Array.isArray(domain?.children) ? domain.children : [];
+  return children.map((c) => ({
+    value: String(c.id ?? c.slug ?? ''),
+    label: String(c.title ?? c.name ?? c.id ?? ''),
+  })).filter((x) => x.value);
+});
+
+function buildInitialValues() {
+  if (props.mode !== 'edit' || !props.task) {
+    selectedDomainId.value = '';
+    initialValues.value = {
+      domain_id: '',
+      section_id: '',
+      warranty_id: '',
+      code: '',
+      has_clause: '0',
+      rule_id: '',
+      mandatory_unit_id: '',
+      title: '',
+    };
+    return;
+  }
+
+  const row = props.task;
+  const section = row.section as Record<string, unknown> | undefined;
+  const domainId = section ? String(section.parent_id ?? section.id ?? '') : '';
+  const mandatory = row.mandatory_unit as Array<Record<string, unknown>> | undefined;
+  const warranty = row.warranty as Record<string, unknown> | undefined;
+  const rule = row.rule as Record<string, unknown> | undefined;
+
+  selectedDomainId.value = domainId;
+  initialValues.value = {
+    domain_id: domainId,
+    section_id: String(section?.id ?? row.section_id ?? ''),
+    warranty_id: String(warranty?.id ?? row.warranty_id ?? ''),
+    code: String(row.code ?? ''),
+    has_clause: row.has_clause === 1 || row.has_clause === true ? '1' : '0',
+    rule_id: String(rule?.id ?? row.rule_id ?? ''),
+    mandatory_unit_id: String(mandatory?.[0]?.id ?? ''),
+    title: String(row.title ?? ''),
+  };
+}
+
+async function loadOptions() {
+  optionsLoading.value = true;
+  try {
+    const listParams = { page: 1, limit: 500, api_version: 8 };
+    const [domainRes, warrantyRes, rulesRes, mandatoryRes] = await Promise.all([
+      ermRepo.domainTree(listParams),
+      ermRepo.warrantyList(listParams),
+      ermRepo.list(listParams),
+      ermRepo.mandatoryUnitList(listParams),
+    ]);
+
+    const domainData = (domainRes as { data?: unknown[] })?.data;
+    domainTree.value = Array.isArray(domainData) ? (domainData as DomainNode[]) : [];
+    domainOptions.value = domainTree.value.map((d) => ({
+      value: String(d.id ?? d.slug ?? ''),
+      label: String(d.title ?? d.name ?? d.id ?? ''),
+    })).filter((x) => x.value);
+
+    warrantyOptions.value = normalizeList(warrantyRes);
+    const rulesData = (rulesRes as { data?: { list?: unknown[] } | unknown[] })?.data;
+    const rulesList = Array.isArray(rulesData)
+      ? rulesData
+      : (rulesData && typeof rulesData === 'object' && 'list' in rulesData && Array.isArray((rulesData as { list: unknown[] }).list))
+        ? (rulesData as { list: unknown[] }).list
+        : [];
+    ruleOptions.value = rulesList
+      .map((item) => {
+        const row = item as Record<string, unknown>;
+        return {
+          value: String(row.id ?? row.value ?? row.slug ?? ''),
+          label: String(row.rule ?? row.title ?? row.name ?? row.id ?? ''),
+        };
+      })
+      .filter((x) => x.value);
+    mandatoryUnitsRaw.value = Array.isArray((mandatoryRes as { data?: unknown[] })?.data)
+      ? ((mandatoryRes as { data?: unknown[] }).data as Record<string, unknown>[])
+      : [];
+    mandatoryUnitOptions.value = normalizeList(mandatoryRes);
+  } catch {
+    toast(t('rule.form-load-options-error'), { type: 'error' });
+    domainTree.value = [];
+    domainOptions.value = [];
+    warrantyOptions.value = [];
+    ruleOptions.value = [];
+    mandatoryUnitOptions.value = [];
+    mandatoryUnitsRaw.value = [];
+  } finally {
+    optionsLoading.value = false;
+  }
+}
+
+watch(
+  () => [props.show, props.mode, props.task] as const,
+  ([show]) => {
+    if (!show) return;
+    buildInitialValues();
+    formKey.value += 1;
+    void loadOptions();
+  },
+  { immediate: true }
+);
+
+function close() {
+  emit('update:show', false);
+  emit('close');
+}
+
+function onDialogVisible(v: boolean) {
+  emit('update:show', v);
+  if (!v) emit('close');
+}
+
+function onDomainChanged(
+  domainId: unknown,
+  setFieldValue: (field: string, value: unknown) => void
+) {
+  const next = String(domainId ?? '');
+  if (next === selectedDomainId.value) return;
+  selectedDomainId.value = next;
+  setFieldValue('section_id', '');
+}
+
+async function onSubmit(values: Record<string, unknown>) {
+  saving.value = true;
+  try {
+    const mandatoryId = String(values.mandatory_unit_id ?? '');
+    const mandatoryRaw = mandatoryUnitsRaw.value.find((x) => String(x.id ?? '') === mandatoryId);
+    const mandatoryTitle = String(mandatoryRaw?.title ?? '');
+    const mandatorySlug = String(mandatoryRaw?.slug ?? '');
+
+    const payload: Record<string, unknown> = {
+      id: props.mode === 'edit' ? props.task?.id ?? null : null,
+      rule_id: Number(values.rule_id),
+      warranty_id: Number(values.warranty_id),
+      section_id: Number(values.section_id),
+      has_clause: String(values.has_clause) === '1' ? 1 : 0,
+      reference_id: 0,
+      type: 'compliance',
+      title: String(values.title ?? ''),
+      code: String(values.code ?? ''),
+      limit: null,
+      page: null,
+      standard_id: 1,
+      data_from: null,
+      data_to: null,
+      enforce_data_from: null,
+      enforce_data_to: null,
+      enforcer: '',
+      level: '',
+      compliance_enforcer: '',
+      risk_response_type: '',
+      min_risk: '',
+      max_risk: '',
+      mandatory_unit: [
+        {
+          id: Number(mandatoryId),
+          slug: mandatorySlug,
+          title: mandatoryTitle,
+        },
+      ],
+    };
+
+    const result = props.mode === 'edit'
+      ? await ermRepo.editTask(payload)
+      : await ermRepo.addTask(payload);
+
+    if (result?.result) {
+      toast(
+        props.mode === 'edit' ? t('task.form-edit-success') : t('task.form-add-success'),
+        { type: 'success' }
+      );
+      emit('success');
+      close();
+    } else {
+      toast(
+        String(
+          result?.error?.message ??
+            (props.mode === 'edit' ? t('task.form-edit-error') : t('task.form-add-error'))
+        ),
+        { type: 'error' }
+      );
+    }
+  } catch (e) {
+    toast(
+      e instanceof Error
+        ? e.message
+        : props.mode === 'edit'
+          ? t('task.form-edit-error')
+          : t('task.form-add-error'),
+      { type: 'error' }
+    );
+  } finally {
+    saving.value = false;
+  }
+}
+
+const clauseOptions = computed<Option[]>(() => [
+  { value: '1', label: t('task.clause-yes') },
+  { value: '0', label: t('task.clause-no') },
+]);
+</script>
+
+<template>
+  <BaseModal
+    :visible="show"
+    :title="props.mode === 'edit' ? t('task.modal-edit-title') : t('task.modal-add-title')"
+    @update:visible="onDialogVisible"
+  >
+    <div v-if="optionsLoading" class="py-8 text-center text-sm text-slate-500">
+      {{ t('general.loading') }}
+    </div>
+    <Form
+      v-else
+      id="add-task-modal-form"
+      ref="formRef"
+      :key="formKey"
+      :validation-schema="validationSchema"
+      :initial-values="initialValues"
+      class="space-y-3"
+      @submit="onSubmit"
+      v-slot="{ setFieldValue }"
+    >
+      <div class="space-y-3">
+        <BaseInput
+          name="title"
+          :label="t('task.form-title')"
+          :required="true"
+        />
+        <BaseSelect
+          name="rule_id"
+          :label="t('task.form-rule')"
+          :options="ruleOptions"
+          :placeholder="t('rule.form-select-placeholder')"
+          :required="true"
+          :disabled="ruleOptions.length === 0"
+        />
+      </div>
+      <div class="grid grid-cols-1 gap-3 md:grid-cols-2 md:gap-x-4 md:gap-y-3">
+        <BaseSelect
+          name="domain_id"
+          :label="t('task.form-domain')"
+          :options="domainOptions"
+          :placeholder="t('rule.form-select-placeholder')"
+          :required="true"
+          :disabled="domainOptions.length === 0"
+          @change="(v) => onDomainChanged(v, setFieldValue)"
+        />
+        <BaseSelect
+          name="section_id"
+          :label="t('task.form-subject')"
+          :options="subjectOptions"
+          :placeholder="t('rule.form-select-placeholder')"
+          :required="true"
+          :disabled="subjectOptions.length === 0"
+        />
+        <BaseSelect
+          name="warranty_id"
+          :label="t('task.form-type')"
+          :options="warrantyOptions"
+          :placeholder="t('rule.form-select-placeholder')"
+          :required="true"
+          :disabled="warrantyOptions.length === 0"
+        />
+        <BaseInput
+          name="code"
+          :label="t('task.form-code')"
+        />
+        <BaseSelect
+          name="has_clause"
+          :label="t('task.form-clause')"
+          :options="clauseOptions"
+          :placeholder="t('rule.form-select-placeholder')"
+          :required="true"
+        />
+        <BaseSelect
+          name="mandatory_unit_id"
+          :label="t('task.form-mandatory-unit')"
+          :options="mandatoryUnitOptions"
+          :placeholder="t('rule.form-select-placeholder')"
+          :required="true"
+          :disabled="mandatoryUnitOptions.length === 0"
+        />
+      </div>
+    </Form>
+    <template #footer>
+      <div v-if="!optionsLoading" class="flex flex-wrap justify-end gap-2">
+        <Button
+          type="button"
+          variant="outline-secondary"
+          size="sm"
+          :disabled="saving"
+          @click="close"
+        >
+          {{ t('rule.form-cancel') }}
+        </Button>
+        <Button
+          type="submit"
+          variant="primary"
+          size="sm"
+          form="add-task-modal-form"
+          :disabled="saving"
+        >
+          {{ props.mode === 'edit' ? t('task.form-edit-submit') : t('task.form-submit') }}
+        </Button>
+      </div>
+    </template>
+  </BaseModal>
+</template>
+

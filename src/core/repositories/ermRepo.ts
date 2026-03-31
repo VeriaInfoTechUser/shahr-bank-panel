@@ -42,6 +42,14 @@ export class ErmRepo extends BaseRepo {
     return this.post<RuleListResponse>(endpoints.admin.erm.task.list, params);
   }
 
+  async addTask(payload: Record<string, unknown>) {
+    return this.post<ApiResult<unknown>>(endpoints.admin.erm.task.add, payload);
+  }
+
+  async editTask(payload: Record<string, unknown>) {
+    return this.post<ApiResult<unknown>>(endpoints.admin.erm.task.edit, payload);
+  }
+
   async memberList(params: RuleListParams) {
     return this.post<RuleListResponse>(endpoints.admin.erm.member.list, params);
   }
@@ -52,6 +60,18 @@ export class ErmRepo extends BaseRepo {
 
   async ruleTypeList(params: RuleListParams) {
     return this.post<RuleListResponse>(endpoints.admin.erm.ruleType.list, params);
+  }
+
+  async domainTree(params: RuleListParams) {
+    return this.post<RuleListResponse>(endpoints.admin.erm.domain.tree, params);
+  }
+
+  async warrantyList(params: RuleListParams) {
+    return this.post<RuleListResponse>(endpoints.admin.erm.warranty.list, params);
+  }
+
+  async mandatoryUnitList(params: RuleListParams) {
+    return this.post<RuleListResponse>(endpoints.admin.erm.mandatoryUnit.list, params);
   }
 
   async complianceList(params: RuleListParams) {

@@ -56,6 +56,17 @@ export const endpoints = {
       },
       task: {
         list: 'erm/task/list',
+        add: 'erm/task/add',
+        edit: 'erm/task/edit',
+      },
+      domain: {
+        tree: 'erm/domain/tree',
+      },
+      warranty: {
+        list: 'erm/warranty/list',
+      },
+      mandatoryUnit: {
+        list: 'erm/mandatory-unit/list',
       },
       compliance: {
         list: 'erm/compliance/list',

@@ -133,7 +133,10 @@ onMounted(() => {
 function onAddRule() {
   openModal({
     component: AddRuleModal,
-    onSuccess: () => table.fetch(),
+    onSuccess: () => {
+      table.invalidateListCache();
+      table.setPage(1);
+    },
   });
 }
 

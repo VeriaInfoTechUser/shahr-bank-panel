@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n';
-import { onMounted } from 'vue';
+import { computed, onMounted, watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import { useDataTable, createColumn, type FetchFn } from '@core';
 import BaseTable from '@core/ui/base/BaseTable.vue';
 import { ermRepo } from '@/core/repositories/ermRepo';
@@ -12,8 +13,18 @@ import AddTaskModal from './AddTaskModal.vue';
 import TasksBreadcrumbToolbar from './TasksBreadcrumbToolbar.vue';
 
 const { t } = useI18n();
+const route = useRoute();
+const router = useRouter();
 const { setContent: setBreadcrumbSlot } = useBreadcrumbSlot();
 const { openModal } = useGlobalModal();
+
+function parseReferenceIdFromQuery(q: unknown): number | null {
+  if (q == null || q === '') return null;
+  const n = Number(q);
+  return Number.isFinite(n) && n > 0 ? n : null;
+}
+
+const currentReferenceId = computed(() => parseReferenceIdFromQuery(route.query.reference_id));
 
 const fetchTasks: FetchFn = async ({ page, limit, sort, filters }) => {
   const res = await ermRepo.taskList({
@@ -59,10 +70,6 @@ function mandatoryUnitCell(row: Record<string, unknown>) {
   return units.map((u) => u.title ?? '').filter(Boolean).join('، ');
 }
 
-function clauseCell(row: Record<string, unknown>) {
-  return row.has_clause === 1 ? t('task.clause-yes') : t('task.clause-no');
-}
-
 const table = useDataTable({
   fetchFn: fetchTasks,
   columns: [
@@ -106,7 +113,8 @@ const table = useDataTable({
       key: 'has_clause',
       label: t('task.clause-column'),
       sortable: false,
-      bodyCell: clauseCell,
+      bodyCell: (row) =>
+        row.has_clause === 1 ? t('task.clause-yes') : t('task.clause-no'),
     }),
   ],
   selectable: false,
@@ -116,7 +124,29 @@ const table = useDataTable({
   listCacheStaleTime: 0,
 });
 
+function syncReferenceFilterFromRoute() {
+  const refId = parseReferenceIdFromQuery(route.query.reference_id);
+  const next = { ...table.filters.value };
+  if (refId != null) {
+    next.reference_id = refId;
+  } else {
+    delete next.reference_id;
+  }
+  table.filters.value = next;
+}
+
+watch(
+  () => route.query.reference_id,
+  () => {
+    table.invalidateListCache();
+    syncReferenceFilterFromRoute();
+    table.setPage(1);
+  }
+);
+
 onMounted(() => {
+  syncReferenceFilterFromRoute();
+  table.invalidateListCache();
   table.fetch();
   setBreadcrumbSlot(TasksBreadcrumbToolbar, {
     onExport: onExportTasks,
@@ -124,6 +154,19 @@ onMounted(() => {
     onAdd: onAddTask,
   });
 });
+
+function onNavigateClauseRelated(row: Record<string, unknown>) {
+  const id = row.id;
+  if (id == null) return;
+  router.push({
+    name: 'app-base-info-tasks',
+    query: { reference_id: String(id) },
+  });
+}
+
+function onBackToAllTasks() {
+  router.push({ name: 'app-base-info-tasks' });
+}
 
 function onAttachmentTask(row: Record<string, unknown>) {
   console.log('Attachment task', row);
@@ -148,8 +191,10 @@ function onDeleteTask(row: Record<string, unknown>) {
 }
 
 function onAddTask() {
+  const refId = currentReferenceId.value;
   openModal({
     component: AddTaskModal,
+    props: refId != null ? { referenceId: refId } : {},
     onSuccess: () => {
       table.invalidateListCache();
       table.setPage(1);
@@ -170,6 +215,25 @@ function onTrashTasks() {
 
 <template>
   <div class="grid grid-cols-12 gap-2 p-2">
+    <div v-if="currentReferenceId != null" class="col-span-12">
+      <div
+        class="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-xs dark:border-darkmode-600 dark:bg-darkmode-800"
+      >
+        <span class="text-slate-600 dark:text-slate-300">
+          {{ t('task.viewing-related-tasks') }}
+          <span class="font-medium text-slate-800 dark:text-slate-100"
+            >#{{ currentReferenceId }}</span
+          >
+        </span>
+        <button
+          type="button"
+          class="text-primary hover:underline"
+          @click="onBackToAllTasks"
+        >
+          {{ t('task.back-to-all-tasks') }}
+        </button>
+      </div>
+    </div>
     <div class="col-span-12">
       <BaseTable
           :table="table"
@@ -181,15 +245,24 @@ function onTrashTasks() {
           :show-search="false"
       >
         <template #cell-has_clause="{ row }">
+          <Button
+            v-if="row.has_clause === 1"
+            type="button"
+            variant="outline-primary"
+            size="sm"
+            class="!h-7 px-2.5 text-xs font-normal"
+            @click.stop="onNavigateClauseRelated(row)"
+          >
+            {{ t('task.view-clause') }}
+          </Button>
           <span
-              :class="[
+            v-else
+            :class="[
               'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium',
-              row.has_clause === 1
-                ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300'
-                : 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-400',
+              'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-400',
             ]"
           >
-            {{ row.has_clause === 1 ? t('task.clause-yes') : t('task.clause-no') }}
+            {{ t('task.clause-no') }}
           </span>
         </template>
         <template #actions="{ row }">

@@ -20,10 +20,13 @@ const props = withDefaults(
     show: boolean;
     mode?: 'add' | 'edit';
     task?: TaskRow | null;
+    /** در حالت افزودن: شناسهٔ تعهد والد (صفحهٔ فیلترشده با reference_id) */
+    referenceId?: number | null;
   }>(),
   {
     mode: 'add',
     task: null,
+    referenceId: null,
   }
 );
 
@@ -341,6 +344,22 @@ function buildMandatoryUnitPayload(ids: string[]): { id: number; slug: string; t
     .filter((x): x is { id: number; slug: string; title: string } => x != null);
 }
 
+function resolveReferenceIdForPayload(): number {
+  if (props.mode === 'edit' && props.task) {
+    const r = props.task.reference_id;
+    if (r != null && r !== '') {
+      const n = Number(r);
+      if (Number.isFinite(n)) return n;
+    }
+    return 0;
+  }
+  if (props.mode === 'add' && props.referenceId != null) {
+    const n = Number(props.referenceId);
+    if (Number.isFinite(n) && n > 0) return n;
+  }
+  return 0;
+}
+
 async function onSubmit(values: Record<string, unknown>) {
   saving.value = true;
   try {
@@ -379,7 +398,7 @@ async function onSubmit(values: Record<string, unknown>) {
       warranty_id: warrantyNumId,
       section_id: Number(values.section_id),
       has_clause: String(values.has_clause) === '1' ? 1 : 0,
-      reference_id: 0,
+      reference_id: resolveReferenceIdForPayload(),
       type: 'compliance',
       title: String(values.title ?? ''),
       code: String(values.code ?? ''),

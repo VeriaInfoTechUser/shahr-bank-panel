@@ -7,6 +7,8 @@ import BaseTable from '@core/ui/base/BaseTable.vue';
 import { ermRepo } from '@/core/repositories/ermRepo';
 import { useBreadcrumbSlot } from '@/composables/useBreadcrumb';
 import { useGlobalModal } from '@/composables/useGlobalModal';
+import Button from '@/base-components/Button';
+import Lucide from '@/base-components/Lucide';
 import RulesBreadcrumbToolbar from './RulesBreadcrumbToolbar.vue';
 import AddRuleModal from './AddRuleModal.vue';
 
@@ -112,6 +114,12 @@ const table = useDataTable({
       label: t('rule.validity'),
       bodyCell: validityCell,
     }),
+    createColumn({
+      key: 'settings',
+      label: t('rule.settings'),
+      sortable: false,
+      bodyCell: () => '',
+    }),
   ],
   selectable: false,
   exportEnabled: true,
@@ -152,6 +160,18 @@ function onExportRules() {
 function onTrashRules() {
   router.push({ name: 'app-base-info-rules-regulations-deleted' });
 }
+
+function onAttachmentClick(row: Record<string, unknown>) {
+  console.log('Attachment clicked', row);
+}
+
+function onEditClick(row: Record<string, unknown>) {
+  console.log('Edit clicked', row);
+}
+
+function onDeleteClick(row: Record<string, unknown>) {
+  console.log('Delete clicked', row);
+}
 </script>
 
 <template>
@@ -189,6 +209,37 @@ function onTrashRules() {
             >
               {{ (row.validity === 1 || row.validity === true) ? t('rule.validity-active') : t('rule.validity-inactive') }}
             </span>
+          </template>
+          <template #cell-settings="{ row }">
+            <div class="flex items-center justify-center gap-3">
+              <Button
+                type="button"
+                variant="outline-secondary"
+                size="sm"
+                class="!h-7 !w-7 !px-0 !py-0"
+                @click="onAttachmentClick(row)"
+              >
+                <Lucide icon="Paperclip" class="!h-3.5 !w-3.5" />
+              </Button>
+              <Button
+                type="button"
+                variant="outline-secondary"
+                size="sm"
+                class="!h-7 !w-7 !px-0 !py-0"
+                @click="onEditClick(row)"
+              >
+                <Lucide icon="Pencil" class="!h-3.5 !w-3.5" />
+              </Button>
+              <Button
+                type="button"
+                variant="outline-danger"
+                size="sm"
+                class="!h-7 !w-7 !px-0 !py-0"
+                @click="onDeleteClick(row)"
+              >
+                <Lucide icon="Trash2" class="!h-3.5 !w-3.5" />
+              </Button>
+            </div>
           </template>
         </BaseTable>
     </div>

@@ -60,30 +60,33 @@ const table = useDataTable({
   fetchFn: fetchRules,
   columns: [
     createColumn({
-      key: 'code',
-      label: t('rule.section-letter-number'),
-      sortable: false,
-      bodyCell: (row) => row.code ?? '—',
-    }),
-    createColumn({
       key: 'rule',
       label: t('rule.law'),
       sortable: false,
       bodyCell: (row) => row.rule ?? '—',
     }),
     createColumn({
+      key: 'code',
+      label: t('rule.section-letter-number'),
+      sortable: false,
+      bodyCell: (row) => row.code ?? '—',
+    }),
+    createColumn({
       key: 'author_information',
       label: t('rule.author'),
+      sortable: false,
       bodyCell: authorCell,
     }),
     createColumn({
       key: 'type_information',
       label: t('title.type'),
+      sortable: false,
       bodyCell: typeCell,
     }),
     createColumn({
       key: 'category_information',
       label: t('title.category'),
+      sortable: false,
       bodyCell: categoryCell,
     }),
     createColumn({
@@ -107,11 +110,13 @@ const table = useDataTable({
     createColumn({
       key: 'requirement',
       label: t('rule.requirement'),
+      sortable: false,
       bodyCell: requirementCell,
     }),
     createColumn({
       key: 'validity',
       label: t('rule.validity'),
+      sortable: false,
       bodyCell: validityCell,
     }),
     createColumn({

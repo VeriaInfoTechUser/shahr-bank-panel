@@ -60,7 +60,7 @@ function onDialogShow() {
       },
       title: {
         class:
-          'font-normal leading-tight text-slate-700 dark:text-slate-200 !text-[11px]',
+          'font-normal leading-tight text-slate-700 dark:text-slate-200 !text-[16px]',
       },
       content: { class: 'text-sm' },
       footer: {

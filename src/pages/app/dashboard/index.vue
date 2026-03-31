@@ -67,13 +67,13 @@ const spots = computed<Spot[]>(() => [
     route: 'app-base-info-rules-regulations',
     titleKey: 'menu.rules-regulations',
     descKey: 'dashboard-page.spot-rules-desc',
-    icon: 'FileText',
+    icon: 'Scale',
   },
   {
     route: 'app-base-info-tasks',
     titleKey: 'menu.tasks',
     descKey: 'dashboard-page.spot-tasks-desc',
-    icon: 'ClipboardList',
+    icon: 'ClipboardCheck',
   },
   {
     route: 'app-compliance-operations',

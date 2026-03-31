@@ -34,12 +34,12 @@ export const useSideMenuStore = defineStore("sideMenu", {
                 title: "menu.base-info",
                 subMenu: [
                     {
-                        icon: "FileText",
+                        icon: "Scale",
                         pageName: "app-base-info-rules-regulations",
                         title: "menu.rules-regulations",
                     },
                     {
-                        icon: "ClipboardList",
+                        icon: "ClipboardCheck",
                         pageName: "app-base-info-tasks",
                         title: "menu.tasks",
                     },
@@ -56,7 +56,7 @@ export const useSideMenuStore = defineStore("sideMenu", {
                         title: "menu.dashboard",
                     },
                     {
-                        icon: "GitBranch",
+                        icon: "ShieldCheck",
                         pageName: "app-compliance-operations",
                         title: "menu.compliance-operations",
                     },
@@ -78,7 +78,7 @@ export const useSideMenuStore = defineStore("sideMenu", {
                         title: "menu.dashboard",
                     },
                     {
-                        icon: "GitBranch",
+                        icon: "AlertTriangle",
                         pageName: "app-risk-operations",
                         title: "menu.risk-operations",
                     },

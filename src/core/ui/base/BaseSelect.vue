@@ -33,7 +33,7 @@ function onChange(event: { value: unknown }) {
       optionValue="value"
       :placeholder="placeholder"
       :disabled="disabled"
-      class="select select-bordered w-full !h-8 !min-h-0 pl-2 pr-8 text-xs font-light leading-snug [&_.p-select-label]:flex [&_.p-select-label]:items-center [&_.p-select-label]:text-xs [&_.p-select-label]:font-light [&_.p-select-label.p-placeholder]:text-slate-400 dark:[&_.p-select-label.p-placeholder]:text-slate-500"
+      class="select select-bordered w-full !h-8 !min-h-0 pl-0.5 ps-0 text-xs font-light leading-snug [&_.p-select-label]:flex [&_.p-select-label]:items-center [&_.p-select-label]:pl-0 [&_.p-select-label]:text-xs [&_.p-select-label]:font-light [&_.p-select-label.p-placeholder]:text-slate-400 dark:[&_.p-select-label.p-placeholder]:text-slate-500"
       :class="{ 'select-error': errorMessage }"
       @blur="handleBlur"
       @change="onChange"

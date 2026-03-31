@@ -11,7 +11,7 @@ type PrimaryRoute =
   | 'app-compliance-operations'
   | 'app-risk-operations'
   | 'app-base-info-rules-regulations'
-  | 'app-settings-guide';
+  | 'app-base-info-tasks';
 
 interface Spot {
   route: PrimaryRoute;
@@ -21,6 +21,18 @@ interface Spot {
 }
 
 const spots = computed<Spot[]>(() => [
+  {
+    route: 'app-base-info-rules-regulations',
+    titleKey: 'menu.rules-regulations',
+    descKey: 'dashboard-page.spot-rules-desc',
+    icon: 'FileText',
+  },
+  {
+    route: 'app-base-info-tasks',
+    titleKey: 'menu.tasks',
+    descKey: 'dashboard-page.spot-tasks-desc',
+    icon: 'ClipboardList',
+  },
   {
     route: 'app-compliance-operations',
     titleKey: 'menu.compliance-operations',
@@ -32,18 +44,6 @@ const spots = computed<Spot[]>(() => [
     titleKey: 'menu.risk-operations',
     descKey: 'dashboard-page.spot-risk-desc',
     icon: 'AlertTriangle',
-  },
-  {
-    route: 'app-base-info-rules-regulations',
-    titleKey: 'menu.rules-regulations',
-    descKey: 'dashboard-page.spot-rules-desc',
-    icon: 'FileText',
-  },
-  {
-    route: 'app-settings-guide',
-    titleKey: 'menu.settings',
-    descKey: 'dashboard-page.spot-settings-desc',
-    icon: 'Settings',
   },
 ]);
 
@@ -92,7 +92,7 @@ function go(name: PrimaryRoute) {
       </div>
     </header>
 
-    <div class="grid gap-5 sm:grid-cols-2 lg:gap-6 xl:grid-cols-4">
+    <div class="grid gap-5 md:grid-cols-2 lg:gap-6">
       <button
         v-for="spot in spots"
         :key="spot.route"

@@ -12,19 +12,13 @@
  */
 @import "./_tailwind.css";
 
+@import "./_vazirmatn-local.css";
+
 /*
    |--------------------------------------------------------------------------
-   | Fonts
+   | Fonts — no CDN; base UI stack in tailwind.config.js, RTL in _vazirmatn-local.css
    |--------------------------------------------------------------------------
-   |
-   | Import all fonts used in the template, the font configuration can be
-   | seen in "tailwind.config.js".
-   |
-   | Please check this link for more details:
-   | https://tailwindcss.com/docs/theme
-   |
    */
-@import "./_public-sans.css";
 
 /*
    |--------------------------------------------------------------------------
@@ -67,9 +61,6 @@
 @import "./components/_full-calendar.css";
 @import "./components/_tabulator.css";
 
-/*TODO:resolve*/
-/*@import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@100..900&display=swap');*/
-
 .font-rtl {
-    font-family: 'Vazirmatn', sans-serif;
+    font-family: 'Vazirmatn Variable', system-ui, sans-serif;
 }

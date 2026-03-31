@@ -50,7 +50,15 @@ module.exports = {
         semibold: "700",
       },
       fontFamily: {
-        "public-sans": ["Public Sans"],
+        "public-sans": [
+          "system-ui",
+          "-apple-system",
+          "Segoe UI",
+          "Roboto",
+          "Helvetica Neue",
+          "Arial",
+          "sans-serif",
+        ],
       },
       container: {
         center: true,

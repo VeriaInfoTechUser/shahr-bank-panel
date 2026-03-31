@@ -119,6 +119,31 @@ const effectiveSortOrder = computed(() =>
   props.table ? props.table.sortOrder.value : (props.sortOrder ?? 1)
 );
 
+/** Hide paginator when everything fits on one page (or no rows). */
+const showPaginator = computed(() => {
+  const total = effectiveTotal.value;
+  const limit = effectiveLimit.value;
+  if (total <= 0 || limit <= 0) return false;
+  return Math.ceil(total / limit) > 1;
+});
+
+const minRowsPerPageOption = computed(() => {
+  const opts = props.rowsPerPageOptions ?? [];
+  if (!opts.length) return Number.POSITIVE_INFINITY;
+  return Math.min(...opts);
+});
+
+/** Hide "rows per page" when total is below the smallest selectable page size. */
+const showRowsPerPageDropdown = computed(
+  () => showPaginator.value && effectiveTotal.value >= minRowsPerPageOption.value
+);
+
+const paginatorTemplate = computed(() => {
+  const base =
+    'FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink';
+  return showRowsPerPageDropdown.value ? `${base} RowsPerPageDropdown` : base;
+});
+
 const emit = defineEmits<{
   (e: 'update:page', value: number): void;
   (e: 'update:limit', value: number): void;
@@ -255,7 +280,8 @@ const tableColumns = computed(() => effectiveColumns.value);
         :loading="effectiveLoading"
         :dataKey="rowKey"
         :lazy="true"
-        :paginator="true"
+        :paginator="showPaginator"
+        :paginatorTemplate="paginatorTemplate"
         :totalRecords="effectiveTotal"
         :rows="effectiveLimit"
         :first="(effectivePage - 1) * effectiveLimit"

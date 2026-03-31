@@ -1,5 +1,6 @@
 import { BaseRepo } from './baseRepo';
 import { endpoints } from '../api/endpoints';
+import type { ApiResult } from './baseRepo';
 
 export interface RuleListParams {
   page?: number;
@@ -23,6 +24,14 @@ export interface RuleListResponse {
 export class ErmRepo extends BaseRepo {
   async list(params: RuleListParams) {
     return this.post<RuleListResponse>(endpoints.admin.erm.rule.list, params);
+  }
+
+  async addRule(payload: Record<string, unknown>) {
+    return this.post<ApiResult<unknown>>(endpoints.admin.erm.rule.add, payload);
+  }
+
+  async ruleCategoryList(params: RuleListParams) {
+    return this.post<RuleListResponse>(endpoints.admin.erm.ruleCategory.list, params);
   }
 
   async taskList(params: RuleListParams) {

@@ -3,6 +3,7 @@ import { getDirection } from "@/utils/index.js";
 import { onBeforeMount, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { useThemeStore } from "@/core/theme/themeStore";
+import GlobalModalHost from "@/core/ui/global/GlobalModalHost.vue";
 
 const { t, locale } = useI18n();
 const themeStore = useThemeStore();
@@ -38,4 +39,5 @@ watch(locale, () => {
 </script>
 <template>
   <RouterView />
+  <GlobalModalHost />
 </template>

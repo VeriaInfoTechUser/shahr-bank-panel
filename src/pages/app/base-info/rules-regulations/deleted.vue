@@ -6,19 +6,17 @@ import { useDataTable, createColumn, type FetchFn } from '@core';
 import BaseTable from '@core/ui/base/BaseTable.vue';
 import { ermRepo } from '@/core/repositories/ermRepo';
 import { useBreadcrumbSlot } from '@/composables/useBreadcrumb';
-import { useGlobalModal } from '@/composables/useGlobalModal';
-import RulesBreadcrumbToolbar from './RulesBreadcrumbToolbar.vue';
-import AddRuleModal from './AddRuleModal.vue';
+import DeletedRulesExportToolbar from './DeletedRulesExportToolbar.vue';
 
 const { t } = useI18n();
 const router = useRouter();
 const { setContent: setBreadcrumbSlot } = useBreadcrumbSlot();
-const { openModal } = useGlobalModal();
 
 const fetchRules: FetchFn = async ({ page, limit, sort, filters }) => {
   const res = await ermRepo.list({
     page,
     limit,
+    status: 0,
     ...(sort && { sort }),
     ...filters,
   });
@@ -116,78 +114,63 @@ const table = useDataTable({
   selectable: false,
   exportEnabled: true,
   pageSize: 10,
-  cacheKey: 'rules-regulations-list',
+  cacheKey: 'rules-regulations-deleted-list',
   listCacheStaleTime: 0,
 });
-
-onMounted(() => {
-  table.fetch();
-  setBreadcrumbSlot(RulesBreadcrumbToolbar, {
-    onImport: onImportRules,
-    onExport: onExportRules,
-    onTrash: onTrashRules,
-    onAdd: onAddRule,
-  });
-});
-
-function onAddRule() {
-  openModal({
-    component: AddRuleModal,
-    onSuccess: () => table.fetch(),
-  });
-}
-
-function onImportRules() {
-  // TODO: open import dialog / file picker
-  console.log('Import rules');
-}
 
 function onExportRules() {
   table.exportCSV();
 }
 
-function onTrashRules() {
-  router.push({ name: 'app-base-info-rules-regulations-deleted' });
+function goBackToRules() {
+  router.push({ name: 'app-base-info-rules-regulations' });
 }
+
+onMounted(() => {
+  table.fetch();
+  setBreadcrumbSlot(DeletedRulesExportToolbar, {
+    onBack: goBackToRules,
+    onExport: onExportRules,
+  });
+});
 </script>
 
 <template>
   <div class="grid grid-cols-12 gap-2 p-2">
     <div class="col-span-12">
-        <BaseTable
-          :table="table"
-          :selectable="false"
-          :export-enabled="table.exportEnabled"
-          :empty-message="t('general.no-data')"
-          :actions="false"
-          :show-search="false"
-        >
-          <!-- Per-column slots by column key (e.g. cell-requirement, cell-validity) -->
-          <template #cell-requirement="{ row }">
-            <span
-              :class="[
-                'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium',
-                (row.requirement === 1 || row.requirement === true)
-                  ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300'
-                  : 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-400',
-              ]"
-            >
-              {{ (row.requirement === 1 || row.requirement === true) ? t('rule.requirement-yes') : t('rule.requirement-no') }}
-            </span>
-          </template>
-          <template #cell-validity="{ row }">
-            <span
-              :class="[
-                'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium',
-                (row.validity === 1 || row.validity === true)
-                  ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300'
-                  : 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-400',
-              ]"
-            >
-              {{ (row.validity === 1 || row.validity === true) ? t('rule.validity-active') : t('rule.validity-inactive') }}
-            </span>
-          </template>
-        </BaseTable>
+      <BaseTable
+        :table="table"
+        :selectable="false"
+        :export-enabled="table.exportEnabled"
+        :empty-message="t('general.no-data')"
+        :actions="false"
+        :show-search="false"
+      >
+        <template #cell-requirement="{ row }">
+          <span
+            :class="[
+              'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium',
+              (row.requirement === 1 || row.requirement === true)
+                ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300'
+                : 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-400',
+            ]"
+          >
+            {{ (row.requirement === 1 || row.requirement === true) ? t('rule.requirement-yes') : t('rule.requirement-no') }}
+          </span>
+        </template>
+        <template #cell-validity="{ row }">
+          <span
+            :class="[
+              'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium',
+              (row.validity === 1 || row.validity === true)
+                ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300'
+                : 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-400',
+            ]"
+          >
+            {{ (row.validity === 1 || row.validity === true) ? t('rule.validity-active') : t('rule.validity-inactive') }}
+          </span>
+        </template>
+      </BaseTable>
     </div>
   </div>
 </template>

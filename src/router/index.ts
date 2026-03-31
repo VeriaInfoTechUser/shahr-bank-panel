@@ -12,6 +12,7 @@ import AppAccountEdit from "@/pages/app/account/edit/index.vue";
 import AppAccountHistory from "@/pages/app/account/history/index.vue";
 import AppAccountNotification from "@/pages/app/account/notification/index.vue";
 import BaseInfoRulesRegulations from "@/pages/app/base-info/rules-regulations/index.vue";
+import BaseInfoRulesRegulationsDeleted from "@/pages/app/base-info/rules-regulations/deleted.vue";
 import BaseInfoTasks from "@/pages/app/base-info/tasks/index.vue";
 import SettingsGuide from "@/pages/app/settings/guide/index.vue";
 import SettingsLiaisons from "@/pages/app/settings/liaisons/index.vue";
@@ -92,6 +93,12 @@ const routes = [
                         name: "app-base-info",
                         meta: { breadcrumbLabel: 'menu.base-info' },
                         children: [
+                            {
+                                path: "rules-regulations/deleted",
+                                name: "app-base-info-rules-regulations-deleted",
+                                component: BaseInfoRulesRegulationsDeleted,
+                                meta: { breadcrumbLabel: 'menu.rules-regulations-deleted' },
+                            },
                             {
                                 path: "rules-regulations",
                                 name: "app-base-info-rules-regulations",

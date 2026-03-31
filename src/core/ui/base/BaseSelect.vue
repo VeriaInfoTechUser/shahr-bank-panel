@@ -19,8 +19,8 @@ const { value, errorMessage, handleBlur, handleChange } = useField(props.name);
 
 <template>
   <div class="form-control w-full">
-    <label v-if="label" class="label">
-      <span class="label-text">{{ label }} <span v-if="required" class="text-error">*</span></span>
+    <label v-if="label" class="label min-h-0 py-1">
+      <span class="label-text text-sm font-normal leading-snug">{{ label }} <span v-if="required" class="text-error">*</span></span>
     </label>
     <Select
       v-model="value"
@@ -29,13 +29,13 @@ const { value, errorMessage, handleBlur, handleChange } = useField(props.name);
       optionValue="value"
       :placeholder="placeholder"
       :disabled="disabled"
-      class="select select-bordered w-full"
+      class="select select-bordered w-full !h-8 !min-h-0 py-0 pl-2 pr-8 text-xs font-light leading-snug [&_.p-select-label]:py-0 [&_.p-select-label]:text-xs [&_.p-select-label]:font-light [&_.p-select-label.p-placeholder]:text-slate-400 dark:[&_.p-select-label.p-placeholder]:text-slate-500"
       :class="{ 'select-error': errorMessage }"
       @blur="handleBlur"
       @change="handleChange"
     />
-    <label v-if="errorMessage" class="label">
-      <span class="label-text-alt text-error">{{ errorMessage }}</span>
+    <label v-if="errorMessage" class="label min-h-0 py-0 pt-0.5">
+      <span class="label-text-alt text-error text-xs">{{ errorMessage }}</span>
     </label>
   </div>
 </template>

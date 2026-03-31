@@ -73,21 +73,21 @@
 
 /* DataTable & Paginator: styled by Aura theme (@primeuix/themes/aura) */
 
-/* Dialog */
+/* Dialog: header/footer borders here so global rules beat Tailwind on the same nodes */
 .p-dialog {
   border-radius: var(--pv-radius);
   box-shadow: var(--pv-shadow);
 }
 .p-dialog .p-dialog-header {
   border-bottom: 1px solid var(--pv-border);
-  padding: 1rem 1.25rem;
+  padding: 0.75rem 0.75rem;
 }
 .p-dialog .p-dialog-content {
-  padding: 1rem 1.25rem;
+  padding: 0.75rem 0.75rem;
 }
 .p-dialog .p-dialog-footer {
   border-top: 1px solid var(--pv-border);
-  padding: 0.75rem 1.25rem;
+  padding: 0.75rem 0.75rem;
 }
 
 /* Checkbox / Radio basics */

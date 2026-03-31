@@ -1,10 +1,14 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n';
+
 defineProps<{
   onImport?: () => void;
   onExport?: () => void;
   onTrash?: () => void;
   onAdd?: () => void;
 }>();
+
+const { t } = useI18n();
 </script>
 
 <template>
@@ -38,8 +42,8 @@ defineProps<{
     <button
       type="button"
       class="inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-md border border-slate-200 bg-white text-slate-600 shadow-sm transition hover:bg-red-50 hover:text-red-600 dark:border-darkmode-600 dark:bg-darkmode-800 dark:text-slate-300 dark:hover:bg-darkmode-700 dark:hover:text-red-400"
-      aria-label="Delete selected"
-      title="Delete selected"
+      :aria-label="t('rule.toolbar-trash-to-deleted')"
+      :title="t('rule.toolbar-trash-to-deleted')"
       @click="onTrash?.()"
     >
       <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">

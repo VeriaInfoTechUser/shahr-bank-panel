@@ -60,7 +60,7 @@ function onDialogShow() {
       },
       title: {
         class:
-          'text-[11px] font-normal leading-tight text-slate-700 dark:text-slate-200',
+          'font-normal leading-tight text-slate-700 dark:text-slate-200 !text-[11px]',
       },
       content: { class: 'text-sm' },
       footer: {
@@ -72,7 +72,9 @@ function onDialogShow() {
     @hide="onHide"
     @show="onDialogShow"
   >
+    <div class="p-2">
     <slot />
+    </div>
     <template #footer>
       <slot name="footer" />
     </template>

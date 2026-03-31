@@ -207,6 +207,8 @@
     "loading": "Loading..."
   },
   "dashboard-page": {
+    "identity-label": "System ID:",
+    "identity-title": "Laws, regulations & compliance risk management system",
     "subtitle": "This system supports managing compliance with laws, regulations, and standards in your organization through coordination with compliance liaisons, and produces the required reports at managerial and expert levels.",
     "profile-card-title": "Signed-in user",
     "profile-load-error": "Could not load user profile.",

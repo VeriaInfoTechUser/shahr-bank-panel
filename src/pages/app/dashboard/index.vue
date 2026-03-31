@@ -104,7 +104,67 @@ function go(name: PrimaryRoute) {
       <div
         class="flex flex-col gap-6 border-b border-slate-200/80 pb-8 dark:border-darkmode-600 lg:flex-row lg:items-start lg:justify-between lg:gap-8"
       >
-        <div class="min-w-0 flex-1 space-y-2">
+        <div class="min-w-0 flex-1 space-y-5">
+          <div
+            class="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-5"
+          >
+            <div class="flex shrink-0 items-center gap-3">
+              <div
+                class="relative flex h-[4.25rem] w-[4.25rem] items-center justify-center rounded-2xl bg-gradient-to-br from-primary/20 via-primary/10 to-primary/5 shadow-sm ring-1 ring-primary/20 dark:from-primary/25 dark:via-primary/15 dark:ring-primary/30"
+                aria-hidden="true"
+              >
+                <Lucide
+                  icon="ShieldCheck"
+                  class="h-9 w-9 text-primary"
+                />
+              </div>
+              <div
+                class="flex items-center gap-1.5 rounded-xl border border-slate-200/90 bg-slate-50/90 px-2.5 py-2 dark:border-darkmode-600 dark:bg-darkmode-800/80"
+              >
+                <span
+                  class="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-white text-slate-600 shadow-sm dark:bg-darkmode-700 dark:text-slate-300"
+                  :title="t('menu.rules-regulations')"
+                >
+                  <Lucide
+                    icon="Scale"
+                    class="h-4 w-4"
+                  />
+                </span>
+                <span
+                  class="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-white text-primary shadow-sm dark:bg-darkmode-700"
+                  :title="t('menu.compliance-operations')"
+                >
+                  <Lucide
+                    icon="ClipboardCheck"
+                    class="h-4 w-4"
+                  />
+                </span>
+                <span
+                  class="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-white text-amber-600 shadow-sm dark:bg-darkmode-700 dark:text-amber-400"
+                  :title="t('menu.risk-operations')"
+                >
+                  <Lucide
+                    icon="AlertTriangle"
+                    class="h-4 w-4"
+                  />
+                </span>
+              </div>
+            </div>
+            <div
+              class="min-w-0 flex-1 space-y-1 border-t border-slate-200/80 pt-4 dark:border-darkmode-600 sm:border-s sm:border-t-0 sm:ps-5 sm:pt-0"
+            >
+              <p
+                class="text-sm font-semibold text-primary"
+              >
+                {{ t('dashboard-page.identity-label') }}
+              </p>
+              <p
+                class="text-base font-semibold leading-snug text-slate-900 dark:text-slate-50"
+              >
+                {{ t('dashboard-page.identity-title') }}
+              </p>
+            </div>
+          </div>
           <p
             class="max-w-3xl text-base font-medium leading-relaxed text-slate-700 dark:text-slate-300 md:text-[1.05rem]"
           >

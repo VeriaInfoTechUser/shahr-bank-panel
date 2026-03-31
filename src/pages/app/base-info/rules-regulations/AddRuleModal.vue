@@ -7,6 +7,8 @@ import { toast } from 'vue3-toastify';
 import BaseModal from '@/core/ui/base/BaseModal.vue';
 import BaseInput from '@/core/ui/base/BaseInput.vue';
 import BaseSelect from '@/core/ui/base/BaseSelect.vue';
+import BaseDatePicker from '@/core/ui/base/BaseDatePicker.vue';
+import Button from '@/base-components/Button';
 import { ermRepo } from '@/core/repositories/ermRepo';
 
 const props = defineProps<{
@@ -52,6 +54,21 @@ const typeOptions = ref<{ value: string; label: string }[]>([]);
 const authorOptions = ref<{ value: string; label: string }[]>([]);
 
 function normalizeList(res: unknown): { value: string; label: string }[] {
+  // APIهای مختلف ممکن است داده را در سطح‌های متفاوت برگردانند:
+  // 1) به‌صورت مستقیم آرایه در ریشه
+  // 2) آرایه در res.data
+  // 3) آرایه در res.data.list
+  if (Array.isArray(res)) {
+    return res
+      .map((item) => {
+        const row = item as Record<string, unknown>;
+        const value = String(row.value ?? row.slug ?? row.id ?? '');
+        const label = String(row.title ?? row.name ?? value);
+        return { value, label };
+      })
+      .filter((x) => x.value);
+  }
+
   const r = res as { data?: { list?: unknown[] } | unknown[] };
   let list: unknown[] = [];
   const d = r?.data;
@@ -233,24 +250,21 @@ async function onSubmit(values: Record<string, unknown>) {
           :required="true"
           :disabled="authorOptions.length === 0"
         />
-        <BaseInput
+        <BaseDatePicker
           name="approval_at"
-          type="date"
           :label="t('rule.approval-at')"
           :required="true"
         />
-        <BaseInput
+        <BaseDatePicker
           name="promulgation_at"
-          type="date"
           :label="t('rule.promulgation-at')"
           :required="true"
         />
         <div
           class="md:col-span-2 grid grid-cols-1 gap-3 md:grid-cols-2 md:gap-x-4 md:items-end"
         >
-          <BaseInput
+          <BaseDatePicker
             name="cancellation_at"
-            type="date"
             :label="t('rule.cancellation-at')"
           />
           <div class="flex min-w-0 flex-col gap-1 md:pb-0.5">
@@ -297,26 +311,25 @@ async function onSubmit(values: Record<string, unknown>) {
       </div>
     </Form>
     <template #footer>
-      <div
-        v-if="!optionsLoading"
-        class="flex flex-wrap justify-end gap-2"
-      >
-        <button
+      <div v-if="!optionsLoading" class="flex flex-wrap justify-end gap-2">
+        <Button
           type="button"
-          class="btn btn-ghost btn-sm"
+          variant="outline-secondary"
+          size="sm"
           :disabled="saving"
           @click="close"
         >
           {{ t('rule.form-cancel') }}
-        </button>
-        <button
+        </Button>
+        <Button
           type="submit"
-          class="btn btn-primary btn-sm"
+          variant="primary"
+          size="sm"
           form="add-rule-modal-form"
           :disabled="saving"
         >
           {{ t('rule.form-submit') }}
-        </button>
+        </Button>
       </div>
     </template>
   </BaseModal>

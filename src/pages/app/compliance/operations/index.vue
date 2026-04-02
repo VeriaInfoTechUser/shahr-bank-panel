@@ -1,11 +1,17 @@
 <script setup lang="ts">
 import { onMounted } from 'vue';
+import { RouterLink } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { useDataTable, createColumn, type FetchFn } from '@core';
 import BaseTable from '@core/ui/base/BaseTable.vue';
 import { ermRepo } from '@/core/repositories/ermRepo';
 import { useBreadcrumbSlot } from '@/composables/useBreadcrumb';
 import SettingsExportToolbar from '@/pages/app/settings/SettingsExportToolbar.vue';
+import { complianceOperationsStatusBadgeClass } from '@/composables/complianceOperationsStatusBadge';
+import {
+  clauseFilteredTasksRoute,
+  resolveOperationsTaskRowId,
+} from '@/composables/taskClauseNavigation';
 
 const { t } = useI18n();
 const { setContent: setBreadcrumbSlot } = useBreadcrumbSlot();
@@ -129,40 +135,12 @@ function complianceStatusKey(row: Record<string, unknown>): string {
   return 'unknown';
 }
 
-/** عرض دکمه: یک‌سوم ۱۵rem ≈ ۵rem */
-const STATUS_BTN_WIDTH =
-  'w-[5rem] min-w-[5rem] max-w-full';
-
-function statusButtonClass(row: Record<string, unknown>): string {
-  const k = complianceStatusKey(row);
-  const base = [
-    'inline-flex h-8 shrink-0 cursor-pointer items-center justify-center rounded-md border border-transparent px-1.5 text-[11px] font-semibold leading-none shadow-sm transition',
-    STATUS_BTN_WIDTH,
-    'focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-offset-white dark:focus-visible:ring-offset-darkmode-800',
-  ].join(' ');
-  const map: Record<string, string> = {
-    /** تبصره‌ها — بعداً ریدایرکت به صفحهٔ تبصره‌ها */
-    clauses:
-      'bg-indigo-600 text-white shadow-indigo-500/25 hover:bg-indigo-500 focus-visible:ring-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-400 dark:shadow-indigo-900/40',
-    'pending-assignment':
-      'bg-violet-600 text-white shadow-violet-500/25 hover:bg-violet-500 focus-visible:ring-violet-500 dark:bg-violet-500 dark:hover:bg-violet-400',
-    todo: 'bg-amber-500 text-white shadow-amber-500/30 hover:bg-amber-400 focus-visible:ring-amber-500 dark:bg-amber-600 dark:hover:bg-amber-500',
-    doing: 'bg-sky-600 text-white shadow-sky-500/25 hover:bg-sky-500 focus-visible:ring-sky-500 dark:bg-sky-500 dark:hover:bg-sky-400',
-    done: 'bg-emerald-600 text-white shadow-emerald-500/25 hover:bg-emerald-500 focus-visible:ring-emerald-500 dark:bg-emerald-500 dark:hover:bg-emerald-400',
-    approve:
-      'bg-green-600 text-white shadow-green-500/25 hover:bg-green-500 focus-visible:ring-green-500 dark:bg-green-500 dark:hover:bg-green-400',
-    reject: 'bg-rose-600 text-white shadow-rose-500/25 hover:bg-rose-500 focus-visible:ring-rose-500 dark:bg-rose-500 dark:hover:bg-rose-400',
-    unknown:
-      'bg-slate-600 text-white shadow-slate-500/20 hover:bg-slate-500 focus-visible:ring-slate-500 dark:bg-slate-500 dark:hover:bg-slate-400',
-  };
-  return `${base} ${map[k] ?? map.unknown}`;
+function statusBadgeClass(row: Record<string, unknown>): string {
+  return complianceOperationsStatusBadgeClass(complianceStatusKey(row));
 }
 
-/** تبصره‌ها: بعداً ریدایرکت؛ بقیه: مودال / جریان وضعیت */
-function onComplianceStatusClick(row: Record<string, unknown>) {
-  if (rowHasClause(row)) {
-    return;
-  }
+function onComplianceStatusClick(_row: Record<string, unknown>) {
+  /* آینده: مودال جریان وضعیت */
 }
 
 const fetchComplianceList: FetchFn = async ({ page, limit, sort, filters }) => {
@@ -232,16 +210,27 @@ onMounted(() => {
         :show-search="false"
       >
         <template #cell-status="{ row }">
+          <RouterLink
+            v-if="rowHasClause(row) && resolveOperationsTaskRowId(row) != null"
+            :to="clauseFilteredTasksRoute(row)"
+            :class="[statusBadgeClass(row), '!cursor-pointer']"
+            @click.stop
+          >
+            {{ complianceStatusLabel(row) }}
+          </RouterLink>
+          <span
+            v-else-if="rowHasClause(row)"
+            :class="statusBadgeClass(row)"
+          >
+            {{ complianceStatusLabel(row) }}
+          </span>
           <button
+            v-else
             type="button"
-            :class="statusButtonClass(row)"
+            :class="statusBadgeClass(row)"
             @click.stop="onComplianceStatusClick(row)"
           >
-            <span
-              class="block min-w-0 w-full truncate whitespace-nowrap text-center"
-            >
-              {{ complianceStatusLabel(row) }}
-            </span>
+            {{ complianceStatusLabel(row) }}
           </button>
         </template>
       </BaseTable>

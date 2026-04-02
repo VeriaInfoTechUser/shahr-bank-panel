@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n';
 import { computed, onMounted, watch } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
+import { RouterLink, useRoute, useRouter } from 'vue-router';
 import { useDataTable, createColumn, type FetchFn } from '@core';
 import BaseTable from '@core/ui/base/BaseTable.vue';
 import { ermRepo } from '@/core/repositories/ermRepo';
@@ -11,6 +11,10 @@ import Button from '@/base-components/Button';
 import Lucide from '@/base-components/Lucide';
 import AddTaskModal from './AddTaskModal.vue';
 import TasksBreadcrumbToolbar from './TasksBreadcrumbToolbar.vue';
+import {
+  clauseFilteredTasksRoute,
+  resolveOperationsTaskRowId,
+} from '@/composables/taskClauseNavigation';
 
 const { t } = useI18n();
 const route = useRoute();
@@ -26,13 +30,39 @@ function parseReferenceIdFromQuery(q: unknown): number | null {
 
 const currentReferenceId = computed(() => parseReferenceIdFromQuery(route.query.reference_id));
 
+/** عنوان تعهد والد از query (هنگام کلیک «مشاهده» ست می‌شود) */
+const referenceParentTitle = computed(() => {
+  const raw = route.query.ref_title;
+  if (typeof raw !== 'string' || !raw.trim()) return '';
+  try {
+    return decodeURIComponent(raw);
+  } catch {
+    return raw;
+  }
+});
+
+const referenceBannerLabel = computed(() => {
+  const title = referenceParentTitle.value.trim();
+  if (title) return title;
+  const id = currentReferenceId.value;
+  return id != null ? `#${id}` : '';
+});
+
+/** بدنهٔ لیست تسک‌ها؛ `reference_id` فقط وقتی در query هست (همان صفحه، فیلتر زیرمجموعهٔ تبصرهٔ آن تسک). */
 const fetchTasks: FetchFn = async ({ page, limit, sort, filters }) => {
-  const res = await ermRepo.taskList({
+  const refFromRoute = parseReferenceIdFromQuery(route.query.reference_id);
+  const payload: Record<string, unknown> = {
     page,
     limit,
     ...(sort && { sort }),
-    ...filters,
-  });
+    ...(filters ?? {}),
+  };
+  if (refFromRoute != null) {
+    payload.reference_id = refFromRoute;
+  } else {
+    delete payload.reference_id;
+  }
+  const res = await ermRepo.taskList(payload);
   const list = res?.data?.list ?? [];
   const count = res?.data?.paginator?.count ?? 0;
   return { list: Array.isArray(list) ? list : [], count };
@@ -144,6 +174,23 @@ watch(
   }
 );
 
+/** در لیست تعهدات زیرمجموعهٔ تبصره، ستون «تبصره» مخفی می‌شود */
+watch(
+  currentReferenceId,
+  (refId) => {
+    const keys = table.visibleColumns.value;
+    const hasClauseKey = keys.includes('has_clause');
+    if (refId != null) {
+      if (hasClauseKey) {
+        table.visibleColumns.value = keys.filter((k) => k !== 'has_clause');
+      }
+    } else if (!hasClauseKey) {
+      table.visibleColumns.value = [...keys, 'has_clause'];
+    }
+  },
+  { immediate: true }
+);
+
 onMounted(() => {
   syncReferenceFilterFromRoute();
   table.invalidateListCache();
@@ -155,17 +202,8 @@ onMounted(() => {
   });
 });
 
-function onNavigateClauseRelated(row: Record<string, unknown>) {
-  const id = row.id;
-  if (id == null) return;
-  router.push({
-    name: 'app-base-info-tasks',
-    query: { reference_id: String(id) },
-  });
-}
-
 function onBackToAllTasks() {
-  router.push({ name: 'app-base-info-tasks' });
+  router.push({ path: '/app/base-info/tasks' });
 }
 
 function onAttachmentTask(row: Record<string, unknown>) {
@@ -221,9 +259,12 @@ function onTrashTasks() {
       >
         <span class="text-slate-600 dark:text-slate-300">
           {{ t('task.viewing-related-tasks') }}
-          <span class="font-medium text-slate-800 dark:text-slate-100"
-            >#{{ currentReferenceId }}</span
+          <span
+            class="font-medium text-slate-800 dark:text-slate-100"
+            :title="referenceBannerLabel"
           >
+            ({{ referenceBannerLabel }})
+          </span>
         </span>
         <button
           type="button"
@@ -245,16 +286,23 @@ function onTrashTasks() {
           :show-search="false"
       >
         <template #cell-has_clause="{ row }">
-          <Button
-            v-if="row.has_clause === 1"
-            type="button"
-            variant="outline-primary"
-            size="sm"
-            class="!h-7 px-2.5 text-xs font-normal"
-            @click.stop="onNavigateClauseRelated(row)"
+          <RouterLink
+            v-if="row.has_clause === 1 && resolveOperationsTaskRowId(row) != null"
+            class="inline-flex max-w-full cursor-pointer items-center gap-1 border-0 bg-transparent p-0 text-left text-[10px] font-medium text-primary underline decoration-primary/70 underline-offset-[3px] transition hover:text-primary/85 hover:decoration-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/35 focus-visible:ring-offset-1 rounded-sm dark:text-primary dark:decoration-primary/60"
+            :to="clauseFilteredTasksRoute(row)"
+            :title="t('task.view-clause')"
+            @click.stop
           >
             {{ t('task.view-clause') }}
-          </Button>
+            <Lucide icon="ExternalLink" class="h-3 w-3 shrink-0 opacity-70" aria-hidden="true" />
+          </RouterLink>
+          <span
+            v-else-if="row.has_clause === 1"
+            class="text-[10px] text-slate-400 dark:text-slate-500"
+            :title="t('task.view-clause')"
+          >
+            —
+          </span>
           <span
             v-else
             :class="[

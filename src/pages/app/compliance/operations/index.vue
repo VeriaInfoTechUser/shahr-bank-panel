@@ -7,6 +7,8 @@ import BaseTable from '@core/ui/base/BaseTable.vue';
 import { ermRepo } from '@/core/repositories/ermRepo';
 import { useBreadcrumbSlot } from '@/composables/useBreadcrumb';
 import SettingsExportToolbar from '@/pages/app/settings/SettingsExportToolbar.vue';
+import ComplianceOperationsStatusModal from './ComplianceOperationsStatusModal.vue';
+import { useGlobalModal } from '@/composables/useGlobalModal';
 import { complianceOperationsStatusBadgeClass } from '@/composables/complianceOperationsStatusBadge';
 import {
   clauseFilteredComplianceOperationsRoute,
@@ -17,6 +19,7 @@ const { t } = useI18n();
 const route = useRoute();
 const router = useRouter();
 const { setContent: setBreadcrumbSlot } = useBreadcrumbSlot();
+const { openModal } = useGlobalModal();
 
 function parseReferenceIdFromQuery(q: unknown): number | null {
   if (q == null || q === '') return null;
@@ -166,8 +169,12 @@ function statusBadgeClass(row: Record<string, unknown>): string {
   return complianceOperationsStatusBadgeClass(complianceStatusKey(row));
 }
 
-function onComplianceStatusClick(_row: Record<string, unknown>) {
-  /* آینده: مودال جریان وضعیت */
+function onComplianceStatusClick(row: Record<string, unknown>) {
+  if (rowHasClause(row)) return;
+  openModal({
+    component: ComplianceOperationsStatusModal,
+    props: { row },
+  });
 }
 
 const fetchComplianceList: FetchFn = async ({ page, limit, sort, filters }) => {

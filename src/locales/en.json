@@ -417,7 +417,8 @@
     "status-pending-assignment": "Pending assignment",
     "status-clauses": "Clauses",
     "operations-clause-filter-hint": "Filtered compliance operations for the clause-related commitment",
-    "operations-filter-back": "Back to all compliance operations"
+    "operations-filter-back": "Back to all compliance operations",
+    "status-flow-modal-title": "Commitment status"
   },
   "risk-operations": {
     "operations-clause-filter-hint": "Filtered risk operations for the clause-related commitment",

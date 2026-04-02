@@ -437,7 +437,8 @@
     "status-pending-assignment": "در انتظار ارجاع",
     "status-clauses": "تبصره‌ها",
     "operations-clause-filter-hint": "مشاهدهٔ عملیات تطبیق فیلترشده برای تعهد مرتبط با تبصره",
-    "operations-filter-back": "بازگشت به همهٔ عملیات تطبیق"
+    "operations-filter-back": "بازگشت به همهٔ عملیات تطبیق",
+    "status-flow-modal-title": "وضعیت تعهد"
   },
   "risk-operations": {
     "operations-clause-filter-hint": "مشاهدهٔ عملیات ریسک فیلترشده برای تعهد مرتبط با تبصره",

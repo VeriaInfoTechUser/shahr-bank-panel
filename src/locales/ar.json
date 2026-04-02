@@ -257,7 +257,8 @@
     "status-pending-assignment": "في انتظار الإحالة",
     "status-clauses": "البنود التوضيحية",
     "operations-clause-filter-hint": "عرض عمليات الامتثال المصفاة للالتزام المرتبط بالبند",
-    "operations-filter-back": "العودة إلى جميع عمليات الامتثال"
+    "operations-filter-back": "العودة إلى جميع عمليات الامتثال",
+    "status-flow-modal-title": "حالة الالتزام"
   },
   "risk-operations": {
     "operations-clause-filter-hint": "عرض عمليات المخاطر المصفاة للالتزام المرتبط بالبند",

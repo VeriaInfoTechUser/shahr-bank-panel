@@ -255,7 +255,13 @@
     "status-approve": "معتمد",
     "status-reject": "مرفوض",
     "status-pending-assignment": "في انتظار الإحالة",
-    "status-clauses": "البنود التوضيحية"
+    "status-clauses": "البنود التوضيحية",
+    "operations-clause-filter-hint": "عرض عمليات الامتثال المصفاة للالتزام المرتبط بالبند",
+    "operations-filter-back": "العودة إلى جميع عمليات الامتثال"
+  },
+  "risk-operations": {
+    "operations-clause-filter-hint": "عرض عمليات المخاطر المصفاة للالتزام المرتبط بالبند",
+    "operations-filter-back": "العودة إلى جميع عمليات المخاطر"
   },
   "input": {
     "username": "اسم المستخدم",

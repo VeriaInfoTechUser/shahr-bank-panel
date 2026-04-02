@@ -415,7 +415,13 @@
     "status-approve": "Approved",
     "status-reject": "Rejected",
     "status-pending-assignment": "Pending assignment",
-    "status-clauses": "Clauses"
+    "status-clauses": "Clauses",
+    "operations-clause-filter-hint": "Filtered compliance operations for the clause-related commitment",
+    "operations-filter-back": "Back to all compliance operations"
+  },
+  "risk-operations": {
+    "operations-clause-filter-hint": "Filtered risk operations for the clause-related commitment",
+    "operations-filter-back": "Back to all risk operations"
   },
   "input": {
     "mobile": "Mobile",

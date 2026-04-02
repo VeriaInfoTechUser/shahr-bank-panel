@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { onMounted } from 'vue';
-import { RouterLink } from 'vue-router';
+import { computed, onMounted, watch } from 'vue';
+import { RouterLink, useRoute, useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { useDataTable, createColumn, type FetchFn } from '@core';
 import BaseTable from '@core/ui/base/BaseTable.vue';
@@ -9,12 +9,39 @@ import { useBreadcrumbSlot } from '@/composables/useBreadcrumb';
 import SettingsExportToolbar from '@/pages/app/settings/SettingsExportToolbar.vue';
 import { riskOperationsStatusBadgeClass } from '@/composables/riskOperationsStatusBadge';
 import {
-  clauseFilteredTasksRoute,
+  clauseFilteredRiskOperationsRoute,
   resolveOperationsTaskRowId,
 } from '@/composables/taskClauseNavigation';
 
 const { t } = useI18n();
+const route = useRoute();
+const router = useRouter();
 const { setContent: setBreadcrumbSlot } = useBreadcrumbSlot();
+
+function parseReferenceIdFromQuery(q: unknown): number | null {
+  if (q == null || q === '') return null;
+  const n = Number(q);
+  return Number.isFinite(n) && n > 0 ? n : null;
+}
+
+const currentReferenceId = computed(() => parseReferenceIdFromQuery(route.query.reference_id));
+
+const referenceParentTitle = computed(() => {
+  const raw = route.query.ref_title;
+  if (typeof raw !== 'string' || !raw.trim()) return '';
+  try {
+    return decodeURIComponent(raw);
+  } catch {
+    return raw;
+  }
+});
+
+const referenceBannerLabel = computed(() => {
+  const title = referenceParentTitle.value.trim();
+  if (title) return title;
+  const id = currentReferenceId.value;
+  return id != null ? `#${id}` : '';
+});
 
 function pickStr(row: Record<string, unknown>, ...keys: string[]) {
   for (const k of keys) {
@@ -140,12 +167,19 @@ function onRiskStatusClick(_row: Record<string, unknown>) {
 }
 
 const fetchRiskList: FetchFn = async ({ page, limit, sort, filters }) => {
-  const res = await ermRepo.riskList({
+  const refFromRoute = parseReferenceIdFromQuery(route.query.reference_id);
+  const payload: Record<string, unknown> = {
     page,
     limit,
     ...(sort && { sort }),
-    ...filters,
-  });
+    ...(filters ?? {}),
+  };
+  if (refFromRoute != null) {
+    payload.reference_id = refFromRoute;
+  } else {
+    delete payload.reference_id;
+  }
+  const res = await ermRepo.riskList(payload);
   const list = res?.data?.list ?? [];
   const count = res?.data?.paginator?.count ?? 0;
   return { list: Array.isArray(list) ? list : [], count };
@@ -186,7 +220,33 @@ const table = useDataTable({
   listCacheStaleTime: 0,
 });
 
+function syncReferenceFilterFromRoute() {
+  const refId = parseReferenceIdFromQuery(route.query.reference_id);
+  const next = { ...table.filters.value };
+  if (refId != null) {
+    next.reference_id = refId;
+  } else {
+    delete next.reference_id;
+  }
+  table.filters.value = next;
+}
+
+watch(
+  () => route.query.reference_id,
+  () => {
+    table.invalidateListCache();
+    syncReferenceFilterFromRoute();
+    table.setPage(1);
+  }
+);
+
+function onBackToAllRiskOperations() {
+  router.push({ name: 'app-risk-operations' });
+}
+
 onMounted(() => {
+  syncReferenceFilterFromRoute();
+  table.invalidateListCache();
   table.fetch();
   setBreadcrumbSlot(SettingsExportToolbar, {
     onExport: () => table.exportCSV(),
@@ -196,6 +256,28 @@ onMounted(() => {
 
 <template>
   <div class="grid grid-cols-12 gap-2 p-2">
+    <div v-if="currentReferenceId != null" class="col-span-12">
+      <div
+        class="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-xs dark:border-darkmode-600 dark:bg-darkmode-800"
+      >
+        <span class="text-slate-600 dark:text-slate-300">
+          {{ t('risk-operations.operations-clause-filter-hint') }}
+          <span
+            class="font-medium text-slate-800 dark:text-slate-100"
+            :title="referenceBannerLabel"
+          >
+            ({{ referenceBannerLabel }})
+          </span>
+        </span>
+        <button
+          type="button"
+          class="text-primary hover:underline"
+          @click="onBackToAllRiskOperations"
+        >
+          {{ t('risk-operations.operations-filter-back') }}
+        </button>
+      </div>
+    </div>
     <div class="col-span-12">
       <BaseTable
         :table="table"
@@ -208,7 +290,7 @@ onMounted(() => {
         <template #cell-status="{ row }">
           <RouterLink
             v-if="rowHasClause(row) && resolveOperationsTaskRowId(row) != null"
-            :to="clauseFilteredTasksRoute(row)"
+            :to="clauseFilteredRiskOperationsRoute(row)"
             :class="[statusBadgeClass(row), '!cursor-pointer']"
             @click.stop
           >

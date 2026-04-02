@@ -10,12 +10,7 @@ export function resolveOperationsTaskRowId(row: Record<string, unknown>): number
   return null;
 }
 
-/** مسیر صفحهٔ تعهدات با `reference_id` = همان تسک (لیست فیلترشده). */
-export function clauseFilteredTasksRoute(row: Record<string, unknown>) {
-  const taskId = resolveOperationsTaskRowId(row);
-  if (taskId == null) {
-    return { name: 'app-base-info-tasks' as const, query: {} as Record<string, string> };
-  }
+function buildClauseQueryFromRow(row: Record<string, unknown>, taskId: number) {
   const task = row.task as Record<string, unknown> | undefined;
   const titleFromTask =
     task && typeof task.title === 'string' ? task.title.trim() : '';
@@ -24,5 +19,41 @@ export function clauseFilteredTasksRoute(row: Record<string, unknown>) {
   const titleStr = (titleFromTask || titleFromRow).slice(0, 500);
   const query: Record<string, string> = { reference_id: String(taskId) };
   if (titleStr) query.ref_title = titleStr;
-  return { name: 'app-base-info-tasks' as const, query };
+  return query;
+}
+
+/** مسیر صفحهٔ تعهدات (اطلاعات پایه) با `reference_id` = همان تسک. */
+export function clauseFilteredTasksRoute(row: Record<string, unknown>) {
+  const taskId = resolveOperationsTaskRowId(row);
+  if (taskId == null) {
+    return { name: 'app-base-info-tasks' as const, query: {} as Record<string, string> };
+  }
+  return {
+    name: 'app-base-info-tasks' as const,
+    query: buildClauseQueryFromRow(row, taskId),
+  };
+}
+
+/** همان صفحهٔ عملیات تطبیق با فیلتر `reference_id` روی لیست compliance. */
+export function clauseFilteredComplianceOperationsRoute(row: Record<string, unknown>) {
+  const taskId = resolveOperationsTaskRowId(row);
+  if (taskId == null) {
+    return { name: 'app-compliance-operations' as const, query: {} as Record<string, string> };
+  }
+  return {
+    name: 'app-compliance-operations' as const,
+    query: buildClauseQueryFromRow(row, taskId),
+  };
+}
+
+/** همان صفحهٔ عملیات ریسک با فیلتر `reference_id`. */
+export function clauseFilteredRiskOperationsRoute(row: Record<string, unknown>) {
+  const taskId = resolveOperationsTaskRowId(row);
+  if (taskId == null) {
+    return { name: 'app-risk-operations' as const, query: {} as Record<string, string> };
+  }
+  return {
+    name: 'app-risk-operations' as const,
+    query: buildClauseQueryFromRow(row, taskId),
+  };
 }

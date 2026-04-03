@@ -3,12 +3,25 @@ import { computed, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { toast } from 'vue3-toastify';
 import { ermRepo } from '@/core/repositories/ermRepo';
-import { complianceOperationsStatusBadgeClass } from '@/composables/complianceOperationsStatusBadge';
+import {
+  complianceOperationsStatusBadgeClass,
+  complianceOperationsStatusReportCardClass,
+} from '@/composables/complianceOperationsStatusBadge';
 import { useComplianceDoingTaskNavigationStore } from '@/stores/complianceDoingTaskNavigation';
 import { buildCommitmentSummaryForDoingTaskPage } from '@/composables/commitmentSummary';
+import ComplianceDoingTaskAnswerForm from './ComplianceDoingTaskAnswerForm.vue';
 
 const { t } = useI18n();
 const nav = useComplianceDoingTaskNavigationStore();
+
+/** کارت‌های داشبورد گزارش (بدون میانگین) — همان پالت badge */
+const REPORT_DASHBOARD_KEYS = [
+  'todo',
+  'doing',
+  'done',
+  'approve',
+  'reject',
+] as const;
 
 const taskId = computed(() => nav.taskId);
 const progressId = computed(() => nav.progressId);
@@ -103,6 +116,48 @@ const hasProgressDashboard = computed(
 const hasProgressPayloadWithoutReport = computed(() => {
   if (!hasProgressDashboard.value) return false;
   return reportSummary.value == null && progressRows.value.length > 0;
+});
+
+function progressIdsMatch(rowId: unknown, wanted: number | null): boolean {
+  if (wanted == null) return false;
+  const a = rowId;
+  const b = wanted;
+  const na = typeof a === 'number' ? a : Number(a);
+  const nb = typeof b === 'number' ? b : Number(b);
+  if (Number.isFinite(na) && Number.isFinite(nb) && na === nb) return true;
+  return String(a ?? '') === String(b ?? '');
+}
+
+/**
+ * فرم ثبت پاسخ: task + progress.
+ * اولویت: ردیف progress_list با همان progress_id → وگرنه اولین ردیف؛
+ * اگر لیست خالی و روی تسک `progress` بود → همان (مثلاً فقط task/get).
+ */
+const doingAnswerFormRow = computed((): Record<string, unknown> | null => {
+  const tk = summaryTask.value;
+  if (!tk) return null;
+
+  const rows = progressRows.value;
+  const pid = progressId.value;
+
+  let p: Record<string, unknown> | undefined;
+
+  if (rows.length > 0) {
+    if (pid != null) {
+      p = rows.find((r) => progressIdsMatch(r.id, pid));
+    }
+    if (!p) {
+      p = rows[0];
+    }
+  } else {
+    const nested = tk.progress;
+    if (nested != null && typeof nested === 'object' && !Array.isArray(nested)) {
+      p = nested as Record<string, unknown>;
+    }
+  }
+
+  if (!p) return null;
+  return { task: tk, progress: p };
 });
 
 function reportNum(r: Record<string, unknown>, key: string): string {
@@ -457,62 +512,24 @@ watch(
                 class="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6"
               >
                 <div
-                  class="rounded-lg border border-slate-200/90 bg-slate-50/90 px-3 py-2.5 dark:border-darkmode-600 dark:bg-darkmode-900/40"
+                  v-for="k in REPORT_DASHBOARD_KEYS"
+                  :key="k"
+                  :class="complianceOperationsStatusReportCardClass(k)"
                 >
-                  <p class="text-[10px] font-medium text-slate-500 dark:text-slate-400">
-                    {{ t('compliance-page.status-todo') }}
+                  <p class="text-[10px] font-medium opacity-90">
+                    {{ t(`compliance-page.status-${k}`) }}
                   </p>
-                  <p class="text-lg font-semibold tabular-nums text-slate-900 dark:text-slate-100">
-                    {{ reportNum(reportSummary, 'todo') }}
+                  <p class="text-lg font-semibold tabular-nums">
+                    {{ reportNum(reportSummary, k) }}
                   </p>
                 </div>
                 <div
-                  class="rounded-lg border border-slate-200/90 bg-slate-50/90 px-3 py-2.5 dark:border-darkmode-600 dark:bg-darkmode-900/40"
+                  class="min-w-0 rounded-lg border border-y border-l border-r-[4px] border-r-slate-300/90 border-slate-200/90 bg-slate-50/90 px-3 py-2.5 text-slate-800 shadow-sm dark:border-darkmode-600 dark:border-r-slate-600 dark:bg-darkmode-900/40 dark:text-slate-100"
                 >
-                  <p class="text-[10px] font-medium text-slate-500 dark:text-slate-400">
-                    {{ t('compliance-page.status-doing') }}
-                  </p>
-                  <p class="text-lg font-semibold tabular-nums text-slate-900 dark:text-slate-100">
-                    {{ reportNum(reportSummary, 'doing') }}
-                  </p>
-                </div>
-                <div
-                  class="rounded-lg border border-slate-200/90 bg-slate-50/90 px-3 py-2.5 dark:border-darkmode-600 dark:bg-darkmode-900/40"
-                >
-                  <p class="text-[10px] font-medium text-slate-500 dark:text-slate-400">
-                    {{ t('compliance-page.status-done') }}
-                  </p>
-                  <p class="text-lg font-semibold tabular-nums text-slate-900 dark:text-slate-100">
-                    {{ reportNum(reportSummary, 'done') }}
-                  </p>
-                </div>
-                <div
-                  class="rounded-lg border border-slate-200/90 bg-slate-50/90 px-3 py-2.5 dark:border-darkmode-600 dark:bg-darkmode-900/40"
-                >
-                  <p class="text-[10px] font-medium text-slate-500 dark:text-slate-400">
-                    {{ t('compliance-page.status-approve') }}
-                  </p>
-                  <p class="text-lg font-semibold tabular-nums text-slate-900 dark:text-slate-100">
-                    {{ reportNum(reportSummary, 'approve') }}
-                  </p>
-                </div>
-                <div
-                  class="rounded-lg border border-slate-200/90 bg-slate-50/90 px-3 py-2.5 dark:border-darkmode-600 dark:bg-darkmode-900/40"
-                >
-                  <p class="text-[10px] font-medium text-slate-500 dark:text-slate-400">
-                    {{ t('compliance-page.status-reject') }}
-                  </p>
-                  <p class="text-lg font-semibold tabular-nums text-slate-900 dark:text-slate-100">
-                    {{ reportNum(reportSummary, 'reject') }}
-                  </p>
-                </div>
-                <div
-                  class="rounded-lg border border-slate-200/90 bg-slate-50/90 px-3 py-2.5 dark:border-darkmode-600 dark:bg-darkmode-900/40"
-                >
-                  <p class="text-[10px] font-medium text-slate-500 dark:text-slate-400">
+                  <p class="text-[10px] font-medium opacity-90 text-slate-500 dark:text-slate-400">
                     {{ t('compliance-page.doing-task-report-average') }}
                   </p>
-                  <p class="text-lg font-semibold tabular-nums text-slate-900 dark:text-slate-100">
+                  <p class="text-lg font-semibold tabular-nums">
                     {{ reportNum(reportSummary, 'average') }}
                   </p>
                 </div>
@@ -631,8 +648,14 @@ watch(
             </section>
           </template>
 
+          <ComplianceDoingTaskAnswerForm
+            v-if="doingAnswerFormRow"
+            :row="doingAnswerFormRow"
+            @success="() => void loadDetails()"
+          />
+
           <p
-            v-else-if="progressId == null"
+            v-if="progressId == null && !doingAnswerFormRow"
             class="rounded-md border border-amber-200/80 bg-amber-50/80 px-3 py-2 text-xs text-amber-900 dark:border-amber-900/40 dark:bg-amber-950/30 dark:text-amber-100"
           >
             {{ t('compliance-page.doing-task-no-progress-detail') }}

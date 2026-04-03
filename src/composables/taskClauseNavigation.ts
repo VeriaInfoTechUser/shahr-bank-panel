@@ -10,6 +10,16 @@ export function resolveOperationsTaskRowId(row: Record<string, unknown>): number
   return null;
 }
 
+/** شناسهٔ `progress` همان ردیف کلیک‌شده در عملیات تطبیق (`row.progress.id`). */
+export function resolveOperationsProgressId(row: Record<string, unknown>): number | null {
+  const p = row.progress;
+  if (p == null || typeof p !== 'object' || Array.isArray(p)) return null;
+  const id = (p as Record<string, unknown>).id;
+  if (id == null || id === '') return null;
+  const n = typeof id === 'number' ? id : Number(id);
+  return Number.isFinite(n) && n > 0 ? n : null;
+}
+
 function buildClauseQueryFromRow(row: Record<string, unknown>, taskId: number) {
   const task = row.task as Record<string, unknown> | undefined;
   const titleFromTask =

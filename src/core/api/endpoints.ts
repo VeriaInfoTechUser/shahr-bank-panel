@@ -56,6 +56,7 @@ export const endpoints = {
       },
       task: {
         list: 'erm/task/list',
+        get: 'erm/task/get',
         add: 'erm/task/add',
         edit: 'erm/task/edit',
       },
@@ -71,6 +72,7 @@ export const endpoints = {
       compliance: {
         list: 'erm/compliance/list',
         progress: 'erm/compliance/progress',
+        progressDetail: 'erm/compliance/progress/detail',
       },
       risk: {
         list: 'erm/risk/list',

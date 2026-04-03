@@ -19,6 +19,7 @@ import SettingsLiaisons from "@/pages/app/settings/liaisons/index.vue";
 import SettingsLegislativeAuthority from "@/pages/app/settings/legislative-authority/index.vue";
 import SettingsLawType from "@/pages/app/settings/law-type/index.vue";
 import ComplianceOperations from "@/pages/app/compliance/operations/index.vue";
+import ComplianceDoingTask from "@/pages/app/compliance/doing-task/index.vue";
 import RiskOperations from "@/pages/app/risk/operations/index.vue";
 import SectionPlaceholderPage from "@/pages/app/shared/SectionPlaceholderPage.vue";
 import AuthLogin from "@/pages/auth/login/index.vue";
@@ -162,6 +163,12 @@ const routes = [
                                 name: "app-compliance-operations",
                                 component: ComplianceOperations,
                                 meta: { breadcrumbLabel: 'menu.compliance-operations' },
+                            },
+                            {
+                                path: "doing-task",
+                                name: "app-compliance-doing-task",
+                                component: ComplianceDoingTask,
+                                meta: { breadcrumbLabel: 'menu.compliance-doing-task' },
                             },
                             {
                                 path: "performance-report",

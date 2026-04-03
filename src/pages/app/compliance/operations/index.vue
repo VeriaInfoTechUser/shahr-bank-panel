@@ -169,8 +169,7 @@ function statusBadgeClass(row: Record<string, unknown>): string {
   return complianceOperationsStatusBadgeClass(complianceStatusKey(row));
 }
 
-function onComplianceStatusClick(row: Record<string, unknown>) {
-  if (rowHasClause(row)) return;
+function openComplianceStatusModal(row: Record<string, unknown>) {
   openModal({
     component: ComplianceOperationsStatusModal,
     props: { row },
@@ -179,6 +178,11 @@ function onComplianceStatusClick(row: Record<string, unknown>) {
       table.fetch();
     },
   });
+}
+
+function onComplianceStatusClick(row: Record<string, unknown>) {
+  if (rowHasClause(row)) return;
+  openComplianceStatusModal(row);
 }
 
 const fetchComplianceList: FetchFn = async ({ page, limit, sort, filters }) => {

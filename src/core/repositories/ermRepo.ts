@@ -50,6 +50,11 @@ export class ErmRepo extends BaseRepo {
     return this.post<ApiResult<unknown>>(endpoints.admin.erm.task.edit, payload);
   }
 
+  /** payload: `{ id: taskId }` */
+  async taskGet(payload: { id: number }) {
+    return this.post<unknown>(endpoints.admin.erm.task.get, payload);
+  }
+
   async memberList(params: RuleListParams) {
     return this.post<RuleListResponse>(endpoints.admin.erm.member.list, params);
   }
@@ -80,6 +85,14 @@ export class ErmRepo extends BaseRepo {
 
   async complianceProgress(payload: Record<string, unknown>) {
     return this.post<ApiResult<unknown>>(endpoints.admin.erm.compliance.progress, payload);
+  }
+
+  /** payload: `{ task_id, progress_id }` */
+  async complianceProgressDetail(payload: {
+    task_id: number;
+    progress_id: number;
+  }) {
+    return this.post<unknown>(endpoints.admin.erm.compliance.progressDetail, payload);
   }
 
   async riskList(params: RuleListParams) {

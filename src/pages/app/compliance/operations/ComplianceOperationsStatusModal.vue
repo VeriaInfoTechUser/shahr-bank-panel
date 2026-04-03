@@ -1,8 +1,15 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
+import { useRouter } from 'vue-router';
 import BaseModal from '@/core/ui/base/BaseModal.vue';
 import Button from '@/base-components/Button';
 import { useI18n } from 'vue-i18n';
+import {
+  resolveOperationsProgressId,
+  resolveOperationsTaskRowId,
+} from '@/composables/taskClauseNavigation';
+import { extractDoingTaskNavLabelsFromRow } from '@/composables/commitmentSummary';
+import { useComplianceDoingTaskNavigationStore } from '@/stores/complianceDoingTaskNavigation';
 import {
   getComplianceStatusKey,
   isProgressParentReferral,
@@ -13,6 +20,7 @@ import ComplianceStatusDoingSingleForm from './status/ComplianceStatusDoingSingl
 import ComplianceStatusDoingParentView from './status/ComplianceStatusDoingParentView.vue';
 import ComplianceStatusDoneReviewView from './status/ComplianceStatusDoneReviewView.vue';
 import ComplianceStatusFormPlaceholder from './status/ComplianceStatusFormPlaceholder.vue';
+import { buildCommitmentSummary } from '@/composables/commitmentSummary';
 
 const props = defineProps<{
   show: boolean;
@@ -26,6 +34,8 @@ const emit = defineEmits<{
 }>();
 
 const { t } = useI18n();
+const router = useRouter();
+const doingTaskNav = useComplianceDoingTaskNavigationStore();
 
 type StatusModalTab = 'commitment' | 'report';
 const activeTab = ref<StatusModalTab>('commitment');
@@ -37,89 +47,8 @@ watch(
   }
 );
 
-function resolveTaskRecord(
-  row: Record<string, unknown> | null | undefined
-): Record<string, unknown> | null {
-  if (!row || typeof row !== 'object') return null;
-  const nested = row.task;
-  if (nested && typeof nested === 'object' && !Array.isArray(nested)) {
-    return nested as Record<string, unknown>;
-  }
-  if (
-    row.rule != null ||
-    row.warranty != null ||
-    row.mandatory_unit != null ||
-    row.section != null
-  ) {
-    return row;
-  }
-  return null;
-}
-
 /** فقط فیلدهای لازم برای نمایش خلاصهٔ تعهد */
-const commitmentSummary = computed(() => {
-  const raw = resolveTaskRecord(props.row);
-  if (!raw) return null;
-
-  const rule = raw.rule as Record<string, unknown> | undefined;
-  const warranty = raw.warranty as Record<string, unknown> | undefined;
-  const section = raw.section as Record<string, unknown> | undefined;
-  const mandatory_unit = raw.mandatory_unit as
-    | Array<Record<string, unknown>>
-    | undefined;
-
-  let sectionLabel = '';
-  if (section) {
-    const childrenRaw = section.children;
-    const st = typeof section.title === 'string' ? section.title : '';
-    if (childrenRaw != null && typeof childrenRaw === 'object') {
-      if (Array.isArray(childrenRaw) && childrenRaw.length > 0) {
-        const ch = childrenRaw[0] as Record<string, unknown>;
-        const ct = typeof ch.title === 'string' ? ch.title : '';
-        sectionLabel = st && ct ? `${st} / ${ct}` : st || ct;
-      } else if (!Array.isArray(childrenRaw)) {
-        const ch = childrenRaw as Record<string, unknown>;
-        const ct = typeof ch.title === 'string' ? ch.title : '';
-        sectionLabel = st && ct ? `${st} / ${ct}` : st || ct;
-      }
-    } else {
-      sectionLabel = st;
-    }
-  }
-
-  const unitsList = Array.isArray(mandatory_unit)
-    ? mandatory_unit.map((u) => String(u.title ?? '').trim()).filter(Boolean)
-    : [];
-
-  const ruleCode =
-    rule && typeof rule.code === 'string' ? rule.code.trim() : '';
-  const ruleText =
-    rule && typeof rule.rule === 'string' ? rule.rule.trim() : '';
-
-  const warrantyTitle =
-    warranty && typeof warranty.title === 'string'
-      ? warranty.title.trim()
-      : '';
-
-  const titleStr =
-    typeof raw.title === 'string' ? raw.title.trim() : '';
-
-  const refId = raw.reference_id;
-  const refNum = Number(refId);
-  const hasParentRef =
-    refId != null && refId !== '' && Number.isFinite(refNum) && refNum > 0;
-
-  return {
-    titleStr,
-    warrantyTitle,
-    sectionLabel,
-    ruleCode,
-    ruleText,
-    unitsList,
-    hasParentRef,
-    parentRefDisplay: hasParentRef ? String(refNum) : '',
-  };
-});
+const commitmentSummary = computed(() => buildCommitmentSummary(props.row));
 
 const statusKey = computed(() => {
   const r = props.row;
@@ -178,6 +107,22 @@ function close() {
 function onDialogVisible(v: boolean) {
   emit('update:show', v);
   if (!v) emit('close');
+}
+
+/** فقط ارجاع گروهی (والد): رفتن به صفحهٔ تکالیف در حال اجرا */
+function goToDoingTasksPage() {
+  const row = props.row;
+  if (!row || typeof row !== 'object') return;
+  const r = row as Record<string, unknown>;
+  const taskId = resolveOperationsTaskRowId(r);
+  if (taskId == null) return;
+  const labels = extractDoingTaskNavLabelsFromRow(r);
+  doingTaskNav.setDoingContext(taskId, resolveOperationsProgressId(r), {
+    sectionLabel: labels.sectionLabel,
+    domainLabel: labels.domainLabel,
+  });
+  close();
+  void router.push({ name: 'app-compliance-doing-task' });
 }
 </script>
 
@@ -489,22 +434,27 @@ function onDialogVisible(v: boolean) {
             activeTab === 'commitment'
           "
         >
-          <Button
-            type="button"
-            variant="outline-secondary"
-            size="sm"
-            disabled
+          <div
+            class="flex w-full flex-wrap justify-end gap-2"
+            dir="rtl"
           >
-            {{ t('compliance-page.doing-parent-commitment-in-progress') }}
-          </Button>
-          <Button
-            type="button"
-            variant="outline-secondary"
-            size="sm"
-            @click="close"
-          >
-            {{ t('compliance-page.doing-footer-cancel') }}
-          </Button>
+            <Button
+              type="button"
+              variant="primary"
+              size="sm"
+              @click="goToDoingTasksPage"
+            >
+              {{ t('compliance-page.doing-parent-commitment-in-progress') }}
+            </Button>
+            <Button
+              type="button"
+              variant="outline-secondary"
+              size="sm"
+              @click="close"
+            >
+              {{ t('compliance-page.doing-footer-cancel') }}
+            </Button>
+          </div>
         </template>
         <template
           v-else-if="

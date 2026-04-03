@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, nextTick, ref, watch } from 'vue';
-import { Form } from 'vee-validate';
+import { Field, Form } from 'vee-validate';
 import * as yup from 'yup';
 import { useI18n } from 'vue-i18n';
 import { toast } from 'vue3-toastify';
@@ -97,13 +97,32 @@ const initialValues = ref({
   title: '',
 });
 
+/** فقط تبصرهٔ والد؛ در افزودن مقدار اولیه خالی و بدون پیش‌فرض */
+function isClauseFromParentReference(): boolean {
+  return (
+    props.mode === 'add' &&
+    props.referenceId != null &&
+    Number(props.referenceId) > 0
+  );
+}
+
+/** در ویرایش یا افزودن زیر تبصره: فقط نمایش؛ قابل تغییر نیست */
+const isClauseFieldLocked = computed(
+  () => props.mode === 'edit' || isClauseFromParentReference()
+);
+
 const validationSchema = computed(() =>
   yup.object({
     domain_id: yup.string().required(t('task.validation-domain-required')),
     section_id: yup.string().required(t('task.validation-subject-required')),
     warranty_id: yup.string().required(t('task.validation-type-required')),
     code: yup.string().optional(),
-    has_clause: yup.string().required(),
+    has_clause:
+      props.mode === 'edit'
+        ? yup.string().oneOf(['0', '1']).required()
+        : isClauseFromParentReference()
+          ? yup.string().optional()
+          : yup.string().oneOf(['0', '1']).required(),
     rule_id: yup.string().required(t('task.validation-rule-required')),
     mandatory_unit_ids: yup
       .array()
@@ -190,7 +209,7 @@ function buildInitialValues() {
       section_id: '',
       warranty_id: '',
       code: '',
-      has_clause: '0',
+      has_clause: isClauseFromParentReference() ? '' : '0',
       rule_id: '',
       mandatory_unit_ids: [],
       title: '',
@@ -525,15 +544,28 @@ const clauseOptions = computed<Option[]>(() => [
           name="code"
           :label="t('task.form-code')"
         />
-        <BaseMultiSelect
-          name="mandatory_unit_ids"
-          :label="t('task.form-mandatory-unit')"
-          :options="mandatoryUnitOptions"
-          :placeholder="t('rule.form-select-placeholder')"
-          :required="true"
-          :disabled="mandatoryUnitOptions.length === 0"
-        />
+        <div
+          class="min-w-0"
+          :class="isClauseFieldLocked ? 'md:col-span-2' : ''"
+        >
+          <BaseMultiSelect
+            name="mandatory_unit_ids"
+            :label="t('task.form-mandatory-unit')"
+            :options="mandatoryUnitOptions"
+            :placeholder="t('rule.form-select-placeholder')"
+            :required="true"
+            :disabled="mandatoryUnitOptions.length === 0"
+          />
+        </div>
+        <Field
+          v-if="isClauseFieldLocked"
+          name="has_clause"
+          v-slot="{ field }"
+        >
+          <input type="hidden" v-bind="field" />
+        </Field>
         <BaseSelect
+          v-else
           name="has_clause"
           :label="t('task.form-clause')"
           :options="clauseOptions"

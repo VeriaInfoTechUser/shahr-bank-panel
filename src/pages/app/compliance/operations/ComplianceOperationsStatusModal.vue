@@ -455,7 +455,7 @@ function onDialogVisible(v: boolean) {
           >
             <Button
               type="button"
-              variant="primary"
+              variant="outline-primary"
               size="sm"
               :disabled="doingSingleFooterBusy"
               @click="doingSingleFormRef?.submitRegister()"
@@ -464,7 +464,7 @@ function onDialogVisible(v: boolean) {
             </Button>
             <Button
               type="button"
-              variant="outline-primary"
+              variant="primary"
               size="sm"
               :disabled="doingSingleFooterBusy"
               @click="doingSingleFormRef?.submitSend()"

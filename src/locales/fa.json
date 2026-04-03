@@ -294,6 +294,7 @@
     "form-type": "نوع",
     "form-code": "کد",
     "form-clause": "تبصره",
+    "form-clause-no-default-placeholder": "پیش‌فرض ندارد",
     "form-rule": "قانون",
     "form-mandatory-unit": "واحد مکلف",
     "form-title": "تعهد",

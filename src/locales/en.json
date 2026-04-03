@@ -276,6 +276,7 @@
     "form-type": "Type",
     "form-code": "Code",
     "form-clause": "Clause",
+    "form-clause-no-default-placeholder": "No default",
     "form-rule": "Rule",
     "form-mandatory-unit": "Mandatory unit",
     "form-title": "Commitment",

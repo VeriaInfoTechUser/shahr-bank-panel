@@ -21,6 +21,64 @@ const liaisonNameDisplay = computed(() =>
   getProgressExecutorLabel(props.row)
 );
 
+/** فقط ۰ / ۵۰ / ۱۰۰؛ بقیه → بدون رنگ‌بندی */
+function parseAnswerScoreBand(
+  row: Record<string, unknown>
+): 'red' | 'yellow' | 'green' | null {
+  const p = getProgress(row);
+  if (!p) return null;
+  const s = p.answer_score;
+  if (s == null || s === '') return null;
+  const n =
+    typeof s === 'number' ? s : Number(String(s).replace(/,/g, '.').trim());
+  if (!Number.isFinite(n)) return null;
+  if (n === 0) return 'red';
+  if (n === 50) return 'yellow';
+  if (n === 100) return 'green';
+  return null;
+}
+
+const answerScoreBand = computed(() => parseAnswerScoreBand(props.row));
+
+const answerScorePanelClass = computed(() => {
+  switch (answerScoreBand.value) {
+    case 'red':
+      return 'border-red-200 bg-red-50 dark:border-red-900/50 dark:bg-red-950/40';
+    case 'yellow':
+      return 'border-amber-200 bg-amber-50 dark:border-amber-900/45 dark:bg-amber-950/35';
+    case 'green':
+      return 'border-green-200 bg-green-50 dark:border-green-900/45 dark:bg-green-950/35';
+    default:
+      return 'border-slate-200/90 bg-slate-50/80 dark:border-darkmode-600 dark:bg-darkmode-900/40';
+  }
+});
+
+const answerScoreValueClass = computed(() => {
+  switch (answerScoreBand.value) {
+    case 'red':
+      return 'text-xs font-semibold tabular-nums text-red-800 dark:text-red-200';
+    case 'yellow':
+      return 'text-xs font-semibold tabular-nums text-amber-900 dark:text-amber-200';
+    case 'green':
+      return 'text-xs font-semibold tabular-nums text-green-800 dark:text-green-200';
+    default:
+      return 'text-xs font-semibold tabular-nums text-slate-800 dark:text-slate-100';
+  }
+});
+
+const answerScoreColDividerClass = computed(() => {
+  switch (answerScoreBand.value) {
+    case 'red':
+      return 'md:border-red-200/80 dark:md:border-red-900/40';
+    case 'yellow':
+      return 'md:border-amber-200/80 dark:md:border-amber-900/40';
+    case 'green':
+      return 'md:border-green-200/80 dark:md:border-green-900/40';
+    default:
+      return 'md:border-slate-200/80 dark:md:border-darkmode-600';
+  }
+});
+
 function resolveUserId(progress: Record<string, unknown>): number | null {
   const u = progress.user;
   if (u && typeof u === 'object' && !Array.isArray(u)) {
@@ -213,7 +271,8 @@ defineExpose({
       </div>
 
       <div
-        class="grid grid-cols-1 gap-3 rounded-md border border-slate-200/90 bg-slate-50/80 px-2.5 py-2 dark:border-darkmode-600 dark:bg-darkmode-900/40 md:grid-cols-2 md:gap-4"
+        class="grid grid-cols-1 gap-3 rounded-md border px-2.5 py-2 md:grid-cols-2 md:gap-4"
+        :class="answerScorePanelClass"
       >
         <div class="min-w-0">
           <p
@@ -227,15 +286,16 @@ defineExpose({
             {{ displayAnswerValue(row) }}
           </p>
         </div>
-        <div class="min-w-0 md:border-s md:border-slate-200/80 md:ps-4 dark:md:border-darkmode-600">
+        <div
+          class="min-w-0 md:border-s md:ps-4"
+          :class="answerScoreColDividerClass"
+        >
           <p
             class="mb-1 text-[10px] font-semibold uppercase tracking-[0.06em] text-slate-400 dark:text-slate-500"
           >
             {{ t('compliance-page.done-label-answer-score') }}
           </p>
-          <p
-            class="text-xs font-medium tabular-nums text-slate-800 dark:text-slate-100"
-          >
+          <p :class="answerScoreValueClass">
             {{ displayAnswerScore(row) }}
           </p>
         </div>

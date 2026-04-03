@@ -146,6 +146,7 @@
     "form-type": "النوع",
     "form-code": "الرمز",
     "form-clause": "البند",
+    "form-clause-no-default-placeholder": "لا قيمة افتراضية",
     "form-rule": "القانون",
     "form-mandatory-unit": "الوحدة الملزمة",
     "form-title": "الالتزام",

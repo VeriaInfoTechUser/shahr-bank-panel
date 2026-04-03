@@ -11,6 +11,7 @@ import ComplianceStatusPendingAssignmentForm from './status/ComplianceStatusPend
 import { COMPLIANCE_PENDING_ASSIGNMENT_FORM_ID } from './status/compliancePendingAssignmentFormId';
 import ComplianceStatusDoingSingleForm from './status/ComplianceStatusDoingSingleForm.vue';
 import ComplianceStatusDoingParentView from './status/ComplianceStatusDoingParentView.vue';
+import ComplianceStatusDoneReviewView from './status/ComplianceStatusDoneReviewView.vue';
 import ComplianceStatusFormPlaceholder from './status/ComplianceStatusFormPlaceholder.vue';
 
 const props = defineProps<{
@@ -154,6 +155,16 @@ const doingSingleFooterBusy = computed(() =>
   )
 );
 
+const doneReviewRef = ref<InstanceType<
+  typeof ComplianceStatusDoneReviewView
+> | null>(null);
+
+const doneFooterBusy = computed(() =>
+  Boolean(
+    (doneReviewRef.value as { submitting?: boolean } | null)?.submitting
+  )
+);
+
 function onStatusFormSuccess() {
   emit('success');
   close();
@@ -217,7 +228,10 @@ function onDialogVisible(v: boolean) {
             v-if="
               !commitmentSummary &&
               !(row && statusKey === 'pending-assignment') &&
-              !(row && statusKey === 'doing')
+              !(row && statusKey === 'doing') &&
+              !(row && statusKey === 'done') &&
+              !(row && statusKey === 'reject') &&
+              !(row && statusKey === 'approve')
             "
             class="py-6 text-center text-xs text-slate-500 dark:text-slate-400"
           >
@@ -371,12 +385,27 @@ function onDialogVisible(v: boolean) {
               statusKey === 'doing' &&
               isDoingParentReferral
             "
+            :row="row"
+          />
+          <ComplianceStatusDoneReviewView
+            v-else-if="
+              row &&
+              (statusKey === 'done' ||
+                statusKey === 'reject' ||
+                statusKey === 'approve')
+            "
+            ref="doneReviewRef"
+            :row="row"
+            @success="onStatusFormSuccess"
           />
           <ComplianceStatusFormPlaceholder
             v-else-if="
               row &&
               statusKey !== 'pending-assignment' &&
-              statusKey !== 'doing'
+              statusKey !== 'doing' &&
+              statusKey !== 'done' &&
+              statusKey !== 'reject' &&
+              statusKey !== 'approve'
             "
             :status-key="statusKey"
           />
@@ -476,6 +505,85 @@ function onDialogVisible(v: boolean) {
           >
             {{ t('compliance-page.doing-footer-cancel') }}
           </Button>
+        </template>
+        <template
+          v-else-if="
+            statusKey === 'approve' && activeTab === 'commitment'
+          "
+        >
+          <Button
+            type="button"
+            variant="outline-secondary"
+            size="sm"
+            @click="close"
+          >
+            {{ t('compliance-page.approve-footer-close') }}
+          </Button>
+        </template>
+        <template
+          v-else-if="
+            statusKey === 'reject' && activeTab === 'commitment'
+          "
+        >
+          <div
+            class="flex w-full flex-wrap justify-end gap-2"
+            dir="rtl"
+          >
+            <Button
+              type="button"
+              variant="primary"
+              size="sm"
+              :disabled="doneFooterBusy"
+              @click="doneReviewRef?.submitRestartToDoing()"
+            >
+              {{ t('compliance-page.reject-footer-start') }}
+            </Button>
+            <Button
+              type="button"
+              variant="outline-secondary"
+              size="sm"
+              :disabled="doneFooterBusy"
+              @click="close"
+            >
+              {{ t('compliance-page.doing-footer-cancel') }}
+            </Button>
+          </div>
+        </template>
+        <template
+          v-else-if="statusKey === 'done' && activeTab === 'commitment'"
+        >
+          <div
+            class="flex w-full flex-wrap justify-end gap-2"
+            dir="rtl"
+          >
+            <Button
+              type="button"
+              variant="danger"
+              size="sm"
+              :disabled="doneFooterBusy"
+              @click="doneReviewRef?.submitReview('reject')"
+            >
+              {{ t('compliance-page.done-footer-reject') }}
+            </Button>
+            <Button
+              type="button"
+              variant="success"
+              size="sm"
+              :disabled="doneFooterBusy"
+              @click="doneReviewRef?.submitReview('approve')"
+            >
+              {{ t('compliance-page.done-footer-approve') }}
+            </Button>
+            <Button
+              type="button"
+              variant="outline-secondary"
+              size="sm"
+              :disabled="doneFooterBusy"
+              @click="close"
+            >
+              {{ t('compliance-page.done-footer-cancel') }}
+            </Button>
+          </div>
         </template>
         <template v-else>
           <Button

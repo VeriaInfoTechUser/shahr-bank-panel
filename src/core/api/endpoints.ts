@@ -70,6 +70,7 @@ export const endpoints = {
       },
       compliance: {
         list: 'erm/compliance/list',
+        progress: 'erm/compliance/progress',
       },
       risk: {
         list: 'erm/risk/list',

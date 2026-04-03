@@ -174,6 +174,10 @@ function onComplianceStatusClick(row: Record<string, unknown>) {
   openModal({
     component: ComplianceOperationsStatusModal,
     props: { row },
+    onSuccess: () => {
+      table.invalidateListCache();
+      table.fetch();
+    },
   });
 }
 

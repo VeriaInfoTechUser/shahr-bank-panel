@@ -67,6 +67,15 @@ export class ErmRepo extends BaseRepo {
     );
   }
 
+  /** تغییر وضعیت رابط — `{ user_id, status }` به‌صورت رشته (مثلاً `"1"` / `"0"`) */
+  async memberStatus(payload: { user_id: string; status: string }) {
+    return this.post<ApiResult<unknown>>(endpoints.admin.erm.member.status, payload);
+  }
+
+  async memberDelete(payload: { user_id: string }) {
+    return this.post<ApiResult<unknown>>(endpoints.admin.erm.member.delete, payload);
+  }
+
   async ruleAuthorList(params: RuleListParams) {
     return this.post<RuleListResponse>(endpoints.admin.erm.ruleAuthor.list, params);
   }

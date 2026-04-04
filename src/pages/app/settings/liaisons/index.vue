@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { toast } from 'vue3-toastify';
 import { useDataTable, createColumn, type FetchFn } from '@core';
-import BaseTable from '@core/ui/base/BaseTable.vue';
+import BaseTable from '@/core/ui/base/BaseTable.vue';
+import BaseConfirmModal from '@core/ui/base/BaseConfirmModal.vue';
 import { ermRepo } from '@/core/repositories/ermRepo';
 import { useBreadcrumbSlot } from '@/composables/useBreadcrumb';
 import { useGlobalModal } from '@/composables/useGlobalModal';
@@ -38,7 +40,11 @@ function roleCell(row: Record<string, unknown>) {
     const arr = roles[key];
     if (!Array.isArray(arr)) continue;
     for (const item of arr) {
-      if (item && typeof item === 'object' && typeof (item as Record<string, unknown>).title === 'string') {
+      if (
+        item &&
+        typeof item === 'object' &&
+        typeof (item as Record<string, unknown>).title === 'string'
+      ) {
         titles.push((item as Record<string, unknown>).title as string);
       }
     }
@@ -50,8 +56,8 @@ function orgUnitCell(row: Record<string, unknown>) {
   const direct = row.organizational_unit ?? row.organization_unit ?? row.department;
   if (typeof direct === 'string' && direct.trim()) return direct;
   if (direct && typeof direct === 'object' && 'title' in direct) {
-    const t = (direct as Record<string, unknown>).title;
-    if (typeof t === 'string' && t.trim()) return t;
+    const tt = (direct as Record<string, unknown>).title;
+    if (typeof tt === 'string' && tt.trim()) return tt;
   }
   return '—';
 }
@@ -121,17 +127,17 @@ const table = useDataTable({
       bodyCell: (row) => pickStr(row, 'time_created_view'),
     }),
     createColumn({
+      key: 'mandatory_unit',
+      label: t('settings-page.liaisons-col-mandatory-unit'),
+      sortable: false,
+      bodyCell: mandatoryUnitCell,
+    }),
+    createColumn({
       key: 'status',
       label: t('settings-page.liaisons-col-status'),
       sortable: false,
       align: 'center',
       bodyCell: (row) => statusExportCell(row),
-    }),
-    createColumn({
-      key: 'mandatory_unit',
-      label: t('settings-page.liaisons-col-mandatory-unit'),
-      sortable: false,
-      bodyCell: mandatoryUnitCell,
     }),
   ],
   selectable: false,
@@ -175,12 +181,70 @@ function onLogsMember(row: Record<string, unknown>) {
 }
 
 function onToggleMemberStatus(row: Record<string, unknown>, nextActive: boolean) {
-  row.status = nextActive ? 1 : 0;
-  console.log('Toggle status', row.id, row.status);
+  const userId = String(row.id ?? '');
+  if (!userId || userId === 'undefined') {
+    toast(t('settings-page.liaisons-status-error'), { type: 'error' });
+    return;
+  }
+  const displayName = pickStr(row, 'name', 'full_name');
+  openModal({
+    component: BaseConfirmModal,
+    props: {
+      titleKey: 'settings-page.liaisons-status-confirm-title',
+      message: `${t('settings-page.liaisons-status-confirm')} «${displayName}»`,
+      confirmVariant: 'primary' as const,
+      onConfirmAction: async () => {
+        const res = await ermRepo.memberStatus({
+          user_id: userId,
+          status: nextActive ? '1' : '0',
+        });
+        if (!res?.result) {
+          const msg = String(
+            res?.error?.message ?? t('settings-page.liaisons-status-error')
+          );
+          toast(msg, { type: 'error' });
+          throw new Error(msg);
+        }
+      },
+    },
+    onSuccess: () => {
+      toast(t('settings-page.liaisons-status-success'), { type: 'success' });
+      table.invalidateListCache();
+      void table.fetch();
+    },
+  });
 }
 
 function onDeleteMember(row: Record<string, unknown>) {
-  console.log('Delete member', row);
+  const userId = String(row.id ?? '');
+  if (!userId || userId === 'undefined') {
+    toast(t('settings-page.liaisons-delete-error'), { type: 'error' });
+    return;
+  }
+  const displayName = pickStr(row, 'name', 'full_name');
+  openModal({
+    component: BaseConfirmModal,
+    props: {
+      titleKey: 'settings-page.liaisons-delete-title',
+      message: `${t('settings-page.liaisons-delete-confirm')} «${displayName}»`,
+      confirmVariant: 'danger' as const,
+      onConfirmAction: async () => {
+        const res = await ermRepo.memberDelete({ user_id: userId });
+        if (!res?.result) {
+          const msg = String(
+            res?.error?.message ?? t('settings-page.liaisons-delete-error')
+          );
+          toast(msg, { type: 'error' });
+          throw new Error(msg);
+        }
+      },
+    },
+    onSuccess: () => {
+      toast(t('settings-page.liaisons-delete-success'), { type: 'success' });
+      table.invalidateListCache();
+      void table.fetch();
+    },
+  });
 }
 </script>
 
@@ -204,9 +268,7 @@ function onDeleteMember(row: Record<string, unknown>) {
               class="toggle toggle-primary toggle-sm"
               :checked="isStatusActive(row)"
               :aria-label="t('settings-page.liaisons-col-status')"
-              @change.stop="
-                onToggleMemberStatus(row, ($event.target as HTMLInputElement).checked)
-              "
+              @click.prevent="onToggleMemberStatus(row, !isStatusActive(row))"
             />
           </div>
         </template>

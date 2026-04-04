@@ -13,6 +13,7 @@ import {
 } from '@/composables/taskClauseNavigation';
 import { useUserStore } from '@/stores/user';
 import { RISK_TODO_FORM_ID } from './riskTodoFormId';
+import RiskTodoRiskScorePreview from './RiskTodoRiskScorePreview.vue';
 
 const props = defineProps<{
   row: Record<string, unknown>;
@@ -258,6 +259,7 @@ defineExpose({
           :required="true"
           :filter="false"
         />
+        <RiskTodoRiskScorePreview />
         <BaseSelect
           name="risk_response_type"
           :label="t('risk-operations.todo-field-strategy')"

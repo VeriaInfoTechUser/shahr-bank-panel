@@ -362,6 +362,7 @@
     "todo-field-damage": "الضعف / الحدث",
     "todo-field-intensity": "الشدة",
     "todo-field-effect": "الأثر",
+    "todo-risk-score-display": "قيمة المخاطر : {n}",
     "todo-field-strategy": "الاستراتيجية",
     "todo-field-execution-percent": "نسبة التنفيذ",
     "todo-field-proposed-action": "الإجراء المقترح",

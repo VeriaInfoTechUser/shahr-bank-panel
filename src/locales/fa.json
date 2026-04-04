@@ -542,6 +542,7 @@
     "todo-field-damage": "آسیب‌پذیری / رویداد",
     "todo-field-intensity": "شدت",
     "todo-field-effect": "اثر",
+    "todo-risk-score-display": "مقدار ریسک : {n}",
     "todo-field-strategy": "استراتژی",
     "todo-field-execution-percent": "درصد اجرا",
     "todo-field-proposed-action": "اقدام پیشنهادی",

@@ -522,6 +522,7 @@
     "todo-field-damage": "Vulnerability / event",
     "todo-field-intensity": "Intensity",
     "todo-field-effect": "Effect",
+    "todo-risk-score-display": "Risk score: {n}",
     "todo-field-strategy": "Strategy",
     "todo-field-execution-percent": "Execution %",
     "todo-field-proposed-action": "Proposed action",

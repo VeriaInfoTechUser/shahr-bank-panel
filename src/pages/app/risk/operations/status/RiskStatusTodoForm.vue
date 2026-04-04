@@ -221,12 +221,6 @@ defineExpose({
 
 <template>
   <div class="mt-4 border-t border-slate-200 pt-3 dark:border-darkmode-600">
-    <p
-      class="mb-3 text-[11px] font-semibold uppercase tracking-[0.08em] text-slate-400 dark:text-slate-500"
-    >
-      {{ t('risk-operations.todo-form-section-title') }}
-    </p>
-
     <div
       v-if="responseTypesLoading"
       class="py-4 text-center text-xs text-slate-500"

@@ -71,6 +71,26 @@ const statusKey = computed(() => {
   return getRiskStatusKey(r as Record<string, unknown>);
 });
 
+/** در حال اجرا + ارجاع گروهی: زیر «مجری ریسک» متن «به صورت گروهی» */
+const modalRiskExecutorDisplay = computed(() => {
+  if (statusKey.value === 'doing' && isDoingParentReferral.value) {
+    return t('risk-operations.doing-parent-risk-executor-value');
+  }
+  return riskExecutorLabel.value;
+});
+
+/** قبل از ارجاع ریسک: مجری ریسک و مجری تکلیف در هدر مدال نباشند */
+const showModalRiskExecutor = computed(
+  () => statusKey.value !== 'pending-assignment'
+);
+
+/** در انتظار اجرا + ارجاع گروهی: کادر «مجری تکلیف» نمایش داده نشود */
+const showModalTaskComplianceAssigner = computed(
+  () =>
+    statusKey.value !== 'pending-assignment' &&
+    !(statusKey.value === 'todo' && isDoingParentReferral.value)
+);
+
 const riskPendingFormRef = ref<InstanceType<
   typeof RiskStatusPendingAssignmentForm
 > | null>(null);
@@ -202,7 +222,10 @@ function goToRiskDoingTasksPage() {
                 </p>
               </div>
 
-              <div class="min-w-0 md:col-span-1">
+              <div
+                v-if="showModalRiskExecutor"
+                class="min-w-0 md:col-span-1"
+              >
                 <p
                   class="mb-0.5 text-[10px] font-semibold uppercase tracking-[0.06em] text-slate-400 dark:text-slate-500"
                 >
@@ -211,11 +234,14 @@ function goToRiskDoingTasksPage() {
                 <p
                   class="break-words text-xs font-medium leading-snug text-slate-800 dark:text-slate-100"
                 >
-                  {{ riskExecutorLabel }}
+                  {{ modalRiskExecutorDisplay }}
                 </p>
               </div>
 
-              <div class="min-w-0 md:col-span-1">
+              <div
+                v-if="showModalTaskComplianceAssigner"
+                class="min-w-0 md:col-span-1"
+              >
                 <p
                   class="mb-0.5 text-[10px] font-semibold uppercase tracking-[0.06em] text-slate-400 dark:text-slate-500"
                 >

@@ -23,6 +23,9 @@ const props = withDefaults(
 const { value: fieldValue, errorMessage, handleBlur, setValue } = useField<ModelValue>(props.name);
 const { locale } = useI18n();
 
+/** هم‌رنگ با primary پنل (`tailwind.config` → `:root` / `.dark` → `--color-primary`) */
+const DATE_PICKER_ACCENT = 'rgb(var(--color-primary) / 1)';
+
 const isFa = computed(() => String(locale.value).startsWith('fa'));
 
 // مقدار داخلی پیکر، همیشه میلادی YYYY-MM-DD (برای سازگاری با API)
@@ -45,6 +48,7 @@ const pickerValue = computed({
     <Vue3PersianDatetimePicker
       v-model="pickerValue"
       type="date"
+      :color="DATE_PICKER_ACCENT"
       :format="'YYYY-MM-DD'"
       :display-format="isFa ? 'jYYYY/jMM/jDD' : 'YYYY-MM-DD'"
       :locale="isFa ? 'fa' : 'en'"

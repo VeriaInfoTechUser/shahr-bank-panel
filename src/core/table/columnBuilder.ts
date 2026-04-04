@@ -5,6 +5,8 @@ export type ColumnAlign = 'left' | 'center' | 'right';
 /** Column config for BaseTable. Supports slots and dynamic rendering. */
 export interface ColumnConfig {
   key: string;
+  /** اگر با `key` متفاوت باشد، مرتب‌سازی سروری با این نام فیلد ارسال می‌شود */
+  sortKey?: string;
   label: string;
   sortable?: boolean;
   filterable?: boolean;

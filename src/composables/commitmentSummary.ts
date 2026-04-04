@@ -1,6 +1,22 @@
 /**
  * خلاصهٔ نمایش تعهد (همان فیلدهای مدال وضعیت عملیات تطبیق).
  */
+import { getProgress } from '@/pages/app/compliance/operations/complianceStatusHelpers';
+
+function pickDisplayNameFromObject(o: Record<string, unknown>): string {
+  const name = o.name ?? o.full_name ?? o.title ?? o.email ?? o.mobile;
+  if (name != null && String(name).trim()) return String(name).trim();
+  return '';
+}
+
+function hasObjectKeys(v: unknown): v is Record<string, unknown> {
+  return (
+    v != null &&
+    typeof v === 'object' &&
+    !Array.isArray(v) &&
+    Object.keys(v as object).length > 0
+  );
+}
 
 export type CommitmentSummary = {
   titleStr: string;
@@ -138,20 +154,101 @@ export function extractDomainLabelFromTask(
   return '';
 }
 
-/** بخش و حوزه از ردیف لیست عملیات — قبل از رفتن به صفحهٔ doing-task */
+/** نام ارجاع‌دهنده از آبجکت progress (لیست عملیات یا پاسخ detail) */
+export function assignerLabelFromProgressPayload(
+  p: Record<string, unknown>
+): string {
+  const nestedKeys = ['assigner', 'assigner_user', 'assigner_information'] as const;
+  for (const k of nestedKeys) {
+    const v = p[k];
+    if (v != null && typeof v === 'object' && !Array.isArray(v)) {
+      const s = pickDisplayNameFromObject(v as Record<string, unknown>);
+      if (s) return s;
+    }
+  }
+  /** همان `getProgressExecutorLabel` در مدال ارجاع گروهی — `progress.user` */
+  const pu = p.user;
+  if (pu != null && typeof pu === 'object' && !Array.isArray(pu)) {
+    const s = pickDisplayNameFromObject(pu as Record<string, unknown>);
+    if (s) return s;
+  }
+  return '';
+}
+
+/**
+ * نام ارجاع‌دهنده از خود آبجکت تعهد (لیست تطبیق) — وقتی `progress` خالی است یا فیلدها روی task هستند.
+ * ترتیب: assigner* → user → progress_child / progress پر
+ */
+export function assignerLabelFromTaskPayload(
+  taskLike: Record<string, unknown>
+): string {
+  const nestedKeys = ['assigner', 'assigner_user', 'assigner_information'] as const;
+  for (const k of nestedKeys) {
+    const v = taskLike[k];
+    if (v != null && typeof v === 'object' && !Array.isArray(v)) {
+      const s = pickDisplayNameFromObject(v as Record<string, unknown>);
+      if (s) return s;
+    }
+  }
+  const u = taskLike.user;
+  if (u != null && typeof u === 'object' && !Array.isArray(u)) {
+    const s = pickDisplayNameFromObject(u as Record<string, unknown>);
+    if (s) return s;
+  }
+
+  if (hasObjectKeys(taskLike.progress_child)) {
+    const s = assignerLabelFromProgressPayload(
+      taskLike.progress_child as Record<string, unknown>
+    ).trim();
+    if (s) return s;
+  }
+  if (hasObjectKeys(taskLike.progress)) {
+    return assignerLabelFromProgressPayload(
+      taskLike.progress as Record<string, unknown>
+    ).trim();
+  }
+  return '';
+}
+
+/** بخش، حوزه و ارجاع‌دهنده از ردیف لیست عملیات — قبل از رفتن به صفحهٔ doing-task */
 export function extractDoingTaskNavLabelsFromRow(
   row: Record<string, unknown> | null | undefined
-): { sectionLabel: string | null; domainLabel: string | null } {
+): {
+  sectionLabel: string | null;
+  domainLabel: string | null;
+  assignerLabel: string | null;
+} {
   if (!row || typeof row !== 'object') {
-    return { sectionLabel: null, domainLabel: null };
+    return { sectionLabel: null, domainLabel: null, assignerLabel: null };
   }
   const raw = resolveTaskRecordForDoingTaskPage(row);
-  if (!raw) return { sectionLabel: null, domainLabel: null };
+  if (!raw) {
+    const alOnly = assignerLabelFromTaskPayload(row).trim();
+    return {
+      sectionLabel: null,
+      domainLabel: null,
+      assignerLabel: alOnly || null,
+    };
+  }
   const summary = buildCommitmentSummaryFromRaw(raw);
   const sec = summary.sectionLabel.trim();
   const domain = extractDomainLabelFromTask(raw);
+
+  let assignerLabel: string | null = null;
+  const prog = getProgress(row);
+  if (prog) {
+    assignerLabel = assignerLabelFromProgressPayload(prog).trim() || null;
+  }
+  if (!assignerLabel) {
+    assignerLabel = assignerLabelFromTaskPayload(raw).trim() || null;
+  }
+  if (!assignerLabel) {
+    assignerLabel = assignerLabelFromTaskPayload(row).trim() || null;
+  }
+
   return {
     sectionLabel: sec || null,
     domainLabel: domain || null,
+    assignerLabel,
   };
 }

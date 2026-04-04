@@ -98,6 +98,14 @@ export class ErmRepo extends BaseRepo {
   async riskList(params: RuleListParams) {
     return this.post<RuleListResponse>(endpoints.admin.erm.risk.list, params);
   }
+
+  async riskProgress(payload: Record<string, unknown>) {
+    return this.post<ApiResult<unknown>>(endpoints.admin.erm.risk.progress, payload);
+  }
+
+  async riskResponseTypeList(params: RuleListParams = {}) {
+    return this.post<RuleListResponse>(endpoints.admin.erm.risk.responseType, params);
+  }
 }
 
 export const ermRepo = new ErmRepo();

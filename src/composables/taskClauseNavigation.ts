@@ -20,6 +20,16 @@ export function resolveOperationsProgressId(row: Record<string, unknown>): numbe
   return Number.isFinite(n) && n > 0 ? n : null;
 }
 
+/** شناسهٔ رکورد ریسک در عملیات ریسک (`row.risk.id`) برای `progress_id`. */
+export function resolveOperationsRiskProgressId(row: Record<string, unknown>): number | null {
+  const r = row.risk;
+  if (r == null || typeof r !== 'object' || Array.isArray(r)) return null;
+  const id = (r as Record<string, unknown>).id;
+  if (id == null || id === '') return null;
+  const n = typeof id === 'number' ? id : Number(id);
+  return Number.isFinite(n) && n > 0 ? n : null;
+}
+
 function buildClauseQueryFromRow(row: Record<string, unknown>, taskId: number) {
   const task = row.task as Record<string, unknown> | undefined;
   const titleFromTask =

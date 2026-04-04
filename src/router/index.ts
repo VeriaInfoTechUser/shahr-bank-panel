@@ -168,7 +168,15 @@ const routes = [
                                 path: "doing-task",
                                 name: "app-compliance-doing-task",
                                 component: ComplianceDoingTask,
-                                meta: { breadcrumbLabel: 'menu.compliance-doing-task' },
+                                meta: {
+                                    breadcrumbLabel: 'menu.compliance-doing-task',
+                                    breadcrumbPrefix: [
+                                        {
+                                            routeName: 'app-compliance-operations',
+                                            labelKey: 'menu.compliance-operations',
+                                        },
+                                    ],
+                                },
                             },
                             {
                                 path: "performance-report",

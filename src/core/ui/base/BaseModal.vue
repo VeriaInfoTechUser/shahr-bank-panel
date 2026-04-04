@@ -33,6 +33,7 @@ function onHide() {
   emit('hide');
 }
 
+/** بعد از باز شدن، در صورت وجود، اولین input/textarea داخل `[data-autofocus-modal]` فوکوس می‌شود. */
 function onDialogShow() {
   nextTick(() => {
     setTimeout(() => {
@@ -72,8 +73,15 @@ function onDialogShow() {
     @hide="onHide"
     @show="onDialogShow"
   >
+    <!-- PrimeVue بدون [autofocus] در محتوا فوکوس را به دکمهٔ بستن می‌دهد؛ این عنصر فوکوس اولیه را می‌گیرد. -->
     <div class="p-2">
-    <slot />
+      <div
+        tabindex="-1"
+        autofocus
+        class="sr-only outline-none"
+        aria-hidden="true"
+      />
+      <slot />
     </div>
     <template #footer>
       <slot name="footer" />

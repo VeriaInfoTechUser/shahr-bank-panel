@@ -120,6 +120,7 @@ function goToDoingTasksPage() {
   doingTaskNav.setDoingContext(taskId, resolveOperationsProgressId(r), {
     sectionLabel: labels.sectionLabel,
     domainLabel: labels.domainLabel,
+    assignerLabel: labels.assignerLabel,
   });
   close();
   void router.push({ name: 'app-compliance-doing-task' });
@@ -132,7 +133,7 @@ function goToDoingTasksPage() {
     :title="t('compliance-page.status-flow-modal-title')"
     @update:visible="onDialogVisible"
   >
-    <div class="w-full" data-autofocus-modal>
+    <div class="w-full -mt-2 pt-0" data-autofocus-modal>
       <div
         class="grid w-full grid-cols-2 border-b border-slate-200 dark:border-darkmode-600"
         role="tablist"
@@ -141,7 +142,7 @@ function goToDoingTasksPage() {
           type="button"
           role="tab"
           :aria-selected="activeTab === 'commitment'"
-          class="w-full border-b-2 text-center text-sm font-medium transition -mb-px"
+          class="w-full border-b-2 py-1.5 text-center text-sm font-medium transition -mb-px"
           :class="
             activeTab === 'commitment'
               ? 'border-primary text-primary'
@@ -155,7 +156,7 @@ function goToDoingTasksPage() {
           type="button"
           role="tab"
           :aria-selected="activeTab === 'report'"
-          class="w-full border-b-2 py-2 text-center text-sm font-medium transition -mb-px"
+          class="w-full border-b-2 py-1.5 text-center text-sm font-medium transition -mb-px"
           :class="
             activeTab === 'report'
               ? 'border-primary text-primary'
@@ -167,7 +168,7 @@ function goToDoingTasksPage() {
         </button>
       </div>
 
-      <div class="py-2" role="tabpanel">
+      <div class="pb-2 pt-0" role="tabpanel">
         <div v-show="activeTab === 'commitment'">
           <p
             v-if="
@@ -277,7 +278,7 @@ function goToDoingTasksPage() {
                   <span
                     v-for="(unit, idx) in commitmentSummary.unitsList"
                     :key="idx"
-                    class="mx-2 inline-flex max-w-full break-words rounded-md border border-slate-200/90 bg-slate-50/90 px-2 py-1 text-xs leading-snug text-slate-700 dark:border-darkmode-600 dark:bg-darkmode-800/60 dark:text-slate-200"
+                    class="me-2 inline-flex max-w-full break-words rounded-md border border-slate-200/90 bg-slate-50/90 px-2 py-1 text-xs leading-snug text-slate-700 dark:border-darkmode-600 dark:bg-darkmode-800/60 dark:text-slate-200"
                   >
                     {{ unit }}
                   </span>
@@ -394,10 +395,16 @@ function goToDoingTasksPage() {
             activeTab === 'commitment'
           "
         >
-          <div
-            class="flex w-full flex-wrap justify-end gap-2"
-            dir="rtl"
-          >
+          <div class="flex w-full flex-wrap justify-end gap-2">
+            <Button
+              type="button"
+              variant="outline-secondary"
+              size="sm"
+              :disabled="doingSingleFooterBusy"
+              @click="close"
+            >
+              {{ t('compliance-page.doing-footer-cancel') }}
+            </Button>
             <Button
               type="button"
               variant="outline-primary"
@@ -416,15 +423,6 @@ function goToDoingTasksPage() {
             >
               {{ t('compliance-page.doing-footer-send') }}
             </Button>
-            <Button
-              type="button"
-              variant="outline-secondary"
-              size="sm"
-              :disabled="doingSingleFooterBusy"
-              @click="close"
-            >
-              {{ t('compliance-page.doing-footer-cancel') }}
-            </Button>
           </div>
         </template>
         <template
@@ -434,18 +432,7 @@ function goToDoingTasksPage() {
             activeTab === 'commitment'
           "
         >
-          <div
-            class="flex w-full flex-wrap justify-end gap-2"
-            dir="rtl"
-          >
-            <Button
-              type="button"
-              variant="primary"
-              size="sm"
-              @click="goToDoingTasksPage"
-            >
-              {{ t('compliance-page.doing-parent-commitment-in-progress') }}
-            </Button>
+          <div class="flex w-full flex-wrap justify-end gap-2">
             <Button
               type="button"
               variant="outline-secondary"
@@ -453,6 +440,14 @@ function goToDoingTasksPage() {
               @click="close"
             >
               {{ t('compliance-page.doing-footer-cancel') }}
+            </Button>
+            <Button
+              type="button"
+              variant="primary"
+              size="sm"
+              @click="goToDoingTasksPage"
+            >
+              {{ t('compliance-page.doing-parent-commitment-in-progress') }}
             </Button>
           </div>
         </template>
@@ -475,19 +470,7 @@ function goToDoingTasksPage() {
             statusKey === 'reject' && activeTab === 'commitment'
           "
         >
-          <div
-            class="flex w-full flex-wrap justify-end gap-2"
-            dir="rtl"
-          >
-            <Button
-              type="button"
-              variant="primary"
-              size="sm"
-              :disabled="doneFooterBusy"
-              @click="doneReviewRef?.submitRestartToDoing()"
-            >
-              {{ t('compliance-page.reject-footer-start') }}
-            </Button>
+          <div class="flex w-full flex-wrap justify-end gap-2">
             <Button
               type="button"
               variant="outline-secondary"
@@ -497,15 +480,30 @@ function goToDoingTasksPage() {
             >
               {{ t('compliance-page.doing-footer-cancel') }}
             </Button>
+            <Button
+              type="button"
+              variant="primary"
+              size="sm"
+              :disabled="doneFooterBusy"
+              @click="doneReviewRef?.submitRestartToDoing()"
+            >
+              {{ t('compliance-page.reject-footer-start') }}
+            </Button>
           </div>
         </template>
         <template
           v-else-if="statusKey === 'done' && activeTab === 'commitment'"
         >
-          <div
-            class="flex w-full flex-wrap justify-end gap-2"
-            dir="rtl"
-          >
+          <div class="flex w-full flex-wrap justify-end gap-2">
+            <Button
+              type="button"
+              variant="outline-secondary"
+              size="sm"
+              :disabled="doneFooterBusy"
+              @click="close"
+            >
+              {{ t('compliance-page.done-footer-cancel') }}
+            </Button>
             <Button
               type="button"
               variant="danger"
@@ -523,15 +521,6 @@ function goToDoingTasksPage() {
               @click="doneReviewRef?.submitReview('approve')"
             >
               {{ t('compliance-page.done-footer-approve') }}
-            </Button>
-            <Button
-              type="button"
-              variant="outline-secondary"
-              size="sm"
-              :disabled="doneFooterBusy"
-              @click="close"
-            >
-              {{ t('compliance-page.done-footer-cancel') }}
             </Button>
           </div>
         </template>

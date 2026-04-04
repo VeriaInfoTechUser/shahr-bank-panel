@@ -361,7 +361,7 @@ const tableColumns = computed(() => effectiveColumns.value);
         <Column
           v-for="(col, index) in tableColumns"
           :key="col.key ?? `col-${index}`"
-          :field="col.key"
+          :field="col.sortKey ?? col.key"
           :header="col.label"
           :sortable="col.sortable ?? false"
           :style="col.width ? { width: col.width, minWidth: col.width } : undefined"

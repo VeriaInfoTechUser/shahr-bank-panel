@@ -425,8 +425,16 @@ defineExpose({
 
     <div
       class="mt-4 flex w-full flex-wrap justify-end gap-2 border-t border-slate-200 pt-3 dark:border-darkmode-600"
-      dir="rtl"
     >
+      <Button
+        type="button"
+        variant="outline-secondary"
+        size="sm"
+        :disabled="submitting"
+        @click="goBackToOperations"
+      >
+        {{ t('compliance-page.doing-task-form-back') }}
+      </Button>
       <Button
         type="button"
         variant="outline-primary"
@@ -444,15 +452,6 @@ defineExpose({
         @click="submitSend()"
       >
         {{ t('compliance-page.doing-footer-send') }}
-      </Button>
-      <Button
-        type="button"
-        variant="outline-secondary"
-        size="sm"
-        :disabled="submitting"
-        @click="goBackToOperations"
-      >
-        {{ t('compliance-page.doing-task-form-back') }}
       </Button>
     </div>
   </div>

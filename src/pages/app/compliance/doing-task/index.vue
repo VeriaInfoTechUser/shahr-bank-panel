@@ -8,7 +8,11 @@ import {
   complianceOperationsStatusReportCardClass,
 } from '@/composables/complianceOperationsStatusBadge';
 import { useComplianceDoingTaskNavigationStore } from '@/stores/complianceDoingTaskNavigation';
-import { buildCommitmentSummaryForDoingTaskPage } from '@/composables/commitmentSummary';
+import {
+  assignerLabelFromProgressPayload,
+  assignerLabelFromTaskPayload,
+  buildCommitmentSummaryForDoingTaskPage,
+} from '@/composables/commitmentSummary';
 import ComplianceDoingTaskAnswerForm from './ComplianceDoingTaskAnswerForm.vue';
 
 const { t } = useI18n();
@@ -158,6 +162,27 @@ const doingAnswerFormRow = computed((): Record<string, unknown> | null => {
 
   if (!p) return null;
   return { task: tk, progress: p };
+});
+
+/**
+ * اولویت: پراپز ناوبری (نام از لیست تطبیق) → سپس پاسخ detail؛
+ * تا `assigner_id` خالی از API جای نام واقعی را نگیرد.
+ */
+const assignerDisplayLabel = computed(() => {
+  const fromNav = nav.navAssignerLabel?.trim() ?? '';
+  if (fromNav) return fromNav;
+
+  let fromApi = '';
+  const formRow = doingAnswerFormRow.value;
+  if (formRow) {
+    const p = formRow.progress as Record<string, unknown> | undefined;
+    if (p) fromApi = assignerLabelFromProgressPayload(p).trim();
+  }
+  const st = summaryTask.value;
+  if (!fromApi && st) {
+    fromApi = assignerLabelFromTaskPayload(st).trim();
+  }
+  return fromApi || '';
 });
 
 function reportNum(r: Record<string, unknown>, key: string): string {
@@ -388,13 +413,26 @@ watch(
             >
               <header
                 v-if="commitmentSummary && commitmentSummary.titleStr.trim()"
-                class="mb-2.5 w-full border-b border-slate-200/80 pb-2 dark:border-darkmode-600"
+                class="mb-2.5 flex w-full min-w-0 flex-wrap items-start justify-between gap-x-3 gap-y-1 border-b border-slate-200/80 pb-2 dark:border-darkmode-600"
               >
                 <h1
-                  class="w-full min-w-0 text-[15px] font-semibold leading-snug text-slate-900 dark:text-slate-50"
+                  class="min-w-0 flex-1 text-[15px] font-semibold leading-snug text-slate-900 dark:text-slate-50"
                 >
                   {{ commitmentSummary.titleStr }}
                 </h1>
+                <div
+                  v-if="assignerDisplayLabel"
+                  class="flex max-w-full shrink-0 flex-wrap items-baseline justify-end gap-x-2 gap-y-0.5 text-end text-xs leading-snug text-slate-600 dark:text-slate-300"
+                >
+                  <span
+                    class="text-[10px] font-semibold uppercase tracking-[0.06em] text-slate-400 dark:text-slate-500"
+                  >
+                    {{ t('compliance-page.doing-task-assigner-label') }}
+                  </span>
+                  <span class="font-medium text-slate-800 dark:text-slate-100">{{
+                    assignerDisplayLabel
+                  }}</span>
+                </div>
               </header>
 
               <div
@@ -427,8 +465,8 @@ watch(
                   </p>
                 </div>
 
-                <!-- متن قانون | شماره بخش نامه -->
-                <div class="min-w-0 md:col-span-1">
+                <!-- متن قانون -->
+                <div class="col-span-1 min-w-0 md:col-span-2">
                   <p
                     class="mb-0.5 text-[10px] font-semibold uppercase tracking-[0.06em] text-slate-400 dark:text-slate-500"
                   >
@@ -438,19 +476,6 @@ watch(
                     class="break-words text-xs leading-relaxed text-slate-700 dark:text-slate-200"
                   >
                     {{ commitmentSummary.ruleText || '—' }}
-                  </p>
-                </div>
-
-                <div class="min-w-0 md:col-span-1">
-                  <p
-                    class="mb-0.5 text-[10px] font-semibold uppercase tracking-[0.06em] text-slate-400 dark:text-slate-500"
-                  >
-                    {{ t('task.rule-code') }}
-                  </p>
-                  <p
-                    class="break-words text-xs font-medium leading-snug text-slate-800 dark:text-slate-100"
-                  >
-                    {{ commitmentSummary.ruleCode || '—' }}
                   </p>
                 </div>
 

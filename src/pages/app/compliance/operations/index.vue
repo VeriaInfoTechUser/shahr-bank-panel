@@ -56,10 +56,6 @@ function pickStr(row: Record<string, unknown>, ...keys: string[]) {
   return '—';
 }
 
-function codeCell(row: Record<string, unknown>) {
-  return pickStr(row, 'code');
-}
-
 /** تعهد — `title` on compliance row (see API sample) */
 function commitmentCell(row: Record<string, unknown>) {
   const task = row.task as Record<string, unknown> | undefined;
@@ -208,12 +204,6 @@ const table = useDataTable({
   fetchFn: fetchComplianceList,
   columns: [
     createColumn({
-      key: 'code',
-      label: t('compliance-page.col-code'),
-      sortable: false,
-      bodyCell: codeCell,
-    }),
-    createColumn({
       key: 'commitment',
       label: t('compliance-page.col-commitment'),
       sortable: false,
@@ -221,8 +211,9 @@ const table = useDataTable({
     }),
     createColumn({
       key: 'deadline',
+      sortKey: 'time_deadline',
       label: t('compliance-page.col-deadline'),
-      sortable: false,
+      sortable: true,
       bodyCell: deadlineCell,
     }),
     createColumn({
@@ -232,7 +223,7 @@ const table = useDataTable({
       bodyCell: complianceStatusLabel,
     }),
   ],
-  selectable: true,
+  selectable: false,
   exportEnabled: true,
   pageSize: 10,
   cacheKey: 'compliance-operations-list',
@@ -300,7 +291,7 @@ onMounted(() => {
     <div class="col-span-12">
       <BaseTable
         :table="table"
-        :selectable="true"
+        :selectable="false"
         :export-enabled="table.exportEnabled"
         :empty-message="t('general.no-data')"
         :actions="false"
@@ -324,7 +315,7 @@ onMounted(() => {
           <button
             v-else
             type="button"
-            :class="statusBadgeClass(row)"
+            :class="[statusBadgeClass(row), '!cursor-pointer']"
             @click.stop="onComplianceStatusClick(row)"
           >
             {{ complianceStatusLabel(row) }}

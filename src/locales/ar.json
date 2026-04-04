@@ -358,7 +358,6 @@
     "pending-assignment-comment-placeholder": "نص الملاحظة (اختياري)",
     "pending-assignment-submit-success": "تم الحفظ.",
     "pending-assignment-submit-error": "تعذّر الحفظ.",
-    "todo-form-section-title": "تفاصيل المخاطر (قيد التنفيذ)",
     "todo-field-threat": "التهديد / السبب",
     "todo-field-damage": "الضعف / الحدث",
     "todo-field-intensity": "الشدة",

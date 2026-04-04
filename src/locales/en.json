@@ -518,7 +518,6 @@
     "pending-assignment-comment-placeholder": "Comment (optional)",
     "pending-assignment-submit-success": "Saved.",
     "pending-assignment-submit-error": "Could not save.",
-    "todo-form-section-title": "Risk details (pending execution)",
     "todo-field-threat": "Threat / cause",
     "todo-field-damage": "Vulnerability / event",
     "todo-field-intensity": "Intensity",

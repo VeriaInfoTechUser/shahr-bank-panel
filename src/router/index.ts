@@ -21,6 +21,7 @@ import SettingsLawType from "@/pages/app/settings/law-type/index.vue";
 import ComplianceOperations from "@/pages/app/compliance/operations/index.vue";
 import ComplianceDoingTask from "@/pages/app/compliance/doing-task/index.vue";
 import RiskOperations from "@/pages/app/risk/operations/index.vue";
+import RiskDoingTask from "@/pages/app/risk/doing-task/index.vue";
 import SectionPlaceholderPage from "@/pages/app/shared/SectionPlaceholderPage.vue";
 import AuthLogin from "@/pages/auth/login/index.vue";
 
@@ -203,6 +204,14 @@ const routes = [
                                 name: "app-risk-operations",
                                 component: RiskOperations,
                                 meta: { breadcrumbLabel: 'menu.risk-operations' },
+                            },
+                            {
+                                path: "doing-task",
+                                name: "app-risk-doing-task",
+                                component: RiskDoingTask,
+                                meta: {
+                                    breadcrumbLabel: 'menu.risk-doing-task',
+                                },
                             },
                             {
                                 path: "performance-report",

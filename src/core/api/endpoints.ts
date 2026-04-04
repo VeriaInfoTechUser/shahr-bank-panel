@@ -77,6 +77,7 @@ export const endpoints = {
       risk: {
         list: 'erm/risk/list',
         progress: 'erm/risk/progress',
+        progressDetail: 'erm/risk/progress/detail',
         responseType: 'erm/risk/response/type',
       },
       member: {

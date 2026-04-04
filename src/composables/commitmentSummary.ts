@@ -252,3 +252,58 @@ export function extractDoingTaskNavLabelsFromRow(
     assignerLabel,
   };
 }
+
+function riskObjectFromRow(
+  row: Record<string, unknown>
+): Record<string, unknown> | null {
+  const r = row.risk;
+  if (r == null || typeof r !== 'object' || Array.isArray(r)) return null;
+  if (Object.keys(r).length === 0) return null;
+  return r as Record<string, unknown>;
+}
+
+/** بخش، حوزه و ارجاع‌دهنده از ردیف عملیات ریسک — قبل از رفتن به صفحهٔ risk doing-task */
+export function extractRiskDoingTaskNavLabelsFromRow(
+  row: Record<string, unknown> | null | undefined
+): {
+  sectionLabel: string | null;
+  domainLabel: string | null;
+  assignerLabel: string | null;
+} {
+  if (!row || typeof row !== 'object') {
+    return { sectionLabel: null, domainLabel: null, assignerLabel: null };
+  }
+  const raw = resolveTaskRecordForDoingTaskPage(row);
+  if (!raw) {
+    const risk = riskObjectFromRow(row);
+    const alOnly = risk
+      ? assignerLabelFromProgressPayload(risk).trim()
+      : assignerLabelFromTaskPayload(row).trim();
+    return {
+      sectionLabel: null,
+      domainLabel: null,
+      assignerLabel: alOnly || null,
+    };
+  }
+  const summary = buildCommitmentSummaryFromRaw(raw);
+  const sec = summary.sectionLabel.trim();
+  const domain = extractDomainLabelFromTask(raw);
+
+  let assignerLabel: string | null = null;
+  const risk = riskObjectFromRow(row);
+  if (risk) {
+    assignerLabel = assignerLabelFromProgressPayload(risk).trim() || null;
+  }
+  if (!assignerLabel) {
+    assignerLabel = assignerLabelFromTaskPayload(raw).trim() || null;
+  }
+  if (!assignerLabel) {
+    assignerLabel = assignerLabelFromTaskPayload(row).trim() || null;
+  }
+
+  return {
+    sectionLabel: sec || null,
+    domainLabel: domain || null,
+    assignerLabel,
+  };
+}

@@ -77,6 +77,13 @@ export function getRisk(row: Record<string, unknown>): Record<string, unknown> |
   return r as Record<string, unknown>;
 }
 
+/** ارجاع گروهی ریسک — معمولاً `risk.type === 'parent'` (مثل تطبیق و `progress.type`) */
+export function isRiskParentReferral(row: Record<string, unknown>): boolean {
+  const r = getRisk(row);
+  if (!r) return false;
+  return r.type === 'parent';
+}
+
 function riskStateKey(r: Record<string, unknown>): string {
   const level = r.level;
   const status = r.status;

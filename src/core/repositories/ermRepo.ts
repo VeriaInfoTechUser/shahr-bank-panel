@@ -103,6 +103,14 @@ export class ErmRepo extends BaseRepo {
     return this.post<ApiResult<unknown>>(endpoints.admin.erm.risk.progress, payload);
   }
 
+  /** payload: `{ task_id, progress_id }` — همان قرارداد compliance progress/detail */
+  async riskProgressDetail(payload: {
+    task_id: number;
+    progress_id: number;
+  }) {
+    return this.post<unknown>(endpoints.admin.erm.risk.progressDetail, payload);
+  }
+
   async riskResponseTypeList(params: RuleListParams = {}) {
     return this.post<RuleListResponse>(endpoints.admin.erm.risk.responseType, params);
   }

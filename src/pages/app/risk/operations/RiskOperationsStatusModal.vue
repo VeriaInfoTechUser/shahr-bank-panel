@@ -1,16 +1,25 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
+import { useRouter } from 'vue-router';
 import BaseModal from '@/core/ui/base/BaseModal.vue';
 import Button from '@/base-components/Button';
 import { useI18n } from 'vue-i18n';
 import { buildCommitmentSummary } from '@/composables/commitmentSummary';
 import {
+  resolveOperationsRiskProgressId,
+  resolveOperationsTaskRowId,
+} from '@/composables/taskClauseNavigation';
+import { extractRiskDoingTaskNavLabelsFromRow } from '@/composables/commitmentSummary';
+import { useRiskDoingTaskNavigationStore } from '@/stores/riskDoingTaskNavigation';
+import {
   getRiskStatusKey,
+  isRiskParentReferral,
   riskModalRiskExecutorLabel,
   riskModalTaskComplianceAssignerLabel,
 } from './riskStatusHelpers';
 import RiskStatusPendingAssignmentForm from './status/RiskStatusPendingAssignmentForm.vue';
 import RiskStatusTodoForm from './status/RiskStatusTodoForm.vue';
+import RiskStatusDoingParentView from './status/RiskStatusDoingParentView.vue';
 import RiskStatusDoneReviewView from './status/RiskStatusDoneReviewView.vue';
 import ComplianceStatusFormPlaceholder from '@/pages/app/compliance/operations/status/ComplianceStatusFormPlaceholder.vue';
 import { RISK_PENDING_ASSIGNMENT_FORM_ID } from './status/riskPendingAssignmentFormId';
@@ -28,8 +37,17 @@ const emit = defineEmits<{
 }>();
 
 const { t } = useI18n();
+const router = useRouter();
+const riskDoingTaskNav = useRiskDoingTaskNavigationStore();
 
 const commitmentSummary = computed(() => buildCommitmentSummary(props.row));
+
+/** ارجاع گروهی (چند کاربر) — مثل `isProgressParentReferral` در تطبیق */
+const isDoingParentReferral = computed(() => {
+  const r = props.row;
+  if (!r || typeof r !== 'object') return false;
+  return isRiskParentReferral(r as Record<string, unknown>);
+});
 
 const riskExecutorLabel = computed(() =>
   riskModalRiskExecutorLabel(
@@ -98,6 +116,23 @@ function close() {
 function onDialogVisible(v: boolean) {
   emit('update:show', v);
   if (!v) emit('close');
+}
+
+/** رفتن به صفحهٔ «ریسک در حال اجرا» — معادل doing-task تطبیق */
+function goToRiskDoingTasksPage() {
+  const row = props.row;
+  if (!row || typeof row !== 'object') return;
+  const r = row as Record<string, unknown>;
+  const taskId = resolveOperationsTaskRowId(r);
+  if (taskId == null) return;
+  const labels = extractRiskDoingTaskNavLabelsFromRow(r);
+  riskDoingTaskNav.setDoingContext(taskId, resolveOperationsRiskProgressId(r), {
+    sectionLabel: labels.sectionLabel,
+    domainLabel: labels.domainLabel,
+    assignerLabel: labels.assignerLabel,
+  });
+  close();
+  void router.push({ name: 'app-risk-doing-task' });
 }
 </script>
 
@@ -218,10 +253,18 @@ function onDialogVisible(v: boolean) {
             @success="onStatusFormSuccess"
           />
           <RiskStatusTodoForm
-            v-else-if="row && (statusKey === 'todo' || statusKey === 'doing')"
+            v-else-if="
+              row &&
+              (statusKey === 'todo' ||
+                (statusKey === 'doing' && !isDoingParentReferral))
+            "
             ref="riskTodoFormRef"
             :row="row"
             @success="onStatusFormSuccess"
+          />
+          <RiskStatusDoingParentView
+            v-else-if="row && statusKey === 'doing' && isDoingParentReferral"
+            :row="row"
           />
           <RiskStatusDoneReviewView
             v-else-if="
@@ -272,7 +315,10 @@ function onDialogVisible(v: boolean) {
           </Button>
         </template>
         <template
-          v-else-if="statusKey === 'todo' || statusKey === 'doing'"
+          v-else-if="
+            statusKey === 'todo' ||
+            (statusKey === 'doing' && !isDoingParentReferral)
+          "
         >
           <Button
             type="button"
@@ -292,6 +338,28 @@ function onDialogVisible(v: boolean) {
           >
             {{ t('risk-operations.todo-submit') }}
           </Button>
+        </template>
+        <template
+          v-else-if="statusKey === 'doing' && isDoingParentReferral"
+        >
+          <div class="flex w-full flex-wrap justify-end gap-2">
+            <Button
+              type="button"
+              variant="outline-secondary"
+              size="sm"
+              @click="close"
+            >
+              {{ t('compliance-page.doing-footer-cancel') }}
+            </Button>
+            <Button
+              type="button"
+              variant="primary"
+              size="sm"
+              @click="goToRiskDoingTasksPage"
+            >
+              {{ t('risk-operations.doing-parent-open-tasks') }}
+            </Button>
+          </div>
         </template>
         <template v-else-if="statusKey === 'done'">
           <div class="flex w-full flex-wrap justify-end gap-2">

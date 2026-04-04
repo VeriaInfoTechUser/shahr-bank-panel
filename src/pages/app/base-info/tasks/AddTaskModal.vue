@@ -113,22 +113,22 @@ const isClauseFieldLocked = computed(
 
 const validationSchema = computed(() =>
   yup.object({
-    domain_id: yup.string().required(t('task.validation-domain-required')),
-    section_id: yup.string().required(t('task.validation-subject-required')),
-    warranty_id: yup.string().required(t('task.validation-type-required')),
-    code: yup.string().optional(),
+    domain_id: yup.string().trim().required(t('task.validation-domain-required')),
+    section_id: yup.string().trim().required(t('task.validation-subject-required')),
+    warranty_id: yup.string().trim().required(t('task.validation-type-required')),
+    code: yup.string().trim().optional(),
     has_clause:
       props.mode === 'edit'
-        ? yup.string().oneOf(['0', '1']).required()
+        ? yup.string().trim().oneOf(['0', '1']).required()
         : isClauseFromParentReference()
-          ? yup.string().optional()
-          : yup.string().oneOf(['0', '1']).required(),
-    rule_id: yup.string().required(t('task.validation-rule-required')),
+          ? yup.string().trim().optional()
+          : yup.string().trim().oneOf(['0', '1']).required(),
+    rule_id: yup.string().trim().required(t('task.validation-rule-required')),
     mandatory_unit_ids: yup
       .array()
-      .of(yup.string())
+      .of(yup.string().trim())
       .min(1, t('task.validation-mandatory-unit-required')),
-    title: yup.string().required(t('task.validation-title-required')),
+    title: yup.string().trim().required(t('task.validation-title-required')),
   })
 );
 

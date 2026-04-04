@@ -35,14 +35,14 @@ const formRef = ref<InstanceType<typeof Form> | null>(null);
 
 const validationSchema = computed(() =>
   yup.object({
-    rule: yup.string().required(t('rule.validation-rule-required')),
-    code: yup.string().required(t('rule.validation-code-required')),
-    category: yup.string().required(t('rule.validation-category-required')),
-    type: yup.string().required(t('rule.validation-type-required')),
-    author: yup.string().required(t('rule.validation-author-required')),
-    approval_at: yup.string().required(t('rule.validation-approval-at-required')),
-    promulgation_at: yup.string().required(t('rule.validation-promulgation-at-required')),
-    cancellation_at: yup.string().optional(),
+    rule: yup.string().trim().required(t('rule.validation-rule-required')),
+    code: yup.string().trim().required(t('rule.validation-code-required')),
+    category: yup.string().trim().required(t('rule.validation-category-required')),
+    type: yup.string().trim().required(t('rule.validation-type-required')),
+    author: yup.string().trim().required(t('rule.validation-author-required')),
+    approval_at: yup.string().trim().required(t('rule.validation-approval-at-required')),
+    promulgation_at: yup.string().trim().required(t('rule.validation-promulgation-at-required')),
+    cancellation_at: yup.string().trim().optional(),
     is_creditable: yup.boolean(),
     requirement: yup.boolean(),
   })

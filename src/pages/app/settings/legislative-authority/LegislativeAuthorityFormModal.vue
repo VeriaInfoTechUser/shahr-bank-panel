@@ -1,0 +1,211 @@
+<script setup lang="ts">
+import { computed, nextTick, ref, watch } from 'vue';
+import { Form } from 'vee-validate';
+import * as yup from 'yup';
+import { useI18n } from 'vue-i18n';
+import { toast } from 'vue3-toastify';
+import BaseModal from '@/core/ui/base/BaseModal.vue';
+import BaseInput from '@/core/ui/base/BaseInput.vue';
+import Button from '@/base-components/Button';
+import { ermRepo } from '@/core/repositories/ermRepo';
+
+const props = withDefaults(
+  defineProps<{
+    show: boolean;
+    /** در حالت ویرایش: رکورد کامل از جدول */
+    record?: Record<string, unknown> | null;
+  }>(),
+  {
+    record: null,
+  }
+);
+
+const emit = defineEmits<{
+  (e: 'update:show', v: boolean): void;
+  (e: 'close'): void;
+  (e: 'success'): void;
+}>();
+
+const { t, locale } = useI18n();
+
+const formRef = ref<InstanceType<typeof Form> | null>(null);
+const saving = ref(false);
+const formKey = ref(0);
+
+const isEdit = computed(() => {
+  const r = props.record;
+  if (!r || typeof r !== 'object') return false;
+  const id = r.id;
+  return id != null && id !== '';
+});
+
+const modalTitle = computed(() =>
+  isEdit.value
+    ? t('settings-page.edit-legislative-authority')
+    : t('settings-page.add-legislative-authority')
+);
+
+const initialValues = ref({ title: '' });
+
+const validationSchema = computed(() =>
+  yup.object({
+    title: yup
+      .string()
+      .trim()
+      .required(t('settings-page.legislative-authority-validation-title')),
+  })
+);
+
+function titleFromRecord(rec: Record<string, unknown> | null | undefined): string {
+  if (!rec) return '';
+  for (const key of ['title', 'name', 'label'] as const) {
+    const v = rec[key];
+    if (typeof v === 'string' && v.trim()) return v;
+    if (typeof v === 'number' && !Number.isNaN(v)) return String(v);
+  }
+  return '';
+}
+
+function seedForm() {
+  initialValues.value = {
+    title: titleFromRecord(props.record ?? null),
+  };
+  formKey.value += 1;
+}
+
+watch(locale, async () => {
+  await nextTick();
+  const exposed = formRef.value as { validate?: () => Promise<unknown> } | null;
+  await exposed?.validate?.();
+});
+
+watch(
+  () => [props.show, props.record] as const,
+  ([visible]) => {
+    if (!visible) return;
+    seedForm();
+  },
+  { immediate: true }
+);
+
+function close() {
+  emit('update:show', false);
+  emit('close');
+}
+
+function onDialogVisible(v: boolean) {
+  emit('update:show', v);
+  if (!v) emit('close');
+}
+
+function buildAddPayload(title: string) {
+  return {
+    id: null,
+    slug: null,
+    value: null,
+    title: title.trim(),
+  };
+}
+
+function buildEditPayload(rec: Record<string, unknown>, title: string) {
+  return {
+    id: rec.id ?? null,
+    slug: rec.slug ?? null,
+    value: rec.value ?? null,
+    title: title.trim(),
+  };
+}
+
+async function onSubmit(values: { title?: string }) {
+  const title = String(values.title ?? '').trim();
+  saving.value = true;
+  try {
+    const result = isEdit.value && props.record
+      ? await ermRepo.ruleAuthorEdit(buildEditPayload(props.record, title))
+      : await ermRepo.ruleAuthorAdd(buildAddPayload(title));
+
+    if (result?.result) {
+      toast(
+        isEdit.value
+          ? t('settings-page.legislative-authority-form-edit-success')
+          : t('settings-page.legislative-authority-form-add-success'),
+        { type: 'success' }
+      );
+      emit('success');
+      close();
+    } else {
+      toast(
+        String(
+          result?.error?.message ??
+            (isEdit.value
+              ? t('settings-page.legislative-authority-form-edit-error')
+              : t('settings-page.legislative-authority-form-add-error'))
+        ),
+        { type: 'error' }
+      );
+    }
+  } catch (e) {
+    toast(
+      e instanceof Error
+        ? e.message
+        : isEdit.value
+          ? t('settings-page.legislative-authority-form-edit-error')
+          : t('settings-page.legislative-authority-form-add-error'),
+      { type: 'error' }
+    );
+  } finally {
+    saving.value = false;
+  }
+}
+</script>
+
+<template>
+  <BaseModal
+    :visible="show"
+    :title="modalTitle"
+    size="sm"
+    @update:visible="onDialogVisible"
+  >
+    <Form
+      id="legislative-authority-form"
+      :key="formKey"
+      ref="formRef"
+      :validation-schema="validationSchema"
+      :initial-values="initialValues"
+      class="space-y-2 py-1"
+      @submit="onSubmit"
+    >
+      <div data-autofocus-modal>
+        <BaseInput
+          name="title"
+          :label="t('settings-page.legislative-authority-col-name')"
+          type="text"
+          required
+          autofocus
+        />
+      </div>
+    </Form>
+    <template #footer>
+      <div class="flex flex-wrap justify-end gap-2">
+        <Button
+          type="button"
+          variant="outline-secondary"
+          size="sm"
+          :disabled="saving"
+          @click="close"
+        >
+          {{ t('rule.form-cancel') }}
+        </Button>
+        <Button
+          type="submit"
+          variant="primary"
+          size="sm"
+          form="legislative-authority-form"
+          :disabled="saving"
+        >
+          {{ isEdit ? t('rule.form-edit-submit') : t('rule.form-submit') }}
+        </Button>
+      </div>
+    </template>
+  </BaseModal>
+</template>

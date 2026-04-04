@@ -1,14 +1,21 @@
 <script setup lang="ts">
 import { onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { toast } from 'vue3-toastify';
 import { useDataTable, createColumn, type FetchFn } from '@core';
 import BaseTable from '@core/ui/base/BaseTable.vue';
+import BaseConfirmModal from '@core/ui/base/BaseConfirmModal.vue';
 import { ermRepo } from '@/core/repositories/ermRepo';
 import { useBreadcrumbSlot } from '@/composables/useBreadcrumb';
+import { useGlobalModal } from '@/composables/useGlobalModal';
+import Button from '@/base-components/Button';
+import Lucide from '@/base-components/Lucide';
 import SettingsExportToolbar from '../SettingsExportToolbar.vue';
+import LawTypeFormModal from './LawTypeFormModal.vue';
 
 const { t } = useI18n();
 const { setContent: setBreadcrumbSlot } = useBreadcrumbSlot();
+const { openModal } = useGlobalModal();
 
 function pickStr(row: Record<string, unknown>, ...keys: string[]) {
   for (const k of keys) {
@@ -18,10 +25,6 @@ function pickStr(row: Record<string, unknown>, ...keys: string[]) {
     if (typeof v === 'number' && !Number.isNaN(v)) return String(v);
   }
   return '—';
-}
-
-function codeCell(row: Record<string, unknown>) {
-  return pickStr(row, 'value', 'slug', 'code');
 }
 
 function titleCell(row: Record<string, unknown>) {
@@ -45,19 +48,13 @@ const table = useDataTable({
   fetchFn: fetchRuleTypes,
   columns: [
     createColumn({
-      key: 'code',
-      label: t('general.code'),
-      sortable: false,
-      bodyCell: codeCell,
-    }),
-    createColumn({
       key: 'title',
       label: t('settings-page.law-type-col-name'),
       sortable: false,
       bodyCell: titleCell,
     }),
   ],
-  selectable: true,
+  selectable: false,
   exportEnabled: true,
   pageSize: 10,
   cacheKey: 'settings-rule-type-list',
@@ -65,7 +62,14 @@ const table = useDataTable({
 });
 
 function onAddLawType() {
-  console.log('Add rule type');
+  openModal({
+    component: LawTypeFormModal,
+    props: {},
+    onSuccess: () => {
+      table.invalidateListCache();
+      void table.fetch();
+    },
+  });
 }
 
 onMounted(() => {
@@ -78,11 +82,39 @@ onMounted(() => {
 });
 
 function onEditLawType(row: Record<string, unknown>) {
-  console.log('Edit rule type', row);
+  openModal({
+    component: LawTypeFormModal,
+    props: { record: row },
+    onSuccess: () => {
+      table.invalidateListCache();
+      void table.fetch();
+    },
+  });
 }
 
 function onDeleteLawType(row: Record<string, unknown>) {
-  console.log('Delete rule type', row);
+  openModal({
+    component: BaseConfirmModal,
+    props: {
+      titleKey: 'settings-page.law-type-delete-title',
+      messageKey: 'settings-page.law-type-delete-message',
+      confirmVariant: 'danger' as const,
+      onConfirmAction: async () => {
+        const res = await ermRepo.ruleTypeDelete({ id: row.id });
+        if (!res?.result) {
+          const msg = String(
+            res?.error?.message ?? t('settings-page.law-type-delete-error')
+          );
+          toast(msg, { type: 'error' });
+          throw new Error(msg);
+        }
+      },
+    },
+    onSuccess: () => {
+      table.invalidateListCache();
+      void table.fetch();
+    },
+  });
 }
 </script>
 
@@ -91,38 +123,37 @@ function onDeleteLawType(row: Record<string, unknown>) {
     <div class="col-span-12">
       <BaseTable
         :table="table"
-        :selectable="true"
+        :selectable="false"
         :export-enabled="table.exportEnabled"
         :empty-message="t('general.no-data')"
         :actions="true"
         :actions-header="t('task.settings')"
-        :actions-column-min-width="'100px'"
         :show-search="false"
       >
         <template #actions="{ row }">
-          <div class="flex flex-wrap items-center justify-center gap-0.5">
-            <button
+          <div class="flex items-center justify-center gap-3">
+            <Button
               type="button"
-              class="rounded p-1.5 text-slate-500 transition hover:bg-slate-100 hover:text-primary dark:text-slate-400 dark:hover:bg-darkmode-600 dark:hover:text-primary"
+              variant="outline-secondary"
+              size="sm"
+              class="!h-7 !w-7 shrink-0 !px-0 !py-0"
               :aria-label="t('title.update')"
               :title="t('title.update')"
               @click.stop="onEditLawType(row)"
             >
-              <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-              </svg>
-            </button>
-            <button
+              <Lucide icon="Pencil" class="!h-3.5 !w-3.5" />
+            </Button>
+            <Button
               type="button"
-              class="rounded p-1.5 text-slate-500 transition hover:bg-red-50 hover:text-red-600 dark:text-slate-400 dark:hover:bg-darkmode-600 dark:hover:text-red-400"
+              variant="outline-danger"
+              size="sm"
+              class="!h-7 !w-7 shrink-0 !px-0 !py-0"
               :aria-label="t('task.delete')"
               :title="t('task.delete')"
               @click.stop="onDeleteLawType(row)"
             >
-              <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-              </svg>
-            </button>
+              <Lucide icon="Trash2" class="!h-3.5 !w-3.5" />
+            </Button>
           </div>
         </template>
       </BaseTable>

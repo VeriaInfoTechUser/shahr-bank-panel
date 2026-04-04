@@ -2,19 +2,43 @@
 import { computed, nextTick } from 'vue';
 import Dialog from 'primevue/dialog';
 
+/** وقتی `rootClass` ست نشده باشد، عرض از این نقشه گرفته می‌شود. */
+export type BaseModalSize = 'default' | 'sm' | 'md' | 'lg' | 'xl';
+
+const MODAL_SKIN =
+  'rounded-xl border border-slate-200 bg-white shadow-xl dark:border-darkmode-600 dark:bg-darkmode-800';
+
+/** عرض محتوا: `default` همان حداکثر ~56rem قبلی؛ `sm` حدود ۴۰٪ باریک‌تر از آن (≈۳۳.۶rem). */
+const SIZE_WIDTH: Record<BaseModalSize, string> = {
+  default: 'max-w-4xl w-[min(100%,56rem)]',
+  sm: 'w-[min(100%,33.6rem)] max-w-[33.6rem]',
+  md: 'max-w-3xl w-[min(100%,48rem)]',
+  lg: 'max-w-4xl w-[min(100%,56rem)]',
+  xl: 'max-w-5xl w-[min(100%,64rem)]',
+};
+
 const props = withDefaults(
   defineProps<{
     visible: boolean;
     title?: string;
     closable?: boolean;
     dismissableMask?: boolean;
+    /**
+     * اگر غیرخالی باشد، کل کلاس ریشهٔ Prime Dialog را جایگزین می‌کند (رفتار قبلی برای مودال‌های سفارشی).
+     * اگر خالی/undefined باشد، از `size` + پوستهٔ ثابت استفاده می‌شود.
+     */
     rootClass?: string;
+    /** عرض نسبی وقتی `rootClass` ست نشده باشد. پیش‌فرض = همان اندازهٔ قبلی پنل. */
+    size?: BaseModalSize;
+    /** کلاس اختیاری برای باکس داخلی محتوا (پیش‌فرض `p-2`). */
+    contentClass?: string;
   }>(),
   {
     closable: true,
     dismissableMask: true,
-    rootClass:
-      'max-w-4xl w-[min(100%,56rem)] rounded-xl border border-slate-200 bg-white shadow-xl dark:border-darkmode-600 dark:bg-darkmode-800',
+    rootClass: undefined,
+    size: 'default',
+    contentClass: 'p-2',
   }
 );
 
@@ -26,6 +50,16 @@ const emit = defineEmits<{
 const dialogVisible = computed({
   get: () => props.visible,
   set: (v: boolean) => emit('update:visible', v),
+});
+
+const resolvedRootClass = computed(() => {
+  const raw = props.rootClass;
+  if (raw != null && String(raw).trim() !== '') {
+    return String(raw).trim();
+  }
+  const key = props.size ?? 'default';
+  const width = SIZE_WIDTH[key] ?? SIZE_WIDTH.default;
+  return `${width} ${MODAL_SKIN}`;
 });
 
 function onHide() {
@@ -57,7 +91,7 @@ function onDialogShow() {
     :modal="true"
     :pt="{
       root: {
-        class: props.rootClass,
+        class: resolvedRootClass,
       },
       title: {
         class:
@@ -74,7 +108,7 @@ function onDialogShow() {
     @show="onDialogShow"
   >
     <!-- PrimeVue بدون [autofocus] در محتوا فوکوس را به دکمهٔ بستن می‌دهد؛ این عنصر فوکوس اولیه را می‌گیرد. -->
-    <div class="p-2">
+    <div :class="contentClass">
       <div
         tabindex="-1"
         autofocus

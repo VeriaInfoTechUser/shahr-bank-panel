@@ -16,11 +16,41 @@ const props = withDefaults(
     autofocus?: boolean;
     min?: number | string;
     max?: number | string;
+    /**
+     * در blur، فاصلهٔ ابتدا و انتهای مقدار حذف می‌شود تا فقط فاصلهٔ میانی حفظ شود.
+     * برای `number` / `range` اعمال نمی‌شود.
+     */
+    trimOnBlur?: boolean;
   }>(),
-  { type: 'text', required: false, disabled: false, rows: 3, autofocus: false }
+  {
+    type: 'text',
+    required: false,
+    disabled: false,
+    rows: 3,
+    autofocus: false,
+    trimOnBlur: true,
+  }
 );
 
-const { value, errorMessage, handleBlur, handleChange } = useField(props.name);
+const { value, errorMessage, handleBlur, handleChange, setValue } = useField(props.name);
+
+const shouldTrimOnBlur = computed(() => {
+  if (!props.trimOnBlur) return false;
+  const t = props.type ?? 'text';
+  if (t === 'number' || t === 'range') return false;
+  return true;
+});
+
+function onBlurTrim(e: Event) {
+  handleBlur(e);
+  if (!shouldTrimOnBlur.value) return;
+  const raw = value.value;
+  if (typeof raw !== 'string') return;
+  const next = raw.trim();
+  if (next !== raw) {
+    setValue(next, true);
+  }
+}
 
 const textareaMinHeightClass = computed(() =>
   props.rows <= 2 ? 'min-h-[2.75rem]' : 'min-h-[4.5rem]'
@@ -46,7 +76,7 @@ const textareaMinHeightClass = computed(() =>
       class="input input-bordered w-full !h-8 !min-h-0 py-1.5 px-2.5 text-xs font-light leading-snug placeholder:font-light placeholder:text-slate-400 dark:placeholder:text-slate-500"
       :class="{ 'input-error': errorMessage }"
       :pt="autofocus ? { root: { autofocus: true } } : undefined"
-      @blur="handleBlur"
+      @blur="onBlurTrim"
       @input="handleChange"
     />
     <Textarea
@@ -58,7 +88,7 @@ const textareaMinHeightClass = computed(() =>
       class="textarea textarea-bordered w-full !min-h-0 py-1.5 px-2.5 text-xs font-light leading-snug placeholder:font-light placeholder:text-slate-400 dark:placeholder:text-slate-500"
       :class="[textareaMinHeightClass, { 'textarea-error': errorMessage }]"
       :pt="autofocus ? { root: { autofocus: true } } : undefined"
-      @blur="handleBlur"
+      @blur="onBlurTrim"
       @input="handleChange"
     />
     <label v-if="errorMessage" class="label min-h-0 py-0 pt-0.5">

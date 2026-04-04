@@ -37,7 +37,7 @@ export function buildValidationSchema(fields: FieldSchema[]): yup.ObjectSchema {
       case 'text':
       case 'textarea':
       default:
-        schema = yup.string();
+        schema = yup.string().trim();
         if (field.pattern) schema = (schema as yup.StringSchema).matches(field.pattern);
         break;
     }

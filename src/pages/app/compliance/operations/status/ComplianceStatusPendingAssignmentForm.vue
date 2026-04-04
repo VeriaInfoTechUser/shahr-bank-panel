@@ -35,9 +35,10 @@ const validationSchema = computed(() =>
   yup.object({
     referral_type: yup
       .string()
+      .trim()
       .oneOf(['single', 'group'])
       .required(),
-    liaison_single: yup.string().when('referral_type', {
+    liaison_single: yup.string().trim().when('referral_type', {
       is: 'single',
       then: (s) => s.required(t('compliance-page.referral-validation-liaison')),
       otherwise: (s) => s.optional(),
@@ -46,13 +47,14 @@ const validationSchema = computed(() =>
       is: 'group',
       then: (s) =>
         s
-          .of(yup.string())
+          .of(yup.string().trim())
           .min(1, t('compliance-page.referral-validation-liaison'))
           .required(),
       otherwise: (s) => s.optional(),
     }),
     time_deadline: yup
       .string()
+      .trim()
       .required(t('compliance-page.referral-validation-deadline'))
       .test(
         'min-today',

@@ -82,12 +82,19 @@ export const endpoints = {
       },
       member: {
         list: 'erm/member/list',
+        view: 'erm/member/view',
       },
       ruleAuthor: {
         list: 'erm/rule/author/list',
+        add: 'erm/rule/author/add',
+        edit: 'erm/rule/author/edit',
+        delete: 'erm/rule/author/delete',
       },
       ruleType: {
         list: 'erm/rule/type/list',
+        add: 'erm/rule/type/add',
+        edit: 'erm/rule/type/edit',
+        delete: 'erm/rule/type/delete',
       },
     },
   },

@@ -95,8 +95,8 @@ function buildInitialValues(row: Record<string, unknown>): {
 
 const validationSchema = computed(() =>
   yup.object({
-    answer_note: yup.string().optional(),
-    answer_choice: yup.string().optional(),
+    answer_note: yup.string().trim().optional(),
+    answer_choice: yup.string().trim().optional(),
   })
 );
 

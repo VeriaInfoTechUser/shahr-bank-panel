@@ -59,12 +59,44 @@ export class ErmRepo extends BaseRepo {
     return this.post<RuleListResponse>(endpoints.admin.erm.member.list, params);
   }
 
+  /** جزئیات رابط شامل `user_log` و `user_inventory` — payload: `{ user_id }` */
+  async memberView(payload: { user_id: number }) {
+    return this.post<ApiResult<Record<string, unknown>>>(
+      endpoints.admin.erm.member.view,
+      payload
+    );
+  }
+
   async ruleAuthorList(params: RuleListParams) {
     return this.post<RuleListResponse>(endpoints.admin.erm.ruleAuthor.list, params);
   }
 
+  async ruleAuthorAdd(payload: Record<string, unknown>) {
+    return this.post<ApiResult<unknown>>(endpoints.admin.erm.ruleAuthor.add, payload);
+  }
+
+  async ruleAuthorEdit(payload: Record<string, unknown>) {
+    return this.post<ApiResult<unknown>>(endpoints.admin.erm.ruleAuthor.edit, payload);
+  }
+
+  async ruleAuthorDelete(payload: Record<string, unknown>) {
+    return this.post<ApiResult<unknown>>(endpoints.admin.erm.ruleAuthor.delete, payload);
+  }
+
   async ruleTypeList(params: RuleListParams) {
     return this.post<RuleListResponse>(endpoints.admin.erm.ruleType.list, params);
+  }
+
+  async ruleTypeAdd(payload: Record<string, unknown>) {
+    return this.post<ApiResult<unknown>>(endpoints.admin.erm.ruleType.add, payload);
+  }
+
+  async ruleTypeEdit(payload: Record<string, unknown>) {
+    return this.post<ApiResult<unknown>>(endpoints.admin.erm.ruleType.edit, payload);
+  }
+
+  async ruleTypeDelete(payload: Record<string, unknown>) {
+    return this.post<ApiResult<unknown>>(endpoints.admin.erm.ruleType.delete, payload);
   }
 
   async domainTree(params: RuleListParams) {

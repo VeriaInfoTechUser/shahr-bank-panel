@@ -75,15 +75,15 @@ function resolveSubmitUserId(row: Record<string, unknown>): string {
 }
 
 /**
- * مقدار level در payload ثبت پیشرفت:
- * - از «انتظار اجرا» (todo) → todo
- * - از «در حال اجرا» (doing) با دکمه ثبت → done
+ * مقدار level در payload ثبت پیشرفت (دکمهٔ ثبت در مدال):
+ * - «در انتظار اجرا» (todo) → done
+ * - «در حال اجرا» (doing) → done
  */
 function resolveRiskProgressPayloadLevel(row: Record<string, unknown>): string {
   const r = getRisk(row);
   if (!r) return 'todo';
   const key = getRiskStateKeyForLabel(r);
-  if (key === 'doing') return 'done';
+  if (key === 'todo' || key === 'doing') return 'done';
   return 'todo';
 }
 

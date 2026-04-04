@@ -463,7 +463,21 @@
     "liaisons-logs-json-modal-title": "Record details",
     "liaisons-logs-json-copy": "Copy JSON",
     "liaisons-logs-json-copied": "Copied to clipboard.",
-    "liaisons-logs-close": "Close"
+    "liaisons-logs-close": "Close",
+    "liaisons-password-modal-title": "Change liaison password",
+    "liaisons-password-hint-title": "Password requirements:",
+    "liaisons-password-hint-1": "At least 8 characters;",
+    "liaisons-password-hint-2": "Both lowercase and uppercase English letters;",
+    "liaisons-password-hint-3": "At least one digit;",
+    "liaisons-password-hint-4": "At least one special character such as !, {'@'}, #, %, etc.",
+    "liaisons-password-field-label": "New password",
+    "liaisons-password-field-placeholder": "Enter password",
+    "liaisons-password-toggle-visibility": "Show or hide password",
+    "liaisons-password-submit": "Save password",
+    "liaisons-password-required": "Enter a password.",
+    "liaisons-password-invalid": "The password does not meet the security rules.",
+    "liaisons-password-success": "Password was updated successfully.",
+    "liaisons-password-error": "Could not update the password."
   },
   "compliance-page": {
     "col-code": "Code",

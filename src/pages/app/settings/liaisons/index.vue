@@ -13,6 +13,7 @@ import Lucide from '@/base-components/Lucide';
 import SettingsExportToolbar from '../SettingsExportToolbar.vue';
 import SettingsPlaceholderModal from '../SettingsPlaceholderModal.vue';
 import MemberLogsModal from './MemberLogsModal.vue';
+import MemberChangePasswordModal from './MemberChangePasswordModal.vue';
 
 const { t } = useI18n();
 const { setContent: setBreadcrumbSlot } = useBreadcrumbSlot();
@@ -168,7 +169,12 @@ function onEditMember(row: Record<string, unknown>) {
 }
 
 function onChangePasswordMember(row: Record<string, unknown>) {
-  console.log('Change password', row);
+  const uid = Number(row.id);
+  if (!Number.isFinite(uid) || uid <= 0) return;
+  openModal({
+    component: MemberChangePasswordModal,
+    props: { userId: uid },
+  });
 }
 
 function onLogsMember(row: Record<string, unknown>) {

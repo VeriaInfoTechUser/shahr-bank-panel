@@ -483,7 +483,21 @@
     "liaisons-logs-json-modal-title": "جزئیات رکورد",
     "liaisons-logs-json-copy": "کپی JSON",
     "liaisons-logs-json-copied": "در کلیپ‌بورد کپی شد.",
-    "liaisons-logs-close": "بستن"
+    "liaisons-logs-close": "بستن",
+    "liaisons-password-modal-title": "تغییر کلمه عبور رابط",
+    "liaisons-password-hint-title": "الزامات کلمه عبور:",
+    "liaisons-password-hint-1": "حداقل ۸ کاراکتر؛",
+    "liaisons-password-hint-2": "شامل حرف کوچک و حرف بزرگ انگلیسی؛",
+    "liaisons-password-hint-3": "حداقل یک عدد؛",
+    "liaisons-password-hint-4": "حداقل یک کاراکتر خاص مانند !، {'@'}، #، % و موارد مشابه.",
+    "liaisons-password-field-label": "کلمه عبور جدید",
+    "liaisons-password-field-placeholder": "کلمه عبور را وارد کنید",
+    "liaisons-password-toggle-visibility": "نمایش یا مخفی کردن کلمه عبور",
+    "liaisons-password-submit": "ثبت کلمه عبور",
+    "liaisons-password-required": "کلمه عبور را وارد کنید.",
+    "liaisons-password-invalid": "کلمه عبور با قوانین امنیتی مطابقت ندارد.",
+    "liaisons-password-success": "کلمه عبور با موفقیت به‌روزرسانی شد.",
+    "liaisons-password-error": "به‌روزرسانی کلمه عبور انجام نشد."
   },
   "compliance-page": {
     "col-code": "کد",

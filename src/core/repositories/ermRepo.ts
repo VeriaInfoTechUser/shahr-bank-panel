@@ -76,6 +76,11 @@ export class ErmRepo extends BaseRepo {
     return this.post<ApiResult<unknown>>(endpoints.admin.erm.member.delete, payload);
   }
 
+  /** تغییر رمز رابط — `{ user_id, credential }` */
+  async memberPassword(payload: { user_id: number; credential: string }) {
+    return this.post<ApiResult<unknown>>(endpoints.admin.erm.member.password, payload);
+  }
+
   async ruleAuthorList(params: RuleListParams) {
     return this.post<RuleListResponse>(endpoints.admin.erm.ruleAuthor.list, params);
   }

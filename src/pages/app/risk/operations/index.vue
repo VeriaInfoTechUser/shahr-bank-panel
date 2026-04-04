@@ -12,8 +12,17 @@ import {
   clauseFilteredRiskOperationsRoute,
   resolveOperationsTaskRowId,
 } from '@/composables/taskClauseNavigation';
+import { rowHasClause } from '@/pages/app/compliance/operations/complianceStatusHelpers';
+import {
+  getRisk,
+  getRiskStateKeyForLabel,
+  getRiskStatusKey,
+} from './riskStatusHelpers';
+import RiskOperationsStatusModal from './RiskOperationsStatusModal.vue';
+import { useGlobalModal } from '@/composables/useGlobalModal';
 
 const { t } = useI18n();
+const { openModal } = useGlobalModal();
 const route = useRoute();
 const router = useRouter();
 const { setContent: setBreadcrumbSlot } = useBreadcrumbSlot();
@@ -53,24 +62,12 @@ function pickStr(row: Record<string, unknown>, ...keys: string[]) {
   return '—';
 }
 
-function codeCell(row: Record<string, unknown>) {
-  return pickStr(row, 'code');
-}
-
 function commitmentCell(row: Record<string, unknown>) {
   const task = row.task as Record<string, unknown> | undefined;
   if (task && typeof task.title === 'string' && task.title.trim()) {
     return task.title;
   }
   return pickStr(row, 'title', 'name', 'commitment', 'task_title', 'label');
-}
-
-/** وضعیت/مهلت از آبجکت `risk` (نه `progress`) */
-function getRisk(row: Record<string, unknown>): Record<string, unknown> | null {
-  const r = row.risk;
-  if (r == null || typeof r !== 'object' || Array.isArray(r)) return null;
-  if (Object.keys(r).length === 0) return null;
-  return r as Record<string, unknown>;
 }
 
 function deadlineWithoutTime(view: string | undefined, ts: number | undefined): string {
@@ -111,27 +108,6 @@ const RISK_STATUS_I18N: Record<string, string> = {
   reject: 'compliance-page.status-reject',
 };
 
-function rowHasClause(row: Record<string, unknown>): boolean {
-  const h = row.has_clause;
-  if (h === 1 || h === true) return true;
-  const c = row.clause;
-  if (Array.isArray(c) && c.length > 0) return true;
-  return false;
-}
-
-/** وضعیت ریسک: `risk.level` سپس `risk.status` */
-function riskStateKey(r: Record<string, unknown>): string {
-  const level = r.level;
-  const status = r.status;
-  const raw =
-    typeof level === 'string' && level.trim()
-      ? level
-      : typeof status === 'string'
-        ? status
-        : '';
-  return raw.trim().toLowerCase();
-}
-
 function riskStatusLabel(row: Record<string, unknown>): string {
   if (rowHasClause(row)) {
     return t('compliance-page.status-clauses');
@@ -140,7 +116,7 @@ function riskStatusLabel(row: Record<string, unknown>): string {
   if (!r) {
     return t('compliance-page.status-pending-assignment');
   }
-  const key = riskStateKey(r);
+  const key = getRiskStateKeyForLabel(r);
   if (key && RISK_STATUS_I18N[key]) {
     return t(RISK_STATUS_I18N[key]);
   }
@@ -149,21 +125,8 @@ function riskStatusLabel(row: Record<string, unknown>): string {
   return '—';
 }
 
-function riskStatusKey(row: Record<string, unknown>): string {
-  if (rowHasClause(row)) return 'clauses';
-  const r = getRisk(row);
-  if (!r) return 'pending-assignment';
-  const key = riskStateKey(r);
-  if (key && RISK_STATUS_I18N[key]) return key;
-  return 'unknown';
-}
-
 function statusBadgeClass(row: Record<string, unknown>): string {
-  return riskOperationsStatusBadgeClass(riskStatusKey(row));
-}
-
-function onRiskStatusClick(_row: Record<string, unknown>) {
-  /* آینده: مودال جریان وضعیت */
+  return riskOperationsStatusBadgeClass(getRiskStatusKey(row));
 }
 
 const fetchRiskList: FetchFn = async ({ page, limit, sort, filters }) => {
@@ -189,12 +152,6 @@ const table = useDataTable({
   fetchFn: fetchRiskList,
   columns: [
     createColumn({
-      key: 'code',
-      label: t('compliance-page.col-code'),
-      sortable: false,
-      bodyCell: codeCell,
-    }),
-    createColumn({
       key: 'commitment',
       label: t('compliance-page.col-commitment'),
       sortable: false,
@@ -213,12 +170,28 @@ const table = useDataTable({
       bodyCell: riskStatusLabel,
     }),
   ],
-  selectable: true,
+  selectable: false,
   exportEnabled: true,
   pageSize: 10,
   cacheKey: 'risk-operations-list',
   listCacheStaleTime: 0,
 });
+
+function openRiskStatusModal(row: Record<string, unknown>) {
+  openModal({
+    component: RiskOperationsStatusModal,
+    props: { row },
+    onSuccess: () => {
+      table.invalidateListCache();
+      table.fetch();
+    },
+  });
+}
+
+function onRiskStatusClick(row: Record<string, unknown>) {
+  if (rowHasClause(row)) return;
+  openRiskStatusModal(row);
+}
 
 function syncReferenceFilterFromRoute() {
   const refId = parseReferenceIdFromQuery(route.query.reference_id);
@@ -281,7 +254,7 @@ onMounted(() => {
     <div class="col-span-12">
       <BaseTable
         :table="table"
-        :selectable="true"
+        :selectable="false"
         :export-enabled="table.exportEnabled"
         :empty-message="t('general.no-data')"
         :actions="false"
@@ -305,7 +278,7 @@ onMounted(() => {
           <button
             v-else
             type="button"
-            :class="statusBadgeClass(row)"
+            :class="[statusBadgeClass(row), '!cursor-pointer']"
             @click.stop="onRiskStatusClick(row)"
           >
             {{ riskStatusLabel(row) }}

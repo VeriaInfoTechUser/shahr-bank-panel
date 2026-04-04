@@ -565,7 +565,8 @@
     "done-field-completed-at": "تاریخ انجام",
     "done-review-approve-success": "تأیید نهایی ثبت شد.",
     "done-review-reject-success": "رد ریسک ثبت شد.",
-    "done-review-error": "ثبت وضعیت انجام نشد."
+    "done-review-error": "ثبت وضعیت انجام نشد.",
+    "reject-restart-footer-confirm": "تأیید"
   },
   "input": {
     "mobile": "موبایل",

@@ -545,7 +545,8 @@
     "done-field-completed-at": "Completion date",
     "done-review-approve-success": "Final approval saved.",
     "done-review-reject-success": "Risk rejection saved.",
-    "done-review-error": "Could not update status."
+    "done-review-error": "Could not update status.",
+    "reject-restart-footer-confirm": "Confirm"
   },
   "input": {
     "mobile": "Mobile",

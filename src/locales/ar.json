@@ -385,7 +385,8 @@
     "done-field-completed-at": "تاريخ الإنجاز",
     "done-review-approve-success": "تم حفظ الموافقة النهائية.",
     "done-review-reject-success": "تم حفظ رفض المخاطرة.",
-    "done-review-error": "تعذّر تحديث الحالة."
+    "done-review-error": "تعذّر تحديث الحالة.",
+    "reject-restart-footer-confirm": "تأكيد"
   },
   "input": {
     "username": "اسم المستخدم",

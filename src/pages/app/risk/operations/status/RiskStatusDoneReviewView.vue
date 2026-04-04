@@ -227,7 +227,7 @@ function commentFromHistory(risk: Record<string, unknown>): string {
 
 function buildRiskReviewPayload(
   row: Record<string, unknown>,
-  level: 'approve' | 'reject'
+  level: 'approve' | 'reject' | 'doing'
 ): Record<string, unknown> {
   const risk = getRisk(row);
   if (!risk) throw new Error('no risk');
@@ -301,6 +301,40 @@ async function submitReview(level: 'approve' | 'reject') {
   }
 }
 
+/** بازگرداندن ریسک رد‌شده به وضعیت «در حال اجرا» */
+async function submitRestartToDoing() {
+  const risk = getRisk(props.row);
+  if (!risk) {
+    toast(t('compliance-page.status-modal-no-task-data'), { type: 'error' });
+    return;
+  }
+  submitting.value = true;
+  try {
+    const payload = buildRiskReviewPayload(props.row, 'doing');
+    const result = await ermRepo.riskProgress(payload);
+    if (result?.result) {
+      toast(t('compliance-page.reject-restart-success'), { type: 'success' });
+      emit('success');
+    } else {
+      toast(
+        String(result?.error?.message ?? t('compliance-page.reject-restart-error')),
+        { type: 'error' }
+      );
+    }
+  } catch (e) {
+    if (e instanceof Error && e.message === 'no user') {
+      toast(t('risk-operations.todo-validation-user'), { type: 'error' });
+    } else {
+      toast(
+        e instanceof Error ? e.message : t('compliance-page.reject-restart-error'),
+        { type: 'error' }
+      );
+    }
+  } finally {
+    submitting.value = false;
+  }
+}
+
 onMounted(async () => {
   responseTypesLoading.value = true;
   try {
@@ -319,6 +353,7 @@ onMounted(async () => {
 defineExpose({
   submitting,
   submitReview,
+  submitRestartToDoing,
 });
 </script>
 
@@ -354,138 +389,175 @@ defineExpose({
         </div>
       </div>
 
-      <!-- سناریو: تهدید + آسیب در یک جمله -->
-      <section class="border-b border-slate-200/80 bg-white px-4 py-4 dark:border-darkmode-600 dark:bg-darkmode-800/40">
-        <p
-          class="mb-2 text-[11px] font-semibold text-slate-500 dark:text-slate-400"
-        >
-          {{ t('risk-operations.done-report-label-scenario') }}
-        </p>
-        <p
-          class="whitespace-pre-wrap text-sm leading-[1.7] text-slate-900 dark:text-slate-100"
-        >
-          {{ scenarioDisplay }}
-        </p>
-      </section>
-
-      <!-- شاخص‌ها: ۵ کارت در یک ردیف از md -->
-      <section
-        class="border-b border-slate-200/80 bg-white px-4 py-5 dark:border-darkmode-600 dark:bg-darkmode-800/40"
-      >
-        <div
-          class="grid grid-cols-2 gap-3 md:grid-cols-5 md:gap-3 lg:gap-4"
-        >
+      <!-- شاخص‌ها — اول گزارش، بدون بردر بالا/پایین بخش -->
+      <section class="bg-white px-4 py-2 dark:bg-darkmode-800/40">
+        <div class="grid grid-cols-2 gap-2 md:grid-cols-5 md:gap-2">
           <div
-            class="group flex flex-col rounded-2xl border border-slate-200/80 bg-gradient-to-b from-white to-slate-50/90 p-3.5 shadow-sm ring-1 ring-slate-900/[0.04] transition hover:shadow-md dark:border-darkmode-600 dark:from-darkmode-800 dark:to-darkmode-800/90 dark:ring-white/[0.06]"
+            class="flex aspect-square min-h-0 min-w-0 flex-col overflow-hidden rounded-lg border border-slate-200/75 bg-white p-2.5 dark:border-darkmode-600 dark:bg-darkmode-800/50"
           >
-            <div
-              class="mb-2.5 flex h-10 w-10 items-center justify-center rounded-xl bg-amber-100 text-amber-700 dark:bg-amber-900/35 dark:text-amber-200"
-            >
-              <Lucide icon="Gauge" class="!h-5 !w-5" aria-hidden="true" />
+            <div class="flex shrink-0 items-center justify-between gap-2">
+              <span
+                class="min-w-0 flex-1 truncate text-[12px] font-extrabold uppercase leading-tight tracking-wide text-slate-800 dark:text-slate-100"
+              >{{ t('risk-operations.todo-field-intensity') }}</span>
+              <div
+                class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-200"
+              >
+                <Lucide
+                  icon="Gauge"
+                  class="!h-6 !w-6 stroke-[2]"
+                  aria-hidden="true"
+                />
+              </div>
             </div>
-            <p
-              class="text-[10px] font-semibold uppercase tracking-[0.06em] text-slate-400 dark:text-slate-500"
+            <div
+              class="flex min-h-0 flex-1 flex-col items-center justify-center px-0.5"
             >
-              {{ t('risk-operations.todo-field-intensity') }}
-            </p>
-            <p
-              class="mt-1.5 text-2xl font-bold tabular-nums leading-none tracking-tight text-slate-900 dark:text-slate-50"
-            >
-              {{ strOrDash(riskPayload?.risk_intensity) }}
-            </p>
+              <p
+                class="text-center text-2xl font-extrabold tabular-nums leading-none tracking-tight text-slate-900 sm:text-3xl dark:text-slate-50"
+              >
+                {{ strOrDash(riskPayload?.risk_intensity) }}
+              </p>
+            </div>
           </div>
 
           <div
-            class="group flex flex-col rounded-2xl border border-slate-200/80 bg-gradient-to-b from-white to-slate-50/90 p-3.5 shadow-sm ring-1 ring-slate-900/[0.04] transition hover:shadow-md dark:border-darkmode-600 dark:from-darkmode-800 dark:to-darkmode-800/90 dark:ring-white/[0.06]"
+            class="flex aspect-square min-h-0 min-w-0 flex-col overflow-hidden rounded-lg border border-slate-200/75 bg-white p-2.5 dark:border-darkmode-600 dark:bg-darkmode-800/50"
           >
-            <div
-              class="mb-2.5 flex h-10 w-10 items-center justify-center rounded-xl bg-sky-100 text-sky-700 dark:bg-sky-900/40 dark:text-sky-200"
-            >
-              <Lucide icon="Target" class="!h-5 !w-5" aria-hidden="true" />
+            <div class="flex shrink-0 items-center justify-between gap-2">
+              <span
+                class="min-w-0 flex-1 truncate text-[12px] font-extrabold uppercase leading-tight tracking-wide text-slate-800 dark:text-slate-100"
+              >{{ t('risk-operations.todo-field-effect') }}</span>
+              <div
+                class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-sky-100 text-sky-700 dark:bg-sky-900/40 dark:text-sky-200"
+              >
+                <Lucide
+                  icon="Target"
+                  class="!h-6 !w-6 stroke-[2]"
+                  aria-hidden="true"
+                />
+              </div>
             </div>
-            <p
-              class="text-[10px] font-semibold uppercase tracking-[0.06em] text-slate-400 dark:text-slate-500"
+            <div
+              class="flex min-h-0 flex-1 flex-col items-center justify-center px-0.5"
             >
-              {{ t('risk-operations.todo-field-effect') }}
-            </p>
-            <p
-              class="mt-1.5 text-2xl font-bold tabular-nums leading-none tracking-tight text-slate-900 dark:text-slate-50"
-            >
-              {{ strOrDash(riskPayload?.risk_effect) }}
-            </p>
+              <p
+                class="text-center text-2xl font-extrabold tabular-nums leading-none tracking-tight text-slate-900 sm:text-3xl dark:text-slate-50"
+              >
+                {{ strOrDash(riskPayload?.risk_effect) }}
+              </p>
+            </div>
           </div>
 
           <div
-            class="group flex flex-col rounded-2xl border border-slate-200/80 bg-gradient-to-b from-white to-slate-50/90 p-3.5 shadow-sm ring-1 ring-slate-900/[0.04] transition hover:shadow-md dark:border-darkmode-600 dark:from-darkmode-800 dark:to-darkmode-800/90 dark:ring-white/[0.06]"
+            class="flex aspect-square min-h-0 min-w-0 flex-col overflow-hidden rounded-lg border border-slate-200/75 bg-white p-2.5 dark:border-darkmode-600 dark:bg-darkmode-800/50"
           >
-            <div
-              class="mb-2.5 flex h-10 w-10 items-center justify-center rounded-xl bg-rose-100 text-rose-700 dark:bg-rose-900/35 dark:text-rose-200"
-            >
-              <Lucide icon="ShieldAlert" class="!h-5 !w-5" aria-hidden="true" />
+            <div class="flex shrink-0 items-center justify-between gap-2">
+              <span
+                class="min-w-0 flex-1 truncate text-[12px] font-extrabold uppercase leading-tight tracking-wide text-slate-800 dark:text-slate-100"
+              >{{ t('risk-operations.done-report-col-risk-value') }}</span>
+              <div
+                class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-200"
+              >
+                <Lucide
+                  icon="ShieldAlert"
+                  class="!h-6 !w-6 stroke-[2]"
+                  aria-hidden="true"
+                />
+              </div>
             </div>
-            <p
-              class="text-[10px] font-semibold uppercase tracking-[0.06em] text-slate-400 dark:text-slate-500"
+            <div
+              class="flex min-h-0 flex-1 flex-col items-center justify-center px-0.5"
             >
-              {{ t('risk-operations.done-report-col-risk-value') }}
-            </p>
-            <div class="mt-1.5 flex min-h-[2.25rem] items-center">
               <span
                 v-if="riskScoreVisual"
-                class="inline-flex min-h-[2.25rem] min-w-[2.75rem] items-center justify-center rounded-xl px-2.5 text-lg font-bold tabular-nums shadow-inner"
+                class="inline-flex min-h-[2.5rem] min-w-[2.75rem] items-center justify-center rounded-xl px-2.5 text-xl font-extrabold tabular-nums leading-none shadow-inner"
                 :style="{
                   backgroundColor: riskScoreVisual.bg,
                   color: riskScoreVisual.fg,
                   border: `1px solid ${riskScoreVisual.border}`,
                 }"
               >{{ riskScoreVisual.score }}</span>
-              <span v-else class="text-2xl font-bold text-slate-300 dark:text-slate-600">—</span>
+              <span
+                v-else
+                class="text-2xl font-extrabold text-slate-300 dark:text-slate-600"
+              >—</span>
             </div>
           </div>
 
           <div
-            class="group flex flex-col rounded-2xl border border-slate-200/80 bg-gradient-to-b from-white to-slate-50/90 p-3.5 shadow-sm ring-1 ring-slate-900/[0.04] transition hover:shadow-md dark:border-darkmode-600 dark:from-darkmode-800 dark:to-darkmode-800/90 dark:ring-white/[0.06]"
+            class="flex aspect-square min-h-0 min-w-0 flex-col overflow-hidden rounded-lg border border-slate-200/75 bg-white p-2.5 dark:border-darkmode-600 dark:bg-darkmode-800/50"
           >
-            <div
-              class="mb-2.5 flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700 dark:bg-emerald-900/35 dark:text-emerald-200"
-            >
-              <Lucide icon="Percent" class="!h-5 !w-5" aria-hidden="true" />
+            <div class="flex shrink-0 items-center justify-between gap-2">
+              <span
+                class="min-w-0 flex-1 truncate text-[12px] font-extrabold uppercase leading-tight tracking-wide text-slate-800 dark:text-slate-100"
+              >{{ t('risk-operations.todo-field-execution-percent') }}</span>
+              <div
+                class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-200"
+              >
+                <Lucide
+                  icon="Percent"
+                  class="!h-6 !w-6 stroke-[2]"
+                  aria-hidden="true"
+                />
+              </div>
             </div>
-            <p
-              class="text-[10px] font-semibold uppercase tracking-[0.06em] text-slate-400 dark:text-slate-500"
+            <div
+              class="flex min-h-0 flex-1 flex-col items-center justify-center px-0.5"
             >
-              {{ t('risk-operations.todo-field-execution-percent') }}
-            </p>
-            <p
-              class="mt-1.5 text-2xl font-bold tabular-nums leading-none tracking-tight text-slate-900 dark:text-slate-50"
-            >
-              {{
-                numOrNull(riskPayload?.risk_execution_percent) != null
-                  ? `${numOrNull(riskPayload?.risk_execution_percent)}%`
-                  : '—'
-              }}
-            </p>
+              <p
+                class="text-center text-2xl font-extrabold tabular-nums leading-none tracking-tight text-slate-900 sm:text-3xl dark:text-slate-50"
+              >
+                {{
+                  numOrNull(riskPayload?.risk_execution_percent) != null
+                    ? `${numOrNull(riskPayload?.risk_execution_percent)}%`
+                    : '—'
+                }}
+              </p>
+            </div>
           </div>
 
           <div
-            class="group col-span-2 flex flex-col rounded-2xl border border-slate-200/80 bg-gradient-to-b from-white to-violet-50/40 p-3.5 shadow-sm ring-1 ring-slate-900/[0.04] transition hover:shadow-md dark:border-darkmode-600 dark:from-darkmode-800 dark:to-violet-950/20 dark:ring-white/[0.06] md:col-span-1"
+            class="col-span-2 flex aspect-square min-h-0 min-w-0 flex-col overflow-hidden rounded-lg border border-slate-200/75 bg-white p-2.5 dark:border-darkmode-600 dark:bg-darkmode-800/50 md:col-span-1"
           >
-            <div
-              class="mb-2.5 flex h-10 w-10 items-center justify-center rounded-xl bg-violet-100 text-violet-700 dark:bg-violet-900/40 dark:text-violet-200"
-            >
-              <Lucide icon="Compass" class="!h-5 !w-5" aria-hidden="true" />
+            <div class="flex shrink-0 items-center justify-between gap-2">
+              <span
+                class="min-w-0 flex-1 truncate text-[12px] font-extrabold uppercase leading-tight tracking-wide text-slate-800 dark:text-slate-100"
+              >{{ t('risk-operations.todo-field-strategy') }}</span>
+              <div
+                class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-violet-100 text-violet-700 dark:bg-violet-900/40 dark:text-violet-200"
+              >
+                <Lucide
+                  icon="Compass"
+                  class="!h-6 !w-6 stroke-[2]"
+                  aria-hidden="true"
+                />
+              </div>
             </div>
-            <p
-              class="text-[10px] font-semibold uppercase tracking-[0.06em] text-slate-400 dark:text-slate-500"
+            <div
+              class="flex min-h-0 flex-1 items-center justify-center overflow-y-auto px-0.5"
             >
-              {{ t('risk-operations.todo-field-strategy') }}
-            </p>
-            <p
-              class="mt-1.5 break-words text-xs font-semibold leading-relaxed text-slate-800 dark:text-slate-100"
-            >
-              {{ strategyLabel(riskPayload?.risk_response_type) }}
-            </p>
+              <p
+                class="hyphens-auto break-words text-center text-[13px] font-extrabold leading-snug text-slate-900 sm:text-sm dark:text-slate-50"
+              >
+                {{ strategyLabel(riskPayload?.risk_response_type) }}
+              </p>
+            </div>
           </div>
         </div>
+      </section>
+
+      <!-- سناریو -->
+      <section class="border-b border-slate-200/80 bg-white px-4 py-4 dark:border-darkmode-600 dark:bg-darkmode-800/40">
+        <h3
+          class="mb-3 border-s-[3px] border-primary pb-1 ps-3 text-[13px] font-bold text-slate-800 dark:text-slate-100"
+        >
+          {{ t('risk-operations.done-report-label-scenario') }}
+        </h3>
+        <p
+          class="whitespace-pre-wrap text-sm leading-relaxed text-slate-900 dark:text-slate-100"
+        >
+          {{ scenarioDisplay }}
+        </p>
       </section>
 
       <!-- اقدام پیشنهادی -->

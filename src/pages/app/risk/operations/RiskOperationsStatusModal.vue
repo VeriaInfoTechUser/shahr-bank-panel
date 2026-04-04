@@ -224,7 +224,12 @@ function onDialogVisible(v: boolean) {
             @success="onStatusFormSuccess"
           />
           <RiskStatusDoneReviewView
-            v-else-if="row && statusKey === 'done'"
+            v-else-if="
+              row &&
+              (statusKey === 'done' ||
+                statusKey === 'approve' ||
+                statusKey === 'reject')
+            "
             ref="riskDoneReviewRef"
             :row="row"
             @success="onStatusFormSuccess"
@@ -235,7 +240,9 @@ function onDialogVisible(v: boolean) {
               statusKey !== 'pending-assignment' &&
               statusKey !== 'todo' &&
               statusKey !== 'doing' &&
-              statusKey !== 'done'
+              statusKey !== 'done' &&
+              statusKey !== 'approve' &&
+              statusKey !== 'reject'
             "
             :status-key="statusKey"
           />
@@ -314,6 +321,38 @@ function onDialogVisible(v: boolean) {
               @click="riskDoneReviewRef?.submitReview('approve')"
             >
               {{ t('compliance-page.done-footer-approve') }}
+            </Button>
+          </div>
+        </template>
+        <template v-else-if="statusKey === 'approve'">
+          <Button
+            type="button"
+            variant="outline-secondary"
+            size="sm"
+            @click="close"
+          >
+            {{ t('compliance-page.approve-footer-close') }}
+          </Button>
+        </template>
+        <template v-else-if="statusKey === 'reject'">
+          <div class="flex w-full flex-wrap justify-end gap-2">
+            <Button
+              type="button"
+              variant="outline-secondary"
+              size="sm"
+              :disabled="riskDoneFooterBusy"
+              @click="close"
+            >
+              {{ t('compliance-page.doing-footer-cancel') }}
+            </Button>
+            <Button
+              type="button"
+              variant="primary"
+              size="sm"
+              :disabled="riskDoneFooterBusy"
+              @click="riskDoneReviewRef?.submitRestartToDoing()"
+            >
+              {{ t('risk-operations.reject-restart-footer-confirm') }}
             </Button>
           </div>
         </template>

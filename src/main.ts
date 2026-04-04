@@ -6,6 +6,7 @@ import './assets/css/primeicons.css';
 import App from './App.vue';
 import router from './router';
 import i18n from './utils/i18n';
+import { toPersianDigits } from './utils/persianDigits';
 import './assets/css/app.css';
 import './assets/css/primevue-theme.css';
 import Shimmer from 'vue3-shimmer';
@@ -29,6 +30,7 @@ app.use(PrimeVue, {
 });
 app.use(router);
 app.use(i18n);
+app.config.globalProperties.pd = toPersianDigits;
 app.use(Shimmer);
 app.use(VueAwesomePaginate);
 

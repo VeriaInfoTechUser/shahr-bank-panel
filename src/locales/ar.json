@@ -374,7 +374,18 @@
     "todo-validation-required": "هذا الحقل مطلوب.",
     "todo-validation-percent-range": "أدخل رقماً بين 0 و 100.",
     "todo-validation-user": "معرّف المستخدم غير متوفر.",
-    "todo-response-type-load-error": "تعذّر تحميل أنواع الاستراتيجية."
+    "todo-response-type-load-error": "تعذّر تحميل أنواع الاستراتيجية.",
+    "done-view-section-title": "مخاطرة مكتملة — المنفّذ:",
+    "done-report-doc-label": "تقرير تقييم المخاطر",
+    "done-report-label-scenario": "السيناريو",
+    "done-report-section-description": "الوصف والتحديد",
+    "done-report-section-metrics": "المؤشرات الكمية",
+    "done-report-section-actions": "الإجراء والملاحظات",
+    "done-report-col-risk-value": "قيمة المخاطر",
+    "done-field-completed-at": "تاريخ الإنجاز",
+    "done-review-approve-success": "تم حفظ الموافقة النهائية.",
+    "done-review-reject-success": "تم حفظ رفض المخاطرة.",
+    "done-review-error": "تعذّر تحديث الحالة."
   },
   "input": {
     "username": "اسم المستخدم",

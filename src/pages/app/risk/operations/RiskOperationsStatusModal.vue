@@ -11,6 +11,7 @@ import {
 } from './riskStatusHelpers';
 import RiskStatusPendingAssignmentForm from './status/RiskStatusPendingAssignmentForm.vue';
 import RiskStatusTodoForm from './status/RiskStatusTodoForm.vue';
+import RiskStatusDoneReviewView from './status/RiskStatusDoneReviewView.vue';
 import ComplianceStatusFormPlaceholder from '@/pages/app/compliance/operations/status/ComplianceStatusFormPlaceholder.vue';
 import { RISK_PENDING_ASSIGNMENT_FORM_ID } from './status/riskPendingAssignmentFormId';
 import { RISK_TODO_FORM_ID } from './status/riskTodoFormId';
@@ -73,6 +74,16 @@ const riskTodoFooterBusy = computed(() => {
     | undefined;
   return Boolean(p?.submitting || p?.responseTypesLoading);
 });
+
+const riskDoneReviewRef = ref<InstanceType<
+  typeof RiskStatusDoneReviewView
+> | null>(null);
+
+const riskDoneFooterBusy = computed(() =>
+  Boolean(
+    (riskDoneReviewRef.value as { submitting?: boolean } | null)?.submitting
+  )
+);
 
 function onStatusFormSuccess() {
   emit('success');
@@ -207,8 +218,14 @@ function onDialogVisible(v: boolean) {
             @success="onStatusFormSuccess"
           />
           <RiskStatusTodoForm
-            v-else-if="row && statusKey === 'todo'"
+            v-else-if="row && (statusKey === 'todo' || statusKey === 'doing')"
             ref="riskTodoFormRef"
+            :row="row"
+            @success="onStatusFormSuccess"
+          />
+          <RiskStatusDoneReviewView
+            v-else-if="row && statusKey === 'done'"
+            ref="riskDoneReviewRef"
             :row="row"
             @success="onStatusFormSuccess"
           />
@@ -216,7 +233,9 @@ function onDialogVisible(v: boolean) {
             v-else-if="
               row &&
               statusKey !== 'pending-assignment' &&
-              statusKey !== 'todo'
+              statusKey !== 'todo' &&
+              statusKey !== 'doing' &&
+              statusKey !== 'done'
             "
             :status-key="statusKey"
           />
@@ -245,7 +264,9 @@ function onDialogVisible(v: boolean) {
             {{ t('compliance-page.referral-confirm') }}
           </Button>
         </template>
-        <template v-else-if="statusKey === 'todo'">
+        <template
+          v-else-if="statusKey === 'todo' || statusKey === 'doing'"
+        >
           <Button
             type="button"
             variant="outline-secondary"
@@ -264,6 +285,37 @@ function onDialogVisible(v: boolean) {
           >
             {{ t('risk-operations.todo-submit') }}
           </Button>
+        </template>
+        <template v-else-if="statusKey === 'done'">
+          <div class="flex w-full flex-wrap justify-end gap-2">
+            <Button
+              type="button"
+              variant="outline-secondary"
+              size="sm"
+              :disabled="riskDoneFooterBusy"
+              @click="close"
+            >
+              {{ t('compliance-page.done-footer-cancel') }}
+            </Button>
+            <Button
+              type="button"
+              variant="danger"
+              size="sm"
+              :disabled="riskDoneFooterBusy"
+              @click="riskDoneReviewRef?.submitReview('reject')"
+            >
+              {{ t('compliance-page.done-footer-reject') }}
+            </Button>
+            <Button
+              type="button"
+              variant="success"
+              size="sm"
+              :disabled="riskDoneFooterBusy"
+              @click="riskDoneReviewRef?.submitReview('approve')"
+            >
+              {{ t('compliance-page.done-footer-approve') }}
+            </Button>
+          </div>
         </template>
         <template v-else>
           <Button

@@ -14,6 +14,7 @@ import {
 import { useUserStore } from '@/stores/user';
 import { RISK_TODO_FORM_ID } from './riskTodoFormId';
 import RiskTodoRiskScorePreview from './RiskTodoRiskScorePreview.vue';
+import { getRisk, getRiskStateKeyForLabel } from '../riskStatusHelpers';
 
 const props = defineProps<{
   row: Record<string, unknown>;
@@ -71,6 +72,19 @@ function resolveSubmitUserId(row: Record<string, unknown>): string {
   const cu = userStore.currentUser as Record<string, unknown> | null | undefined;
   if (cu?.id != null && cu.id !== '') return String(cu.id);
   return '';
+}
+
+/**
+ * مقدار level در payload ثبت پیشرفت:
+ * - از «انتظار اجرا» (todo) → todo
+ * - از «در حال اجرا» (doing) با دکمه ثبت → done
+ */
+function resolveRiskProgressPayloadLevel(row: Record<string, unknown>): string {
+  const r = getRisk(row);
+  if (!r) return 'todo';
+  const key = getRiskStateKeyForLabel(r);
+  if (key === 'doing') return 'done';
+  return 'todo';
 }
 
 const validationSchema = computed(() =>
@@ -164,7 +178,7 @@ async function onSubmit(values: Record<string, unknown>) {
     task_id: taskId,
     user_id: userId,
     progress_id: progressId,
-    level: 'todo',
+    level: resolveRiskProgressPayloadLevel(props.row),
     type: 'single',
     risk_threat: String(values.risk_threat ?? '').trim(),
     risk_damage: String(values.risk_damage ?? '').trim(),

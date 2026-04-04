@@ -534,7 +534,18 @@
     "todo-validation-required": "This field is required.",
     "todo-validation-percent-range": "Enter a number between 0 and 100.",
     "todo-validation-user": "User id is missing for submit.",
-    "todo-response-type-load-error": "Could not load strategy types."
+    "todo-response-type-load-error": "Could not load strategy types.",
+    "done-view-section-title": "Completed risk — executor:",
+    "done-report-doc-label": "Risk assessment report",
+    "done-report-label-scenario": "Scenario",
+    "done-report-section-description": "Description and identification",
+    "done-report-section-metrics": "Quantitative indicators",
+    "done-report-section-actions": "Action and remarks",
+    "done-report-col-risk-value": "Risk value",
+    "done-field-completed-at": "Completion date",
+    "done-review-approve-success": "Final approval saved.",
+    "done-review-reject-success": "Risk rejection saved.",
+    "done-review-error": "Could not update status."
   },
   "input": {
     "mobile": "Mobile",

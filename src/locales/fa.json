@@ -554,7 +554,18 @@
     "todo-validation-required": "تکمیل این فیلد الزامی است.",
     "todo-validation-percent-range": "عدد بین ۰ تا ۱۰۰ وارد کنید.",
     "todo-validation-user": "شناسه کاربر برای ارسال مشخص نیست.",
-    "todo-response-type-load-error": "بارگذاری انواع استراتژی ناموفق بود."
+    "todo-response-type-load-error": "بارگذاری انواع استراتژی ناموفق بود.",
+    "done-view-section-title": "ریسک تکمیل‌شده — مجری:",
+    "done-report-doc-label": "گزارش ارزیابی ریسک",
+    "done-report-label-scenario": "سناریو",
+    "done-report-section-description": "شرح و شناسایی",
+    "done-report-section-metrics": "شاخص‌های کمی",
+    "done-report-section-actions": "اقدام و نظر",
+    "done-report-col-risk-value": "مقدار ریسک",
+    "done-field-completed-at": "تاریخ انجام",
+    "done-review-approve-success": "تأیید نهایی ثبت شد.",
+    "done-review-reject-success": "رد ریسک ثبت شد.",
+    "done-review-error": "ثبت وضعیت انجام نشد."
   },
   "input": {
     "mobile": "موبایل",

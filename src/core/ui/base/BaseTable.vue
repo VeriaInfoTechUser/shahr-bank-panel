@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
+import { useI18n } from 'vue-i18n';
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
 import type { ColumnConfig } from '../../table/columnBuilder';
+
+const { t } = useI18n();
 
 /** Legacy: useDataTable return type for backward compatibility */
 interface DataTableInstance {
@@ -277,7 +280,7 @@ const tableColumns = computed(() => effectiveColumns.value);
     <div class="base-table__card overflow-hidden rounded-xl border border-slate-200/60 bg-white shadow-sm dark:border-darkmode-700/60 dark:bg-darkmode-800">
       <DataTable
         :value="effectiveRows"
-        :loading="effectiveLoading"
+        :loading="false"
         :dataKey="rowKey"
         :lazy="true"
         :paginator="showPaginator"
@@ -327,23 +330,20 @@ const tableColumns = computed(() => effectiveColumns.value);
         </template>
 
         <template #empty>
-          <slot name="empty">
-            <div class="py-10 text-center text-xs text-slate-500 dark:text-slate-400">
-              {{ emptyMessage }}
+          <slot name="empty" :loading="effectiveLoading">
+            <div
+              v-if="effectiveLoading"
+              class="py-10 text-center text-sm font-medium text-slate-600 dark:text-slate-300"
+              role="status"
+              aria-live="polite"
+            >
+              {{ t('general.loading') }}
             </div>
-          </slot>
-        </template>
-
-        <template #loading>
-          <slot name="loading">
-            <div class="flex items-center justify-center py-16">
-              <div class="base-table__skeleton flex w-full flex-col gap-3 px-4">
-                <div
-                  v-for="i in 5"
-                  :key="i"
-                  class="h-10 animate-pulse rounded bg-slate-200/80 dark:bg-darkmode-600"
-                />
-              </div>
+            <div
+              v-else
+              class="py-10 text-center text-xs text-slate-500 dark:text-slate-400"
+            >
+              {{ emptyMessage }}
             </div>
           </slot>
         </template>
@@ -400,10 +400,6 @@ const tableColumns = computed(() => effectiveColumns.value);
 </template>
 
 <style scoped>
-.base-table__datatable :deep(.p-datatable-loading-overlay) {
-  border-radius: inherit;
-}
-
 /* Remove extra border above header row — single clean line under header only */
 .base-table__datatable :deep(.p-datatable-thead) {
   border-top: none;

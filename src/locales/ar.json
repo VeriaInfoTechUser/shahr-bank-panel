@@ -384,6 +384,7 @@
     "done-report-section-actions": "الإجراء والملاحظات",
     "done-report-col-risk-value": "قيمة المخاطر",
     "done-field-completed-at": "تاريخ الإنجاز",
+    "done-report-field-expired-at": "تاريخ الانتهاء",
     "done-review-approve-success": "تم حفظ الموافقة النهائية.",
     "done-review-reject-success": "تم حفظ رفض المخاطرة.",
     "done-review-error": "تعذّر تحديث الحالة.",

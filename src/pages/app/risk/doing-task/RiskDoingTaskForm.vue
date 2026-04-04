@@ -264,7 +264,7 @@ defineExpose({
     class="mt-6 border-t border-slate-200 pt-4 dark:border-darkmode-600"
   >
     <p
-      class="mb-3 text-[11px] font-semibold uppercase tracking-[0.08em] text-slate-400 dark:text-slate-500"
+      class="mb-3 text-[13px] font-bold uppercase tracking-wide text-slate-800 dark:text-slate-100"
     >
       {{ t('risk-operations.doing-task-form-section-title') }}
     </p>

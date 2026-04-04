@@ -340,6 +340,12 @@ defineExpose({
   <div
     class="mt-6 border-t border-slate-200 pt-4 dark:border-darkmode-600"
   >
+    <p
+      class="mb-3 text-[13px] font-bold uppercase tracking-wide text-slate-800 dark:text-slate-100"
+    >
+      {{ t('compliance-page.doing-task-form-section-title') }}
+    </p>
+
     <div
       v-if="!answerOptions.length"
       class="mb-3 rounded-md border border-amber-200/90 bg-amber-50/80 px-2.5 py-2 text-xs text-amber-800 dark:border-amber-900/50 dark:bg-amber-950/30 dark:text-amber-200"

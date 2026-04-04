@@ -211,6 +211,12 @@ const routes = [
                                 component: RiskDoingTask,
                                 meta: {
                                     breadcrumbLabel: 'menu.risk-doing-task',
+                                    breadcrumbPrefix: [
+                                        {
+                                            routeName: 'app-risk-operations',
+                                            labelKey: 'menu.risk-operations',
+                                        },
+                                    ],
                                 },
                             },
                             {

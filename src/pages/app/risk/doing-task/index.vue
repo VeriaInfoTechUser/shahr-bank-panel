@@ -80,7 +80,6 @@ const showCommitmentCard = computed(() => {
   if (c.warrantyTitle.trim()) return true;
   if (c.ruleText.trim()) return true;
   if (c.ruleCode.trim()) return true;
-  if (c.unitsList.length > 0) return true;
   return c.hasParentRef;
 });
 
@@ -198,19 +197,6 @@ function userCell(p: Record<string, unknown>): string {
   const name = o.name ?? o.full_name ?? o.mobile ?? o.id;
   if (name == null || name === '') return '—';
   return String(name);
-}
-
-function deadlineDateOnly(p: Record<string, unknown>): string {
-  const view = p.time_deadline_view;
-  if (typeof view === 'string' && view.trim()) {
-    const s = view.trim();
-    const sp = s.indexOf(' ');
-    if (sp !== -1) return s.slice(0, sp).trim();
-    const tIdx = s.indexOf('T');
-    if (tIdx !== -1) return s.slice(0, tIdx);
-    return s;
-  }
-  return '—';
 }
 
 function progressStatusKey(p: Record<string, unknown>): string {
@@ -444,32 +430,6 @@ watch(
                   </p>
                 </div>
 
-                <div class="col-span-1 min-w-0 md:col-span-2">
-                  <p
-                    class="mb-1.5 text-[10px] font-semibold uppercase tracking-[0.06em] text-slate-400 dark:text-slate-500"
-                  >
-                    {{ t('task.mandatory-unit') }}
-                  </p>
-                  <div
-                    v-if="commitmentSummary.unitsList.length > 0"
-                    class="flex flex-wrap gap-2"
-                  >
-                    <span
-                      v-for="(unit, idx) in commitmentSummary.unitsList"
-                      :key="idx"
-                      class="mx-2 inline-flex max-w-full break-words rounded-md border border-slate-200/90 bg-slate-50/90 px-2 py-1 text-xs leading-snug text-slate-700 dark:border-darkmode-600 dark:bg-darkmode-800/60 dark:text-slate-200"
-                    >
-                      {{ unit }}
-                    </span>
-                  </div>
-                  <p
-                    v-else
-                    class="text-xs text-slate-500 dark:text-slate-400"
-                  >
-                    —
-                  </p>
-                </div>
-
                 <div
                   v-if="commitmentSummary.hasParentRef"
                   class="col-span-1 rounded-md border border-slate-200/80 bg-slate-50/70 px-2 py-1.5 dark:border-darkmode-600 dark:bg-darkmode-900/35 md:col-span-2"
@@ -492,7 +452,7 @@ watch(
           <template v-if="hasProgressDashboard">
             <section v-if="reportSummary">
               <h2
-                class="mb-1.5 text-[10px] font-semibold uppercase tracking-wide text-slate-400 dark:text-slate-500"
+                class="mb-1.5 text-[13px] font-bold uppercase tracking-wide text-slate-800 dark:text-slate-100"
               >
                 {{ t('risk-operations.doing-task-dashboard-report-title') }}
               </h2>
@@ -540,7 +500,7 @@ watch(
 
             <section>
               <h2
-                class="mb-1.5 text-[10px] font-semibold uppercase tracking-wide text-slate-400 dark:text-slate-500"
+                class="mb-1.5 text-[13px] font-bold uppercase tracking-wide text-slate-800 dark:text-slate-100"
               >
                 {{ t('risk-operations.doing-task-per-user-title') }}
               </h2>
@@ -550,25 +510,11 @@ watch(
                   :key="String(row.id ?? row.slug ?? idx)"
                   class="min-w-0"
                 >
-                  <div
-                    class="mb-1 flex flex-wrap items-center gap-x-2 gap-y-0.5"
-                  >
-                    <span
-                      class="text-[9px] tabular-nums text-slate-400 dark:text-slate-500"
-                    >#{{ idx + 1 }}</span>
-                    <span
-                      class="text-[11px] font-medium text-slate-800 dark:text-slate-100"
-                    >{{ userCell(row) }}</span>
-                    <span :class="progressStatusBadgeClass(row)">{{
-                      statusLabelForProgress(row)
-                    }}</span>
-                    <span
-                      class="text-[9px] text-slate-400 dark:text-slate-500"
-                    >{{ deadlineDateOnly(row) }}</span>
-                  </div>
                   <RiskAssessmentReportDisplay
                     :risk="row"
                     :user-label="userCell(row)"
+                    :status-label="statusLabelForProgress(row)"
+                    :status-badge-class="progressStatusBadgeClass(row)"
                     :disabled="!isRiskProgressApproved(row)"
                   />
                 </div>

@@ -564,6 +564,7 @@
     "done-report-section-actions": "اقدام و نظر",
     "done-report-col-risk-value": "مقدار ریسک",
     "done-field-completed-at": "تاریخ انجام",
+    "done-report-field-expired-at": "تاریخ انقضا",
     "done-review-approve-success": "تأیید نهایی ثبت شد.",
     "done-review-reject-success": "رد ریسک ثبت شد.",
     "done-review-error": "ثبت وضعیت انجام نشد.",

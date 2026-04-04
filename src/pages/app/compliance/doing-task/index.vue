@@ -529,7 +529,7 @@ watch(
           <template v-if="hasProgressDashboard">
             <section v-if="reportSummary">
               <h2
-                class="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400"
+                class="mb-2 text-[13px] font-bold uppercase tracking-wide text-slate-800 dark:text-slate-100"
               >
                 {{ t('compliance-page.doing-task-dashboard-report-title') }}
               </h2>
@@ -570,7 +570,7 @@ watch(
 
             <section>
               <h2
-                class="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400"
+                class="mb-2 text-[13px] font-bold uppercase tracking-wide text-slate-800 dark:text-slate-100"
               >
                 {{ t('compliance-page.doing-task-per-user-title') }}
               </h2>

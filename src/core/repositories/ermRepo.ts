@@ -34,6 +34,11 @@ export class ErmRepo extends BaseRepo {
     return this.post<ApiResult<unknown>>(endpoints.admin.erm.rule.edit, payload);
   }
 
+  /** payload: `{ id }` — POST `erm/rule/delete` */
+  async deleteRule(payload: { id: number | string }) {
+    return this.post<ApiResult<unknown>>(endpoints.admin.erm.rule.delete, payload);
+  }
+
   async ruleCategoryList(params: RuleListParams) {
     return this.post<RuleListResponse>(endpoints.admin.erm.ruleCategory.list, params);
   }

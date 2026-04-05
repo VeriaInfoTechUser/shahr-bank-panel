@@ -50,6 +50,7 @@ export const endpoints = {
         list: 'erm/rule/list',
         add: 'erm/rule/add',
         edit: 'erm/rule/edit',
+        delete: 'erm/rule/delete',
       },
       ruleCategory: {
         list: 'erm/rule/category/list',

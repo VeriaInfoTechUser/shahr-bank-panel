@@ -99,7 +99,15 @@ const routes = [
                                 path: "rules-regulations/deleted",
                                 name: "app-base-info-rules-regulations-deleted",
                                 component: BaseInfoRulesRegulationsDeleted,
-                                meta: { breadcrumbLabel: 'menu.rules-regulations-deleted' },
+                                meta: {
+                                    breadcrumbLabel: 'menu.rules-regulations-deleted',
+                                    breadcrumbPrefix: [
+                                        {
+                                            routeName: 'app-base-info-rules-regulations',
+                                            labelKey: 'menu.rules-regulations',
+                                        },
+                                    ],
+                                },
                             },
                             {
                                 path: "rules-regulations",

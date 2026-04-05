@@ -2,8 +2,10 @@
 import { useI18n } from 'vue-i18n';
 import { onMounted } from 'vue';
 import { useRouter } from 'vue-router';
+import { toast } from 'vue3-toastify';
 import { useDataTable, createColumn, type FetchFn } from '@core';
 import BaseTable from '@core/ui/base/BaseTable.vue';
+import BaseConfirmModal from '@core/ui/base/BaseConfirmModal.vue';
 import { ermRepo } from '@/core/repositories/ermRepo';
 import { useBreadcrumbSlot } from '@/composables/useBreadcrumb';
 import { useGlobalModal } from '@/composables/useGlobalModal';
@@ -186,7 +188,31 @@ function onEditClick(row: Record<string, unknown>) {
 }
 
 function onDeleteClick(row: Record<string, unknown>) {
-  console.log('Delete clicked', row);
+  openModal({
+    component: BaseConfirmModal,
+    props: {
+      titleKey: 'rule.delete-confirm-title',
+      messageKey: 'rule.delete-confirm-message',
+      confirmVariant: 'danger' as const,
+      onConfirmAction: async () => {
+        const id = row.id;
+        if (id == null) {
+          toast(t('rule.delete-error'), { type: 'error' });
+          throw new Error('missing id');
+        }
+        const res = await ermRepo.deleteRule({ id });
+        if (!res?.result) {
+          const msg = String(res?.error?.message ?? t('rule.delete-error'));
+          toast(msg, { type: 'error' });
+          throw new Error(msg);
+        }
+      },
+    },
+    onSuccess: () => {
+      table.invalidateListCache();
+      void table.fetch();
+    },
+  });
 }
 </script>
 

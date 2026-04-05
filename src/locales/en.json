@@ -246,6 +246,8 @@
     "back-to-rules-list": "Back to rules list",
     "toolbar-trash-to-deleted": "Deleted rules list",
     "toolbar-filter": "Filter",
+    "toolbar-clear-filters": "Clear filters",
+    "filter-badge-remove-aria": "Remove {label} filter",
     "filter-sheet-close": "Close filters",
     "modal-add-title": "Add new rule",
     "modal-edit-title": "Edit rule",

@@ -116,6 +116,8 @@
     "back-to-rules-list": "العودة إلى قائمة القوانين",
     "toolbar-trash-to-deleted": "قائمة القوانين المحذوفة",
     "toolbar-filter": "تصفية",
+    "toolbar-clear-filters": "مسح عوامل التصفية",
+    "filter-badge-remove-aria": "إزالة تصفية {label}",
     "filter-sheet-close": "إغلاق عوامل التصفية",
     "modal-add-title": "إضافة قانون جديد",
     "modal-edit-title": "تعديل القانون",

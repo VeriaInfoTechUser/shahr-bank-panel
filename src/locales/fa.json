@@ -264,6 +264,8 @@
     "back-to-rules-list": "برگشت به لیست قوانین",
     "toolbar-trash-to-deleted": "لیست قوانین حذف شده",
     "toolbar-filter": "فیلتر",
+    "toolbar-clear-filters": "پاک کردن فیلتر ها",
+    "filter-badge-remove-aria": "حذف فیلتر {label}",
     "filter-sheet-close": "بستن فیلتر",
     "modal-add-title": "تعریف قانون جدید",
     "modal-edit-title": "ویرایش قانون",

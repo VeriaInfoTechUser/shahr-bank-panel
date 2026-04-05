@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { Ref } from 'vue';
-import { computed, ref, onMounted, toValue } from 'vue';
+import { computed, ref, onMounted, toValue, watch } from 'vue';
 import { Form } from 'vee-validate';
 import { useI18n } from 'vue-i18n';
 import { toast } from 'vue3-toastify';
@@ -8,7 +8,6 @@ import BaseInput from '@/core/ui/base/BaseInput.vue';
 import BaseMultiSelect from '@/core/ui/base/BaseMultiSelect.vue';
 import BaseSelect from '@/core/ui/base/BaseSelect.vue';
 import BaseDatePicker from '@/core/ui/base/BaseDatePicker.vue';
-import Button from '@/base-components/Button';
 import { ermRepo } from '@/core/repositories/ermRepo';
 import {
   DROPDOWN_LIST_PARAMS,
@@ -26,15 +25,17 @@ const props = withDefaults(
       /** وضعیت فعلی فیلتر جدول؛ با بسته شدن پاپ‌آور برای مقداردهی مجدد فرم لازم است */
       filters?: Ref<Record<string, unknown>> | Record<string, unknown>;
     } | null;
+    /** با افزایش از تولبار پس از پاک کردن فیلترها، فرم باز هم خالی می‌شود */
+    toolbarClearTick?: number;
   }>(),
   {
     table: null,
+    toolbarClearTick: 0,
   }
 );
 
 const emit = defineEmits<{
   (e: 'apply', payload: Record<string, unknown>): void;
-  (e: 'clear'): void;
 }>();
 
 const { t } = useI18n();
@@ -151,6 +152,14 @@ onMounted(() => {
   void loadOptions();
 });
 
+watch(
+  () => props.toolbarClearTick,
+  (_v, prev) => {
+    if (prev === undefined) return;
+    formKey.value += 1;
+  }
+);
+
 function buildPayload(values: Record<string, unknown>): Record<string, unknown> {
   const o: Record<string, unknown> = {};
   const rule = String(values.rule ?? '').trim();
@@ -183,15 +192,6 @@ function onAutoApply(payload: Record<string, unknown>) {
     props.table.replaceFilters(payload);
   } else {
     emit('apply', payload);
-  }
-}
-
-function onReset() {
-  formKey.value += 1;
-  if (props.table) {
-    props.table.clearFilters();
-  } else {
-    emit('clear');
   }
 }
 </script>
@@ -286,11 +286,6 @@ function onReset() {
           :label="t('rule.filter-date-data-to')"
           placeholder=""
         />
-      </div>
-      <div class="flex flex-wrap justify-end gap-2 border-t border-slate-100 pt-3 dark:border-darkmode-700">
-        <Button type="button" variant="outline-secondary" size="sm" @click="onReset">
-          {{ t('rule.filter-reset') }}
-        </Button>
       </div>
     </Form>
   </div>

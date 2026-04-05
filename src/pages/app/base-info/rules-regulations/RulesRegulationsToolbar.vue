@@ -1,12 +1,17 @@
 <script setup lang="ts">
 import type { Ref } from 'vue';
-import { computed, nextTick, onUnmounted, ref, watch } from 'vue';
+import { computed, nextTick, onUnmounted, ref, toValue, watch } from 'vue';
 import { useElementBounding, onClickOutside, useEventListener } from '@vueuse/core';
 import { useI18n } from 'vue-i18n';
 import Lucide from '@/base-components/Lucide';
 import RulesRegulationsFilterPanel from './RulesRegulationsFilterPanel.vue';
+import {
+  RULE_FILTER_PARAM_LABEL_KEYS,
+  getActiveRuleFilterKeys,
+  type RuleFilterParamKey,
+} from './ruleFilterToolbarKeys';
 
-defineProps<{
+const props = defineProps<{
   onImport?: () => void;
   onExport?: () => void;
   onTrash?: () => void;
@@ -21,7 +26,29 @@ defineProps<{
 const { t } = useI18n();
 
 const filterOpen = ref(false);
+const filterToolbarClearTick = ref(0);
+
+const hasActiveFilters = computed(() => Object.keys(toValue(props.table.filters) ?? {}).length > 0);
+
+const activeFilterKeys = computed((): RuleFilterParamKey[] =>
+  getActiveRuleFilterKeys(toValue(props.table.filters) ?? {})
+);
+
+function clearFiltersFromToolbar() {
+  props.table.clearFilters();
+  filterToolbarClearTick.value += 1;
+}
+
+function removeFilterParam(key: RuleFilterParamKey) {
+  const f = { ...(toValue(props.table.filters) ?? {}) };
+  delete f[key];
+  props.table.replaceFilters(f);
+  filterToolbarClearTick.value += 1;
+}
+
 const filterBtnRef = ref<HTMLElement | null>(null);
+/** فیلتر + پاک کردن همه + بج‌ها — برای ignore در onClickOutside */
+const filterToolbarClusterRef = ref<HTMLElement | null>(null);
 const popoverRef = ref<HTMLElement | null>(null);
 
 const bound = useElementBounding(filterBtnRef, { windowScroll: true, windowResize: true });
@@ -66,7 +93,7 @@ watch(filterOpen, (open) => {
         },
         {
           ignore: [
-            filterBtnRef,
+            filterToolbarClusterRef,
             /* پنل‌های append-to=body پرایم‌وی؛ وگرنه کلیک روی آیتم = outside و کارت بسته می‌شود */
             '.base-select-overlay-panel',
             '.base-multiselect-overlay-panel',
@@ -96,7 +123,7 @@ useEventListener(document, 'keydown', (e: KeyboardEvent) => {
       class="inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-md border border-primary bg-primary text-white shadow-sm transition hover:opacity-90 dark:border-primary dark:bg-primary dark:hover:opacity-90"
       aria-label="Add"
       title="Add"
-      @click="onAdd?.()"
+      @click="props.onAdd?.()"
     >
       <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
         <line x1="12" y1="5" x2="12" y2="19" />
@@ -108,7 +135,7 @@ useEventListener(document, 'keydown', (e: KeyboardEvent) => {
       class="inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-md border border-slate-200 bg-white text-slate-600 shadow-sm transition hover:bg-slate-50 hover:text-slate-900 dark:border-darkmode-600 dark:bg-darkmode-800 dark:text-slate-300 dark:hover:bg-darkmode-700 dark:hover:text-slate-100"
       :aria-label="t('rule.toolbar-trash-to-deleted')"
       :title="t('rule.toolbar-trash-to-deleted')"
-      @click="onTrash?.()"
+      @click="props.onTrash?.()"
     >
       <Lucide icon="Archive" class="h-4 w-4" />
     </button>
@@ -117,7 +144,7 @@ useEventListener(document, 'keydown', (e: KeyboardEvent) => {
       class="inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-md border border-slate-200 bg-white text-slate-600 shadow-sm transition hover:bg-slate-50 hover:text-slate-800 dark:border-darkmode-600 dark:bg-darkmode-800 dark:text-slate-300 dark:hover:bg-darkmode-700 dark:hover:text-slate-100"
       aria-label="Import"
       title="Import"
-      @click="onImport?.()"
+      @click="props.onImport?.()"
     >
       <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
@@ -130,7 +157,7 @@ useEventListener(document, 'keydown', (e: KeyboardEvent) => {
       class="inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-md border border-slate-200 bg-white text-slate-600 shadow-sm transition hover:bg-slate-50 hover:text-slate-800 dark:border-darkmode-600 dark:bg-darkmode-800 dark:text-slate-300 dark:hover:bg-darkmode-700 dark:hover:text-slate-100"
       aria-label="Export"
       title="Export"
-      @click="onExport?.()"
+      @click="props.onExport?.()"
     >
       <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
@@ -138,17 +165,67 @@ useEventListener(document, 'keydown', (e: KeyboardEvent) => {
         <line x1="12" y1="15" x2="12" y2="3" />
       </svg>
     </button>
-    <button
-      ref="filterBtnRef"
-      type="button"
-      class="inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-md border border-slate-200 bg-white text-slate-600 shadow-sm transition hover:bg-slate-50 hover:text-primary dark:border-darkmode-600 dark:bg-darkmode-800 dark:text-slate-300 dark:hover:bg-darkmode-700 dark:hover:text-primary"
-      :aria-label="t('rule.toolbar-filter')"
-      :aria-expanded="filterOpen"
-      :title="t('rule.toolbar-filter')"
-      @click="toggleFilter"
+    <div
+      ref="filterToolbarClusterRef"
+      class="flex max-w-[min(100vw-6rem,36rem)] flex-shrink-0 flex-wrap items-center gap-0.5"
     >
-      <Lucide icon="Filter" class="h-4 w-4" />
-    </button>
+      <div class="flex shrink-0 items-center gap-1">
+        <button
+          ref="filterBtnRef"
+          type="button"
+          class="inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-md border border-slate-200 bg-white text-slate-600 shadow-sm transition hover:bg-slate-50 hover:text-primary dark:border-darkmode-600 dark:bg-darkmode-800 dark:text-slate-300 dark:hover:bg-darkmode-700 dark:hover:text-primary"
+          :aria-label="t('rule.toolbar-filter')"
+          :aria-expanded="filterOpen"
+          :title="t('rule.toolbar-filter')"
+          @click="toggleFilter"
+        >
+          <Lucide icon="Filter" class="h-4 w-4" />
+        </button>
+        <button
+          v-if="hasActiveFilters"
+          type="button"
+          class="inline-flex h-8 max-w-[min(100%,12rem)] shrink-0 items-center rounded-md border border-slate-200 bg-white px-2 text-xs font-medium text-slate-600 shadow-sm transition hover:bg-slate-50 hover:text-primary dark:border-darkmode-600 dark:bg-darkmode-800 dark:text-slate-300 dark:hover:bg-darkmode-700 dark:hover:text-primary"
+          :aria-label="t('rule.toolbar-clear-filters')"
+          :title="t('rule.toolbar-clear-filters')"
+          @click="clearFiltersFromToolbar"
+        >
+          <span class="truncate">{{ t('rule.toolbar-clear-filters') }}</span>
+        </button>
+      </div>
+      <div
+        v-if="activeFilterKeys.length > 0"
+        class="mx-1.5 flex min-w-0 flex-wrap items-center gap-2 sm:mx-2"
+      >
+        <div
+          class="h-8 w-1 shrink-0 self-center rounded-full bg-slate-500 dark:bg-slate-400"
+          aria-hidden="true"
+        />
+        <div class="flex min-w-0 flex-wrap items-center gap-1">
+          <span
+            v-for="key in activeFilterKeys"
+            :key="key"
+            class="inline-flex max-w-[11rem] items-center gap-0.5 rounded-full border border-slate-200 bg-slate-50 py-0.5 pl-2 pr-0.5 text-[11px] font-medium text-slate-700 shadow-sm dark:border-darkmode-600 dark:bg-darkmode-700/80 dark:text-slate-200"
+          >
+            <span class="min-w-0 truncate" :title="t(RULE_FILTER_PARAM_LABEL_KEYS[key])">{{
+              t(RULE_FILTER_PARAM_LABEL_KEYS[key])
+            }}</span>
+            <button
+              type="button"
+              class="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-slate-500 transition hover:bg-slate-200 hover:text-slate-900 dark:hover:bg-darkmode-600 dark:hover:text-slate-100"
+              :aria-label="
+                t('rule.filter-badge-remove-aria', { label: t(RULE_FILTER_PARAM_LABEL_KEYS[key]) })
+              "
+              :title="
+                t('rule.filter-badge-remove-aria', { label: t(RULE_FILTER_PARAM_LABEL_KEYS[key]) })
+              "
+              @click.stop="removeFilterParam(key)"
+            >
+              <Lucide icon="X" class="!h-3 !w-3" />
+            </button>
+          </span>
+        </div>
+      </div>
+    </div>
 
     <Teleport to="body">
       <Transition name="rules-filter-pop">
@@ -170,7 +247,10 @@ useEventListener(document, 'keydown', (e: KeyboardEvent) => {
           :aria-label="t('rule.filter-panel-title')"
           @click.stop
         >
-          <RulesRegulationsFilterPanel :table="table" />
+          <RulesRegulationsFilterPanel
+            :table="table"
+            :toolbar-clear-tick="filterToolbarClearTick"
+          />
         </div>
       </Transition>
     </Teleport>

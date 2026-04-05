@@ -10,6 +10,11 @@ import BaseSelect from '@/core/ui/base/BaseSelect.vue';
 import BaseDatePicker from '@/core/ui/base/BaseDatePicker.vue';
 import Button from '@/base-components/Button';
 import { ermRepo } from '@/core/repositories/ermRepo';
+import {
+  DROPDOWN_LIST_PARAMS,
+  fetchRuleAuthorListCached,
+  fetchRuleTypeListCached,
+} from '@/core/erm/ruleAuthorTypeOptionsCache';
 
 const props = withDefaults(
   defineProps<{
@@ -111,15 +116,13 @@ function normalizeList(res: unknown): { value: string; label: string }[] {
     .filter((x) => x.value);
 }
 
-const listParams = { page: 1, limit: 500, api_version: 8 };
-
 async function loadOptions() {
   optionsLoading.value = true;
   try {
     const [catRes, typeRes, authorRes] = await Promise.all([
-      ermRepo.ruleCategoryList(listParams),
-      ermRepo.ruleTypeList(listParams),
-      ermRepo.ruleAuthorList(listParams),
+      ermRepo.ruleCategoryList(DROPDOWN_LIST_PARAMS),
+      fetchRuleTypeListCached(ermRepo),
+      fetchRuleAuthorListCached(ermRepo),
     ]);
     categoryOptions.value = normalizeList(catRes);
     typeOptions.value = normalizeList(typeRes);

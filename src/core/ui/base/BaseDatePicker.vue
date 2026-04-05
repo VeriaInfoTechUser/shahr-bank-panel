@@ -13,10 +13,13 @@ const props = withDefaults(
     placeholder?: string;
     required?: boolean;
     disabled?: boolean;
+    /** لیبل کوچک‌تر (~۳۰٪ از text-sm)؛ مثلاً داخل کارت فیلتر */
+    compactLabel?: boolean;
   }>(),
   {
     required: false,
     disabled: false,
+    compactLabel: false,
   }
 );
 
@@ -28,6 +31,13 @@ const DATE_PICKER_ACCENT = 'rgb(var(--color-primary) / 1)';
 
 const isFa = computed(() => String(locale.value).startsWith('fa'));
 
+const resolvedPlaceholder = computed(() => {
+  if (props.placeholder !== undefined) {
+    return props.placeholder;
+  }
+  return isFa.value ? 'مثلاً ۱۴۰۳/۰۱/۱۵' : 'YYYY-MM-DD';
+});
+
 // مقدار داخلی پیکر، همیشه میلادی YYYY-MM-DD (برای سازگاری با API)
 const pickerValue = computed({
   get: () => (fieldValue.value as string | null) ?? '',
@@ -35,12 +45,16 @@ const pickerValue = computed({
     setValue((v ?? '') as ModelValue);
   },
 });
+
+const labelTextClass = computed(() =>
+  props.compactLabel ? 'text-[0.6125rem]' : 'text-sm'
+);
 </script>
 
 <template>
   <div class="form-control w-full">
     <label v-if="label" class="label min-h-0 py-1">
-      <span class="label-text text-sm font-normal leading-snug">
+      <span :class="['label-text', labelTextClass, 'font-normal leading-snug']">
         {{ label }}
         <span v-if="required" class="text-error">*</span>
       </span>
@@ -56,10 +70,7 @@ const pickerValue = computed({
       :input-class="`input input-bordered w-full !h-8 !min-h-0 py-1.5 px-2.5 text-xs font-light leading-snug${
         errorMessage ? ' input-error' : ''
       }`"
-      :placeholder="
-        placeholder ||
-        (isFa ? 'مثلاً ۱۴۰۳/۰۱/۱۵' : 'YYYY-MM-DD')
-      "
+      :placeholder="resolvedPlaceholder"
       :disabled="disabled"
       @blur="handleBlur"
     />

@@ -187,6 +187,21 @@ export function useDataTable(options: DataTableOptions) {
     fetch();
   }
 
+  /** جایگزینی کامل فیلترها (مثلاً از پنل فیلتر)؛ بدون merge با مقادیر قبلی */
+  function replaceFilters(f: Record<string, unknown>) {
+    filters.value = { ...f };
+    page.value = 1;
+    invalidateListCache();
+    fetch();
+  }
+
+  function clearFilters() {
+    filters.value = {};
+    page.value = 1;
+    invalidateListCache();
+    fetch();
+  }
+
   function setLimit(l: number) {
     limit.value = l;
     page.value = 1;
@@ -238,6 +253,8 @@ export function useDataTable(options: DataTableOptions) {
     setPage,
     setSort,
     setFilters,
+    replaceFilters,
+    clearFilters,
     setLimit,
     toggleColumn,
     exportCSV,

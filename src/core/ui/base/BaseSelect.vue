@@ -20,6 +20,8 @@ const props = withDefaults(
     filterMatchMode?: string;
     /** با بستن پنل، متن جستجو پاک شود */
     resetFilterOnHide?: boolean;
+    /** لیبل کوچک‌تر (~۳۰٪ از text-sm)؛ مثلاً داخل کارت فیلتر */
+    compactLabel?: boolean;
   }>(),
   {
     options: () => [],
@@ -28,6 +30,7 @@ const props = withDefaults(
     filter: false,
     filterMatchMode: 'contains',
     resetFilterOnHide: true,
+    compactLabel: false,
   }
 );
 
@@ -55,12 +58,16 @@ function onChange(event: { value: unknown }) {
   emit('update:modelValue', event.value);
   emit('change', event.value);
 }
+
+const labelTextClass = computed(() =>
+  props.compactLabel ? 'text-[0.6125rem]' : 'text-sm'
+);
 </script>
 
 <template>
   <div class="form-control w-full">
     <label v-if="label" class="label min-h-0 py-1">
-      <span class="label-text text-sm font-normal leading-snug">{{ label }} <span v-if="required" class="text-error">*</span></span>
+      <span :class="['label-text', labelTextClass, 'font-normal leading-snug']">{{ label }} <span v-if="required" class="text-error">*</span></span>
     </label>
     <Select
       v-model="value"
@@ -99,8 +106,10 @@ function onChange(event: { value: unknown }) {
 
 <!-- پنل به body پورت می‌شود؛ سلکتور scoped به آن نمی‌رسد -->
 <style>
+/* بالای دیالوگ/کارت فیلتر (مثلاً z≈1100) تا آیتم‌ها دیده شوند */
 .base-select-overlay-panel.p-select-overlay {
   box-sizing: border-box;
+  z-index: 1200 !important;
 }
 
 .base-select-overlay-panel .p-select-option {

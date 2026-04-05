@@ -9,7 +9,7 @@ import { useBreadcrumbSlot } from '@/composables/useBreadcrumb';
 import { useGlobalModal } from '@/composables/useGlobalModal';
 import Button from '@/base-components/Button';
 import Lucide from '@/base-components/Lucide';
-import RulesBreadcrumbToolbar from './RulesBreadcrumbToolbar.vue';
+import RulesRegulationsToolbar from './RulesRegulationsToolbar.vue';
 import AddRuleModal from './AddRuleModal.vue';
 
 const { t } = useI18n();
@@ -135,7 +135,8 @@ const table = useDataTable({
 
 onMounted(() => {
   table.fetch();
-  setBreadcrumbSlot(RulesBreadcrumbToolbar, {
+  setBreadcrumbSlot(RulesRegulationsToolbar, {
+    table,
     onImport: onImportRules,
     onExport: onExportRules,
     onTrash: onTrashRules,
@@ -191,8 +192,8 @@ function onDeleteClick(row: Record<string, unknown>) {
 
 <template>
   <div class="grid grid-cols-12 gap-2 p-2">
-    <div class="col-span-12">
-        <BaseTable
+    <div class="col-span-12 space-y-3">
+      <BaseTable
           :table="table"
           :selectable="false"
           :export-enabled="table.exportEnabled"

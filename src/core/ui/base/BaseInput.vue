@@ -55,6 +55,8 @@ const props = withDefaults(
      * برای شماره موبایل با کیبورد فارسی/انگلیسی.
      */
     digitDisplay?: 'none' | 'persian';
+    /** لیبل کوچک‌تر (~۳۰٪ از text-sm)؛ مثلاً داخل کارت فیلتر */
+    compactLabel?: boolean;
   }>(),
   {
     type: 'text',
@@ -65,6 +67,7 @@ const props = withDefaults(
     trimOnBlur: true,
     inputDir: undefined,
     digitDisplay: 'none',
+    compactLabel: false,
   }
 );
 
@@ -109,6 +112,10 @@ function onBlurTrim(e: Event) {
 const textareaMinHeightClass = computed(() =>
   props.rows <= 2 ? 'min-h-[2.75rem]' : 'min-h-[4.5rem]'
 );
+
+const labelTextClass = computed(() =>
+  props.compactLabel ? 'text-[0.6125rem]' : 'text-sm'
+);
 </script>
 
 <template>
@@ -117,7 +124,7 @@ const textareaMinHeightClass = computed(() =>
     :data-autofocus-modal="autofocus ? '' : undefined"
   >
     <label v-if="label" class="label min-h-0 py-1">
-      <span class="label-text text-sm font-normal leading-snug">{{ label }} <span v-if="required" class="text-error">*</span></span>
+      <span :class="['label-text', labelTextClass, 'font-normal leading-snug']">{{ label }} <span v-if="required" class="text-error">*</span></span>
     </label>
     <InputText
       v-if="type !== 'textarea'"
@@ -128,7 +135,7 @@ const textareaMinHeightClass = computed(() =>
       :placeholder="placeholder"
       :disabled="disabled"
       :dir="inputDir"
-      class="input input-bordered w-full !h-8 !min-h-0 py-1.5 px-2.5 text-xs font-light leading-snug placeholder:font-light placeholder:text-slate-400 dark:placeholder:text-slate-500"
+      class="input input-bordered w-full !h-8 !min-h-0 py-1.5 px-2.5 text-xs font-light leading-snug placeholder:text-[0.65em] placeholder:font-light placeholder:text-slate-400 dark:placeholder:text-slate-500"
       :class="{ 'input-error': errorMessage }"
       :pt="autofocus ? { root: { autofocus: true } } : undefined"
       @blur="onBlurTrim"
@@ -140,7 +147,7 @@ const textareaMinHeightClass = computed(() =>
       :disabled="disabled"
       :rows="rows"
       :dir="inputDir"
-      class="textarea textarea-bordered w-full !min-h-0 py-1.5 px-2.5 text-xs font-light leading-snug placeholder:font-light placeholder:text-slate-400 dark:placeholder:text-slate-500"
+      class="textarea textarea-bordered w-full !min-h-0 py-1.5 px-2.5 text-xs font-light leading-snug placeholder:text-[0.65em] placeholder:font-light placeholder:text-slate-400 dark:placeholder:text-slate-500"
       :class="[textareaMinHeightClass, { 'textarea-error': errorMessage }]"
       :pt="autofocus ? { root: { autofocus: true } } : undefined"
       @blur="onBlurTrim"

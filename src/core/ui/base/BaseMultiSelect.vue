@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { computed } from 'vue';
 import { useField } from 'vee-validate';
 import MultiSelect from 'primevue/multiselect';
 
@@ -10,8 +11,10 @@ const props = withDefaults(
     placeholder?: string;
     required?: boolean;
     disabled?: boolean;
+    /** لیبل کوچک‌تر (~۳۰٪ از text-sm)؛ مثلاً داخل کارت فیلتر */
+    compactLabel?: boolean;
   }>(),
-  { options: () => [], required: false, disabled: false }
+  { options: () => [], required: false, disabled: false, compactLabel: false }
 );
 
 const emit = defineEmits<{
@@ -32,12 +35,16 @@ function onUpdate(v: unknown) {
   emit('update:modelValue', next);
   emit('change', next);
 }
+
+const labelTextClass = computed(() =>
+  props.compactLabel ? 'text-[0.6125rem]' : 'text-sm'
+);
 </script>
 
 <template>
   <div class="form-control w-full base-multiselect-wrap">
     <label v-if="label" class="label min-h-0 py-1">
-      <span class="label-text text-sm font-normal leading-snug">{{ label }} <span v-if="required" class="text-error">*</span></span>
+      <span :class="['label-text', labelTextClass, 'font-normal leading-snug']">{{ label }} <span v-if="required" class="text-error">*</span></span>
     </label>
     <MultiSelect
       :model-value="value ?? []"
@@ -116,6 +123,7 @@ function onUpdate(v: unknown) {
 <style>
 .base-multiselect-overlay-panel.p-multiselect-overlay {
   box-sizing: border-box;
+  z-index: 1200 !important;
 }
 
 .base-multiselect-overlay-panel .p-multiselect-option {

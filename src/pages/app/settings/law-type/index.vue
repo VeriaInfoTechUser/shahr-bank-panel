@@ -6,6 +6,7 @@ import { useDataTable, createColumn, type FetchFn } from '@core';
 import BaseTable from '@core/ui/base/BaseTable.vue';
 import BaseConfirmModal from '@core/ui/base/BaseConfirmModal.vue';
 import { ermRepo } from '@/core/repositories/ermRepo';
+import { invalidateRuleTypeOptionsCache } from '@/core/erm/ruleAuthorTypeOptionsCache';
 import { useBreadcrumbSlot } from '@/composables/useBreadcrumb';
 import { useGlobalModal } from '@/composables/useGlobalModal';
 import Button from '@/base-components/Button';
@@ -66,6 +67,7 @@ function onAddLawType() {
     component: LawTypeFormModal,
     props: {},
     onSuccess: () => {
+      invalidateRuleTypeOptionsCache();
       table.invalidateListCache();
       void table.fetch();
     },
@@ -86,6 +88,7 @@ function onEditLawType(row: Record<string, unknown>) {
     component: LawTypeFormModal,
     props: { record: row },
     onSuccess: () => {
+      invalidateRuleTypeOptionsCache();
       table.invalidateListCache();
       void table.fetch();
     },
@@ -111,6 +114,7 @@ function onDeleteLawType(row: Record<string, unknown>) {
       },
     },
     onSuccess: () => {
+      invalidateRuleTypeOptionsCache();
       table.invalidateListCache();
       void table.fetch();
     },

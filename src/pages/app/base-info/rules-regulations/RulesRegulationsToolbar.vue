@@ -1,0 +1,192 @@
+<script setup lang="ts">
+import { computed, nextTick, onUnmounted, ref, watch } from 'vue';
+import { useElementBounding, onClickOutside, useEventListener } from '@vueuse/core';
+import { useI18n } from 'vue-i18n';
+import Lucide from '@/base-components/Lucide';
+import RulesRegulationsFilterPanel from './RulesRegulationsFilterPanel.vue';
+
+defineProps<{
+  onImport?: () => void;
+  onExport?: () => void;
+  onTrash?: () => void;
+  onAdd?: () => void;
+  table: {
+    replaceFilters: (f: Record<string, unknown>) => void;
+    clearFilters: () => void;
+  };
+}>();
+
+const { t } = useI18n();
+
+const filterOpen = ref(false);
+const filterBtnRef = ref<HTMLElement | null>(null);
+const popoverRef = ref<HTMLElement | null>(null);
+
+const bound = useElementBounding(filterBtnRef, { windowScroll: true, windowResize: true });
+
+const popoverStyle = computed(() => {
+  const margin = 8;
+  const maxW = Math.min(28 * 16, window.innerWidth - 2 * margin);
+  let leftPos = bound.left.value;
+  if (leftPos + maxW > window.innerWidth - margin) {
+    leftPos = Math.max(margin, window.innerWidth - margin - maxW);
+  }
+  if (leftPos < margin) leftPos = margin;
+  return {
+    position: 'fixed' as const,
+    top: `${bound.bottom.value + margin}px`,
+    left: `${leftPos}px`,
+    width: `${maxW}px`,
+    zIndex: 1100,
+  };
+});
+
+function toggleFilter() {
+  filterOpen.value = !filterOpen.value;
+}
+
+function closeFilter() {
+  filterOpen.value = false;
+}
+
+let stopClickOutside: (() => void) | undefined;
+
+watch(filterOpen, (open) => {
+  stopClickOutside?.();
+  stopClickOutside = undefined;
+  if (open) {
+    void nextTick(() => {
+      bound.update();
+      stopClickOutside = onClickOutside(
+        popoverRef,
+        () => {
+          closeFilter();
+        },
+        {
+          ignore: [
+            filterBtnRef,
+            /* پنل‌های append-to=body پرایم‌وی؛ وگرنه کلیک روی آیتم = outside و کارت بسته می‌شود */
+            '.base-select-overlay-panel',
+            '.base-multiselect-overlay-panel',
+            '.p-select-overlay',
+            '.p-multiselect-overlay',
+          ],
+        }
+      );
+    });
+  }
+});
+
+onUnmounted(() => {
+  stopClickOutside?.();
+});
+
+useEventListener(document, 'keydown', (e: KeyboardEvent) => {
+  if (e.key === 'Escape' && filterOpen.value) closeFilter();
+});
+</script>
+
+<template>
+  <!-- چپ→راست: افزودن، سطل، ایمپورت، اکسپورت، فیلتر -->
+  <div class="relative flex flex-shrink-0 items-center gap-1.5" dir="ltr">
+    <button
+      type="button"
+      class="inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-md border border-primary bg-primary text-white shadow-sm transition hover:opacity-90 dark:border-primary dark:bg-primary dark:hover:opacity-90"
+      aria-label="Add"
+      title="Add"
+      @click="onAdd?.()"
+    >
+      <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="12" y1="5" x2="12" y2="19" />
+        <line x1="5" y1="12" x2="19" y2="12" />
+      </svg>
+    </button>
+    <button
+      type="button"
+      class="inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-md border border-slate-200 bg-white text-slate-600 shadow-sm transition hover:bg-red-50 hover:text-red-600 dark:border-darkmode-600 dark:bg-darkmode-800 dark:text-slate-300 dark:hover:bg-darkmode-700 dark:hover:text-red-400"
+      :aria-label="t('rule.toolbar-trash-to-deleted')"
+      :title="t('rule.toolbar-trash-to-deleted')"
+      @click="onTrash?.()"
+    >
+      <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="3 6 5 6 21 6" />
+        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+        <line x1="10" y1="11" x2="10" y2="17" />
+        <line x1="14" y1="11" x2="14" y2="17" />
+      </svg>
+    </button>
+    <button
+      type="button"
+      class="inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-md border border-slate-200 bg-white text-slate-600 shadow-sm transition hover:bg-slate-50 hover:text-slate-800 dark:border-darkmode-600 dark:bg-darkmode-800 dark:text-slate-300 dark:hover:bg-darkmode-700 dark:hover:text-slate-100"
+      aria-label="Import"
+      title="Import"
+      @click="onImport?.()"
+    >
+      <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+        <polyline points="17 8 12 3 7 8" />
+        <line x1="12" y1="3" x2="12" y2="15" />
+      </svg>
+    </button>
+    <button
+      type="button"
+      class="inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-md border border-slate-200 bg-white text-slate-600 shadow-sm transition hover:bg-slate-50 hover:text-slate-800 dark:border-darkmode-600 dark:bg-darkmode-800 dark:text-slate-300 dark:hover:bg-darkmode-700 dark:hover:text-slate-100"
+      aria-label="Export"
+      title="Export"
+      @click="onExport?.()"
+    >
+      <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+        <polyline points="7 10 12 15 17 10" />
+        <line x1="12" y1="15" x2="12" y2="3" />
+      </svg>
+    </button>
+    <button
+      ref="filterBtnRef"
+      type="button"
+      class="inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-md border border-slate-200 bg-white text-slate-600 shadow-sm transition hover:bg-slate-50 hover:text-primary dark:border-darkmode-600 dark:bg-darkmode-800 dark:text-slate-300 dark:hover:bg-darkmode-700 dark:hover:text-primary"
+      :aria-label="t('rule.toolbar-filter')"
+      :aria-expanded="filterOpen"
+      :title="t('rule.toolbar-filter')"
+      @click="toggleFilter"
+    >
+      <Lucide icon="Filter" class="h-4 w-4" />
+    </button>
+
+    <Teleport to="body">
+      <Transition name="rules-filter-pop">
+        <div
+          v-if="filterOpen"
+          class="fixed inset-0 z-[1099] bg-slate-900/10 dark:bg-black/25"
+          aria-hidden="true"
+          @click="closeFilter"
+        />
+      </Transition>
+      <Transition name="rules-filter-pop">
+        <div
+          v-if="filterOpen"
+          ref="popoverRef"
+          class="max-h-[min(70vh,32rem)] overflow-y-auto overscroll-contain rounded-xl border border-slate-200/90 bg-white p-4 shadow-xl dark:border-darkmode-600 dark:bg-darkmode-800 dark:shadow-[0_12px_40px_rgba(0,0,0,0.35)]"
+          :style="popoverStyle"
+          role="dialog"
+          aria-modal="true"
+          :aria-label="t('rule.filter-panel-title')"
+          @click.stop
+        >
+          <RulesRegulationsFilterPanel :table="table" />
+        </div>
+      </Transition>
+    </Teleport>
+  </div>
+</template>
+
+<style scoped>
+.rules-filter-pop-enter-active,
+.rules-filter-pop-leave-active {
+  transition: opacity 0.15s ease;
+}
+.rules-filter-pop-enter-from,
+.rules-filter-pop-leave-to {
+  opacity: 0;
+}
+</style>

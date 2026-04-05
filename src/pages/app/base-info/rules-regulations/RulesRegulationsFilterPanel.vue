@@ -1,0 +1,274 @@
+<script setup lang="ts">
+import { computed, ref, onMounted } from 'vue';
+import { Form } from 'vee-validate';
+import { useI18n } from 'vue-i18n';
+import { toast } from 'vue3-toastify';
+import BaseInput from '@/core/ui/base/BaseInput.vue';
+import BaseMultiSelect from '@/core/ui/base/BaseMultiSelect.vue';
+import BaseSelect from '@/core/ui/base/BaseSelect.vue';
+import BaseDatePicker from '@/core/ui/base/BaseDatePicker.vue';
+import Button from '@/base-components/Button';
+import { ermRepo } from '@/core/repositories/ermRepo';
+import {
+  DROPDOWN_LIST_PARAMS,
+  fetchRuleAuthorListCached,
+  fetchRuleTypeListCached,
+} from '@/core/erm/ruleAuthorTypeOptionsCache';
+import RulesRegulationsFilterAutoApply from './RulesRegulationsFilterAutoApply.vue';
+
+const props = withDefaults(
+  defineProps<{
+    /** اگر ست شود، اعمال/پاک با جدول همگام می‌شود */
+    table?: {
+      replaceFilters: (f: Record<string, unknown>) => void;
+      clearFilters: () => void;
+    } | null;
+  }>(),
+  {
+    table: null,
+  }
+);
+
+const emit = defineEmits<{
+  (e: 'apply', payload: Record<string, unknown>): void;
+  (e: 'clear'): void;
+}>();
+
+const { t } = useI18n();
+
+const optionsLoading = ref(true);
+const formKey = ref(0);
+const categoryOptions = ref<{ value: string; label: string }[]>([]);
+const typeOptions = ref<{ value: string; label: string }[]>([]);
+const authorOptions = ref<{ value: string; label: string }[]>([]);
+
+const formId = 'rules-regulations-filter-form';
+
+const initialValues = {
+  rule: '',
+  code: '',
+  author: [] as string[],
+  category: [] as string[],
+  type: [] as string[],
+  /** خالی = بدون فیلتر؛ '1' دارد؛ '0' ندارد */
+  requirement_select: '' as string,
+  validity_select: '' as string,
+  promulgation_at_from: '',
+  data_from: '',
+  data_to: '',
+};
+
+const requirementFilterOptions = computed(() => [
+  { value: '', label: t('rule.filter-option-any') },
+  { value: '1', label: t('rule.requirement-yes') },
+  { value: '0', label: t('rule.requirement-no') },
+]);
+
+const validityFilterOptions = computed(() => [
+  { value: '', label: t('rule.filter-option-any') },
+  { value: '1', label: t('rule.validity-active') },
+  { value: '0', label: t('rule.validity-inactive') },
+]);
+
+function normalizeList(res: unknown): { value: string; label: string }[] {
+  if (Array.isArray(res)) {
+    return res
+      .map((item) => {
+        const row = item as Record<string, unknown>;
+        const value = String(row.value ?? row.slug ?? row.id ?? '');
+        const label = String(row.title ?? row.name ?? value);
+        return { value, label };
+      })
+      .filter((x) => x.value);
+  }
+  const r = res as { data?: { list?: unknown[] } | unknown[] };
+  let list: unknown[] = [];
+  const d = r?.data;
+  if (Array.isArray(d)) list = d;
+  else if (
+    d &&
+    typeof d === 'object' &&
+    'list' in d &&
+    Array.isArray((d as { list: unknown[] }).list)
+  ) {
+    list = (d as { list: unknown[] }).list;
+  }
+  return list
+    .map((item) => {
+      const row = item as Record<string, unknown>;
+      const value = String(row.value ?? row.slug ?? row.id ?? '');
+      const label = String(row.title ?? row.name ?? value);
+      return { value, label };
+    })
+    .filter((x) => x.value);
+}
+
+async function loadOptions() {
+  optionsLoading.value = true;
+  try {
+    const [catRes, typeRes, authorRes] = await Promise.all([
+      ermRepo.ruleCategoryList(DROPDOWN_LIST_PARAMS),
+      fetchRuleTypeListCached(ermRepo),
+      fetchRuleAuthorListCached(ermRepo),
+    ]);
+    categoryOptions.value = normalizeList(catRes);
+    typeOptions.value = normalizeList(typeRes);
+    authorOptions.value = normalizeList(authorRes);
+  } catch {
+    toast(t('rule.form-load-options-error'), { type: 'error' });
+    categoryOptions.value = [];
+    typeOptions.value = [];
+    authorOptions.value = [];
+  } finally {
+    optionsLoading.value = false;
+  }
+}
+
+onMounted(() => {
+  void loadOptions();
+});
+
+function buildPayload(values: Record<string, unknown>): Record<string, unknown> {
+  const o: Record<string, unknown> = {};
+  const rule = String(values.rule ?? '').trim();
+  if (rule) o.rule = rule;
+  const code = String(values.code ?? '').trim();
+  if (code) o.code = code;
+  const author = values.author as string[] | undefined;
+  if (author?.length) o.author = author;
+  const category = values.category as string[] | undefined;
+  if (category?.length) o.category = category;
+  const type = values.type as string[] | undefined;
+  if (type?.length) o.type = type;
+  const rq = String(values.requirement_select ?? '').trim();
+  if (rq === '1') o.requirement = 1;
+  else if (rq === '0') o.requirement = 0;
+  const vl = String(values.validity_select ?? '').trim();
+  if (vl === '1') o.validity = 1;
+  else if (vl === '0') o.validity = 0;
+  const prom = String(values.promulgation_at_from ?? '').trim();
+  if (prom) o.promulgation_at_from = prom;
+  const df = String(values.data_from ?? '').trim();
+  if (df) o.data_from = df;
+  const dt = String(values.data_to ?? '').trim();
+  if (dt) o.data_to = dt;
+  return o;
+}
+
+function onAutoApply(payload: Record<string, unknown>) {
+  if (props.table) {
+    props.table.replaceFilters(payload);
+  } else {
+    emit('apply', payload);
+  }
+}
+
+function onReset() {
+  formKey.value += 1;
+  if (props.table) {
+    props.table.clearFilters();
+  } else {
+    emit('clear');
+  }
+}
+</script>
+
+<template>
+  <div>
+    <div
+      v-if="optionsLoading"
+      class="py-6 text-center text-xs text-slate-500 dark:text-slate-400"
+    >
+      {{ t('general.loading') }}
+    </div>
+    <Form
+      v-else
+      :id="formId"
+      :key="formKey"
+      class="space-y-3"
+      :initial-values="initialValues"
+      as="div"
+    >
+      <RulesRegulationsFilterAutoApply
+        :build-payload="buildPayload"
+        @apply="onAutoApply"
+      />
+      <div class="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
+        <div class="col-span-full md:col-span-2 lg:col-span-3">
+          <BaseInput
+            name="rule"
+            compact-label
+            :label="t('rule.filter-field-rule')"
+          />
+        </div>
+        <BaseInput
+          name="code"
+          compact-label
+          :label="t('rule.filter-field-code')"
+          input-dir="ltr"
+        />
+        <BaseMultiSelect
+          name="author"
+          compact-label
+          :label="t('rule.filter-field-author')"
+          :options="authorOptions"
+          placeholder=""
+          :disabled="authorOptions.length === 0"
+        />
+        <BaseMultiSelect
+          name="category"
+          compact-label
+          :label="t('rule.filter-field-category')"
+          :options="categoryOptions"
+          placeholder=""
+          :disabled="categoryOptions.length === 0"
+        />
+        <BaseMultiSelect
+          name="type"
+          compact-label
+          :label="t('rule.filter-field-type')"
+          :options="typeOptions"
+          placeholder=""
+          :disabled="typeOptions.length === 0"
+        />
+        <BaseSelect
+          name="requirement_select"
+          compact-label
+          :label="t('rule.form-requirement')"
+          :options="requirementFilterOptions"
+          placeholder=""
+        />
+        <BaseSelect
+          name="validity_select"
+          compact-label
+          :label="t('rule.validity')"
+          :options="validityFilterOptions"
+          placeholder=""
+        />
+        <BaseDatePicker
+          name="promulgation_at_from"
+          compact-label
+          :label="t('rule.filter-date-promulgation')"
+          placeholder=""
+        />
+        <BaseDatePicker
+          name="data_from"
+          compact-label
+          :label="t('rule.filter-date-data-from')"
+          placeholder=""
+        />
+        <BaseDatePicker
+          name="data_to"
+          compact-label
+          :label="t('rule.filter-date-data-to')"
+          placeholder=""
+        />
+      </div>
+      <div class="flex flex-wrap justify-end gap-2 border-t border-slate-100 pt-3 dark:border-darkmode-700">
+        <Button type="button" variant="outline-secondary" size="sm" @click="onReset">
+          {{ t('rule.filter-reset') }}
+        </Button>
+      </div>
+    </Form>
+  </div>
+</template>

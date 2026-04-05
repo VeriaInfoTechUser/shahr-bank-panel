@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { Ref } from 'vue';
 import { computed, nextTick, onUnmounted, ref, watch } from 'vue';
 import { useElementBounding, onClickOutside, useEventListener } from '@vueuse/core';
 import { useI18n } from 'vue-i18n';
@@ -13,6 +14,7 @@ defineProps<{
   table: {
     replaceFilters: (f: Record<string, unknown>) => void;
     clearFilters: () => void;
+    filters: Ref<Record<string, unknown>> | Record<string, unknown>;
   };
 }>();
 

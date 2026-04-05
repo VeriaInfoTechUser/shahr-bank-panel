@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { computed, ref, onMounted } from 'vue';
+import type { Ref } from 'vue';
+import { computed, ref, onMounted, toValue } from 'vue';
 import { Form } from 'vee-validate';
 import { useI18n } from 'vue-i18n';
 import { toast } from 'vue3-toastify';
@@ -22,6 +23,8 @@ const props = withDefaults(
     table?: {
       replaceFilters: (f: Record<string, unknown>) => void;
       clearFilters: () => void;
+      /** وضعیت فعلی فیلتر جدول؛ با بسته شدن پاپ‌آور برای مقداردهی مجدد فرم لازم است */
+      filters?: Ref<Record<string, unknown>> | Record<string, unknown>;
     } | null;
   }>(),
   {
@@ -44,19 +47,39 @@ const authorOptions = ref<{ value: string; label: string }[]>([]);
 
 const formId = 'rules-regulations-filter-form';
 
-const initialValues = {
-  rule: '',
-  code: '',
-  author: [] as string[],
-  category: [] as string[],
-  type: [] as string[],
-  /** خالی = بدون فیلتر؛ '1' دارد؛ '0' ندارد */
-  requirement_select: '' as string,
-  validity_select: '' as string,
-  promulgation_at_from: '',
-  data_from: '',
-  data_to: '',
-};
+/** معکوس buildPayload — مقداردهی فرم از فیلترهای ذخیره‌شده در جدول (بعد از بستن پنل) */
+function apiFiltersToFormValues(f: Record<string, unknown> | undefined | null) {
+  const x = f ?? {};
+  const requirement = x.requirement;
+  const validity = x.validity;
+  return {
+    rule: String(x.rule ?? ''),
+    code: String(x.code ?? ''),
+    author: Array.isArray(x.author) ? (x.author as unknown[]).map(String) : [],
+    category: Array.isArray(x.category) ? (x.category as unknown[]).map(String) : [],
+    type: Array.isArray(x.type) ? (x.type as unknown[]).map(String) : [],
+    requirement_select:
+      requirement === 1 || requirement === true
+        ? '1'
+        : requirement === 0 || requirement === false
+          ? '0'
+          : '',
+    validity_select:
+      validity === 1 || validity === true
+        ? '1'
+        : validity === 0 || validity === false
+          ? '0'
+          : '',
+    promulgation_at_from:
+      x.promulgation_at_from != null ? String(x.promulgation_at_from) : '',
+    data_from: x.data_from != null ? String(x.data_from) : '',
+    data_to: x.data_to != null ? String(x.data_to) : '',
+  };
+}
+
+const formInitialValues = computed(() =>
+  apiFiltersToFormValues(toValue(props.table?.filters) ?? {})
+);
 
 const requirementFilterOptions = computed(() => [
   { value: '', label: t('rule.filter-option-any') },
@@ -186,7 +209,7 @@ function onReset() {
       :id="formId"
       :key="formKey"
       class="space-y-3"
-      :initial-values="initialValues"
+      :initial-values="formInitialValues"
       as="div"
     >
       <RulesRegulationsFilterAutoApply

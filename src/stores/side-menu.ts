@@ -100,7 +100,7 @@ export const useSideMenuStore = defineStore("sideMenu", {
                         title: "menu.settings-guide",
                     },
                     {
-                        icon: "Link2",
+                        icon: "Users",
                         pageName: "app-settings-liaisons",
                         title: "menu.settings-liaisons",
                     },

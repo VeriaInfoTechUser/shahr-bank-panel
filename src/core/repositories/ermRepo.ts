@@ -59,6 +59,19 @@ export class ErmRepo extends BaseRepo {
     return this.post<RuleListResponse>(endpoints.admin.erm.member.list, params);
   }
 
+  async memberAdd(payload: Record<string, unknown>) {
+    return this.post<ApiResult<unknown>>(endpoints.admin.erm.member.add, payload);
+  }
+
+  async memberUpdate(payload: Record<string, unknown>) {
+    return this.post<ApiResult<unknown>>(endpoints.admin.erm.member.update, payload);
+  }
+
+  /** لیست نقش‌های ERM — `POST erm/role/list` */
+  async roleList(params: RuleListParams = {}) {
+    return this.post<RuleListResponse>(endpoints.admin.erm.role.list, params);
+  }
+
   /** جزئیات رابط شامل `user_log` و `user_inventory` — payload: `{ user_id }` */
   async memberView(payload: { user_id: number }) {
     return this.post<ApiResult<Record<string, unknown>>>(

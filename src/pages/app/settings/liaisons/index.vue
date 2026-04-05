@@ -11,7 +11,7 @@ import { useGlobalModal } from '@/composables/useGlobalModal';
 import Button from '@/base-components/Button';
 import Lucide from '@/base-components/Lucide';
 import SettingsExportToolbar from '../SettingsExportToolbar.vue';
-import SettingsPlaceholderModal from '../SettingsPlaceholderModal.vue';
+import MemberAddModal from './MemberAddModal.vue';
 import MemberLogsModal from './MemberLogsModal.vue';
 import MemberChangePasswordModal from './MemberChangePasswordModal.vue';
 
@@ -159,13 +159,26 @@ onMounted(() => {
 
 function onAddMember() {
   openModal({
-    component: SettingsPlaceholderModal,
-    props: { titleKey: 'settings-page.add-member' },
+    component: MemberAddModal,
+    props: {},
+    onSuccess: () => {
+      table.invalidateListCache();
+      void table.fetch();
+    },
   });
 }
 
 function onEditMember(row: Record<string, unknown>) {
-  console.log('Edit member', row);
+  const uid = Number(row.id);
+  if (!Number.isFinite(uid) || uid <= 0) return;
+  openModal({
+    component: MemberAddModal,
+    props: { mode: 'edit' as const, member: row },
+    onSuccess: () => {
+      table.invalidateListCache();
+      void table.fetch();
+    },
+  });
 }
 
 function onChangePasswordMember(row: Record<string, unknown>) {

@@ -25,7 +25,7 @@ const pending = ref(false);
 
 function analyzePassword(p: string) {
   return {
-    len8: p.length >= 8,
+    len12: p.length >= 12,
     lower: /[a-z]/.test(p),
     upper: /[A-Z]/.test(p),
     digit: /[0-9]/.test(p),
@@ -35,7 +35,7 @@ function analyzePassword(p: string) {
 
 function isPasswordValid(p: string): boolean {
   const c = analyzePassword(p);
-  return c.len8 && c.lower && c.upper && c.digit && c.special;
+  return c.len12 && c.lower && c.upper && c.digit && c.special;
 }
 
 const validationSchema = computed(() =>
@@ -141,15 +141,15 @@ const onValidSubmit = handleSubmit(async (formValues) => {
           <li
             class="flex items-start gap-2"
             :class="
-              checks.len8
+              checks.len12
                 ? 'text-emerald-700 dark:text-emerald-400/95'
                 : 'text-slate-600 dark:text-slate-300'
             "
           >
             <Lucide
-              :icon="checks.len8 ? 'Check' : 'Circle'"
+              :icon="checks.len12 ? 'Check' : 'Circle'"
               class="mt-0.5 h-3.5 w-3.5 shrink-0"
-              :class="checks.len8 ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-300 dark:text-slate-500'"
+              :class="checks.len12 ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-300 dark:text-slate-500'"
               aria-hidden="true"
             />
             <span>{{ t('settings-page.liaisons-password-hint-1') }}</span>

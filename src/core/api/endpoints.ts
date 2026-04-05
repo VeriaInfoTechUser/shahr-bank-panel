@@ -83,9 +83,14 @@ export const endpoints = {
       member: {
         list: 'erm/member/list',
         view: 'erm/member/view',
+        add: 'erm/member/add',
+        update: 'erm/member/update',
         status: 'erm/member/status',
         delete: 'erm/member/delete',
         password: 'erm/member/password',
+      },
+      role: {
+        list: 'erm/role/list',
       },
       ruleAuthor: {
         list: 'erm/rule/author/list',

@@ -4,6 +4,33 @@ import { useField } from 'vee-validate';
 import InputText from 'primevue/inputtext';
 import Textarea from 'primevue/textarea';
 
+const PERSIAN_DIGITS = '۰۱۲۳۴۵۶۷۸۹';
+const ARABIC_INDIC_DIGITS = '٠١٢٣٤٥٦٧٨٩';
+
+/** ارقام فارسی/عربی را به لاتین؛ بقیهٔ نویسه‌ها دست‌نخورده (مثلاً + و فاصله). */
+function normalizeDigitsToLatin(raw: string): string {
+  let out = '';
+  for (const ch of raw) {
+    const pi = PERSIAN_DIGITS.indexOf(ch);
+    if (pi >= 0) {
+      out += String(pi);
+      continue;
+    }
+    const ai = ARABIC_INDIC_DIGITS.indexOf(ch);
+    if (ai >= 0) {
+      out += String(ai);
+      continue;
+    }
+    out += ch;
+  }
+  return out;
+}
+
+function latinDigitsToPersianDisplay(raw: string): string {
+  if (!raw) return '';
+  return raw.replace(/[0-9]/g, (d) => PERSIAN_DIGITS[Number(d)]);
+}
+
 const props = withDefaults(
   defineProps<{
     name: string;
@@ -21,6 +48,13 @@ const props = withDefaults(
      * برای `number` / `range` اعمال نمی‌شود.
      */
     trimOnBlur?: boolean;
+    /** فقط روی فیلد ورودی؛ برای موبایل/ایمیل در UI راست‌به‌چپ بدون برهم‌زدن لیبل */
+    inputDir?: 'ltr' | 'rtl' | 'auto';
+    /**
+     * `persian`: مقدار فرم و اعتبارسنجی همیشه لاتین؛ نمایش ورودی با ارقام فارسی.
+     * برای شماره موبایل با کیبورد فارسی/انگلیسی.
+     */
+    digitDisplay?: 'none' | 'persian';
   }>(),
   {
     type: 'text',
@@ -29,10 +63,30 @@ const props = withDefaults(
     rows: 3,
     autofocus: false,
     trimOnBlur: true,
+    inputDir: undefined,
+    digitDisplay: 'none',
   }
 );
 
-const { value, errorMessage, handleBlur, handleChange, setValue } = useField(props.name);
+const { value, errorMessage, handleBlur, setValue } = useField(props.name);
+
+/** برای `digitDisplay="persian"`: نمایش فارسی، ذخیرهٔ لاتین در vee-validate */
+const textFieldModel = computed({
+  get() {
+    const v = value.value;
+    if (props.digitDisplay !== 'persian') {
+      return v == null ? '' : String(v);
+    }
+    return typeof v === 'string' ? latinDigitsToPersianDisplay(v) : '';
+  },
+  set(next: string) {
+    if (props.digitDisplay !== 'persian') {
+      setValue(next, true);
+      return;
+    }
+    setValue(normalizeDigitsToLatin(String(next ?? '')), true);
+  },
+});
 
 const shouldTrimOnBlur = computed(() => {
   if (!props.trimOnBlur) return false;
@@ -67,29 +121,29 @@ const textareaMinHeightClass = computed(() =>
     </label>
     <InputText
       v-if="type !== 'textarea'"
-      v-model="value"
+      v-model="textFieldModel"
       :type="type"
       :min="min"
       :max="max"
       :placeholder="placeholder"
       :disabled="disabled"
+      :dir="inputDir"
       class="input input-bordered w-full !h-8 !min-h-0 py-1.5 px-2.5 text-xs font-light leading-snug placeholder:font-light placeholder:text-slate-400 dark:placeholder:text-slate-500"
       :class="{ 'input-error': errorMessage }"
       :pt="autofocus ? { root: { autofocus: true } } : undefined"
       @blur="onBlurTrim"
-      @input="handleChange"
     />
     <Textarea
       v-else
-      v-model="value"
+      v-model="textFieldModel"
       :placeholder="placeholder"
       :disabled="disabled"
       :rows="rows"
+      :dir="inputDir"
       class="textarea textarea-bordered w-full !min-h-0 py-1.5 px-2.5 text-xs font-light leading-snug placeholder:font-light placeholder:text-slate-400 dark:placeholder:text-slate-500"
       :class="[textareaMinHeightClass, { 'textarea-error': errorMessage }]"
       :pt="autofocus ? { root: { autofocus: true } } : undefined"
       @blur="onBlurTrim"
-      @input="handleChange"
     />
     <label v-if="errorMessage" class="label min-h-0 py-0 pt-0.5">
       <span class="label-text-alt text-error text-xs">{{ errorMessage }}</span>

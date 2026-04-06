@@ -14,6 +14,9 @@ let authorCache: unknown | null = null;
 let typeInflight: Promise<unknown> | null = null;
 let typeCache: unknown | null = null;
 
+let categoryInflight: Promise<unknown> | null = null;
+let categoryCache: unknown | null = null;
+
 export async function fetchRuleAuthorListCached(ermRepo: ErmRepo): Promise<unknown> {
   if (authorCache !== null) return authorCache;
   if (!authorInflight) {
@@ -46,6 +49,23 @@ export async function fetchRuleTypeListCached(ermRepo: ErmRepo): Promise<unknown
   return typeInflight;
 }
 
+/** `POST erm/rule/category/list` — یک بار در نشست پنل؛ درخواست‌های هم‌زمان به همان Promise وصل می‌شوند */
+export async function fetchRuleCategoryListCached(ermRepo: ErmRepo): Promise<unknown> {
+  if (categoryCache !== null) return categoryCache;
+  if (!categoryInflight) {
+    categoryInflight = ermRepo
+      .ruleCategoryList({ ...DROPDOWN_LIST_PARAMS })
+      .then((res) => {
+        categoryCache = res;
+        return res;
+      })
+      .finally(() => {
+        categoryInflight = null;
+      });
+  }
+  return categoryInflight;
+}
+
 export function invalidateRuleAuthorOptionsCache(): void {
   authorCache = null;
   authorInflight = null;
@@ -54,4 +74,9 @@ export function invalidateRuleAuthorOptionsCache(): void {
 export function invalidateRuleTypeOptionsCache(): void {
   typeCache = null;
   typeInflight = null;
+}
+
+export function invalidateRuleCategoryOptionsCache(): void {
+  categoryCache = null;
+  categoryInflight = null;
 }

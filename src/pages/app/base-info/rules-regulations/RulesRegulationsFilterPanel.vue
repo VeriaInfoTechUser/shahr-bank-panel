@@ -12,6 +12,7 @@ import { ermRepo } from '@/core/repositories/ermRepo';
 import {
   DROPDOWN_LIST_PARAMS,
   fetchRuleAuthorListCached,
+  fetchRuleCategoryListCached,
   fetchRuleTypeListCached,
 } from '@/core/erm/ruleAuthorTypeOptionsCache';
 import RulesRegulationsFilterAutoApply from './RulesRegulationsFilterAutoApply.vue';
@@ -131,7 +132,7 @@ async function loadOptions() {
   optionsLoading.value = true;
   try {
     const [catRes, typeRes, authorRes] = await Promise.all([
-      ermRepo.ruleCategoryList(DROPDOWN_LIST_PARAMS),
+      fetchRuleCategoryListCached(ermRepo),
       fetchRuleTypeListCached(ermRepo),
       fetchRuleAuthorListCached(ermRepo),
     ]);

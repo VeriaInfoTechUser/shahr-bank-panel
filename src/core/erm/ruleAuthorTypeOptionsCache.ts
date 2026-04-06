@@ -17,6 +17,9 @@ let typeCache: unknown | null = null;
 let categoryInflight: Promise<unknown> | null = null;
 let categoryCache: unknown | null = null;
 
+let lightListInflight: Promise<unknown> | null = null;
+let lightListCache: unknown | null = null;
+
 export async function fetchRuleAuthorListCached(ermRepo: ErmRepo): Promise<unknown> {
   if (authorCache !== null) return authorCache;
   if (!authorInflight) {
@@ -66,6 +69,23 @@ export async function fetchRuleCategoryListCached(ermRepo: ErmRepo): Promise<unk
   return categoryInflight;
 }
 
+/** `POST erm/rule/light-list` — لیست سبک `{ id, rule }` برای دراپ‌داون‌ها */
+export async function fetchRuleLightListCached(ermRepo: ErmRepo): Promise<unknown> {
+  if (lightListCache !== null) return lightListCache;
+  if (!lightListInflight) {
+    lightListInflight = ermRepo
+      .ruleLightList({ ...DROPDOWN_LIST_PARAMS })
+      .then((res) => {
+        lightListCache = res;
+        return res;
+      })
+      .finally(() => {
+        lightListInflight = null;
+      });
+  }
+  return lightListInflight;
+}
+
 export function invalidateRuleAuthorOptionsCache(): void {
   authorCache = null;
   authorInflight = null;
@@ -79,4 +99,9 @@ export function invalidateRuleTypeOptionsCache(): void {
 export function invalidateRuleCategoryOptionsCache(): void {
   categoryCache = null;
   categoryInflight = null;
+}
+
+export function invalidateRuleLightListCache(): void {
+  lightListCache = null;
+  lightListInflight = null;
 }

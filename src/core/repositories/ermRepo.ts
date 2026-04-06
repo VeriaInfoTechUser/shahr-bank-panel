@@ -26,6 +26,11 @@ export class ErmRepo extends BaseRepo {
     return this.post<RuleListResponse>(endpoints.admin.erm.rule.list, params);
   }
 
+  /** `POST erm/rule/light-list` — آیتم‌ها معمولاً فقط `id` و `rule` */
+  async ruleLightList(params: RuleListParams) {
+    return this.post<RuleListResponse>(endpoints.admin.erm.rule.lightList, params);
+  }
+
   async addRule(payload: Record<string, unknown>) {
     return this.post<ApiResult<unknown>>(endpoints.admin.erm.rule.add, payload);
   }

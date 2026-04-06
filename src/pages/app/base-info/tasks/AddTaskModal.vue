@@ -10,6 +10,7 @@ import BaseSelect from '@/core/ui/base/BaseSelect.vue';
 import BaseMultiSelect from '@/core/ui/base/BaseMultiSelect.vue';
 import Button from '@/base-components/Button';
 import { ermRepo } from '@/core/repositories/ermRepo';
+import { fetchRuleLightListCached } from '@/core/erm/ruleAuthorTypeOptionsCache';
 
 type TaskRow = Record<string, unknown>;
 type Option = { value: string; label: string };
@@ -249,7 +250,7 @@ async function loadOptions() {
     const [domainRes, warrantyRes, rulesRes, mandatoryRes] = await Promise.all([
       ermRepo.domainTree(listParams),
       ermRepo.warrantyList(listParams),
-      ermRepo.list(listParams),
+      fetchRuleLightListCached(ermRepo),
       ermRepo.mandatoryUnitList(listParams),
     ]);
 
@@ -262,18 +263,13 @@ async function loadOptions() {
 
     warrantyRows.value = extractErmList(warrantyRes);
     warrantyOptions.value = mapWarrantyRowsToOptions(warrantyRows.value);
-    const rulesData = (rulesRes as { data?: { list?: unknown[] } | unknown[] })?.data;
-    const rulesList = Array.isArray(rulesData)
-      ? rulesData
-      : (rulesData && typeof rulesData === 'object' && 'list' in rulesData && Array.isArray((rulesData as { list: unknown[] }).list))
-        ? (rulesData as { list: unknown[] }).list
-        : [];
+    const rulesList = extractErmList(rulesRes);
     ruleOptions.value = rulesList
       .map((item) => {
         const row = item as Record<string, unknown>;
         return {
-          value: String(row.id ?? row.value ?? row.slug ?? ''),
-          label: String(row.rule ?? row.title ?? row.name ?? row.id ?? ''),
+          value: String(row.id ?? ''),
+          label: String(row.rule ?? row.id ?? ''),
         };
       })
       .filter((x) => x.value);

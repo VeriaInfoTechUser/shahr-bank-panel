@@ -7,6 +7,7 @@ import { useDataTable, createColumn, type FetchFn } from '@core';
 import BaseTable from '@core/ui/base/BaseTable.vue';
 import BaseConfirmModal from '@core/ui/base/BaseConfirmModal.vue';
 import { ermRepo } from '@/core/repositories/ermRepo';
+import { invalidateRuleLightListCache } from '@/core/erm/ruleAuthorTypeOptionsCache';
 import { useBreadcrumbSlot } from '@/composables/useBreadcrumb';
 import { useGlobalModal } from '@/composables/useGlobalModal';
 import Button from '@/base-components/Button';
@@ -150,6 +151,7 @@ function onAddRule() {
   openModal({
     component: AddRuleModal,
     onSuccess: () => {
+      invalidateRuleLightListCache();
       table.invalidateListCache();
       table.setPage(1);
     },
@@ -181,6 +183,7 @@ function onEditClick(row: Record<string, unknown>) {
       rule: row,
     },
     onSuccess: () => {
+      invalidateRuleLightListCache();
       table.invalidateListCache();
       table.setPage(1);
     },
@@ -209,6 +212,7 @@ function onDeleteClick(row: Record<string, unknown>) {
       },
     },
     onSuccess: () => {
+      invalidateRuleLightListCache();
       table.invalidateListCache();
       void table.fetch();
     },

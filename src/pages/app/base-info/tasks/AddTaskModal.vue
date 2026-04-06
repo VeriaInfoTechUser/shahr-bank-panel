@@ -10,7 +10,12 @@ import BaseSelect from '@/core/ui/base/BaseSelect.vue';
 import BaseMultiSelect from '@/core/ui/base/BaseMultiSelect.vue';
 import Button from '@/base-components/Button';
 import { ermRepo } from '@/core/repositories/ermRepo';
-import { fetchRuleLightListCached } from '@/core/erm/ruleAuthorTypeOptionsCache';
+import {
+  fetchDomainTreeCached,
+  fetchMandatoryUnitListCached,
+  fetchRuleLightListCached,
+  fetchWarrantyListCached,
+} from '@/core/erm/ruleAuthorTypeOptionsCache';
 
 type TaskRow = Record<string, unknown>;
 type Option = { value: string; label: string };
@@ -246,12 +251,11 @@ function buildInitialValues() {
 async function loadOptions() {
   optionsLoading.value = true;
   try {
-    const listParams = { page: 1, limit: 500, api_version: 8 };
     const [domainRes, warrantyRes, rulesRes, mandatoryRes] = await Promise.all([
-      ermRepo.domainTree(listParams),
-      ermRepo.warrantyList(listParams),
+      fetchDomainTreeCached(ermRepo),
+      fetchWarrantyListCached(ermRepo),
       fetchRuleLightListCached(ermRepo),
-      ermRepo.mandatoryUnitList(listParams),
+      fetchMandatoryUnitListCached(ermRepo),
     ]);
 
     const domainData = (domainRes as { data?: unknown[] })?.data;

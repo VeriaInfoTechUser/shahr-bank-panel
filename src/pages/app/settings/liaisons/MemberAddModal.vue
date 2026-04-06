@@ -10,6 +10,7 @@ import BaseMultiSelect from '@/core/ui/base/BaseMultiSelect.vue';
 import Button from '@/base-components/Button';
 import Lucide from '@/base-components/Lucide';
 import { ermRepo } from '@/core/repositories/ermRepo';
+import { fetchMandatoryUnitListCached } from '@/core/erm/ruleAuthorTypeOptionsCache';
 
 type Option = { value: string; label: string };
 
@@ -295,7 +296,7 @@ async function loadOptions() {
     } else {
       const [rolesRes, mandatoryRes] = await Promise.all([
         ermRepo.roleList(listParams),
-        ermRepo.mandatoryUnitList(listParams),
+        fetchMandatoryUnitListCached(ermRepo),
       ]);
       mapRoleListResponse(rolesRes);
       mandatoryUnitsRaw.value = extractErmList(mandatoryRes);

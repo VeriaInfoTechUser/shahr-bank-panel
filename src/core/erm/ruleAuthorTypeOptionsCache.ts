@@ -20,6 +20,15 @@ let categoryCache: unknown | null = null;
 let lightListInflight: Promise<unknown> | null = null;
 let lightListCache: unknown | null = null;
 
+let domainTreeInflight: Promise<unknown> | null = null;
+let domainTreeCache: unknown | null = null;
+
+let warrantyListInflight: Promise<unknown> | null = null;
+let warrantyListCache: unknown | null = null;
+
+let mandatoryUnitListInflight: Promise<unknown> | null = null;
+let mandatoryUnitListCache: unknown | null = null;
+
 export async function fetchRuleAuthorListCached(ermRepo: ErmRepo): Promise<unknown> {
   if (authorCache !== null) return authorCache;
   if (!authorInflight) {
@@ -86,6 +95,57 @@ export async function fetchRuleLightListCached(ermRepo: ErmRepo): Promise<unknow
   return lightListInflight;
 }
 
+/** `POST erm/domain/tree` */
+export async function fetchDomainTreeCached(ermRepo: ErmRepo): Promise<unknown> {
+  if (domainTreeCache !== null) return domainTreeCache;
+  if (!domainTreeInflight) {
+    domainTreeInflight = ermRepo
+      .domainTree({ ...DROPDOWN_LIST_PARAMS })
+      .then((res) => {
+        domainTreeCache = res;
+        return res;
+      })
+      .finally(() => {
+        domainTreeInflight = null;
+      });
+  }
+  return domainTreeInflight;
+}
+
+/** `POST erm/warranty/list` */
+export async function fetchWarrantyListCached(ermRepo: ErmRepo): Promise<unknown> {
+  if (warrantyListCache !== null) return warrantyListCache;
+  if (!warrantyListInflight) {
+    warrantyListInflight = ermRepo
+      .warrantyList({ ...DROPDOWN_LIST_PARAMS })
+      .then((res) => {
+        warrantyListCache = res;
+        return res;
+      })
+      .finally(() => {
+        warrantyListInflight = null;
+      });
+  }
+  return warrantyListInflight;
+}
+
+/** `POST erm/mandatory-unit/list` */
+export async function fetchMandatoryUnitListCached(ermRepo: ErmRepo): Promise<unknown> {
+  if (mandatoryUnitListCache !== null) return mandatoryUnitListCache;
+  if (!mandatoryUnitListInflight) {
+    mandatoryUnitListInflight = ermRepo
+      .mandatoryUnitList({ ...DROPDOWN_LIST_PARAMS })
+      .then((res) => {
+        mandatoryUnitListCache = res;
+        return res;
+      })
+      .finally(() => {
+        mandatoryUnitListInflight = null;
+      });
+  }
+  return mandatoryUnitListInflight;
+}
+
 export function invalidateRuleAuthorOptionsCache(): void {
   authorCache = null;
   authorInflight = null;
@@ -104,4 +164,26 @@ export function invalidateRuleCategoryOptionsCache(): void {
 export function invalidateRuleLightListCache(): void {
   lightListCache = null;
   lightListInflight = null;
+}
+
+export function invalidateDomainTreeCache(): void {
+  domainTreeCache = null;
+  domainTreeInflight = null;
+}
+
+export function invalidateWarrantyListCache(): void {
+  warrantyListCache = null;
+  warrantyListInflight = null;
+}
+
+export function invalidateMandatoryUnitListCache(): void {
+  mandatoryUnitListCache = null;
+  mandatoryUnitListInflight = null;
+}
+
+/** پس از افزودن/ویرایش/حذف در مدیریت حوزه، نوع تعهد یا واحدهای اجباری — صدا بزنید تا دراپ‌داون‌ها دوباره از API پر شوند */
+export function invalidateDomainWarrantyMandatoryCaches(): void {
+  invalidateDomainTreeCache();
+  invalidateWarrantyListCache();
+  invalidateMandatoryUnitListCache();
 }

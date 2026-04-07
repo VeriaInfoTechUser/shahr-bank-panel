@@ -18,6 +18,7 @@ export const COMPLIANCE_OPS_FILTER_PARAM_LABEL_KEYS: Record<
 > = {
   title: TASK_FILTER_PARAM_LABEL_KEYS.title,
   enforcer: TASK_FILTER_PARAM_LABEL_KEYS.enforcer,
+  level: TASK_FILTER_PARAM_LABEL_KEYS.level,
   code: TASK_FILTER_PARAM_LABEL_KEYS.code,
   rule_id: TASK_FILTER_PARAM_LABEL_KEYS.rule_id,
   warranty_id: TASK_FILTER_PARAM_LABEL_KEYS.warranty_id,

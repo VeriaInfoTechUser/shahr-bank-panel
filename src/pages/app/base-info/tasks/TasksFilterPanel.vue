@@ -19,6 +19,10 @@ import {
 import TasksFilterAutoApply from './TasksFilterAutoApply.vue';
 import TasksFilterDomainSectionReset from './TasksFilterDomainSectionReset.vue';
 import TasksFilterDomainSectionFields from './TasksFilterDomainSectionFields.vue';
+import {
+  COMPLIANCE_PROGRESS_LEVEL_FILTER_VALUES,
+  COMPLIANCE_PROGRESS_LEVEL_LABEL_KEYS,
+} from '@/composables/complianceProgressLevelFilterOptions';
 
 type DomainNode = Record<string, unknown> & { children?: DomainNode[] };
 type Option = { value: string; label: string };
@@ -136,6 +140,19 @@ const domainOptions = computed<Option[]>(() =>
   })).filter((x) => x.value)
 );
 
+const levelFilterOptions = computed<Option[]>(() => {
+  const opts: Option[] = [
+    { value: '', label: t('rule.filter-option-any') },
+  ];
+  for (const v of COMPLIANCE_PROGRESS_LEVEL_FILTER_VALUES) {
+    opts.push({
+      value: v,
+      label: t(COMPLIANCE_PROGRESS_LEVEL_LABEL_KEYS[v]),
+    });
+  }
+  return opts;
+});
+
 function apiFiltersToFormValues(f: Record<string, unknown> | undefined | null) {
   const x = f ?? {};
   const splitCsv = (v: unknown): string[] => {
@@ -154,6 +171,7 @@ function apiFiltersToFormValues(f: Record<string, unknown> | undefined | null) {
   return {
     title: String(x.title ?? ''),
     enforcer_ids: splitCsv(x.enforcer),
+    level: x.level != null && String(x.level).trim() !== '' ? String(x.level).trim() : '',
     code: String(x.code ?? ''),
     rule_ids: splitCsv(x.rule_id),
     warranty_ids: splitCsv(x.warranty_id),
@@ -230,6 +248,8 @@ function buildPayload(values: Record<string, unknown>): Record<string, unknown> 
   if (title) o.title = title;
   const enforcerIds = values.enforcer_ids as string[] | undefined;
   if (enforcerIds?.length) o.enforcer = enforcerIds.join(',');
+  const levelVal = String(values.level ?? '').trim();
+  if (levelVal) o.level = levelVal;
   const code = String(values.code ?? '').trim();
   if (code) o.code = code;
 
@@ -308,6 +328,16 @@ function onAutoApply(payload: Record<string, unknown>) {
             :options="memberLightOptions"
             placeholder=""
             :disabled="memberLightOptions.length === 0"
+          />
+        </div>
+        <div class="w-full">
+          <BaseSelect
+            name="level"
+            compact-label
+            :label="t('compliance-page.col-status')"
+            :options="levelFilterOptions"
+            placeholder=""
+            :filter="true"
           />
         </div>
         <div

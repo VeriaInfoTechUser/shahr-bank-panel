@@ -43,6 +43,7 @@ watchDebounced(
 
 const nonTextFilterSlice = computed(() => ({
   enforcer_ids: values.value.enforcer_ids,
+  level: values.value.level,
   rule_ids: values.value.rule_ids,
   warranty_ids: values.value.warranty_ids,
   section_ids: values.value.section_ids,

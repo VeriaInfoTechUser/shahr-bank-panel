@@ -198,6 +198,8 @@ onMounted(() => {
   table.invalidateListCache();
   table.fetch();
   setBreadcrumbSlot(TasksBreadcrumbToolbar, {
+    table,
+    onImport: onImportTasks,
     onExport: onExportTasks,
     onAdd: onAddTask,
   });
@@ -263,6 +265,11 @@ function onAddTask() {
       table.setPage(1);
     },
   });
+}
+
+function onImportTasks() {
+  // TODO: دیالوگ ایمپورت / انتخاب فایل
+  console.log('Import tasks');
 }
 
 function onExportTasks() {

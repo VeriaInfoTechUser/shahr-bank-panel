@@ -74,6 +74,11 @@ export class ErmRepo extends BaseRepo {
     return this.post<RuleListResponse>(endpoints.admin.erm.member.list, params);
   }
 
+  /** لیست سبک رابطین — `POST erm/member/light-list` */
+  async memberLightList(params: RuleListParams) {
+    return this.post<RuleListResponse>(endpoints.admin.erm.member.lightList, params);
+  }
+
   async memberAdd(payload: Record<string, unknown>) {
     return this.post<ApiResult<unknown>>(endpoints.admin.erm.member.add, payload);
   }

@@ -1,11 +1,15 @@
 <script setup lang="ts">
-import { nextTick, onMounted, ref, watch } from 'vue';
+import { computed, nextTick, onMounted, ref, watch } from 'vue';
 import { useFormValues } from 'vee-validate';
 import { watchDebounced } from '@vueuse/core';
 
-const props = defineProps<{
-  buildPayload: (v: Record<string, unknown>) => Record<string, unknown>;
-}>();
+const props = withDefaults(
+  defineProps<{
+    buildPayload: (v: Record<string, unknown>) => Record<string, unknown>;
+    includeMandatoryUnit?: boolean;
+  }>(),
+  { includeMandatoryUnit: true }
+);
 
 const emit = defineEmits<{
   (e: 'apply', payload: Record<string, unknown>): void;
@@ -37,15 +41,18 @@ watchDebounced(
   { debounce: 450 }
 );
 
+const nonTextFilterSlice = computed(() => ({
+  enforcer_ids: values.value.enforcer_ids,
+  rule_ids: values.value.rule_ids,
+  warranty_ids: values.value.warranty_ids,
+  section_ids: values.value.section_ids,
+  ...(props.includeMandatoryUnit ? { mandatory_unit_ids: values.value.mandatory_unit_ids } : {}),
+  data_from: values.value.data_from,
+  data_to: values.value.data_to,
+}));
+
 watch(
-  () => ({
-    rule_ids: values.value.rule_ids,
-    warranty_ids: values.value.warranty_ids,
-    section_ids: values.value.section_ids,
-    mandatory_unit_ids: values.value.mandatory_unit_ids,
-    data_from: values.value.data_from,
-    data_to: values.value.data_to,
-  }),
+  nonTextFilterSlice,
   () => emitIfReady(),
   { deep: true }
 );

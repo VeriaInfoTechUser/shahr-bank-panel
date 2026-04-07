@@ -1,6 +1,7 @@
 /** کلیدهای API فیلتر تعهدات — ترتیب نمایش بج‌ها */
 export const TASK_FILTER_PARAM_ORDER = [
   'title',
+  'enforcer',
   'code',
   'rule_id',
   'warranty_id',
@@ -15,6 +16,7 @@ export type TaskFilterParamKey = (typeof TASK_FILTER_PARAM_ORDER)[number];
 /** کلید i18n برای عنوان بج هر پارامتر */
 export const TASK_FILTER_PARAM_LABEL_KEYS: Record<TaskFilterParamKey, string> = {
   title: 'task.filter-field-title',
+  enforcer: 'task.filter-field-liaison',
   code: 'task.code',
   rule_id: 'task.filter-field-rule',
   warranty_id: 'task.filter-field-warranty',

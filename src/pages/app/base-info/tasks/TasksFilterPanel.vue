@@ -12,6 +12,7 @@ import { ermRepo } from '@/core/repositories/ermRepo';
 import {
   fetchDomainTreeCached,
   fetchMandatoryUnitListCached,
+  fetchMemberLightListCached,
   fetchRuleLightListCached,
   fetchWarrantyListCached,
 } from '@/core/erm/ruleAuthorTypeOptionsCache';
@@ -30,10 +31,12 @@ const props = withDefaults(
       filters?: Ref<Record<string, unknown>> | Record<string, unknown>;
     } | null;
     toolbarClearTick?: number;
+    includeMandatoryUnit?: boolean;
   }>(),
   {
     table: null,
     toolbarClearTick: 0,
+    includeMandatoryUnit: true,
   }
 );
 
@@ -49,8 +52,11 @@ const domainTree = ref<DomainNode[]>([]);
 const ruleOptions = ref<Option[]>([]);
 const warrantyOptions = ref<Option[]>([]);
 const mandatoryUnitOptions = ref<Option[]>([]);
+const memberLightOptions = ref<Option[]>([]);
 
-const formId = 'tasks-filter-form';
+const formId = computed(() =>
+  props.includeMandatoryUnit ? 'tasks-filter-form' : 'compliance-ops-filter-form'
+);
 
 function extractErmList(res: unknown): Record<string, unknown>[] {
   if (Array.isArray(res)) return res as Record<string, unknown>[];
@@ -110,6 +116,19 @@ function mapMandatoryRows(rows: Record<string, unknown>[]): Option[] {
     .filter((x): x is Option => x != null);
 }
 
+function mapMemberLightRows(rows: Record<string, unknown>[]): Option[] {
+  return rows
+    .map((m) => {
+      const id = m.id ?? m.user_id;
+      if (id == null) return null;
+      const label =
+        [m.name, m.full_name, m.email, m.mobile]
+          .find((x) => typeof x === 'string' && String(x).trim()) ?? String(id);
+      return { value: String(id), label: String(label).trim() };
+    })
+    .filter((x): x is Option => x != null);
+}
+
 const domainOptions = computed<Option[]>(() =>
   domainTree.value.map((d) => ({
     value: String(d.id ?? ''),
@@ -134,12 +153,13 @@ function apiFiltersToFormValues(f: Record<string, unknown> | undefined | null) {
 
   return {
     title: String(x.title ?? ''),
+    enforcer_ids: splitCsv(x.enforcer),
     code: String(x.code ?? ''),
     rule_ids: splitCsv(x.rule_id),
     warranty_ids: splitCsv(x.warranty_id),
     standard_id: x.standard_id != null && x.standard_id !== '' ? String(x.standard_id) : '',
     section_ids: splitCsv(x.section_id),
-    mandatory_unit_ids: mandatoryIds,
+    mandatory_unit_ids: props.includeMandatoryUnit ? mandatoryIds : [],
     data_from: x.data_from != null ? String(x.data_from) : '',
     data_to: x.data_to != null ? String(x.data_to) : '',
   };
@@ -152,23 +172,41 @@ const formInitialValues = computed(() =>
 async function loadOptions() {
   optionsLoading.value = true;
   try {
-    const [domainRes, rulesRes, warrantyRes, mandatoryRes] = await Promise.all([
-      fetchDomainTreeCached(ermRepo),
-      fetchRuleLightListCached(ermRepo),
-      fetchWarrantyListCached(ermRepo),
-      fetchMandatoryUnitListCached(ermRepo),
-    ]);
-    const domainData = parseDomainTreeData(domainRes);
-    domainTree.value = domainData;
-    ruleOptions.value = mapLightRules(rulesRes);
-    warrantyOptions.value = mapWarrantyRows(extractErmList(warrantyRes));
-    mandatoryUnitOptions.value = mapMandatoryRows(extractErmList(mandatoryRes));
+    if (props.includeMandatoryUnit) {
+      const [domainRes, rulesRes, warrantyRes, mandatoryRes, membersRes] = await Promise.all([
+        fetchDomainTreeCached(ermRepo),
+        fetchRuleLightListCached(ermRepo),
+        fetchWarrantyListCached(ermRepo),
+        fetchMandatoryUnitListCached(ermRepo),
+        fetchMemberLightListCached(ermRepo),
+      ]);
+      const domainData = parseDomainTreeData(domainRes);
+      domainTree.value = domainData;
+      ruleOptions.value = mapLightRules(rulesRes);
+      warrantyOptions.value = mapWarrantyRows(extractErmList(warrantyRes));
+      mandatoryUnitOptions.value = mapMandatoryRows(extractErmList(mandatoryRes));
+      memberLightOptions.value = mapMemberLightRows(extractErmList(membersRes));
+    } else {
+      const [domainRes, rulesRes, warrantyRes, membersRes] = await Promise.all([
+        fetchDomainTreeCached(ermRepo),
+        fetchRuleLightListCached(ermRepo),
+        fetchWarrantyListCached(ermRepo),
+        fetchMemberLightListCached(ermRepo),
+      ]);
+      const domainData = parseDomainTreeData(domainRes);
+      domainTree.value = domainData;
+      ruleOptions.value = mapLightRules(rulesRes);
+      warrantyOptions.value = mapWarrantyRows(extractErmList(warrantyRes));
+      mandatoryUnitOptions.value = [];
+      memberLightOptions.value = mapMemberLightRows(extractErmList(membersRes));
+    }
   } catch {
     toast(t('rule.form-load-options-error'), { type: 'error' });
     domainTree.value = [];
     ruleOptions.value = [];
     warrantyOptions.value = [];
     mandatoryUnitOptions.value = [];
+    memberLightOptions.value = [];
   } finally {
     optionsLoading.value = false;
   }
@@ -190,6 +228,8 @@ function buildPayload(values: Record<string, unknown>): Record<string, unknown> 
   const o: Record<string, unknown> = {};
   const title = String(values.title ?? '').trim();
   if (title) o.title = title;
+  const enforcerIds = values.enforcer_ids as string[] | undefined;
+  if (enforcerIds?.length) o.enforcer = enforcerIds.join(',');
   const code = String(values.code ?? '').trim();
   if (code) o.code = code;
 
@@ -208,8 +248,10 @@ function buildPayload(values: Record<string, unknown>): Record<string, unknown> 
   const sectionIds = values.section_ids as string[] | undefined;
   if (sectionIds?.length) o.section_id = sectionIds.join(',');
 
-  const mu = values.mandatory_unit_ids as string[] | undefined;
-  if (mu?.length) o.mandatory_unit = mu;
+  if (props.includeMandatoryUnit) {
+    const mu = values.mandatory_unit_ids as string[] | undefined;
+    if (mu?.length) o.mandatory_unit = mu;
+  }
 
   const df = String(values.data_from ?? '').trim();
   if (df) o.data_from = df;
@@ -245,13 +287,27 @@ function onAutoApply(payload: Record<string, unknown>) {
       as="div"
     >
       <TasksFilterDomainSectionReset />
-      <TasksFilterAutoApply :build-payload="buildPayload" @apply="onAutoApply" />
+      <TasksFilterAutoApply
+        :build-payload="buildPayload"
+        :include-mandatory-unit="includeMandatoryUnit"
+        @apply="onAutoApply"
+      />
       <div class="space-y-3">
         <div class="w-full">
           <BaseInput
             name="title"
             compact-label
             :label="t('task.filter-field-title')"
+          />
+        </div>
+        <div class="w-full">
+          <BaseMultiSelect
+            name="enforcer_ids"
+            compact-label
+            :label="t('task.filter-field-liaison')"
+            :options="memberLightOptions"
+            placeholder=""
+            :disabled="memberLightOptions.length === 0"
           />
         </div>
         <div
@@ -278,6 +334,7 @@ function onAutoApply(payload: Record<string, unknown>) {
             :domain-options="domainOptions"
           />
           <BaseMultiSelect
+            v-if="includeMandatoryUnit"
             name="mandatory_unit_ids"
             compact-label
             :label="t('task.filter-field-mandatory-unit')"

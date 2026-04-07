@@ -29,6 +29,9 @@ let warrantyListCache: unknown | null = null;
 let mandatoryUnitListInflight: Promise<unknown> | null = null;
 let mandatoryUnitListCache: unknown | null = null;
 
+let memberLightListInflight: Promise<unknown> | null = null;
+let memberLightListCache: unknown | null = null;
+
 export async function fetchRuleAuthorListCached(ermRepo: ErmRepo): Promise<unknown> {
   if (authorCache !== null) return authorCache;
   if (!authorInflight) {
@@ -129,6 +132,23 @@ export async function fetchWarrantyListCached(ermRepo: ErmRepo): Promise<unknown
   return warrantyListInflight;
 }
 
+/** `POST erm/member/light-list` — لیست سبک رابطین برای فیلترها */
+export async function fetchMemberLightListCached(ermRepo: ErmRepo): Promise<unknown> {
+  if (memberLightListCache !== null) return memberLightListCache;
+  if (!memberLightListInflight) {
+    memberLightListInflight = ermRepo
+      .memberLightList({ ...DROPDOWN_LIST_PARAMS })
+      .then((res) => {
+        memberLightListCache = res;
+        return res;
+      })
+      .finally(() => {
+        memberLightListInflight = null;
+      });
+  }
+  return memberLightListInflight;
+}
+
 /** `POST erm/mandatory-unit/list` */
 export async function fetchMandatoryUnitListCached(ermRepo: ErmRepo): Promise<unknown> {
   if (mandatoryUnitListCache !== null) return mandatoryUnitListCache;
@@ -179,6 +199,11 @@ export function invalidateWarrantyListCache(): void {
 export function invalidateMandatoryUnitListCache(): void {
   mandatoryUnitListCache = null;
   mandatoryUnitListInflight = null;
+}
+
+export function invalidateMemberLightListCache(): void {
+  memberLightListCache = null;
+  memberLightListInflight = null;
 }
 
 /** پس از افزودن/ویرایش/حذف در مدیریت حوزه، نوع تعهد یا واحدهای اجباری — صدا بزنید تا دراپ‌داون‌ها دوباره از API پر شوند */

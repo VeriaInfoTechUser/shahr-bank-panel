@@ -86,6 +86,7 @@ export const endpoints = {
       },
       member: {
         list: 'erm/member/list',
+        lightList: 'erm/member/light-list',
         view: 'erm/member/view',
         add: 'erm/member/add',
         update: 'erm/member/update',

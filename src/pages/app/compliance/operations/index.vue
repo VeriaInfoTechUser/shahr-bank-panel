@@ -6,7 +6,7 @@ import { useDataTable, createColumn, type FetchFn } from '@core';
 import BaseTable from '@core/ui/base/BaseTable.vue';
 import { ermRepo } from '@/core/repositories/ermRepo';
 import { useBreadcrumbSlot } from '@/composables/useBreadcrumb';
-import SettingsExportToolbar from '@/pages/app/settings/SettingsExportToolbar.vue';
+import ComplianceOperationsBreadcrumbToolbar from './ComplianceOperationsBreadcrumbToolbar.vue';
 import ComplianceOperationsStatusModal from './ComplianceOperationsStatusModal.vue';
 import { useGlobalModal } from '@/composables/useGlobalModal';
 import { complianceOperationsStatusBadgeClass } from '@/composables/complianceOperationsStatusBadge';
@@ -258,7 +258,8 @@ onMounted(() => {
   syncReferenceFilterFromRoute();
   table.invalidateListCache();
   table.fetch();
-  setBreadcrumbSlot(SettingsExportToolbar, {
+  setBreadcrumbSlot(ComplianceOperationsBreadcrumbToolbar, {
+    table,
     onExport: () => table.exportCSV(),
   });
 });

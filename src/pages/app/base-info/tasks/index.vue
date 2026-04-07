@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n';
+import { toast } from 'vue3-toastify';
 import { computed, onMounted, watch } from 'vue';
 import { RouterLink, useRoute, useRouter } from 'vue-router';
 import { useDataTable, createColumn, type FetchFn } from '@core';
 import BaseTable from '@core/ui/base/BaseTable.vue';
+import BaseConfirmModal from '@core/ui/base/BaseConfirmModal.vue';
 import { ermRepo } from '@/core/repositories/ermRepo';
 import { useBreadcrumbSlot } from '@/composables/useBreadcrumb';
 import { useGlobalModal } from '@/composables/useGlobalModal';
@@ -197,7 +199,6 @@ onMounted(() => {
   table.fetch();
   setBreadcrumbSlot(TasksBreadcrumbToolbar, {
     onExport: onExportTasks,
-    onTrash: onTrashTasks,
     onAdd: onAddTask,
   });
 });
@@ -225,7 +226,31 @@ function onEditTask(row: Record<string, unknown>) {
 }
 
 function onDeleteTask(row: Record<string, unknown>) {
-  console.log('Delete task', row);
+  openModal({
+    component: BaseConfirmModal,
+    props: {
+      titleKey: 'task.delete-confirm-title',
+      messageKey: 'task.delete-confirm-message',
+      confirmVariant: 'danger' as const,
+      onConfirmAction: async () => {
+        const id = row.id;
+        if (id == null) {
+          toast(t('task.delete-error'), { type: 'error' });
+          throw new Error('missing id');
+        }
+        const res = await ermRepo.taskDelete({ id });
+        if (!res?.result) {
+          const msg = String(res?.error?.message ?? t('task.delete-error'));
+          toast(msg, { type: 'error' });
+          throw new Error(msg);
+        }
+      },
+    },
+    onSuccess: () => {
+      table.invalidateListCache();
+      void table.fetch();
+    },
+  });
 }
 
 function onAddTask() {
@@ -242,12 +267,6 @@ function onAddTask() {
 
 function onExportTasks() {
   table.exportCSV();
-}
-
-function onTrashTasks() {
-  const selected = table.selectedRows.value;
-  if (selected.length === 0) return;
-  console.log('Delete selected', selected.length, selected);
 }
 </script>
 
@@ -278,7 +297,7 @@ function onTrashTasks() {
     <div class="col-span-12">
       <BaseTable
           :table="table"
-          :selectable="true"
+          :selectable="false"
           :export-enabled="table.exportEnabled"
           :empty-message="t('general.no-data')"
           :actions="true"

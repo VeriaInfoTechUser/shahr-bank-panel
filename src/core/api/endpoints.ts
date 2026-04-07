@@ -62,6 +62,7 @@ export const endpoints = {
         get: 'erm/task/get',
         add: 'erm/task/add',
         edit: 'erm/task/edit',
+        delete: 'erm/task/delete',
       },
       domain: {
         tree: 'erm/domain/tree',

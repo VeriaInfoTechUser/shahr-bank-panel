@@ -216,7 +216,10 @@
     "file": "ملف",
     "attachment": "مرفق",
     "delete": "حذف",
-    "edit": "تعديل"
+    "edit": "تعديل",
+    "delete-confirm-title": "حذف الالتزام",
+    "delete-confirm-message": "هل أنت متأكد من حذف هذا الالتزام؟",
+    "delete-error": "تعذر حذف الالتزام."
   },
   "menu": {
     "reset-password": "إعادة تعيين كلمة المرور",

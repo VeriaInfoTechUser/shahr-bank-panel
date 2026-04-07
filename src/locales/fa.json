@@ -364,7 +364,10 @@
     "file": "فایل",
     "attachment": "فایل ضمیمه",
     "delete": "حذف",
-    "edit": "ویرایش"
+    "edit": "ویرایش",
+    "delete-confirm-title": "حذف تعهد",
+    "delete-confirm-message": "آیا از حذف این تعهد اطمینان دارید؟",
+    "delete-error": "حذف تعهد انجام نشد."
   },
   "menu": {
     "searchcomments": "جستجوی نظرات",

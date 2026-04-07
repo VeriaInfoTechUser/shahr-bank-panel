@@ -60,6 +60,11 @@ export class ErmRepo extends BaseRepo {
     return this.post<ApiResult<unknown>>(endpoints.admin.erm.task.edit, payload);
   }
 
+  /** payload: `{ id }` — POST `erm/task/delete` */
+  async taskDelete(payload: { id: number | string }) {
+    return this.post<ApiResult<unknown>>(endpoints.admin.erm.task.delete, payload);
+  }
+
   /** payload: `{ id: taskId }` */
   async taskGet(payload: { id: number }) {
     return this.post<unknown>(endpoints.admin.erm.task.get, payload);

@@ -32,6 +32,9 @@ let mandatoryUnitListCache: unknown | null = null;
 let memberLightListInflight: Promise<unknown> | null = null;
 let memberLightListCache: unknown | null = null;
 
+let riskResponseTypeListInflight: Promise<unknown> | null = null;
+let riskResponseTypeListCache: unknown | null = null;
+
 export async function fetchRuleAuthorListCached(ermRepo: ErmRepo): Promise<unknown> {
   if (authorCache !== null) return authorCache;
   if (!authorInflight) {
@@ -149,6 +152,23 @@ export async function fetchMemberLightListCached(ermRepo: ErmRepo): Promise<unkn
   return memberLightListInflight;
 }
 
+/** همان پارامتر مودال ریسک — `POST erm/risk/response-type/list` */
+export async function fetchRiskResponseTypeListCached(ermRepo: ErmRepo): Promise<unknown> {
+  if (riskResponseTypeListCache !== null) return riskResponseTypeListCache;
+  if (!riskResponseTypeListInflight) {
+    riskResponseTypeListInflight = ermRepo
+      .riskResponseTypeList({ page: 1, limit: 50 })
+      .then((res) => {
+        riskResponseTypeListCache = res;
+        return res;
+      })
+      .finally(() => {
+        riskResponseTypeListInflight = null;
+      });
+  }
+  return riskResponseTypeListInflight;
+}
+
 /** `POST erm/mandatory-unit/list` */
 export async function fetchMandatoryUnitListCached(ermRepo: ErmRepo): Promise<unknown> {
   if (mandatoryUnitListCache !== null) return mandatoryUnitListCache;
@@ -204,6 +224,11 @@ export function invalidateMandatoryUnitListCache(): void {
 export function invalidateMemberLightListCache(): void {
   memberLightListCache = null;
   memberLightListInflight = null;
+}
+
+export function invalidateRiskResponseTypeListCache(): void {
+  riskResponseTypeListCache = null;
+  riskResponseTypeListInflight = null;
 }
 
 /** پس از افزودن/ویرایش/حذف در مدیریت حوزه، نوع تعهد یا واحدهای اجباری — صدا بزنید تا دراپ‌داون‌ها دوباره از API پر شوند */

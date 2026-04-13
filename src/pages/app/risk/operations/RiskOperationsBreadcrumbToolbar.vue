@@ -217,6 +217,9 @@ useEventListener(document, 'keydown', (e: KeyboardEvent) => {
             :toolbar-clear-tick="filterToolbarClearTick"
             :include-mandatory-unit="false"
             :include-compliance-enforcer="true"
+            :include-risk-response-type="true"
+            :include-warranty-domain-section="false"
+            :include-risk-intensity-range="true"
           />
         </div>
       </Transition>

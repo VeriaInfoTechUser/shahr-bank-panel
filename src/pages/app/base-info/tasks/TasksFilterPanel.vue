@@ -12,12 +12,14 @@ import {
   fetchDomainTreeCached,
   fetchMandatoryUnitListCached,
   fetchMemberLightListCached,
+  fetchRiskResponseTypeListCached,
   fetchRuleLightListCached,
   fetchWarrantyListCached,
 } from '@/core/erm/ruleAuthorTypeOptionsCache';
 import TasksFilterAutoApply from './TasksFilterAutoApply.vue';
 import TasksFilterDomainSectionReset from './TasksFilterDomainSectionReset.vue';
 import TasksFilterDomainSectionFields from './TasksFilterDomainSectionFields.vue';
+import TasksFilterRiskIntensityRange from './TasksFilterRiskIntensityRange.vue';
 import {
   COMPLIANCE_PROGRESS_LEVEL_FILTER_VALUES,
   COMPLIANCE_PROGRESS_LEVEL_LABEL_KEYS,
@@ -39,6 +41,14 @@ const props = withDefaults(
     includeComplianceEnforcer?: boolean;
     /** تعهدات (اطلاعات پایه): بدون فیلتر رابط (`enforcer`) */
     includeEnforcer?: boolean;
+    /** تعهدات (اطلاعات پایه): بدون فیلتر وضعیت (`level`) */
+    includeLevel?: boolean;
+    /** فقط عملیات ریسک — فیلتر استراتژی (`risk_response_type`) */
+    includeRiskResponseType?: boolean;
+    /** نوع تعهد، حوزه، موضوع — در عملیات ریسک غیرفعال */
+    includeWarrantyDomainSection?: boolean;
+    /** فقط عملیات ریسک — بازهٔ شدت (۱…۲۵) → `min_risk` / `max_risk` */
+    includeRiskIntensityRange?: boolean;
   }>(),
   {
     table: null,
@@ -46,6 +56,10 @@ const props = withDefaults(
     includeMandatoryUnit: true,
     includeComplianceEnforcer: false,
     includeEnforcer: true,
+    includeLevel: true,
+    includeRiskResponseType: false,
+    includeWarrantyDomainSection: true,
+    includeRiskIntensityRange: false,
   }
 );
 
@@ -62,6 +76,7 @@ const ruleOptions = ref<Option[]>([]);
 const warrantyOptions = ref<Option[]>([]);
 const mandatoryUnitOptions = ref<Option[]>([]);
 const memberLightOptions = ref<Option[]>([]);
+const riskResponseTypeOptions = ref<Option[]>([]);
 
 const formId = computed(() => {
   if (props.includeMandatoryUnit) return 'tasks-filter-form';
@@ -140,6 +155,21 @@ function mapMemberLightRows(rows: Record<string, unknown>[]): Option[] {
     .filter((x): x is Option => x != null);
 }
 
+/** همان نگاشت `RiskStatusTodoForm` / `RiskDoingTaskForm` برای `risk_response_type` */
+function mapRiskResponseTypeRows(rows: Record<string, unknown>[]): Option[] {
+  return rows
+    .map((item) => {
+      const value = item.value;
+      if (value == null || value === '') return null;
+      const title = item.title ?? item.label ?? value;
+      return {
+        value: String(value),
+        label: typeof title === 'string' ? title : String(title),
+      };
+    })
+    .filter((x): x is Option => x != null);
+}
+
 const domainOptions = computed<Option[]>(() =>
   domainTree.value.map((d) => ({
     value: String(d.id ?? ''),
@@ -153,6 +183,12 @@ const levelFilterOptions = computed<Option[]>(() =>
     label: t(COMPLIANCE_PROGRESS_LEVEL_LABEL_KEYS[v]),
   }))
 );
+
+function clampRiskIntensity(n: unknown, fallback: number): number {
+  const v = Number(n);
+  if (!Number.isFinite(v)) return fallback;
+  return Math.min(25, Math.max(1, Math.trunc(v)));
+}
 
 function apiFiltersToFormValues(f: Record<string, unknown> | undefined | null) {
   const x = f ?? {};
@@ -173,13 +209,23 @@ function apiFiltersToFormValues(f: Record<string, unknown> | undefined | null) {
     title: String(x.title ?? ''),
     enforcer_ids: props.includeEnforcer ? splitCsv(x.enforcer) : [],
     compliance_enforcer_ids: props.includeComplianceEnforcer ? splitCsv(x.compliance_enforcer) : [],
-    level_ids: splitCsv(x.level),
+    level_ids: props.includeLevel ? splitCsv(x.level) : [],
     code: String(x.code ?? ''),
     rule_ids: splitCsv(x.rule_id),
-    warranty_ids: splitCsv(x.warranty_id),
-    standard_id: x.standard_id != null && x.standard_id !== '' ? String(x.standard_id) : '',
-    section_ids: splitCsv(x.section_id),
+    warranty_ids: props.includeWarrantyDomainSection ? splitCsv(x.warranty_id) : [],
+    standard_id:
+      props.includeWarrantyDomainSection && x.standard_id != null && x.standard_id !== ''
+        ? String(x.standard_id)
+        : '',
+    section_ids: props.includeWarrantyDomainSection ? splitCsv(x.section_id) : [],
     mandatory_unit_ids: props.includeMandatoryUnit ? mandatoryIds : [],
+    risk_response_type_ids: props.includeRiskResponseType ? splitCsv(x.risk_response_type) : [],
+    ...(props.includeRiskIntensityRange
+      ? {
+          min_risk: clampRiskIntensity(x.min_risk, 1),
+          max_risk: clampRiskIntensity(x.max_risk, 25),
+        }
+      : {}),
     data_from: x.data_from != null ? String(x.data_from) : '',
     data_to: x.data_to != null ? String(x.data_to) : '',
   };
@@ -248,6 +294,13 @@ async function loadOptions() {
       mandatoryUnitOptions.value = [];
       memberLightOptions.value = [];
     }
+
+    if (props.includeRiskResponseType) {
+      const rrRes = await fetchRiskResponseTypeListCached(ermRepo);
+      riskResponseTypeOptions.value = mapRiskResponseTypeRows(extractErmList(rrRes));
+    } else {
+      riskResponseTypeOptions.value = [];
+    }
   } catch {
     toast(t('rule.form-load-options-error'), { type: 'error' });
     domainTree.value = [];
@@ -255,6 +308,7 @@ async function loadOptions() {
     warrantyOptions.value = [];
     mandatoryUnitOptions.value = [];
     memberLightOptions.value = [];
+    riskResponseTypeOptions.value = [];
   } finally {
     optionsLoading.value = false;
   }
@@ -284,29 +338,45 @@ function buildPayload(values: Record<string, unknown>): Record<string, unknown> 
     const complianceEnforcerIds = values.compliance_enforcer_ids as string[] | undefined;
     if (complianceEnforcerIds?.length) o.compliance_enforcer = complianceEnforcerIds.join(',');
   }
-  const levelIds = values.level_ids as string[] | undefined;
-  if (levelIds?.length) o.level = levelIds.join(',');
+  if (props.includeLevel) {
+    const levelIds = values.level_ids as string[] | undefined;
+    if (levelIds?.length) o.level = levelIds.join(',');
+  }
   const code = String(values.code ?? '').trim();
   if (code) o.code = code;
 
   const ruleIds = values.rule_ids as string[] | undefined;
   if (ruleIds?.length) o.rule_id = ruleIds.join(',');
 
-  const warrantyIds = values.warranty_ids as string[] | undefined;
-  if (warrantyIds?.length) o.warranty_id = warrantyIds.join(',');
+  if (props.includeWarrantyDomainSection) {
+    const warrantyIds = values.warranty_ids as string[] | undefined;
+    if (warrantyIds?.length) o.warranty_id = warrantyIds.join(',');
 
-  const std = String(values.standard_id ?? '').trim();
-  if (std) {
-    const n = Number(std);
-    o.standard_id = Number.isFinite(n) ? n : std;
+    const std = String(values.standard_id ?? '').trim();
+    if (std) {
+      const n = Number(std);
+      o.standard_id = Number.isFinite(n) ? n : std;
+    }
+
+    const sectionIds = values.section_ids as string[] | undefined;
+    if (sectionIds?.length) o.section_id = sectionIds.join(',');
   }
-
-  const sectionIds = values.section_ids as string[] | undefined;
-  if (sectionIds?.length) o.section_id = sectionIds.join(',');
 
   if (props.includeMandatoryUnit) {
     const mu = values.mandatory_unit_ids as string[] | undefined;
     if (mu?.length) o.mandatory_unit = mu;
+  }
+
+  if (props.includeRiskResponseType) {
+    const rrt = values.risk_response_type_ids as string[] | undefined;
+    if (rrt?.length) o.risk_response_type = rrt.join(',');
+  }
+
+  if (props.includeRiskIntensityRange) {
+    const a = clampRiskIntensity(values.min_risk, 1);
+    const b = clampRiskIntensity(values.max_risk, 25);
+    o.min_risk = Math.min(a, b);
+    o.max_risk = Math.max(a, b);
   }
 
   const df = String(values.data_from ?? '').trim();
@@ -342,12 +412,16 @@ function onAutoApply(payload: Record<string, unknown>) {
       :initial-values="formInitialValues"
       as="div"
     >
-      <TasksFilterDomainSectionReset />
+      <TasksFilterDomainSectionReset v-if="includeWarrantyDomainSection" />
       <TasksFilterAutoApply
         :build-payload="buildPayload"
         :include-mandatory-unit="includeMandatoryUnit"
         :include-compliance-enforcer="includeComplianceEnforcer"
         :include-enforcer="includeEnforcer"
+        :include-level="includeLevel"
+        :include-risk-response-type="includeRiskResponseType"
+        :include-warranty-domain-section="includeWarrantyDomainSection"
+        :include-risk-intensity-range="includeRiskIntensityRange"
         @apply="onAutoApply"
       />
       <div class="space-y-3">
@@ -366,6 +440,16 @@ function onAutoApply(payload: Record<string, unknown>) {
             :options="ruleOptions"
             placeholder=""
             :disabled="ruleOptions.length === 0"
+          />
+        </div>
+        <div v-if="includeMandatoryUnit" class="w-full">
+          <BaseMultiSelect
+            name="mandatory_unit_ids"
+            compact-label
+            :label="t('task.filter-field-mandatory-unit')"
+            :options="mandatoryUnitOptions"
+            placeholder=""
+            :disabled="mandatoryUnitOptions.length === 0"
           />
         </div>
         <div
@@ -389,6 +473,7 @@ function onAutoApply(payload: Record<string, unknown>) {
               :disabled="memberLightOptions.length === 0"
             />
             <BaseMultiSelect
+              v-if="includeLevel"
               name="level_ids"
               compact-label
               :label="t('compliance-page.col-status')"
@@ -396,6 +481,16 @@ function onAutoApply(payload: Record<string, unknown>) {
               placeholder=""
             />
             <BaseMultiSelect
+              v-if="includeRiskResponseType"
+              name="risk_response_type_ids"
+              compact-label
+              :label="t('risk-operations.todo-field-strategy')"
+              :options="riskResponseTypeOptions"
+              placeholder=""
+              :disabled="riskResponseTypeOptions.length === 0"
+            />
+            <BaseMultiSelect
+              v-if="includeWarrantyDomainSection"
               name="warranty_ids"
               compact-label
               :label="t('task.filter-field-warranty')"
@@ -414,6 +509,7 @@ function onAutoApply(payload: Record<string, unknown>) {
               :disabled="memberLightOptions.length === 0"
             />
             <BaseMultiSelect
+              v-if="includeLevel"
               name="level_ids"
               compact-label
               :label="t('compliance-page.col-status')"
@@ -421,6 +517,7 @@ function onAutoApply(payload: Record<string, unknown>) {
               placeholder=""
             />
             <BaseMultiSelect
+              v-if="includeWarrantyDomainSection"
               name="warranty_ids"
               compact-label
               :label="t('task.filter-field-warranty')"
@@ -431,6 +528,7 @@ function onAutoApply(payload: Record<string, unknown>) {
           </template>
           <template v-else>
             <BaseMultiSelect
+              v-if="includeLevel"
               name="level_ids"
               compact-label
               :label="t('compliance-page.col-status')"
@@ -438,6 +536,7 @@ function onAutoApply(payload: Record<string, unknown>) {
               placeholder=""
             />
             <BaseMultiSelect
+              v-if="includeWarrantyDomainSection"
               name="warranty_ids"
               compact-label
               :label="t('task.filter-field-warranty')"
@@ -447,18 +546,16 @@ function onAutoApply(payload: Record<string, unknown>) {
             />
           </template>
           <TasksFilterDomainSectionFields
+            v-if="includeWarrantyDomainSection"
             :domain-tree="domainTree"
             :domain-options="domainOptions"
           />
-          <BaseMultiSelect
-            v-if="includeMandatoryUnit"
-            name="mandatory_unit_ids"
-            compact-label
-            :label="t('task.filter-field-mandatory-unit')"
-            :options="mandatoryUnitOptions"
-            placeholder=""
-            :disabled="mandatoryUnitOptions.length === 0"
-          />
+          <div
+            v-if="includeRiskIntensityRange"
+            class="col-span-1 md:col-span-2"
+          >
+            <TasksFilterRiskIntensityRange />
+          </div>
           <BaseInput
             name="code"
             compact-label

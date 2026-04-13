@@ -7,8 +7,8 @@ import Lucide from '@/base-components/Lucide';
 import TasksFilterPanel from './TasksFilterPanel.vue';
 import {
   TASK_FILTER_PARAM_LABEL_KEYS,
-  getActiveTaskFilterKeys,
-  type TaskFilterParamKey,
+  getActiveTaskBaseInfoFilterKeys,
+  type TaskBaseInfoFilterParamKey,
 } from './taskFilterToolbarKeys';
 
 const props = defineProps<{
@@ -29,8 +29,8 @@ const filterToolbarClearTick = ref(0);
 
 const hasActiveFilters = computed(() => Object.keys(toValue(props.table.filters) ?? {}).length > 0);
 
-const activeFilterKeys = computed((): TaskFilterParamKey[] =>
-  getActiveTaskFilterKeys(toValue(props.table.filters) ?? {})
+const activeFilterKeys = computed((): TaskBaseInfoFilterParamKey[] =>
+  getActiveTaskBaseInfoFilterKeys(toValue(props.table.filters) ?? {})
 );
 
 function clearFiltersFromToolbar() {
@@ -38,7 +38,7 @@ function clearFiltersFromToolbar() {
   filterToolbarClearTick.value += 1;
 }
 
-function removeFilterParam(key: TaskFilterParamKey) {
+function removeFilterParam(key: TaskBaseInfoFilterParamKey) {
   const f = { ...(toValue(props.table.filters) ?? {}) };
   delete f[key];
   props.table.replaceFilters(f);
@@ -239,6 +239,7 @@ useEventListener(document, 'keydown', (e: KeyboardEvent) => {
             :table="table"
             :toolbar-clear-tick="filterToolbarClearTick"
             :include-enforcer="false"
+            :include-level="false"
           />
         </div>
       </Transition>

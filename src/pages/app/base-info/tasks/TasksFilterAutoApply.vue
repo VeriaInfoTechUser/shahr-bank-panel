@@ -9,8 +9,20 @@ const props = withDefaults(
     includeMandatoryUnit?: boolean;
     includeComplianceEnforcer?: boolean;
     includeEnforcer?: boolean;
+    includeLevel?: boolean;
+    includeRiskResponseType?: boolean;
+    includeWarrantyDomainSection?: boolean;
+    includeRiskIntensityRange?: boolean;
   }>(),
-  { includeMandatoryUnit: true, includeComplianceEnforcer: false, includeEnforcer: true }
+  {
+    includeMandatoryUnit: true,
+    includeComplianceEnforcer: false,
+    includeEnforcer: true,
+    includeLevel: true,
+    includeRiskResponseType: false,
+    includeWarrantyDomainSection: true,
+    includeRiskIntensityRange: false,
+  }
 );
 
 const emit = defineEmits<{
@@ -48,19 +60,45 @@ const nonTextFilterSlice = computed(() => ({
   ...(props.includeComplianceEnforcer
     ? { compliance_enforcer_ids: values.value.compliance_enforcer_ids }
     : {}),
-  level_ids: values.value.level_ids,
+  ...(props.includeLevel ? { level_ids: values.value.level_ids } : {}),
+  ...(props.includeRiskResponseType
+    ? { risk_response_type_ids: values.value.risk_response_type_ids }
+    : {}),
   rule_ids: values.value.rule_ids,
-  warranty_ids: values.value.warranty_ids,
-  section_ids: values.value.section_ids,
+  ...(props.includeWarrantyDomainSection
+    ? {
+        warranty_ids: values.value.warranty_ids,
+        section_ids: values.value.section_ids,
+        standard_id: values.value.standard_id,
+      }
+    : {}),
   ...(props.includeMandatoryUnit ? { mandatory_unit_ids: values.value.mandatory_unit_ids } : {}),
   data_from: values.value.data_from,
   data_to: values.value.data_to,
 }));
 
+/** شدت ریسک: جدا با debounce تا بعد از ایستادن پوینتر ارسال شود */
+const riskIntensitySlice = computed(() => {
+  if (!props.includeRiskIntensityRange) return null;
+  return {
+    min_risk: values.value.min_risk,
+    max_risk: values.value.max_risk,
+  };
+});
+
 watch(
   nonTextFilterSlice,
   () => emitIfReady(),
   { deep: true }
+);
+
+watchDebounced(
+  riskIntensitySlice,
+  (slice) => {
+    if (!ready.value || slice == null) return;
+    emitIfReady();
+  },
+  { debounce: 420, deep: true }
 );
 </script>
 

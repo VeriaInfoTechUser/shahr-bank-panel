@@ -44,3 +44,18 @@ export function getActiveTaskFilterKeys(filters: Record<string, unknown>): TaskF
     (k) => k in filters && isTaskFilterValueSet(filters[k])
   );
 }
+
+/** صفحه تعهدات (اطلاعات پایه): بدون بج `level` */
+export const TASK_BASE_INFO_FILTER_PARAM_ORDER = TASK_FILTER_PARAM_ORDER.filter(
+  (k): k is Exclude<TaskFilterParamKey, 'level'> => k !== 'level'
+);
+
+export type TaskBaseInfoFilterParamKey = (typeof TASK_BASE_INFO_FILTER_PARAM_ORDER)[number];
+
+export function getActiveTaskBaseInfoFilterKeys(
+  filters: Record<string, unknown>
+): TaskBaseInfoFilterParamKey[] {
+  return TASK_BASE_INFO_FILTER_PARAM_ORDER.filter(
+    (k) => k in filters && isTaskFilterValueSet(filters[k])
+  );
+}

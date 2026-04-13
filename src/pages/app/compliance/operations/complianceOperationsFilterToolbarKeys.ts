@@ -5,12 +5,16 @@ import {
   isTaskFilterValueSet,
 } from '@/pages/app/base-info/tasks/taskFilterToolbarKeys';
 
-/** فیلتر عملیات تطبیق مثل تعهدات، بدون `mandatory_unit` */
+/** فیلتر عملیات تطبیق مثل تعهدات، بدون `mandatory_unit` و بدون `compliance_enforcer` (فقط ریسک) */
 export const COMPLIANCE_OPS_FILTER_PARAM_ORDER = TASK_FILTER_PARAM_ORDER.filter(
-  (k): k is ComplianceOpsFilterParamKey => k !== 'mandatory_unit'
+  (k): k is ComplianceOpsFilterParamKey =>
+    k !== 'mandatory_unit' && k !== 'compliance_enforcer'
 );
 
-export type ComplianceOpsFilterParamKey = Exclude<TaskFilterParamKey, 'mandatory_unit'>;
+export type ComplianceOpsFilterParamKey = Exclude<
+  TaskFilterParamKey,
+  'mandatory_unit' | 'compliance_enforcer'
+>;
 
 export const COMPLIANCE_OPS_FILTER_PARAM_LABEL_KEYS: Record<
   ComplianceOpsFilterParamKey,

@@ -6,7 +6,7 @@ import { useDataTable, createColumn, type FetchFn } from '@core';
 import BaseTable from '@core/ui/base/BaseTable.vue';
 import { ermRepo } from '@/core/repositories/ermRepo';
 import { useBreadcrumbSlot } from '@/composables/useBreadcrumb';
-import SettingsExportToolbar from '@/pages/app/settings/SettingsExportToolbar.vue';
+import RiskOperationsBreadcrumbToolbar from './RiskOperationsBreadcrumbToolbar.vue';
 import { riskOperationsStatusBadgeClass } from '@/composables/riskOperationsStatusBadge';
 import {
   clauseFilteredRiskOperationsRoute,
@@ -221,7 +221,8 @@ onMounted(() => {
   syncReferenceFilterFromRoute();
   table.invalidateListCache();
   table.fetch();
-  setBreadcrumbSlot(SettingsExportToolbar, {
+  setBreadcrumbSlot(RiskOperationsBreadcrumbToolbar, {
+    table,
     onExport: () => table.exportCSV(),
   });
 });

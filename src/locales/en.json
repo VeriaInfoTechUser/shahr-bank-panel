@@ -352,6 +352,7 @@
     "filter-panel-title": "Filter commitments",
     "filter-field-title": "Commitment",
     "filter-field-liaison": "Liaison",
+    "filter-field-compliance-enforcer": "Self-declared by",
     "filter-field-rule": "Rule",
     "filter-field-warranty": "Commitment type",
     "filter-field-domain": "Domain",
@@ -654,6 +655,7 @@
   "risk-operations": {
     "operations-clause-filter-hint": "Filtered risk operations for the clause-related commitment",
     "operations-filter-back": "Back to all risk operations",
+    "filter-panel-title": "Risk operations filters",
     "status-flow-modal-title": "Risk status",
     "modal-risk-executor-label": "Risk assignee",
     "modal-task-compliance-assigner-label": "Assigner",

@@ -222,6 +222,7 @@
     "filter-panel-title": "تصفية الالتزامات",
     "filter-field-title": "الالتزام",
     "filter-field-liaison": "الرابط",
+    "filter-field-compliance-enforcer": "المُصرَّح ذاتياً بواسطة",
     "filter-field-rule": "القانون",
     "filter-field-warranty": "نوع الالتزام",
     "filter-field-domain": "المجال",
@@ -414,6 +415,7 @@
   "risk-operations": {
     "operations-clause-filter-hint": "عرض عمليات المخاطر المصفاة للالتزام المرتبط بالبند",
     "operations-filter-back": "العودة إلى جميع عمليات المخاطر",
+    "filter-panel-title": "تصفية عمليات المخاطر",
     "status-flow-modal-title": "حالة المخاطر",
     "modal-risk-executor-label": "منفّذ المخاطر",
     "modal-task-compliance-assigner-label": "المُحيل",

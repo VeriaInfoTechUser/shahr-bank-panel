@@ -6,7 +6,6 @@ import { useI18n } from 'vue-i18n';
 import { toast } from 'vue3-toastify';
 import BaseInput from '@/core/ui/base/BaseInput.vue';
 import BaseMultiSelect from '@/core/ui/base/BaseMultiSelect.vue';
-import BaseSelect from '@/core/ui/base/BaseSelect.vue';
 import BaseDatePicker from '@/core/ui/base/BaseDatePicker.vue';
 import { ermRepo } from '@/core/repositories/ermRepo';
 import {
@@ -36,11 +35,17 @@ const props = withDefaults(
     } | null;
     toolbarClearTick?: number;
     includeMandatoryUnit?: boolean;
+    /** فقط عملیات ریسک — فیلتر «خود اظهاری شده توسط» (`compliance_enforcer`) */
+    includeComplianceEnforcer?: boolean;
+    /** تعهدات (اطلاعات پایه): بدون فیلتر رابط (`enforcer`) */
+    includeEnforcer?: boolean;
   }>(),
   {
     table: null,
     toolbarClearTick: 0,
     includeMandatoryUnit: true,
+    includeComplianceEnforcer: false,
+    includeEnforcer: true,
   }
 );
 
@@ -58,9 +63,11 @@ const warrantyOptions = ref<Option[]>([]);
 const mandatoryUnitOptions = ref<Option[]>([]);
 const memberLightOptions = ref<Option[]>([]);
 
-const formId = computed(() =>
-  props.includeMandatoryUnit ? 'tasks-filter-form' : 'compliance-ops-filter-form'
-);
+const formId = computed(() => {
+  if (props.includeMandatoryUnit) return 'tasks-filter-form';
+  if (props.includeComplianceEnforcer) return 'risk-ops-filter-form';
+  return 'compliance-ops-filter-form';
+});
 
 function extractErmList(res: unknown): Record<string, unknown>[] {
   if (Array.isArray(res)) return res as Record<string, unknown>[];
@@ -140,18 +147,12 @@ const domainOptions = computed<Option[]>(() =>
   })).filter((x) => x.value)
 );
 
-const levelFilterOptions = computed<Option[]>(() => {
-  const opts: Option[] = [
-    { value: '', label: t('rule.filter-option-any') },
-  ];
-  for (const v of COMPLIANCE_PROGRESS_LEVEL_FILTER_VALUES) {
-    opts.push({
-      value: v,
-      label: t(COMPLIANCE_PROGRESS_LEVEL_LABEL_KEYS[v]),
-    });
-  }
-  return opts;
-});
+const levelFilterOptions = computed<Option[]>(() =>
+  COMPLIANCE_PROGRESS_LEVEL_FILTER_VALUES.map((v) => ({
+    value: v,
+    label: t(COMPLIANCE_PROGRESS_LEVEL_LABEL_KEYS[v]),
+  }))
+);
 
 function apiFiltersToFormValues(f: Record<string, unknown> | undefined | null) {
   const x = f ?? {};
@@ -170,8 +171,9 @@ function apiFiltersToFormValues(f: Record<string, unknown> | undefined | null) {
 
   return {
     title: String(x.title ?? ''),
-    enforcer_ids: splitCsv(x.enforcer),
-    level: x.level != null && String(x.level).trim() !== '' ? String(x.level).trim() : '',
+    enforcer_ids: props.includeEnforcer ? splitCsv(x.enforcer) : [],
+    compliance_enforcer_ids: props.includeComplianceEnforcer ? splitCsv(x.compliance_enforcer) : [],
+    level_ids: splitCsv(x.level),
     code: String(x.code ?? ''),
     rule_ids: splitCsv(x.rule_id),
     warranty_ids: splitCsv(x.warranty_id),
@@ -189,22 +191,38 @@ const formInitialValues = computed(() =>
 
 async function loadOptions() {
   optionsLoading.value = true;
+  const needMemberLight = props.includeEnforcer || props.includeComplianceEnforcer;
   try {
     if (props.includeMandatoryUnit) {
-      const [domainRes, rulesRes, warrantyRes, mandatoryRes, membersRes] = await Promise.all([
-        fetchDomainTreeCached(ermRepo),
-        fetchRuleLightListCached(ermRepo),
-        fetchWarrantyListCached(ermRepo),
-        fetchMandatoryUnitListCached(ermRepo),
-        fetchMemberLightListCached(ermRepo),
-      ]);
-      const domainData = parseDomainTreeData(domainRes);
-      domainTree.value = domainData;
-      ruleOptions.value = mapLightRules(rulesRes);
-      warrantyOptions.value = mapWarrantyRows(extractErmList(warrantyRes));
-      mandatoryUnitOptions.value = mapMandatoryRows(extractErmList(mandatoryRes));
-      memberLightOptions.value = mapMemberLightRows(extractErmList(membersRes));
-    } else {
+      if (needMemberLight) {
+        const [domainRes, rulesRes, warrantyRes, mandatoryRes, membersRes] = await Promise.all([
+          fetchDomainTreeCached(ermRepo),
+          fetchRuleLightListCached(ermRepo),
+          fetchWarrantyListCached(ermRepo),
+          fetchMandatoryUnitListCached(ermRepo),
+          fetchMemberLightListCached(ermRepo),
+        ]);
+        const domainData = parseDomainTreeData(domainRes);
+        domainTree.value = domainData;
+        ruleOptions.value = mapLightRules(rulesRes);
+        warrantyOptions.value = mapWarrantyRows(extractErmList(warrantyRes));
+        mandatoryUnitOptions.value = mapMandatoryRows(extractErmList(mandatoryRes));
+        memberLightOptions.value = mapMemberLightRows(extractErmList(membersRes));
+      } else {
+        const [domainRes, rulesRes, warrantyRes, mandatoryRes] = await Promise.all([
+          fetchDomainTreeCached(ermRepo),
+          fetchRuleLightListCached(ermRepo),
+          fetchWarrantyListCached(ermRepo),
+          fetchMandatoryUnitListCached(ermRepo),
+        ]);
+        const domainData = parseDomainTreeData(domainRes);
+        domainTree.value = domainData;
+        ruleOptions.value = mapLightRules(rulesRes);
+        warrantyOptions.value = mapWarrantyRows(extractErmList(warrantyRes));
+        mandatoryUnitOptions.value = mapMandatoryRows(extractErmList(mandatoryRes));
+        memberLightOptions.value = [];
+      }
+    } else if (needMemberLight) {
       const [domainRes, rulesRes, warrantyRes, membersRes] = await Promise.all([
         fetchDomainTreeCached(ermRepo),
         fetchRuleLightListCached(ermRepo),
@@ -217,6 +235,18 @@ async function loadOptions() {
       warrantyOptions.value = mapWarrantyRows(extractErmList(warrantyRes));
       mandatoryUnitOptions.value = [];
       memberLightOptions.value = mapMemberLightRows(extractErmList(membersRes));
+    } else {
+      const [domainRes, rulesRes, warrantyRes] = await Promise.all([
+        fetchDomainTreeCached(ermRepo),
+        fetchRuleLightListCached(ermRepo),
+        fetchWarrantyListCached(ermRepo),
+      ]);
+      const domainData = parseDomainTreeData(domainRes);
+      domainTree.value = domainData;
+      ruleOptions.value = mapLightRules(rulesRes);
+      warrantyOptions.value = mapWarrantyRows(extractErmList(warrantyRes));
+      mandatoryUnitOptions.value = [];
+      memberLightOptions.value = [];
     }
   } catch {
     toast(t('rule.form-load-options-error'), { type: 'error' });
@@ -246,10 +276,16 @@ function buildPayload(values: Record<string, unknown>): Record<string, unknown> 
   const o: Record<string, unknown> = {};
   const title = String(values.title ?? '').trim();
   if (title) o.title = title;
-  const enforcerIds = values.enforcer_ids as string[] | undefined;
-  if (enforcerIds?.length) o.enforcer = enforcerIds.join(',');
-  const levelVal = String(values.level ?? '').trim();
-  if (levelVal) o.level = levelVal;
+  if (props.includeEnforcer) {
+    const enforcerIds = values.enforcer_ids as string[] | undefined;
+    if (enforcerIds?.length) o.enforcer = enforcerIds.join(',');
+  }
+  if (props.includeComplianceEnforcer) {
+    const complianceEnforcerIds = values.compliance_enforcer_ids as string[] | undefined;
+    if (complianceEnforcerIds?.length) o.compliance_enforcer = complianceEnforcerIds.join(',');
+  }
+  const levelIds = values.level_ids as string[] | undefined;
+  if (levelIds?.length) o.level = levelIds.join(',');
   const code = String(values.code ?? '').trim();
   if (code) o.code = code;
 
@@ -310,6 +346,8 @@ function onAutoApply(payload: Record<string, unknown>) {
       <TasksFilterAutoApply
         :build-payload="buildPayload"
         :include-mandatory-unit="includeMandatoryUnit"
+        :include-compliance-enforcer="includeComplianceEnforcer"
+        :include-enforcer="includeEnforcer"
         @apply="onAutoApply"
       />
       <div class="space-y-3">
@@ -322,28 +360,6 @@ function onAutoApply(payload: Record<string, unknown>) {
         </div>
         <div class="w-full">
           <BaseMultiSelect
-            name="enforcer_ids"
-            compact-label
-            :label="t('task.filter-field-liaison')"
-            :options="memberLightOptions"
-            placeholder=""
-            :disabled="memberLightOptions.length === 0"
-          />
-        </div>
-        <div class="w-full">
-          <BaseSelect
-            name="level"
-            compact-label
-            :label="t('compliance-page.col-status')"
-            :options="levelFilterOptions"
-            placeholder=""
-            :filter="true"
-          />
-        </div>
-        <div
-          class="grid grid-cols-1 gap-3 md:grid-cols-2"
-        >
-          <BaseMultiSelect
             name="rule_ids"
             compact-label
             :label="t('task.filter-field-rule')"
@@ -351,14 +367,85 @@ function onAutoApply(payload: Record<string, unknown>) {
             placeholder=""
             :disabled="ruleOptions.length === 0"
           />
-          <BaseMultiSelect
-            name="warranty_ids"
-            compact-label
-            :label="t('task.filter-field-warranty')"
-            :options="warrantyOptions"
-            placeholder=""
-            :disabled="warrantyOptions.length === 0"
-          />
+        </div>
+        <div
+          class="grid grid-cols-1 gap-3 md:grid-cols-2"
+        >
+          <template v-if="includeComplianceEnforcer">
+            <BaseMultiSelect
+              name="enforcer_ids"
+              compact-label
+              :label="t('task.filter-field-liaison')"
+              :options="memberLightOptions"
+              placeholder=""
+              :disabled="memberLightOptions.length === 0"
+            />
+            <BaseMultiSelect
+              name="compliance_enforcer_ids"
+              compact-label
+              :label="t('task.filter-field-compliance-enforcer')"
+              :options="memberLightOptions"
+              placeholder=""
+              :disabled="memberLightOptions.length === 0"
+            />
+            <BaseMultiSelect
+              name="level_ids"
+              compact-label
+              :label="t('compliance-page.col-status')"
+              :options="levelFilterOptions"
+              placeholder=""
+            />
+            <BaseMultiSelect
+              name="warranty_ids"
+              compact-label
+              :label="t('task.filter-field-warranty')"
+              :options="warrantyOptions"
+              placeholder=""
+              :disabled="warrantyOptions.length === 0"
+            />
+          </template>
+          <template v-else-if="includeEnforcer">
+            <BaseMultiSelect
+              name="enforcer_ids"
+              compact-label
+              :label="t('task.filter-field-liaison')"
+              :options="memberLightOptions"
+              placeholder=""
+              :disabled="memberLightOptions.length === 0"
+            />
+            <BaseMultiSelect
+              name="level_ids"
+              compact-label
+              :label="t('compliance-page.col-status')"
+              :options="levelFilterOptions"
+              placeholder=""
+            />
+            <BaseMultiSelect
+              name="warranty_ids"
+              compact-label
+              :label="t('task.filter-field-warranty')"
+              :options="warrantyOptions"
+              placeholder=""
+              :disabled="warrantyOptions.length === 0"
+            />
+          </template>
+          <template v-else>
+            <BaseMultiSelect
+              name="level_ids"
+              compact-label
+              :label="t('compliance-page.col-status')"
+              :options="levelFilterOptions"
+              placeholder=""
+            />
+            <BaseMultiSelect
+              name="warranty_ids"
+              compact-label
+              :label="t('task.filter-field-warranty')"
+              :options="warrantyOptions"
+              placeholder=""
+              :disabled="warrantyOptions.length === 0"
+            />
+          </template>
           <TasksFilterDomainSectionFields
             :domain-tree="domainTree"
             :domain-options="domainOptions"

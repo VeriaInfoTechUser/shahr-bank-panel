@@ -1,8 +1,6 @@
-/** مقادیر فیلتر وضعیت پیشرفت — همان کلیدهای نمایش ستون وضعیت در عملیات تطبیق */
+/** مقادیر فیلتر `level` — فقط برای عملیات تطبیق / همان فیلتر مشترک: CSV مثلاً waiting,doing,done */
 export const COMPLIANCE_PROGRESS_LEVEL_FILTER_VALUES = [
-  'clauses',
-  'pending-assignment',
-  'todo',
+  'waiting',
   'doing',
   'done',
   'approve',
@@ -12,14 +10,12 @@ export const COMPLIANCE_PROGRESS_LEVEL_FILTER_VALUES = [
 export type ComplianceProgressLevelFilterValue =
   (typeof COMPLIANCE_PROGRESS_LEVEL_FILTER_VALUES)[number];
 
-/** کلید i18n هر مقدار (همان عناوین وضعیت در عملیات تطبیق) */
+/** برچسب‌ها مطابق نمایش وضعیت در عملیات تطبیق */
 export const COMPLIANCE_PROGRESS_LEVEL_LABEL_KEYS: Record<
   ComplianceProgressLevelFilterValue,
   string
 > = {
-  clauses: 'compliance-page.status-clauses',
-  'pending-assignment': 'compliance-page.status-pending-assignment',
-  todo: 'compliance-page.status-todo',
+  waiting: 'compliance-page.status-pending-assignment',
   doing: 'compliance-page.status-doing',
   done: 'compliance-page.status-done',
   approve: 'compliance-page.status-approve',

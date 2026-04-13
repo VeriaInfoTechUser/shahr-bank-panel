@@ -4,17 +4,15 @@ import { computed, nextTick, onUnmounted, ref, toValue, watch } from 'vue';
 import { useElementBounding, onClickOutside, useEventListener } from '@vueuse/core';
 import { useI18n } from 'vue-i18n';
 import Lucide from '@/base-components/Lucide';
-import TasksFilterPanel from './TasksFilterPanel.vue';
+import TasksFilterPanel from '@/pages/app/base-info/tasks/TasksFilterPanel.vue';
 import {
-  TASK_FILTER_PARAM_LABEL_KEYS,
-  getActiveTaskFilterKeys,
-  type TaskFilterParamKey,
-} from './taskFilterToolbarKeys';
+  RISK_OPS_FILTER_PARAM_LABEL_KEYS,
+  getActiveRiskOpsFilterKeys,
+  type RiskOpsFilterParamKey,
+} from './riskOperationsFilterToolbarKeys';
 
 const props = defineProps<{
-  onImport?: () => void;
   onExport?: () => void;
-  onAdd?: () => void;
   table: {
     replaceFilters: (f: Record<string, unknown>) => void;
     clearFilters: () => void;
@@ -29,8 +27,8 @@ const filterToolbarClearTick = ref(0);
 
 const hasActiveFilters = computed(() => Object.keys(toValue(props.table.filters) ?? {}).length > 0);
 
-const activeFilterKeys = computed((): TaskFilterParamKey[] =>
-  getActiveTaskFilterKeys(toValue(props.table.filters) ?? {})
+const activeFilterKeys = computed((): RiskOpsFilterParamKey[] =>
+  getActiveRiskOpsFilterKeys(toValue(props.table.filters) ?? {})
 );
 
 function clearFiltersFromToolbar() {
@@ -38,7 +36,7 @@ function clearFiltersFromToolbar() {
   filterToolbarClearTick.value += 1;
 }
 
-function removeFilterParam(key: TaskFilterParamKey) {
+function removeFilterParam(key: RiskOpsFilterParamKey) {
   const f = { ...(toValue(props.table.filters) ?? {}) };
   delete f[key];
   props.table.replaceFilters(f);
@@ -116,31 +114,6 @@ useEventListener(document, 'keydown', (e: KeyboardEvent) => {
   <div class="relative flex flex-shrink-0 flex-wrap items-center gap-1.5" dir="ltr">
     <button
       type="button"
-      class="inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-md border border-primary bg-primary text-white shadow-sm transition hover:opacity-90 dark:border-primary dark:bg-primary dark:hover:opacity-90"
-      :aria-label="t('task.toolbar-add')"
-      :title="t('task.toolbar-add')"
-      @click="props.onAdd?.()"
-    >
-      <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-        <line x1="12" y1="5" x2="12" y2="19" />
-        <line x1="5" y1="12" x2="19" y2="12" />
-      </svg>
-    </button>
-    <button
-      type="button"
-      class="inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-md border border-slate-200 bg-white text-slate-600 shadow-sm transition hover:bg-slate-50 hover:text-slate-800 dark:border-darkmode-600 dark:bg-darkmode-800 dark:text-slate-300 dark:hover:bg-darkmode-700 dark:hover:text-slate-100"
-      :aria-label="t('task.toolbar-import')"
-      :title="t('task.toolbar-import')"
-      @click="props.onImport?.()"
-    >
-      <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-        <polyline points="17 8 12 3 7 8" />
-        <line x1="12" y1="3" x2="12" y2="15" />
-      </svg>
-    </button>
-    <button
-      type="button"
       class="inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-md border border-slate-200 bg-white text-slate-600 shadow-sm transition hover:bg-slate-50 hover:text-slate-800 dark:border-darkmode-600 dark:bg-darkmode-800 dark:text-slate-300 dark:hover:bg-darkmode-700 dark:hover:text-slate-100"
       :aria-label="t('task.toolbar-export')"
       :title="t('task.toolbar-export')"
@@ -194,17 +167,21 @@ useEventListener(document, 'keydown', (e: KeyboardEvent) => {
             :key="key"
             class="inline-flex max-w-[11rem] items-center gap-0.5 rounded-full border border-slate-200 bg-slate-50 py-0.5 pl-2 pr-0.5 text-[11px] font-medium text-slate-700 shadow-sm dark:border-darkmode-600 dark:bg-darkmode-700/80 dark:text-slate-200"
           >
-            <span class="min-w-0 truncate" :title="t(TASK_FILTER_PARAM_LABEL_KEYS[key])">{{
-              t(TASK_FILTER_PARAM_LABEL_KEYS[key])
+            <span class="min-w-0 truncate" :title="t(RISK_OPS_FILTER_PARAM_LABEL_KEYS[key])">{{
+              t(RISK_OPS_FILTER_PARAM_LABEL_KEYS[key])
             }}</span>
             <button
               type="button"
               class="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-slate-500 transition hover:bg-slate-200 hover:text-slate-900 dark:hover:bg-darkmode-600 dark:hover:text-slate-100"
               :aria-label="
-                t('task.filter-badge-remove-aria', { label: t(TASK_FILTER_PARAM_LABEL_KEYS[key]) })
+                t('task.filter-badge-remove-aria', {
+                  label: t(RISK_OPS_FILTER_PARAM_LABEL_KEYS[key]),
+                })
               "
               :title="
-                t('task.filter-badge-remove-aria', { label: t(TASK_FILTER_PARAM_LABEL_KEYS[key]) })
+                t('task.filter-badge-remove-aria', {
+                  label: t(RISK_OPS_FILTER_PARAM_LABEL_KEYS[key]),
+                })
               "
               @click.stop="removeFilterParam(key)"
             >
@@ -216,7 +193,7 @@ useEventListener(document, 'keydown', (e: KeyboardEvent) => {
     </div>
 
     <Teleport to="body">
-      <Transition name="tasks-filter-pop">
+      <Transition name="risk-ops-filter-pop">
         <div
           v-if="filterOpen"
           class="fixed inset-0 z-[1099] bg-slate-900/10 dark:bg-black/25"
@@ -224,7 +201,7 @@ useEventListener(document, 'keydown', (e: KeyboardEvent) => {
           @click="closeFilter"
         />
       </Transition>
-      <Transition name="tasks-filter-pop">
+      <Transition name="risk-ops-filter-pop">
         <div
           v-if="filterOpen"
           ref="popoverRef"
@@ -232,13 +209,14 @@ useEventListener(document, 'keydown', (e: KeyboardEvent) => {
           :style="popoverStyle"
           role="dialog"
           aria-modal="true"
-          :aria-label="t('task.filter-panel-title')"
+          :aria-label="t('risk-operations.filter-panel-title')"
           @click.stop
         >
           <TasksFilterPanel
             :table="table"
             :toolbar-clear-tick="filterToolbarClearTick"
-            :include-enforcer="false"
+            :include-mandatory-unit="false"
+            :include-compliance-enforcer="true"
           />
         </div>
       </Transition>
@@ -247,12 +225,12 @@ useEventListener(document, 'keydown', (e: KeyboardEvent) => {
 </template>
 
 <style scoped>
-.tasks-filter-pop-enter-active,
-.tasks-filter-pop-leave-active {
+.risk-ops-filter-pop-enter-active,
+.risk-ops-filter-pop-leave-active {
   transition: opacity 0.15s ease;
 }
-.tasks-filter-pop-enter-from,
-.tasks-filter-pop-leave-to {
+.risk-ops-filter-pop-enter-from,
+.risk-ops-filter-pop-leave-to {
   opacity: 0;
 }
 </style>

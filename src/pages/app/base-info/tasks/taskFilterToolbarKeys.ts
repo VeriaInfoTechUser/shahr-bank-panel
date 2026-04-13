@@ -2,6 +2,7 @@
 export const TASK_FILTER_PARAM_ORDER = [
   'title',
   'enforcer',
+  'compliance_enforcer',
   'level',
   'code',
   'rule_id',
@@ -18,6 +19,7 @@ export type TaskFilterParamKey = (typeof TASK_FILTER_PARAM_ORDER)[number];
 export const TASK_FILTER_PARAM_LABEL_KEYS: Record<TaskFilterParamKey, string> = {
   title: 'task.filter-field-title',
   enforcer: 'task.filter-field-liaison',
+  compliance_enforcer: 'task.filter-field-compliance-enforcer',
   level: 'compliance-page.col-status',
   code: 'task.code',
   rule_id: 'task.filter-field-rule',

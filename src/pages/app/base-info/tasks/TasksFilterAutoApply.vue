@@ -7,8 +7,10 @@ const props = withDefaults(
   defineProps<{
     buildPayload: (v: Record<string, unknown>) => Record<string, unknown>;
     includeMandatoryUnit?: boolean;
+    includeComplianceEnforcer?: boolean;
+    includeEnforcer?: boolean;
   }>(),
-  { includeMandatoryUnit: true }
+  { includeMandatoryUnit: true, includeComplianceEnforcer: false, includeEnforcer: true }
 );
 
 const emit = defineEmits<{
@@ -42,8 +44,11 @@ watchDebounced(
 );
 
 const nonTextFilterSlice = computed(() => ({
-  enforcer_ids: values.value.enforcer_ids,
-  level: values.value.level,
+  ...(props.includeEnforcer ? { enforcer_ids: values.value.enforcer_ids } : {}),
+  ...(props.includeComplianceEnforcer
+    ? { compliance_enforcer_ids: values.value.compliance_enforcer_ids }
+    : {}),
+  level_ids: values.value.level_ids,
   rule_ids: values.value.rule_ids,
   warranty_ids: values.value.warranty_ids,
   section_ids: values.value.section_ids,

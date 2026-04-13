@@ -370,6 +370,7 @@
     "filter-panel-title": "فیلتر تعهدات",
     "filter-field-title": "تعهد",
     "filter-field-liaison": "رابط",
+    "filter-field-compliance-enforcer": "خود اظهاری شده توسط",
     "filter-field-rule": "قانون",
     "filter-field-warranty": "نوع تعهد",
     "filter-field-domain": "حوزه",
@@ -674,6 +675,7 @@
   "risk-operations": {
     "operations-clause-filter-hint": "مشاهدهٔ عملیات ریسک فیلترشده برای تعهد مرتبط با تبصره",
     "operations-filter-back": "بازگشت به همهٔ عملیات ریسک",
+    "filter-panel-title": "فیلتر عملیات ریسک",
     "status-flow-modal-title": "وضعیت ریسک",
     "modal-risk-executor-label": "مجری ریسک",
     "modal-task-compliance-assigner-label": "ارجاع‌دهنده",

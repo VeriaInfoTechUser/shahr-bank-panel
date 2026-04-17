@@ -217,8 +217,8 @@ function onAutoApply(payload: Record<string, unknown>) {
         :build-payload="buildPayload"
         @apply="onAutoApply"
       />
-      <div class="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
-        <div class="col-span-full md:col-span-2 lg:col-span-3">
+      <div class="grid grid-cols-1 gap-3 md:grid-cols-3 lg:grid-cols-3">
+        <div class="col-span-full md:col-span-3 lg:col-span-3">
           <BaseInput
             name="rule"
             compact-label

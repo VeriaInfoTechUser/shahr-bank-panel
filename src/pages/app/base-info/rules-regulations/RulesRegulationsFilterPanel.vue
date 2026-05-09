@@ -7,7 +7,7 @@ import { toast } from 'vue3-toastify';
 import BaseInput from '@/core/ui/base/BaseInput.vue';
 import BaseMultiSelect from '@/core/ui/base/BaseMultiSelect.vue';
 import BaseSelect from '@/core/ui/base/BaseSelect.vue';
-import BaseDatePicker from '@/core/ui/base/BaseDatePicker.vue';
+import BaseDateRangePicker from '@/core/ui/base/BaseDateRangePicker.vue';
 import { ermRepo } from '@/core/repositories/ermRepo';
 import {
   DROPDOWN_LIST_PARAMS,
@@ -72,8 +72,16 @@ function apiFiltersToFormValues(f: Record<string, unknown> | undefined | null) {
         : validity === 0 || validity === false
           ? '0'
           : '',
+    approval_at_from: x.approval_at_from != null ? String(x.approval_at_from) : '',
+    approval_at_to: x.approval_at_to != null ? String(x.approval_at_to) : '',
     promulgation_at_from:
       x.promulgation_at_from != null ? String(x.promulgation_at_from) : '',
+    promulgation_at_to:
+      x.promulgation_at_to != null ? String(x.promulgation_at_to) : '',
+    cancellation_at_from:
+      x.cancellation_at_from != null ? String(x.cancellation_at_from) : '',
+    cancellation_at_to:
+      x.cancellation_at_to != null ? String(x.cancellation_at_to) : '',
     data_from: x.data_from != null ? String(x.data_from) : '',
     data_to: x.data_to != null ? String(x.data_to) : '',
   };
@@ -179,8 +187,18 @@ function buildPayload(values: Record<string, unknown>): Record<string, unknown> 
   const vl = String(values.validity_select ?? '').trim();
   if (vl === '1') o.validity = 1;
   else if (vl === '0') o.validity = 0;
-  const prom = String(values.promulgation_at_from ?? '').trim();
-  if (prom) o.promulgation_at_from = prom;
+  const approvalFrom = String(values.approval_at_from ?? '').trim();
+  if (approvalFrom) o.approval_at_from = approvalFrom;
+  const approvalTo = String(values.approval_at_to ?? '').trim();
+  if (approvalTo) o.approval_at_to = approvalTo;
+  const promFrom = String(values.promulgation_at_from ?? '').trim();
+  if (promFrom) o.promulgation_at_from = promFrom;
+  const promTo = String(values.promulgation_at_to ?? '').trim();
+  if (promTo) o.promulgation_at_to = promTo;
+  const cancelFrom = String(values.cancellation_at_from ?? '').trim();
+  if (cancelFrom) o.cancellation_at_from = cancelFrom;
+  const cancelTo = String(values.cancellation_at_to ?? '').trim();
+  if (cancelTo) o.cancellation_at_to = cancelTo;
   const df = String(values.data_from ?? '').trim();
   if (df) o.data_from = df;
   const dt = String(values.data_to ?? '').trim();
@@ -269,24 +287,32 @@ function onAutoApply(payload: Record<string, unknown>) {
           :options="validityFilterOptions"
           placeholder=""
         />
-        <BaseDatePicker
-          name="promulgation_at_from"
-          compact-label
-          :label="t('rule.filter-date-promulgation')"
-          placeholder=""
-        />
-        <BaseDatePicker
-          name="data_from"
-          compact-label
-          :label="t('rule.filter-date-data-from')"
-          placeholder=""
-        />
-        <BaseDatePicker
-          name="data_to"
-          compact-label
-          :label="t('rule.filter-date-data-to')"
-          placeholder=""
-        />
+        <div class="col-span-full grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <BaseDateRangePicker
+            name-from="approval_at_from"
+            name-to="approval_at_to"
+            compact-label
+            :label="t('rule.filter-approval-range')"
+          />
+          <BaseDateRangePicker
+            name-from="promulgation_at_from"
+            name-to="promulgation_at_to"
+            compact-label
+            :label="t('rule.filter-promulgation-range')"
+          />
+          <BaseDateRangePicker
+            name-from="cancellation_at_from"
+            name-to="cancellation_at_to"
+            compact-label
+            :label="t('rule.filter-cancellation-range')"
+          />
+          <BaseDateRangePicker
+            name-from="data_from"
+            name-to="data_to"
+            compact-label
+            :label="t('rule.filter-record-entry-range')"
+          />
+        </div>
       </div>
     </Form>
   </div>

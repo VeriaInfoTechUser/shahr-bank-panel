@@ -101,7 +101,7 @@ const domainMatrices = computed(() =>
         </div>
 
         <div class="rounded-xl border border-slate-200/90 bg-slate-50/80 p-3 dark:border-darkmode-700 dark:bg-darkmode-900/40">
-          <div dir="ltr" class="grid grid-cols-5 gap-1">
+          <div dir="ltr" class="grid grid-cols-5 ">
             <template v-for="row in totalMatrix" :key="row.key">
               <div
                 v-for="cell in row.cells"
@@ -143,7 +143,7 @@ const domainMatrices = computed(() =>
             </h5>
           </div>
 
-          <div dir="ltr" class="grid grid-cols-5 gap-1">
+          <div dir="ltr" class="grid grid-cols-5">
             <template v-for="matrixRow in row.matrix" :key="`${row.slug}-${matrixRow.key}`">
               <div
                 v-for="cell in matrixRow.cells"

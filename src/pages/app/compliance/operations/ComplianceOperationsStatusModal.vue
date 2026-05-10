@@ -25,7 +25,6 @@ import ComplianceStatusFormPlaceholder from './status/ComplianceStatusFormPlaceh
 import { buildCommitmentSummary } from '@/composables/commitmentSummary';
 import { apiClient } from '@/core/api/apiClient';
 import { useDownload } from '@/core/composables/useDownload';
-import { ermRepo } from '@/core/repositories/ermRepo';
 
 const props = defineProps<{
   show: boolean;
@@ -55,19 +54,6 @@ const taskAttachmentsError = ref<string | null>(null);
 const ruleAttachments = ref<unknown[]>([]);
 const ruleAttachmentsLoading = ref(false);
 const ruleAttachmentsError = ref<string | null>(null);
-const ruleInfo = ref<Record<string, unknown> | null>(null);
-
-watch(
-  () => props.show,
-  (v) => {
-    if (v) {
-      activeTab.value = 'commitment';
-      void fetchTaskAttachments();
-      void fetchRuleInfo();
-      void fetchRuleAttachments();
-    }
-  }
-);
 
 const taskId = computed(() => props.row?.id);
 const ruleId = computed(() => props.row?.rule_id);
@@ -103,6 +89,7 @@ const fetchTaskAttachments = async () => {
 };
 
 const fetchRuleAttachments = async () => {
+
   if (!ruleId.value) {
     ruleAttachmentsError.value = 'Missing rule ID';
     ruleAttachments.value = [];
@@ -129,23 +116,6 @@ const fetchRuleAttachments = async () => {
     ruleAttachmentsError.value = String(err instanceof Error ? err.message : err ?? 'Unknown error');
   } finally {
     ruleAttachmentsLoading.value = false;
-  }
-};
-
-const fetchRuleInfo = async () => {
-  if (!ruleId.value) {
-    ruleInfo.value = null;
-    return;
-  }
-
-  try {
-    const response = await ermRepo.list({ id: ruleId.value, limit: 1 });
-    const list = response?.data?.list ?? [];
-    if (Array.isArray(list) && list.length > 0) {
-      ruleInfo.value = list[0] as Record<string, unknown>;
-    }
-  } catch (err) {
-    console.error('Failed to fetch rule info:', err);
   }
 };
 
@@ -238,6 +208,23 @@ function goToDoingTasksPage() {
   close();
   void router.push({ name: 'app-compliance-doing-task' });
 }
+
+watch(
+    [() => props.show, () => props.row],
+    ([show, row]) => {
+
+      if (show && row) {
+        activeTab.value = 'commitment';
+
+        void fetchTaskAttachments();
+        void fetchRuleAttachments();
+      }
+    },
+    {
+      immediate: true,
+      deep: true,
+    }
+);
 </script>
 
 <template>
@@ -277,7 +264,7 @@ function goToDoingTasksPage() {
           "
           @click="activeTab = 'task-attachments'"
         >
-          پیوست تعهد
+          {{ t('compliance-page.status-modal-tab-task-attachment') }}
         </button>
         <button
           type="button"
@@ -291,22 +278,22 @@ function goToDoingTasksPage() {
           "
           @click="activeTab = 'rule-attachments'"
         >
-          پیوست قانون
+          {{ t('compliance-page.status-modal-tab-rule-attachment') }}
         </button>
-        <button
-          type="button"
-          role="tab"
-          :aria-selected="activeTab === 'report'"
-          class="flex-1 border-b-2 py-1.5 text-center text-sm font-medium transition -mb-px"
-          :class="
-            activeTab === 'report'
-              ? 'border-primary text-primary'
-              : 'border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200'
-          "
-          @click="activeTab = 'report'"
-        >
-          {{ t('compliance-page.status-modal-tab-report') }}
-        </button>
+<!--        <button-->
+<!--          type="button"-->
+<!--          role="tab"-->
+<!--          :aria-selected="activeTab === 'report'"-->
+<!--          class="flex-1 border-b-2 py-1.5 text-center text-sm font-medium transition -mb-px"-->
+<!--          :class="-->
+<!--            activeTab === 'report'-->
+<!--              ? 'border-primary text-primary'-->
+<!--              : 'border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200'-->
+<!--          "-->
+<!--          @click="activeTab = 'report'"-->
+<!--        >-->
+<!--          {{ t('compliance-page.status-modal-tab-report') }}-->
+<!--        </button>-->
       </div>
 
       <div class="pb-2 pt-0" role="tabpanel">
@@ -575,9 +562,9 @@ function goToDoingTasksPage() {
 
         <!-- Rule Attachments Tab -->
         <div v-show="activeTab === 'rule-attachments'" class="space-y-4">
-          <div v-if="ruleInfo" class="rounded bg-slate-50 p-3 dark:bg-slate-900">
+          <div v-if="props.row?.rule?.rule" class="rounded bg-slate-50 p-3 dark:bg-slate-900">
             <div class="text-sm font-medium text-slate-700 dark:text-slate-200">
-              قانون: {{ ruleInfo.rule || ruleInfo.title || '—' }}
+              قانون: {{ props.row.rule.rule }}
             </div>
           </div>
           <div v-if="ruleAttachmentsLoading" class="text-sm text-slate-500">{{ t('general.loading') }}...</div>

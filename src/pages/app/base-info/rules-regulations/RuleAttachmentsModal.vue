@@ -199,12 +199,12 @@ function openDeleteConfirm(attachment: Record<string, unknown>) {
               ref="fileInput"
               type="file"
               @change="onFileChange"
-              class="file-input file-input-bordered flex-1 text-sm"
+              class="file-input file-input-bordered flex-1 text-xs"
             />
             <Button
               type="button"
               variant="primary"
-              size="sm"
+              size=" "
               @click="uploadAttachment"
               :disabled="uploadLoading || !selectedFile"
               class="shrink-0"
@@ -315,3 +315,4 @@ function openDeleteConfirm(attachment: Record<string, unknown>) {
     @update:show="(v) => { if (!v) confirmFile = null; }"
   />
   </div>
+</template>

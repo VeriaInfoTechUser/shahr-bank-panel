@@ -713,6 +713,8 @@
   },
   "compliance-page": {
     "col-code": "کد",
+    "status-modal-tab-task-attachment": "پیوست تعهد",
+    "status-modal-tab-rule-attachment": "پیوست قانون",
     "col-commitment": "تعهد",
     "col-deadline": "مهلت پاسخگویی",
     "col-status": "وضعیت",

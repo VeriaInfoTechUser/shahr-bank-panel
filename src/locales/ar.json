@@ -452,6 +452,8 @@
   },
   "compliance-page": {
     "col-code": "الرمز",
+    "status-modal-tab-task-attachment": "مرفقات التعهد",
+    "status-modal-tab-rule-attachment": "مرفقات القاعدة",
     "col-commitment": "الالتزام",
     "col-deadline": "مهلة الاستجابة",
     "col-status": "الحالة",

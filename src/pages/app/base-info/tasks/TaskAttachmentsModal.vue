@@ -8,7 +8,6 @@ import Button from '@/base-components/Button';
 import Table from '@/base-components/Table';
 import { apiClient } from '@/core/api/apiClient';
 import { useDownload } from '@/core/composables/useDownload';
-import { ermRepo } from '@/core/repositories/ermRepo';
 
 const props = defineProps<{
   show: boolean;
@@ -16,6 +15,7 @@ const props = defineProps<{
   relationSection: string;
   relationItem: number | string;
   ruleId?: number | string;
+  rule?: Record<string, unknown> | null;
 }>();
 
 const emit = defineEmits<{
@@ -40,7 +40,6 @@ const activeTab = ref('task');
 const ruleAttachments = ref<unknown[]>([]);
 const ruleLoading = ref(false);
 const ruleError = ref<string | null>(null);
-const ruleInfo = ref<Record<string, unknown> | null>(null);
 
 const fetchRuleAttachments = async () => {
   if (!props.relationModule || !props.ruleId) {
@@ -70,23 +69,6 @@ const fetchRuleAttachments = async () => {
     toast(ruleError.value, { type: 'error' });
   } finally {
     ruleLoading.value = false;
-  }
-};
-
-const fetchRuleInfo = async () => {
-  if (!props.ruleId) {
-    ruleInfo.value = null;
-    return;
-  }
-
-  try {
-    const response = await ermRepo.list({ id: props.ruleId, limit: 1 });
-    const list = response?.data?.list ?? [];
-    if (Array.isArray(list) && list.length > 0) {
-      ruleInfo.value = list[0] as Record<string, unknown>;
-    }
-  } catch (err) {
-    console.error('Failed to fetch rule info:', err);
   }
 };
 
@@ -205,7 +187,6 @@ watch(
   (show) => {
     if (show) {
       void fetchAttachments();
-      void fetchRuleInfo();
       void fetchRuleAttachments();
     }
   },
@@ -267,7 +248,7 @@ function openDeleteConfirm(attachment: Record<string, unknown>) {
           ]"
           @click="activeTab = 'rule'"
         >
-          پیوست های قانون تعهد
+          پیوست های قانون
         </button>
       </div>
 
@@ -388,9 +369,9 @@ function openDeleteConfirm(attachment: Record<string, unknown>) {
 
       <!-- Rule Attachments Tab -->
       <div v-if="activeTab === 'rule'" class="space-y-4">
-        <div v-if="ruleInfo" class="rounded bg-slate-50 p-3 dark:bg-slate-900">
+        <div v-if="props.rule?.rule" class="rounded bg-slate-50 p-3 dark:bg-slate-900">
           <div class="text-sm font-medium text-slate-700 dark:text-slate-200">
-            قانون: {{ ruleInfo.rule || ruleInfo.title || '—' }}
+            قانون: {{ props.rule.rule }}
           </div>
         </div>
         <div v-if="ruleLoading" class="text-sm text-slate-500">{{ t('general.loading') }}...</div>

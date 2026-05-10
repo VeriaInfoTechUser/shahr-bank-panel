@@ -224,6 +224,7 @@ function onAttachmentTask(row: Record<string, unknown>) {
       relationSection: 'compliance-task',
       relationItem: id,
       ruleId: row.rule_id,
+      rule: row.rule as Record<string, unknown> | null,
     },
   });
 }

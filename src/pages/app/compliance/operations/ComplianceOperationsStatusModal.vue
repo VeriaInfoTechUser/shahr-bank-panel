@@ -3,7 +3,9 @@ import { computed, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import BaseModal from '@/core/ui/base/BaseModal.vue';
 import Button from '@/base-components/Button';
+import Table from '@/base-components/Table';
 import { useI18n } from 'vue-i18n';
+import { toast } from 'vue3-toastify';
 import {
   resolveOperationsProgressId,
   resolveOperationsTaskRowId,
@@ -21,6 +23,9 @@ import ComplianceStatusDoingParentView from './status/ComplianceStatusDoingParen
 import ComplianceStatusDoneReviewView from './status/ComplianceStatusDoneReviewView.vue';
 import ComplianceStatusFormPlaceholder from './status/ComplianceStatusFormPlaceholder.vue';
 import { buildCommitmentSummary } from '@/composables/commitmentSummary';
+import { apiClient } from '@/core/api/apiClient';
+import { useDownload } from '@/core/composables/useDownload';
+import { ermRepo } from '@/core/repositories/ermRepo';
 
 const props = defineProps<{
   show: boolean;
@@ -36,16 +41,124 @@ const emit = defineEmits<{
 const { t } = useI18n();
 const router = useRouter();
 const doingTaskNav = useComplianceDoingTaskNavigationStore();
+const { download: downloadFile, loading: downloadLoading } = useDownload();
 
-type StatusModalTab = 'commitment' | 'report';
+type StatusModalTab = 'commitment' | 'task-attachments' | 'rule-attachments' | 'report';
 const activeTab = ref<StatusModalTab>('commitment');
+
+// Task attachments state
+const taskAttachments = ref<unknown[]>([]);
+const taskAttachmentsLoading = ref(false);
+const taskAttachmentsError = ref<string | null>(null);
+
+// Rule attachments state
+const ruleAttachments = ref<unknown[]>([]);
+const ruleAttachmentsLoading = ref(false);
+const ruleAttachmentsError = ref<string | null>(null);
+const ruleInfo = ref<Record<string, unknown> | null>(null);
 
 watch(
   () => props.show,
   (v) => {
-    if (v) activeTab.value = 'commitment';
+    if (v) {
+      activeTab.value = 'commitment';
+      void fetchTaskAttachments();
+      void fetchRuleInfo();
+      void fetchRuleAttachments();
+    }
   }
 );
+
+const taskId = computed(() => props.row?.id);
+const ruleId = computed(() => props.row?.rule_id);
+
+const fetchTaskAttachments = async () => {
+  if (!taskId.value) {
+    taskAttachmentsError.value = 'Missing task ID';
+    taskAttachments.value = [];
+    return;
+  }
+
+  taskAttachmentsLoading.value = true;
+  taskAttachmentsError.value = null;
+  taskAttachments.value = [];
+
+  try {
+    const response = await apiClient.post<{ result?: boolean; data?: { list?: unknown[] } }>(
+      'media/private/list',
+      {
+        relation_module: 'erm',
+        relation_section: 'compliance-task',
+        relation_item: taskId.value,
+      }
+    );
+
+    const data = response?.data;
+    taskAttachments.value = Array.isArray(data?.list) ? data.list : [];
+  } catch (err) {
+    taskAttachmentsError.value = String(err instanceof Error ? err.message : err ?? 'Unknown error');
+  } finally {
+    taskAttachmentsLoading.value = false;
+  }
+};
+
+const fetchRuleAttachments = async () => {
+  if (!ruleId.value) {
+    ruleAttachmentsError.value = 'Missing rule ID';
+    ruleAttachments.value = [];
+    return;
+  }
+
+  ruleAttachmentsLoading.value = true;
+  ruleAttachmentsError.value = null;
+  ruleAttachments.value = [];
+
+  try {
+    const response = await apiClient.post<{ result?: boolean; data?: { list?: unknown[] } }>(
+      'media/private/list',
+      {
+        relation_module: 'erm',
+        relation_section: 'compliance-rule',
+        relation_item: ruleId.value,
+      }
+    );
+
+    const data = response?.data;
+    ruleAttachments.value = Array.isArray(data?.list) ? data.list : [];
+  } catch (err) {
+    ruleAttachmentsError.value = String(err instanceof Error ? err.message : err ?? 'Unknown error');
+  } finally {
+    ruleAttachmentsLoading.value = false;
+  }
+};
+
+const fetchRuleInfo = async () => {
+  if (!ruleId.value) {
+    ruleInfo.value = null;
+    return;
+  }
+
+  try {
+    const response = await ermRepo.list({ id: ruleId.value, limit: 1 });
+    const list = response?.data?.list ?? [];
+    if (Array.isArray(list) && list.length > 0) {
+      ruleInfo.value = list[0] as Record<string, unknown>;
+    }
+  } catch (err) {
+    console.error('Failed to fetch rule info:', err);
+  }
+};
+
+const downloadAttachment = async (attachment: Record<string, unknown>) => {
+  const id = attachment.id;
+  if (id == null) {
+    toast('Missing attachment id', { type: 'error' });
+    return;
+  }
+
+  const filename = String(attachment.original_name ?? attachment.title ?? 'download');
+  await downloadFile('media/private/stream', { id }, filename);
+};
 
 /** فقط فیلدهای لازم برای نمایش خلاصهٔ تعهد */
 const commitmentSummary = computed(() => buildCommitmentSummary(props.row));
@@ -135,14 +248,14 @@ function goToDoingTasksPage() {
   >
     <div class="w-full -mt-2 pt-0" data-autofocus-modal>
       <div
-        class="grid w-full grid-cols-2 border-b border-slate-200 dark:border-darkmode-600"
+        class="flex w-full border-b border-slate-200 dark:border-darkmode-600"
         role="tablist"
       >
         <button
           type="button"
           role="tab"
           :aria-selected="activeTab === 'commitment'"
-          class="w-full border-b-2 py-1.5 text-center text-sm font-medium transition -mb-px"
+          class="flex-1 border-b-2 py-1.5 text-center text-sm font-medium transition -mb-px"
           :class="
             activeTab === 'commitment'
               ? 'border-primary text-primary'
@@ -155,8 +268,36 @@ function goToDoingTasksPage() {
         <button
           type="button"
           role="tab"
+          :aria-selected="activeTab === 'task-attachments'"
+          class="flex-1 border-b-2 py-1.5 text-center text-sm font-medium transition -mb-px"
+          :class="
+            activeTab === 'task-attachments'
+              ? 'border-primary text-primary'
+              : 'border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200'
+          "
+          @click="activeTab = 'task-attachments'"
+        >
+          پیوست تعهد
+        </button>
+        <button
+          type="button"
+          role="tab"
+          :aria-selected="activeTab === 'rule-attachments'"
+          class="flex-1 border-b-2 py-1.5 text-center text-sm font-medium transition -mb-px"
+          :class="
+            activeTab === 'rule-attachments'
+              ? 'border-primary text-primary'
+              : 'border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200'
+          "
+          @click="activeTab = 'rule-attachments'"
+        >
+          پیوست قانون
+        </button>
+        <button
+          type="button"
+          role="tab"
           :aria-selected="activeTab === 'report'"
-          class="w-full border-b-2 py-1.5 text-center text-sm font-medium transition -mb-px"
+          class="flex-1 border-b-2 py-1.5 text-center text-sm font-medium transition -mb-px"
           :class="
             activeTab === 'report'
               ? 'border-primary text-primary'
@@ -358,6 +499,157 @@ function goToDoingTasksPage() {
         </div>
 
         <div v-show="activeTab === 'report'" />
+
+        <!-- Task Attachments Tab -->
+        <div v-show="activeTab === 'task-attachments'" class="space-y-4">
+          <div v-if="taskAttachmentsLoading" class="text-sm text-slate-500">{{ t('general.loading') }}...</div>
+          <div v-if="taskAttachmentsError" class="rounded bg-red-50 p-3 text-sm text-red-600 dark:bg-red-900/20 dark:text-red-400">
+            {{ taskAttachmentsError }}
+          </div>
+          <div v-if="!taskAttachmentsLoading && !taskAttachmentsError">
+            <div v-if="taskAttachments.length === 0" class="text-sm text-slate-500">
+              {{ t('general.no-data') }}
+            </div>
+            <div v-else class="overflow-x-auto">
+              <Table>
+                <Table.Thead>
+                  <Table.Tr>
+                    <Table.Th class="border-b-2 dark:border-darkmode-400 whitespace-nowrap">
+                      {{ t('general.title') }}
+                    </Table.Th>
+                    <Table.Th class="border-b-2 dark:border-darkmode-400 whitespace-nowrap">
+                      {{ t('general.type') }}
+                    </Table.Th>
+                    <Table.Th class="border-b-2 dark:border-darkmode-400 whitespace-nowrap">
+                      {{ t('general.extension') }}
+                    </Table.Th>
+                    <Table.Th class="border-b-2 dark:border-darkmode-400 whitespace-nowrap">
+                      {{ t('general.size') }}
+                    </Table.Th>
+                    <Table.Th class="border-b-2 dark:border-darkmode-400 whitespace-nowrap">
+                      {{ t('general.created-at') }}
+                    </Table.Th>
+                    <Table.Th class="border-b-2 dark:border-darkmode-400 whitespace-nowrap">
+                      {{ t('general.actions') }}
+                    </Table.Th>
+                  </Table.Tr>
+                </Table.Thead>
+                <Table.Tbody>
+                  <Table.Tr v-for="item in taskAttachments" :key="item.id">
+                    <Table.Td class="border-b dark:border-darkmode-400">
+                      <div class="font-medium whitespace-nowrap">
+                        {{ item.title || item.original_name }}
+                      </div>
+                    </Table.Td>
+                    <Table.Td class="border-b dark:border-darkmode-400">
+                      {{ item.type }}
+                    </Table.Td>
+                    <Table.Td class="border-b dark:border-darkmode-400">
+                      {{ item.extension }}
+                    </Table.Td>
+                    <Table.Td class="border-b dark:border-darkmode-400">
+                      {{ item.size_view }}
+                    </Table.Td>
+                    <Table.Td class="border-b dark:border-darkmode-400">
+                      {{ item.time_create_view }}
+                    </Table.Td>
+                    <Table.Td class="border-b dark:border-darkmode-400">
+                      <div class="flex items-center gap-2">
+                        <button
+                          type="button"
+                          class="inline-flex h-7 w-7 items-center justify-center rounded border border-slate-300 text-slate-600 transition hover:bg-slate-100 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-800"
+                          :title="t('general.download')"
+                          @click="() => downloadAttachment(item as Record<string, unknown>)"
+                          :disabled="downloadLoading"
+                        >
+                          ↓
+                        </button>
+                      </div>
+                    </Table.Td>
+                  </Table.Tr>
+                </Table.Tbody>
+              </Table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Rule Attachments Tab -->
+        <div v-show="activeTab === 'rule-attachments'" class="space-y-4">
+          <div v-if="ruleInfo" class="rounded bg-slate-50 p-3 dark:bg-slate-900">
+            <div class="text-sm font-medium text-slate-700 dark:text-slate-200">
+              قانون: {{ ruleInfo.rule || ruleInfo.title || '—' }}
+            </div>
+          </div>
+          <div v-if="ruleAttachmentsLoading" class="text-sm text-slate-500">{{ t('general.loading') }}...</div>
+          <div v-if="ruleAttachmentsError" class="rounded bg-red-50 p-3 text-sm text-red-600 dark:bg-red-900/20 dark:text-red-400">
+            {{ ruleAttachmentsError }}
+          </div>
+          <div v-if="!ruleAttachmentsLoading && !ruleAttachmentsError">
+            <div v-if="ruleAttachments.length === 0" class="text-sm text-slate-500">
+              {{ t('general.no-data') }}
+            </div>
+            <div v-else class="overflow-x-auto">
+              <Table>
+                <Table.Thead>
+                  <Table.Tr>
+                    <Table.Th class="border-b-2 dark:border-darkmode-400 whitespace-nowrap">
+                      {{ t('general.title') }}
+                    </Table.Th>
+                    <Table.Th class="border-b-2 dark:border-darkmode-400 whitespace-nowrap">
+                      {{ t('general.type') }}
+                    </Table.Th>
+                    <Table.Th class="border-b-2 dark:border-darkmode-400 whitespace-nowrap">
+                      {{ t('general.extension') }}
+                    </Table.Th>
+                    <Table.Th class="border-b-2 dark:border-darkmode-400 whitespace-nowrap">
+                      {{ t('general.size') }}
+                    </Table.Th>
+                    <Table.Th class="border-b-2 dark:border-darkmode-400 whitespace-nowrap">
+                      {{ t('general.created-at') }}
+                    </Table.Th>
+                    <Table.Th class="border-b-2 dark:border-darkmode-400 whitespace-nowrap">
+                      {{ t('general.actions') }}
+                    </Table.Th>
+                  </Table.Tr>
+                </Table.Thead>
+                <Table.Tbody>
+                  <Table.Tr v-for="item in ruleAttachments" :key="item.id">
+                    <Table.Td class="border-b dark:border-darkmode-400">
+                      <div class="font-medium whitespace-nowrap">
+                        {{ item.title || item.original_name }}
+                      </div>
+                    </Table.Td>
+                    <Table.Td class="border-b dark:border-darkmode-400">
+                      {{ item.type }}
+                    </Table.Td>
+                    <Table.Td class="border-b dark:border-darkmode-400">
+                      {{ item.extension }}
+                    </Table.Td>
+                    <Table.Td class="border-b dark:border-darkmode-400">
+                      {{ item.size_view }}
+                    </Table.Td>
+                    <Table.Td class="border-b dark:border-darkmode-400">
+                      {{ item.time_create_view }}
+                    </Table.Td>
+                    <Table.Td class="border-b dark:border-darkmode-400">
+                      <div class="flex items-center gap-2">
+                        <button
+                          type="button"
+                          class="inline-flex h-7 w-7 items-center justify-center rounded border border-slate-300 text-slate-600 transition hover:bg-slate-100 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-800"
+                          :title="t('general.download')"
+                          @click="() => downloadAttachment(item as Record<string, unknown>)"
+                          :disabled="downloadLoading"
+                        >
+                          ↓
+                        </button>
+                      </div>
+                    </Table.Td>
+                  </Table.Tr>
+                </Table.Tbody>
+              </Table>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -365,6 +657,22 @@ function goToDoingTasksPage() {
       <div class="flex flex-wrap justify-end gap-2">
         <template
           v-if="
+            activeTab === 'task-attachments' ||
+            activeTab === 'rule-attachments' ||
+            activeTab === 'report'
+          "
+        >
+          <Button
+            type="button"
+            variant="outline-secondary"
+            size="sm"
+            @click="close"
+          >
+            {{ t('general.close') }}
+          </Button>
+        </template>
+        <template
+          v-else-if="
             statusKey === 'pending-assignment' &&
             activeTab === 'commitment'
           "

@@ -317,7 +317,7 @@ onUnmounted(() => {
             {{ t('risk-performance.status-list-subtitle') }}
           </p>
         </div>
-        <div class="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+        <div class="grid gap-3 grid-cols-2 sm:grid-cols-6">
           <div
             v-for="item in pieItems"
             :key="item.value"

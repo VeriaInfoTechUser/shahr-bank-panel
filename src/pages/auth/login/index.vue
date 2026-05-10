@@ -64,7 +64,7 @@ const login = async (values) => {
       <div class="hidden xl:flex xl:flex-1 flex-col justify-center">
         <img
           :alt="$t('title.logo-alt')"
-          class="w-80"
+          class="w-44"
           :src="logoUrl"
         />
         <div class="mt-8 text-2xl font-semibold text-slate-900 dark:text-slate-100">
@@ -79,7 +79,7 @@ const login = async (values) => {
       <div class="flex-1 flex items-center justify-center">
         <div class="w-full max-w-md">
           <div class="xl:hidden flex justify-center mb-8">
-            <img :alt="$t('title.logo-alt')" class="w-24" :src="logoUrl" />
+            <img :alt="$t('title.logo-alt')" class="w-44" :src="logoUrl" />
           </div>
 
           <div

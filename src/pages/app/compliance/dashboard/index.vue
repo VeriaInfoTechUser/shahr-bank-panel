@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useQuery } from '@/core/composables/useQuery';
 import { ermRepo } from '@/core/repositories/ermRepo';
@@ -10,8 +10,28 @@ import ProgressDoughnut from './ProgressDoughnut.vue';
 import DomainsBarChart from './DomainsBarChart.vue';
 import FinancialBreakdownChart from './FinancialBreakdownChart.vue';
 import RadarTopicsChart from './RadarTopicsChart.vue';
+import ComplianceFilterToolbar from './ComplianceFilterToolbar.vue';
+import { useBreadcrumbSlot } from '@/composables/useBreadcrumb';
 
 const { t } = useI18n();
+const { setContent: setBreadcrumbSlot } = useBreadcrumbSlot();
+
+// Initialize filters from a stable source
+const filters = ref<Record<string, unknown>>({});
+const isInitialized = ref(false);
+
+// Track filter changes and refetch the dashboard when filters update
+watch(
+  filters,
+  (newFilters, oldFilters) => {
+    if (!isInitialized.value) return;
+    if (JSON.stringify(newFilters) === JSON.stringify(oldFilters)) return;
+
+    invalidate();
+    refetch?.();
+  },
+  { deep: true }
+);
 
 interface FinancialBucketData {
   total_count?: number | null;
@@ -114,9 +134,10 @@ const {
   isLoading,
   error,
   refetch,
+  invalidate,
 } = useQuery(
-  ['compliance-dashboard'],
-  () => ermRepo.complianceDashboard() as Promise<DashboardResponse>,
+  ['compliance-dashboard', filters],
+  () => ermRepo.complianceDashboard(filters.value) as Promise<DashboardResponse>,
   {
     enabled: true,
     staleTime: 300000, // 5 minutes
@@ -328,8 +349,23 @@ const summaryInsights = computed(() => [
 ]);
 
 function handleRetry() {
-  refetch();
+  refetch?.();
 }
+
+function replaceFilters(newFilters: Record<string, unknown>) {
+  filters.value = newFilters;
+  isInitialized.value = true;
+}
+
+function clearFilters() {
+  filters.value = {};
+  isInitialized.value = true;
+}
+
+onMounted(() => {
+  isInitialized.value = true;
+  setBreadcrumbSlot(null);
+});
 
 const overallProgressTitle = computed(() =>
   t('compliance-dashboard.overall-progress-title', { count: domains.value.length })
@@ -347,7 +383,7 @@ const measurableDomainsCaption = computed(() =>
   <div class="mx-auto max-w-7xl px-1 pb-12 pt-2 md:px-2">
     <!-- Header -->
     <header class="mb-8 md:mb-10">
-      <div class="flex flex-col gap-4">
+      <div class="flex items-center justify-between gap-4">
         <div class="flex items-center gap-4">
           <div
             class="relative flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-primary/20 via-primary/10 to-primary/5 shadow-sm ring-1 ring-primary/20 dark:from-primary/25 dark:via-primary/15 dark:ring-primary/30"
@@ -366,6 +402,13 @@ const measurableDomainsCaption = computed(() =>
             </p>
           </div>
         </div>
+        <ComplianceFilterToolbar
+          :table="{
+            replaceFilters,
+            clearFilters,
+            filters
+          }"
+        />
       </div>
     </header>
 

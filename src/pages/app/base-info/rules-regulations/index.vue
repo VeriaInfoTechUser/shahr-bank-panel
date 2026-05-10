@@ -14,6 +14,7 @@ import Button from '@/base-components/Button';
 import Lucide from '@/base-components/Lucide';
 import RulesRegulationsToolbar from './RulesRegulationsToolbar.vue';
 import AddRuleModal from './AddRuleModal.vue';
+import RuleAttachmentsModal from './RuleAttachmentsModal.vue';
 
 const { t } = useI18n();
 const router = useRouter();
@@ -172,7 +173,20 @@ function onTrashRules() {
 }
 
 function onAttachmentClick(row: Record<string, unknown>) {
-  console.log('Attachment clicked', row);
+  const id = row.id;
+  if (id == null) {
+    toast(t('general.error'), { type: 'error' });
+    return;
+  }
+
+  openModal({
+    component: RuleAttachmentsModal,
+    props: {
+      relationModule: 'erm',
+      relationSection: 'compliance-rule',
+      relationItem: id,
+    },
+  });
 }
 
 function onEditClick(row: Record<string, unknown>) {

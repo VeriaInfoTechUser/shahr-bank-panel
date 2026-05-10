@@ -80,7 +80,18 @@
     "confirm-dialog-message": "هل أنت متأكد أنك تريد المتابعة؟",
     "confirm-dialog-confirm": "تأكيد",
     "retry": "إعادة المحاولة",
-    "close": "إغلاق"
+    "close": "إغلاق",
+    "delete": "حذف",
+    "delete-confirm-message": "هل أنت متأكد من حذف هذا العنصر؟",
+    "download": "تحميل",
+    "upload": "رفع",
+    "upload-file": "رفع ملف",
+    "uploading": "جاري الرفع...",
+    "size": "الحجم",
+    "created-at": "تاريخ الإنشاء",
+    "type": "النوع",
+    "extension": "الامتداد",
+    "actions": "الإجراءات"
   },
   "login-history": {
     "title": "سجل الدخول",

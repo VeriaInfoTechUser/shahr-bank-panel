@@ -47,6 +47,7 @@
     "category": "دسته‌بندی",
     "updated-at": "به‌روزرسانی",
     "closed-at": "بسته شده",
+    "attachments": "پیوست‌ها",
     "vm-instance": "ماشین مجازی",
     "general-information": "اطلاعات عمومی",
     "id": "شناسه",
@@ -228,7 +229,18 @@
     "confirm-dialog-message": "آیا از انجام این عملیات اطمینان دارید؟",
     "confirm-dialog-confirm": "تأیید",
     "retry": "تلاش مجدد",
-    "close": "بستن"
+    "close": "بستن",
+    "delete": "حذف",
+    "delete-confirm-message": "آیا از حذف این مورد اطمینان دارید؟",
+    "download": "دانلود",
+    "upload": "آپلود",
+    "upload-file": "آپلود فایل",
+    "uploading": "در حال آپلود...",
+    "size": "اندازه",
+    "created-at": "تاریخ ایجاد",
+    "type": "نوع",
+    "extension": "پسوند",
+    "actions": "عملیات"
   },
   "login-history": {
     "title": "تاریخچه ورود",

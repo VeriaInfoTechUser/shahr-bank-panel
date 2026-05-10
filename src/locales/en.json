@@ -49,6 +49,7 @@
     "category": "Category",
     "updated-at": "Updated At",
     "closed-at": "Closed At",
+    "attachments": "Attachments",
     "vm-instance": "VM Instance",
     "general-information": "General Information",
     "id": "ID",
@@ -210,7 +211,18 @@
     "confirm-dialog-message": "Are you sure you want to continue?",
     "confirm-dialog-confirm": "Confirm",
     "retry": "Retry",
-    "close": "Close"
+    "close": "Close",
+    "delete": "Delete",
+    "delete-confirm-message": "Are you sure you want to delete this item?",
+    "download": "Download",
+    "upload": "Upload",
+    "upload-file": "Upload file",
+    "uploading": "Uploading...",
+    "size": "Size",
+    "created-at": "Created At",
+    "type": "Type",
+    "extension": "Extension",
+    "actions": "Actions"
   },
   "login-history": {
     "title": "Login History",

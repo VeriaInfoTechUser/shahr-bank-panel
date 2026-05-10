@@ -68,7 +68,7 @@ onMounted(() => {
   >
 <!--    <DarkModeSwitcher />-->
 <!--    <MainColorSwitcher />-->
-    <MobileMenu />
+<!--    <MobileMenu />-->
     <TopBar />
     <div
         :class="[
@@ -90,7 +90,7 @@ onMounted(() => {
       >
         <!-- BEGIN: Side Menu -->
         <nav
-          class="side-nav hidden md:block w-[65px] xl:w-[200px] ps-1 pe-2 pt-8 pb-10 xl:ps-0 xl:pe-5 xl:pb-16 overflow-x-hidden"
+          class="side-nav   md:block w-[65px] xl:w-[200px] ps-1 pe-2 pt-8 pb-10 xl:ps-0 xl:pe-5 xl:pb-16 overflow-x-hidden"
         >
           <ul>
             <!-- BEGIN: First Child -->

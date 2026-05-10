@@ -8,6 +8,7 @@ import DarkModeSwitcher from "../../components/DarkModeSwitcher";
 import MainColorSwitcher from "../../components/MainColorSwitcher";
 import MobileMenu from "../../components/MobileMenu";
 import { useSideMenuStore } from "../../stores/side-menu";
+import { usePermissionStore } from "@/core/permission/permissionStore";
 import {
   ProvideForceActiveMenu,
   forceActiveMenu,
@@ -34,15 +35,42 @@ const setFormattedMenu = (
   Object.assign(formattedMenu, computedFormattedMenu);
 };
 const sideMenuStore = useSideMenuStore();
-const sideMenu = computed(() => nestedMenu(sideMenuStore.menu, route));
+const permStore = usePermissionStore();
+
+const userRoles = permStore.roles;
+
+function filterMenu(items: typeof sideMenuStore.menu): typeof sideMenuStore.menu {
+  return items
+    .map(item => {
+      if (typeof item === "string") return item;
+      
+      if (item.requiredRole && !userRoles.includes(item.requiredRole)) {
+        return null;
+      }
+      
+      const newItem: typeof item = { ...item };
+      
+      if (item.subMenu && item.subMenu.length > 0) {
+        const filteredSubMenu = filterMenu(item.subMenu);
+        const menuItemsOnly = filteredSubMenu.filter((sub): sub is typeof item => typeof sub !== "string" && sub !== null);
+        if (menuItemsOnly.length > 0) {
+          newItem.subMenu = menuItemsOnly;
+          return newItem;
+        }
+        return null;
+      }
+      
+      return newItem;
+    })
+    .filter((item): item is typeof item => item !== null);
+}
+
+const filteredMenu = ref(filterMenu(sideMenuStore.menu));
+const sideMenu = computed(() => nestedMenu(filteredMenu.value, route));
 const windowWidth = ref(window.innerWidth);
 
 provide<ProvideForceActiveMenu>("forceActiveMenu", (pageName: string) => {
   forceActiveMenu(route, pageName);
-  setFormattedMenu(sideMenu.value);
-});
-
-watch(sideMenu, () => {
   setFormattedMenu(sideMenu.value);
 });
 

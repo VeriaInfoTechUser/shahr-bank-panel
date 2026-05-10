@@ -7,6 +7,7 @@ export interface Menu {
     pageName?: string;
     subMenu?: Menu[];
     ignore?: boolean;
+    requiredRole?: string;
 }
 
 export interface SideMenuState {
@@ -32,16 +33,19 @@ export const useSideMenuStore = defineStore("sideMenu", {
                 icon: "Database",
                 pageName: "app-base-info",
                 title: "menu.base-info",
+                requiredRole: "grc_admin",
                 subMenu: [
                     {
                         icon: "Scale",
                         pageName: "app-base-info-rules-regulations",
                         title: "menu.rules-regulations",
+                        requiredRole: "grc_admin",
                     },
                     {
                         icon: "ClipboardCheck",
                         pageName: "app-base-info-tasks",
                         title: "menu.tasks",
+                        requiredRole: "grc_admin",
                     },
                 ],
             },
@@ -103,16 +107,19 @@ export const useSideMenuStore = defineStore("sideMenu", {
                         icon: "Users",
                         pageName: "app-settings-liaisons",
                         title: "menu.settings-liaisons",
+                        requiredRole: "grc_admin",
                     },
                     {
                         icon: "Landmark",
                         pageName: "app-settings-legislative-authority",
                         title: "menu.settings-legislative-authority",
+                        requiredRole: "grc_admin",
                     },
                     {
                         icon: "FileType",
                         pageName: "app-settings-law-type",
                         title: "menu.settings-law-type",
+                        requiredRole: "grc_admin",
                     },
                 ],
             },

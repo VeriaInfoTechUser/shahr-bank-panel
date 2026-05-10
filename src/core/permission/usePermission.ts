@@ -22,5 +22,9 @@ export function usePermission() {
     return can(menuKey) || store.roles.includes('super-admin') || store.roles.includes('admin');
   }
 
-  return { can, hasRole, canAccessRoute, canShowMenu };
+  function hasAnyRole(roles: string[]): boolean {
+    return roles.some(role => store.roles.includes(role));
+  }
+
+  return { can, hasRole, hasAnyRole, canAccessRoute, canShowMenu };
 }

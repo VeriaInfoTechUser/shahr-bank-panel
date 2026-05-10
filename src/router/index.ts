@@ -143,19 +143,19 @@ const routes = [
                                 path: "liaisons",
                                 name: "app-settings-liaisons",
                                 component: SettingsLiaisons,
-                                meta: { breadcrumbLabel: 'menu.settings-liaisons' },
+                                meta: { breadcrumbLabel: 'menu.settings-liaisons', requiredRole: 'grc_admin' },
                             },
                             {
                                 path: "legislative-authority",
                                 name: "app-settings-legislative-authority",
                                 component: SettingsLegislativeAuthority,
-                                meta: { breadcrumbLabel: 'menu.settings-legislative-authority' },
+                                meta: { breadcrumbLabel: 'menu.settings-legislative-authority', requiredRole: 'grc_admin' },
                             },
                             {
                                 path: "law-type",
                                 name: "app-settings-law-type",
                                 component: SettingsLawType,
-                                meta: { breadcrumbLabel: 'menu.settings-law-type' },
+                                meta: { breadcrumbLabel: 'menu.settings-law-type', requiredRole: 'grc_admin' },
                             },
                         ],
                     },
@@ -262,9 +262,18 @@ router.beforeEach((to, from, next) => {
             const permStore = usePermissionStore();
             permStore.init();
             const permission = to.meta.permission as string | undefined;
+            const requiredRole = to.meta.requiredRole as string | undefined;
+            
             if (permission) {
                 const { canAccessRoute } = usePermission();
                 if (canAccessRoute(permission)) {
+                    next();
+                } else {
+                    next({ name: 'app-dashboard' });
+                }
+            } else if (requiredRole) {
+                const { hasRole } = usePermission();
+                if (hasRole(requiredRole)) {
                     next();
                 } else {
                     next({ name: 'app-dashboard' });

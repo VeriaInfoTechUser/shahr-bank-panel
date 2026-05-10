@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue';
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useQuery } from '@/core/composables/useQuery';
 import { ermRepo } from '@/core/repositories/ermRepo';
@@ -365,6 +365,13 @@ function clearFilters() {
 onMounted(() => {
   isInitialized.value = true;
   setBreadcrumbSlot(null);
+});
+
+onUnmounted(() => {
+  // Reset filters and invalidate cache when navigating away
+  filters.value = {};
+  isInitialized.value = false;
+  invalidate();
 });
 
 const overallProgressTitle = computed(() =>

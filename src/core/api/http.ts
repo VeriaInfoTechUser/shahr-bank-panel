@@ -4,8 +4,7 @@ import { setCurrentUser } from '@/utils/cookie';
 import { generateRequestId, logAudit } from './auditLogger';
 import { withRetry } from './retryHandler';
 import { base_url } from '@/constants/config';
-import { useUserStore } from '@/stores/user';
-import router from '@/router';
+// import router from '@/router';
 import { handleApiError, ApiError } from './apiError';
 
 const LOGOUT_ENDPOINTS = ['user/authentication/logout'];
@@ -13,8 +12,7 @@ const LOGOUT_ENDPOINTS = ['user/authentication/logout'];
 function handleUnauthorized(): void {
   setCurrentUser(null);
   eraseCookie('utn');
-  useUserStore().$patch({ currentUser: null });
-  router.push({ name: 'auth-login' });
+  // router.push({ name: 'auth-login' });
 }
 
 function createHttpClient(): AxiosInstance {

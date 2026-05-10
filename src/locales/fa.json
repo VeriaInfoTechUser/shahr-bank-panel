@@ -227,7 +227,18 @@
     "confirm-dialog-title": "تأیید",
     "confirm-dialog-message": "آیا از انجام این عملیات اطمینان دارید؟",
     "confirm-dialog-confirm": "تأیید",
-    "retry": "تلاش مجدد"
+    "retry": "تلاش مجدد",
+    "close": "بستن"
+  },
+  "login-history": {
+    "title": "تاریخچه ورود",
+    "subtitle": "فعالیت‌های اخیر ورود شما ({count} رکورد)",
+    "login": "ورود",
+    "logout": "خروج",
+    "error-title": "خطا در بارگذاری تاریخچه",
+    "error-message": "بارگذاری تاریخچه ورود شما امکان‌پذیر نیست. لطفاً دوباره تلاش کنید.",
+    "no-data-title": "تاریخچه ورودی وجود ندارد",
+    "no-data-message": "شما هیچ فعالیت ورود اخیری ندارید."
   },
   "dashboard-page": {
     "identity-label": "شناسه سامانه:",

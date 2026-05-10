@@ -15,6 +15,7 @@ export const useUserStore = defineStore('user', () => {
   const currentUser = ref(getCurrentUser());
   const loginError = ref();
   const showLog = ref(false);
+  const showLoginHistoryModal = ref(false);
   const updateError = ref();
   const processing = ref(false);
   const updateProcessing = ref(false);
@@ -33,11 +34,14 @@ export const useUserStore = defineStore('user', () => {
     setCurrentUser(payload);
     currentUser.value = payload;
     loginError.value = null;
+    // Show login history modal after successful login
+    showLoginHistoryModal.value = true;
   }
 
   function setLogout() {
     currentUser.value = null;
     loginError.value = null;
+    showLoginHistoryModal.value = false;
     eraseCookie('utn');
     eraseCookie('uName');
     eraseCookie('uEmail');
@@ -164,6 +168,10 @@ export const useUserStore = defineStore('user', () => {
     showLog.value = payload;
   }
 
+  function setShowLoginHistoryModal(payload) {
+    showLoginHistoryModal.value = payload;
+  }
+
   return {
     signOut,
     currentUser,
@@ -172,6 +180,8 @@ export const useUserStore = defineStore('user', () => {
     requestNotificationCount,
     setShowLog,
     showLog,
+    showLoginHistoryModal,
+    setShowLoginHistoryModal,
     processing,
     resetPasswordSuccess,
     notificationCount,

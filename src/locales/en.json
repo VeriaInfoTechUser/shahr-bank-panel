@@ -209,7 +209,18 @@
     "confirm-dialog-title": "Confirm",
     "confirm-dialog-message": "Are you sure you want to continue?",
     "confirm-dialog-confirm": "Confirm",
-    "retry": "Retry"
+    "retry": "Retry",
+    "close": "Close"
+  },
+  "login-history": {
+    "title": "Login History",
+    "subtitle": "Your recent login activities ({count} records)",
+    "login": "Login",
+    "logout": "Logout",
+    "error-title": "Failed to Load History",
+    "error-message": "Unable to load your login history. Please try again later.",
+    "no-data-title": "No Login History",
+    "no-data-message": "You don't have any recent login activities."
   },
   "dashboard-page": {
     "identity-label": "System ID:",

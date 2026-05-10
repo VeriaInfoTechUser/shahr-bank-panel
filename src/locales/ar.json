@@ -79,7 +79,18 @@
     "confirm-dialog-title": "تأكيد",
     "confirm-dialog-message": "هل أنت متأكد أنك تريد المتابعة؟",
     "confirm-dialog-confirm": "تأكيد",
-    "retry": "إعادة المحاولة"
+    "retry": "إعادة المحاولة",
+    "close": "إغلاق"
+  },
+  "login-history": {
+    "title": "سجل الدخول",
+    "subtitle": "أنشطة تسجيل الدخول الأخيرة الخاصة بك ({count} سجل)",
+    "login": "تسجيل الدخول",
+    "logout": "تسجيل الخروج",
+    "error-title": "فشل تحميل السجل",
+    "error-message": "تعذر تحميل سجل تسجيل الدخول الخاص بك. يرجى المحاولة مرة أخرى لاحقًا.",
+    "no-data-title": "لا يوجد سجل دخول",
+    "no-data-message": "ليس لديك أي أنشطة تسجيل دخول حديثة."
   },
   "dashboard-page": {
     "identity-label": "معرّف النظام:",

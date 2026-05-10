@@ -32,29 +32,22 @@ const filterToolbarClearTick = ref(0);
 const hasActiveFilters = computed(() => {
   const filters = toValue(props.table.filters) ?? {};
   const activeCount = Object.keys(filters).length;
-  console.log('🔍 [RiskDashboardFilterToolbar] hasActiveFilters:', { filters, activeCount });
-  return activeCount > 0;
+   return activeCount > 0;
 });
 
 const activeFilterKeys = computed(() => {
   const filters = toValue(props.table.filters) ?? {};
   const keys = getActiveRiskDashboardFilterKeys(filters);
-  console.log('🏷️ [RiskDashboardFilterToolbar] activeFilterKeys:', { filters, keys });
-  return keys;
+   return keys;
 });
 
 function clearFiltersFromToolbar() {
-  console.log('🗑️ [RiskDashboardFilterToolbar] Clear filters button clicked');
-  props.table.clearFilters();
+   props.table.clearFilters();
   filterToolbarClearTick.value += 1;
 }
 
 function removeFilterParam(key: string) {
-  console.log('❌ [RiskDashboardFilterToolbar] Removing filter:', {
-    key,
-    currentFilters: toValue(props.table.filters),
-    timestamp: new Date().toISOString()
-  });
+
   const f = { ...(toValue(props.table.filters) ?? {}) };
   delete f[key];
   props.table.replaceFilters(f);

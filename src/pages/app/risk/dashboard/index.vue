@@ -24,11 +24,7 @@ watch(
     if (!isInitialized.value) return;
     if (JSON.stringify(newFilters) === JSON.stringify(oldFilters)) return;
 
-    console.log('🔁 [RiskDashboard] Filters changed, invalidating and refetching dashboard POST:', {
-      previousFilters: oldFilters,
-      newFilters,
-      timestamp: new Date().toISOString(),
-    });
+
 
     invalidate();
     refetch?.();
@@ -191,20 +187,13 @@ function handleRetry() {
 }
 
 function replaceFilters(newFilters: Record<string, unknown>) {
-  console.log('📊 [RiskDashboard] Applying new filters:', {
-    newFilters,
-    previousFilters: filters.value,
-    timestamp: new Date().toISOString()
-  });
+
   filters.value = newFilters;
   isInitialized.value = true;
 }
 
 function clearFilters() {
-  console.log('🧹 [RiskDashboard] Clearing all filters:', {
-    previousFilters: filters.value,
-    timestamp: new Date().toISOString()
-  });
+
   filters.value = {};
   isInitialized.value = true;
 }

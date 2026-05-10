@@ -116,18 +116,13 @@ const formInitialValues = computed(() =>
 const formRef = ref<InstanceType<typeof Form>>();
 const values = computed(() => {
   const v = formRef.value?.values ?? {};
-  console.log('📊 [RiskDashboardFilterPanel] Current form values:', v);
-  return v;
+   return v;
 });
 
 function emitIfReady() {
   if (!ready.value || isFormResetting.value || !values.value) return;
   const payload = buildPayload(values.value as Record<string, unknown>);
-  console.log('🔍 [RiskDashboardFilterPanel] Filter values changed:', {
-    formValues: values.value,
-    builtPayload: payload,
-    timestamp: new Date().toISOString()
-  });
+
   if (props.table) {
     props.table.replaceFilters(payload);
   } else {
@@ -143,14 +138,7 @@ watch(
     values.value?.section_ids
   ],
   (newValues, oldValues) => {
-    console.log('🔄 [RiskDashboardFilterPanel] Form values changed:', {
-      newValues,
-      oldValues,
-      currentValues: values.value,
-      isFormResetting: isFormResetting.value,
-      ready: ready.value,
-      timestamp: new Date().toISOString()
-    });
+
     emitIfReady();
   },
   { deep: true }
@@ -178,11 +166,9 @@ async function loadOptions() {
 }
 
 onMounted(() => {
-  console.log('🎯 [RiskDashboardFilterPanel] Component mounted');
-  void loadOptions();
+   void loadOptions();
   void nextTick(() => {
     ready.value = true;
-    console.log('✅ [RiskDashboardFilterPanel] Component ready');
   });
 });
 
@@ -190,7 +176,6 @@ watch(
   () => props.toolbarClearTick,
   (_v, prev) => {
     if (prev === undefined) return;
-    console.log('🧽 [RiskDashboardFilterPanel] Toolbar clear triggered, clearing form');
     isFormResetting.value = true;
     // Reset form to empty values
     if (formRef.value?.resetForm) {
@@ -203,7 +188,6 @@ watch(
       });
     }
     nextTick(() => {
-      console.log('🧹 [RiskDashboardFilterPanel] Form cleared');
       isFormResetting.value = false;
     });
   }
@@ -214,20 +198,15 @@ watch(
   (open) => {
     if (!open) return;
     const currentFilters = toValue(props.table?.filters);
-    console.log('🔄 [RiskDashboardFilterPanel] Panel opened, syncing with current filters:', {
-      currentFilters,
-      timestamp: new Date().toISOString()
-    });
+
     isFormResetting.value = true;
     // Reset form to sync with current filters
     const newValues = apiFiltersToFormValues(currentFilters ?? {});
-    console.log('📝 [RiskDashboardFilterPanel] Setting form values:', newValues);
-    if (formRef.value?.resetForm) {
+      if (formRef.value?.resetForm) {
       formRef.value.resetForm({ values: newValues });
     }
     nextTick(() => {
-      console.log('✅ [RiskDashboardFilterPanel] Form synced with filters');
-      isFormResetting.value = false;
+       isFormResetting.value = false;
     });
   }
 );

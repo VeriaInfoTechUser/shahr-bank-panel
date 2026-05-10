@@ -78,6 +78,8 @@ const domainMatrices = computed(() =>
 
 <template>
   <div class="space-y-6">
+
+
     <div class="rounded-2xl border border-slate-200/90 bg-white p-6 shadow-sm dark:border-darkmode-600 dark:bg-darkmode-800">
       <div class="mb-5">
         <h3 class="text-base font-semibold text-slate-900 dark:text-slate-50">
@@ -98,20 +100,20 @@ const domainMatrices = computed(() =>
           </span>
         </div>
 
-        <div class="rounded-3xl border border-slate-200/90 bg-slate-50/80 p-3 dark:border-darkmode-700 dark:bg-darkmode-900/40">
-          <div dir="ltr" class="grid w-full max-w-[420px] grid-cols-5 gap-1">
+        <div class="rounded-xl border border-slate-200/90 bg-slate-50/80 p-3 dark:border-darkmode-700 dark:bg-darkmode-900/40">
+          <div dir="ltr" class="grid grid-cols-5 gap-1">
             <template v-for="row in totalMatrix" :key="row.key">
               <div
                 v-for="cell in row.cells"
                 :key="`${row.key}-${cell.probability}`"
-                class="flex aspect-square min-h-[54px] max-h-[72px] items-center justify-center rounded-lg border border-white/70 text-center shadow-sm dark:border-darkmode-800/30"
+                class="flex aspect-square min-h-[40px] max-h-[50px] w-full items-center justify-center border border-white/70 text-center shadow-sm dark:border-darkmode-800/30"
                 :style="{ backgroundColor: cell.color }"
               >
                 <div>
                   <div class="text-base font-extrabold text-slate-900 sm:text-lg">
                     {{ cell.value }}
                   </div>
-                  <div class="mt-0.5 text-[9px] font-semibold text-slate-800/75">
+                  <div class="  text-[9px] font-semibold text-slate-800/75">
                     {{ cell.score }}
                   </div>
                 </div>
@@ -122,6 +124,8 @@ const domainMatrices = computed(() =>
       </div>
     </div>
 
+
+
     <div class="rounded-2xl border border-slate-200/90 bg-white p-6 shadow-sm dark:border-darkmode-600 dark:bg-darkmode-800">
       <h4 class="mb-4 text-sm font-semibold text-slate-900 dark:text-slate-50">
         {{ t('risk-dashboard.domain-heatmaps-title') }}
@@ -131,7 +135,7 @@ const domainMatrices = computed(() =>
         <div
           v-for="row in domainMatrices"
           :key="row.slug"
-          class="rounded-3xl border border-slate-200/90 bg-slate-50/80 p-4 dark:border-darkmode-700 dark:bg-darkmode-900/40"
+          class="rounded-xl border border-slate-200/90 bg-slate-50/80 p-4 dark:border-darkmode-700 dark:bg-darkmode-900/40"
         >
           <div class="mb-4">
             <h5 class="text-sm font-semibold text-slate-900 dark:text-slate-50">
@@ -144,10 +148,10 @@ const domainMatrices = computed(() =>
               <div
                 v-for="cell in matrixRow.cells"
                 :key="`${row.slug}-${matrixRow.key}-${cell.probability}`"
-                class="flex aspect-square min-h-[48px] items-center justify-center border border-white/70 text-center shadow-sm dark:border-darkmode-800/30"
+                class="flex aspect-square min-h-[30] max-h-[35px] w-full items-center justify-center border border-white/70 text-center shadow-sm dark:border-darkmode-800/30"
                 :style="{ backgroundColor: cell.color }"
               >
-                <div>
+                <div class="p-1">
                   <div class="text-sm font-bold text-slate-900">
                     {{ cell.value }}
                   </div>

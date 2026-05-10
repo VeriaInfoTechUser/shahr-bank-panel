@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useQuery } from '@/core/composables/useQuery';
 import { ermRepo } from '@/core/repositories/ermRepo';
@@ -7,8 +7,27 @@ import Lucide from '@/base-components/Lucide/Lucide.vue';
 import Button from '@/base-components/Button';
 import RiskHeatmap from './RiskHeatmap.vue';
 import RiskSpiderRadar from './RiskSpiderRadar.vue';
+import RiskDashboardFilterToolbar from './RiskDashboardFilterToolbar.vue';
+import { useBreadcrumbSlot } from '@/composables/useBreadcrumb';
 
 const { t } = useI18n();
+const { setContent: setBreadcrumbSlot } = useBreadcrumbSlot();
+
+// Initialize filters from a stable source
+const filters = ref<Record<string, unknown>>({});
+const isInitialized = ref(false);
+
+// Track filter changes for cache invalidation
+watch(
+  filters,
+  (newFilters, oldFilters) => {
+    // Only invalidate cache if filters actually changed (not on initial mount)
+    if (isInitialized.value && JSON.stringify(newFilters) !== JSON.stringify(oldFilters)) {
+      // Cache will be automatically invalidated by useQuery dependency tracking
+    }
+  },
+  { deep: true }
+);
 
 interface HeatmapBand {
   name: string;
@@ -66,8 +85,8 @@ const {
   error,
   refetch,
 } = useQuery(
-  ['risk-dashboard'],
-  () => ermRepo.riskDashboard() as Promise<RiskDashboardResponse>,
+  ['risk-dashboard', filters],
+  () => ermRepo.riskDashboard(filters.value) as Promise<RiskDashboardResponse>,
   {
     enabled: true,
     staleTime: 300000,
@@ -162,25 +181,50 @@ const insights = computed(() => [
 function handleRetry() {
   refetch();
 }
+
+function replaceFilters(newFilters: Record<string, unknown>) {
+  filters.value = newFilters;
+  isInitialized.value = true;
+}
+
+function clearFilters() {
+  filters.value = {};
+  isInitialized.value = true;
+}
+
+onMounted(() => {
+  // Mark as initialized after first render
+  isInitialized.value = true;
+  setBreadcrumbSlot(null);
+});
 </script>
 
 <template>
   <div class="mx-auto max-w-7xl px-1 pb-12 pt-2 md:px-2">
     <header class="mb-8 md:mb-10">
-      <div class="flex items-center gap-4">
-        <div
-          class="relative flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-primary/20 via-primary/10 to-primary/5 shadow-sm ring-1 ring-primary/20 dark:from-primary/25 dark:via-primary/15 dark:ring-primary/30"
-        >
-          <Lucide icon="ShieldAlert" class="h-6 w-6 text-primary" />
+      <div class="flex items-center justify-between gap-4">
+        <div class="flex items-center gap-4">
+          <div
+            class="relative flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-primary/20 via-primary/10 to-primary/5 shadow-sm ring-1 ring-primary/20 dark:from-primary/25 dark:via-primary/15 dark:ring-primary/30"
+          >
+            <Lucide icon="ShieldAlert" class="h-6 w-6 text-primary" />
+          </div>
+          <div>
+            <h1 class="text-2xl font-bold text-slate-900 dark:text-slate-50">
+              {{ t('menu.risk') }}
+            </h1>
+            <p class="text-sm text-slate-500 dark:text-slate-400">
+              {{ t('risk-dashboard.subtitle') }}
+            </p>
+          </div>
         </div>
-        <div>
-          <h1 class="text-2xl font-bold text-slate-900 dark:text-slate-50">
-            {{ t('menu.risk') }}
-          </h1>
-          <p class="text-sm text-slate-500 dark:text-slate-400">
-            {{ t('risk-dashboard.subtitle') }}
-          </p>
-        </div>
+        <RiskDashboardFilterToolbar
+          :table="{
+            replaceFilters,
+            clearFilters,
+            filters
+          }"
+        />
       </div>
     </header>
 

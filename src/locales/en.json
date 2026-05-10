@@ -309,6 +309,7 @@
   },
   "risk-dashboard": {
     "subtitle": "Risk analytics across severity bands and radar topics",
+    "filter-panel-title": "Risk Dashboard Filters",
     "error-title": "Loading Error",
     "error-message": "We couldn't load the risk dashboard",
     "no-data-title": "No Data Available",

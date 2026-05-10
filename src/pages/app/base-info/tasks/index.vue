@@ -13,6 +13,7 @@ import Button from '@/base-components/Button';
 import Lucide from '@/base-components/Lucide';
 import AddTaskModal from './AddTaskModal.vue';
 import TasksBreadcrumbToolbar from './TasksBreadcrumbToolbar.vue';
+import TaskAttachmentsModal from './TaskAttachmentsModal.vue';
 import {
   clauseFilteredTasksRoute,
   resolveOperationsTaskRowId,
@@ -210,7 +211,21 @@ function onBackToAllTasks() {
 }
 
 function onAttachmentTask(row: Record<string, unknown>) {
-  console.log('Attachment task', row);
+  const id = row.id;
+  if (id == null) {
+    toast(t('general.error'), { type: 'error' });
+    return;
+  }
+
+  openModal({
+    component: TaskAttachmentsModal,
+    props: {
+      relationModule: 'erm',
+      relationSection: 'compliance-task',
+      relationItem: id,
+      ruleId: row.rule_id,
+    },
+  });
 }
 
 function onEditTask(row: Record<string, unknown>) {

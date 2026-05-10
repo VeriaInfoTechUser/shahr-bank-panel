@@ -29,26 +29,37 @@ const { t } = useI18n();
 
 const filterOpen = ref(false);
 const filterToolbarClearTick = ref(0);
-const filterPanelResetTick = ref(0);
 
-const hasActiveFilters = computed(() => Object.keys(toValue(props.table.filters) ?? {}).length > 0);
+const hasActiveFilters = computed(() => {
+  const filters = toValue(props.table.filters) ?? {};
+  const activeCount = Object.keys(filters).length;
+  console.log('🔍 [RiskDashboardFilterToolbar] hasActiveFilters:', { filters, activeCount });
+  return activeCount > 0;
+});
 
-const activeFilterKeys = computed(() =>
-  getActiveRiskDashboardFilterKeys(toValue(props.table.filters) ?? {})
-);
+const activeFilterKeys = computed(() => {
+  const filters = toValue(props.table.filters) ?? {};
+  const keys = getActiveRiskDashboardFilterKeys(filters);
+  console.log('🏷️ [RiskDashboardFilterToolbar] activeFilterKeys:', { filters, keys });
+  return keys;
+});
 
 function clearFiltersFromToolbar() {
+  console.log('🗑️ [RiskDashboardFilterToolbar] Clear filters button clicked');
   props.table.clearFilters();
   filterToolbarClearTick.value += 1;
-  filterPanelResetTick.value += 1;
 }
 
 function removeFilterParam(key: string) {
+  console.log('❌ [RiskDashboardFilterToolbar] Removing filter:', {
+    key,
+    currentFilters: toValue(props.table.filters),
+    timestamp: new Date().toISOString()
+  });
   const f = { ...(toValue(props.table.filters) ?? {}) };
   delete f[key];
   props.table.replaceFilters(f);
   filterToolbarClearTick.value += 1;
-  filterPanelResetTick.value += 1;
 }
 
 const filterBtnRef = ref<HTMLElement | null>(null);
@@ -88,8 +99,6 @@ watch(filterOpen, (open) => {
   stopClickOutside?.();
   stopClickOutside = undefined;
   if (open) {
-    // Reset filter panel form when opening
-    filterPanelResetTick.value += 1;
     void nextTick(() => {
       bound.update();
       stopClickOutside = onClickOutside(
@@ -211,7 +220,7 @@ useEventListener(document, 'keydown', (e: KeyboardEvent) => {
           <RiskDashboardFilterPanel
             :table="table"
             :toolbar-clear-tick="filterToolbarClearTick"
-            :panel-reset-tick="filterPanelResetTick"
+            :panel-open="filterOpen"
           />
         </div>
       </Transition>

@@ -17,14 +17,21 @@ const { setContent: setBreadcrumbSlot } = useBreadcrumbSlot();
 const filters = ref<Record<string, unknown>>({});
 const isInitialized = ref(false);
 
-// Track filter changes for cache invalidation
+// Track filter changes and refetch the dashboard when filters update
 watch(
   filters,
   (newFilters, oldFilters) => {
-    // Only invalidate cache if filters actually changed (not on initial mount)
-    if (isInitialized.value && JSON.stringify(newFilters) !== JSON.stringify(oldFilters)) {
-      // Cache will be automatically invalidated by useQuery dependency tracking
-    }
+    if (!isInitialized.value) return;
+    if (JSON.stringify(newFilters) === JSON.stringify(oldFilters)) return;
+
+    console.log('🔁 [RiskDashboard] Filters changed, invalidating and refetching dashboard POST:', {
+      previousFilters: oldFilters,
+      newFilters,
+      timestamp: new Date().toISOString(),
+    });
+
+    invalidate();
+    refetch?.();
   },
   { deep: true }
 );
@@ -179,15 +186,24 @@ const insights = computed(() => [
 ]);
 
 function handleRetry() {
-  refetch();
+  refetch?.();
 }
 
 function replaceFilters(newFilters: Record<string, unknown>) {
+  console.log('📊 [RiskDashboard] Applying new filters:', {
+    newFilters,
+    previousFilters: filters.value,
+    timestamp: new Date().toISOString()
+  });
   filters.value = newFilters;
   isInitialized.value = true;
 }
 
 function clearFilters() {
+  console.log('🧹 [RiskDashboard] Clearing all filters:', {
+    previousFilters: filters.value,
+    timestamp: new Date().toISOString()
+  });
   filters.value = {};
   isInitialized.value = true;
 }

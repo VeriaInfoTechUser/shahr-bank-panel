@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Ref } from 'vue';
 import { computed, nextTick, onMounted, ref, toValue, watch } from 'vue';
-import { Form, useFormValues } from 'vee-validate';
+import { Form, useForm } from 'vee-validate';
 import { useI18n } from 'vue-i18n';
 import { toast } from 'vue3-toastify';
 import BaseMultiSelect from '@/core/ui/base/BaseMultiSelect.vue';
@@ -15,7 +15,6 @@ import {
 import TasksFilterDomainSectionFields from '@/pages/app/base-info/tasks/TasksFilterDomainSectionFields.vue';
 
 const optionsLoading = ref(true);
-const formKey = ref(0);
 const isFormResetting = ref(false);
 const domainTree = ref<DomainNode[]>([]);
 const ruleOptions = ref<Option[]>([]);
@@ -32,7 +31,7 @@ const props = defineProps<{
     filters?: Ref<Record<string, unknown>> | Record<string, unknown>;
   } | null;
   toolbarClearTick?: number;
-  panelResetTick?: number;
+  panelOpen?: boolean;
 }>();
 
 const emit = defineEmits<{
@@ -40,8 +39,6 @@ const emit = defineEmits<{
 }>();
 
 const { t } = useI18n();
-
-const formId = computed(() => 'risk-dashboard-filter-form');
 
 function extractErmList(res: unknown): Record<string, unknown>[] {
   if (Array.isArray(res)) return res as Record<string, unknown>[];
@@ -116,13 +113,22 @@ const formInitialValues = computed(() =>
   apiFiltersToFormValues(toValue(props.table?.filters) ?? {})
 );
 
-// Custom auto-apply logic for risk dashboard filters
-const values = useFormValues();
+// Use form ref to get reactive values
+const formRef = ref<InstanceType<typeof Form>>();
+const values = computed(() => {
+  const v = formRef.value?.values ?? {};
+  console.log('📊 [RiskDashboardFilterPanel] Current form values:', v);
+  return v;
+});
 
 function emitIfReady() {
-  if (!ready.value || isFormResetting.value) return;
+  if (!ready.value || isFormResetting.value || !values.value) return;
   const payload = buildPayload(values.value as Record<string, unknown>);
-  console.log('filter updated:', payload);
+  console.log('🔍 [RiskDashboardFilterPanel] Filter values changed:', {
+    formValues: values.value,
+    builtPayload: payload,
+    timestamp: new Date().toISOString()
+  });
   if (props.table) {
     props.table.replaceFilters(payload);
   } else {
@@ -133,12 +139,22 @@ function emitIfReady() {
 // Watch all filter fields and trigger auto-apply
 watch(
   () => [
-    values.value.rule_ids,
-    values.value.enforcer_ids,
-    values.value.standard_id,
-    values.value.section_ids
+    values.value?.rule_ids,
+    values.value?.enforcer_ids,
+    values.value?.standard_id,
+    values.value?.section_ids
   ],
-  () => emitIfReady(),
+  (newValues, oldValues) => {
+    console.log('🔄 [RiskDashboardFilterPanel] Form values changed:', {
+      newValues,
+      oldValues,
+      currentValues: values.value,
+      isFormResetting: isFormResetting.value,
+      ready: ready.value,
+      timestamp: new Date().toISOString()
+    });
+    emitIfReady();
+  },
   { deep: true }
 );
 
@@ -164,9 +180,11 @@ async function loadOptions() {
 }
 
 onMounted(() => {
+  console.log('🎯 [RiskDashboardFilterPanel] Component mounted');
   void loadOptions();
   void nextTick(() => {
     ready.value = true;
+    console.log('✅ [RiskDashboardFilterPanel] Component ready');
   });
 });
 
@@ -174,28 +192,52 @@ watch(
   () => props.toolbarClearTick,
   (_v, prev) => {
     if (prev === undefined) return;
+    console.log('🧽 [RiskDashboardFilterPanel] Toolbar clear triggered, clearing form');
     isFormResetting.value = true;
-    formKey.value += 1;
+    // Reset form to empty values
+    if (formRef.value?.resetForm) {
+      formRef.value.resetForm({
+        values: {
+          rule_ids: [],
+          enforcer_ids: [],
+          standard_id: '',
+          section_ids: [],
+        }
+      });
+    }
     nextTick(() => {
+      console.log('🧹 [RiskDashboardFilterPanel] Form cleared');
       isFormResetting.value = false;
     });
   }
 );
 
 watch(
-  () => props.panelResetTick,
-  (_v, prev) => {
-    if (prev === undefined) return;
-    // Reset form when panel opens to sync with current filters
+  () => props.panelOpen,
+  (open) => {
+    if (!open) return;
+    const currentFilters = toValue(props.table?.filters);
+    console.log('🔄 [RiskDashboardFilterPanel] Panel opened, syncing with current filters:', {
+      currentFilters,
+      timestamp: new Date().toISOString()
+    });
     isFormResetting.value = true;
-    formKey.value += 1;
+    // Reset form to sync with current filters
+    const newValues = apiFiltersToFormValues(currentFilters ?? {});
+    console.log('📝 [RiskDashboardFilterPanel] Setting form values:', newValues);
+    if (formRef.value?.resetForm) {
+      formRef.value.resetForm({ values: newValues });
+    }
     nextTick(() => {
+      console.log('✅ [RiskDashboardFilterPanel] Form synced with filters');
       isFormResetting.value = false;
     });
   }
 );
 
 function buildPayload(values: Record<string, unknown>): Record<string, unknown> {
+  if (!values) return {};
+
   const o: Record<string, unknown> = {};
 
   const ruleIds = values.rule_ids as string[] | undefined;
@@ -226,9 +268,8 @@ function buildPayload(values: Record<string, unknown>): Record<string, unknown> 
       {{ t('general.loading') }}
     </div>
     <Form
+      ref="formRef"
       v-else
-      :id="formId"
-      :key="formKey"
       class="space-y-3"
       :initial-values="formInitialValues"
       as="div"

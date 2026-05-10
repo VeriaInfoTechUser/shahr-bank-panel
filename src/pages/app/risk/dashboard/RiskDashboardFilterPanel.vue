@@ -104,7 +104,6 @@ function apiFiltersToFormValues(f: Record<string, unknown> | undefined | null) {
   return {
     rule_ids: splitCsv(x.rule_id),
     enforcer_ids: splitCsv(x.enforcer),
-    standard_id: x.standard_id != null && x.standard_id !== '' ? String(x.standard_id) : '',
     section_ids: splitCsv(x.section_id),
   };
 }
@@ -141,7 +140,6 @@ watch(
   () => [
     values.value?.rule_ids,
     values.value?.enforcer_ids,
-    values.value?.standard_id,
     values.value?.section_ids
   ],
   (newValues, oldValues) => {
@@ -200,7 +198,6 @@ watch(
         values: {
           rule_ids: [],
           enforcer_ids: [],
-          standard_id: '',
           section_ids: [],
         }
       });
@@ -245,12 +242,6 @@ function buildPayload(values: Record<string, unknown>): Record<string, unknown> 
 
   const enforcerIds = values.enforcer_ids as string[] | undefined;
   if (enforcerIds?.length) o.enforcer = enforcerIds.join(',');
-
-  const std = String(values.standard_id ?? '').trim();
-  if (std) {
-    const n = Number(std);
-    o.standard_id = isFinite(n) ? n : std;
-  }
 
   const sectionIds = values.section_ids as string[] | undefined;
   if (sectionIds?.length) o.section_id = sectionIds.join(',');

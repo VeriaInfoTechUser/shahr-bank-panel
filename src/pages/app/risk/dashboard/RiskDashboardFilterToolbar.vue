@@ -9,7 +9,6 @@ import RiskDashboardFilterPanel from './RiskDashboardFilterPanel.vue';
 const RISK_DASHBOARD_FILTER_PARAM_LABEL_KEYS: Record<string, string> = {
   rule_id: 'task.filter-field-rule',
   enforcer: 'task.filter-field-liaison',
-  standard_id: 'task.filter-field-domain',
   section_id: 'task.filter-field-section',
 };
 

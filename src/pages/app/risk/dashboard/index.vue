@@ -91,6 +91,7 @@ const {
   isLoading,
   error,
   refetch,
+  invalidate,
 } = useQuery(
   ['risk-dashboard', filters],
   () => ermRepo.riskDashboard(filters.value) as Promise<RiskDashboardResponse>,

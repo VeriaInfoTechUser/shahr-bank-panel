@@ -174,8 +174,28 @@ export class ErmRepo extends BaseRepo {
     return this.post<unknown>(endpoints.admin.erm.compliance.progressDetail, payload);
   }
 
+  /** GET compliance dashboard data — `POST erm/compliance/dashboard` */
+  async complianceDashboard(params: RuleListParams = {}) {
+    return this.post<RuleListResponse>(endpoints.admin.erm.compliance.dashboard, params);
+  }
+
+  /** GET compliance performance report data — `POST erm/compliance/performance` */
+  async compliancePerformance(params: RuleListParams = {}) {
+    return this.post<RuleListResponse>(endpoints.admin.erm.compliance.performance, params);
+  }
+
   async riskList(params: RuleListParams) {
     return this.post<RuleListResponse>(endpoints.admin.erm.risk.list, params);
+  }
+
+  /** GET risk dashboard data — `POST erm/risk/dashboard` */
+  async riskDashboard(params: RuleListParams = {}) {
+    return this.post<RuleListResponse>(endpoints.admin.erm.risk.dashboard, params);
+  }
+
+  /** GET risk performance report data — `POST erm/risk/performance` */
+  async riskPerformance(params: RuleListParams = {}) {
+    return this.post<RuleListResponse>(endpoints.admin.erm.risk.performance, params);
   }
 
   async riskProgress(payload: Record<string, unknown>) {

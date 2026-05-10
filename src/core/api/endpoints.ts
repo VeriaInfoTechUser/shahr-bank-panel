@@ -75,11 +75,15 @@ export const endpoints = {
       },
       compliance: {
         list: 'erm/compliance/list',
+        dashboard: 'erm/compliance/dashboard',
+        performance: 'erm/compliance/performance',
         progress: 'erm/compliance/progress',
         progressDetail: 'erm/compliance/progress/detail',
       },
       risk: {
         list: 'erm/risk/list',
+        dashboard: 'erm/risk/dashboard',
+        performance: 'erm/risk/performance',
         progress: 'erm/risk/progress',
         progressDetail: 'erm/risk/progress/detail',
         responseType: 'erm/risk/response/type',

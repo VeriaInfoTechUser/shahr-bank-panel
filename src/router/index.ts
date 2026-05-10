@@ -18,8 +18,12 @@ import SettingsGuide from "@/pages/app/settings/guide/index.vue";
 import SettingsLiaisons from "@/pages/app/settings/liaisons/index.vue";
 import SettingsLegislativeAuthority from "@/pages/app/settings/legislative-authority/index.vue";
 import SettingsLawType from "@/pages/app/settings/law-type/index.vue";
+import ComplianceDashboard from "@/pages/app/compliance/dashboard/index.vue";
+import CompliancePerformanceReport from "@/pages/app/compliance/performance-report/index.vue";
 import ComplianceOperations from "@/pages/app/compliance/operations/index.vue";
 import ComplianceDoingTask from "@/pages/app/compliance/doing-task/index.vue";
+import RiskDashboard from "@/pages/app/risk/dashboard/index.vue";
+import RiskPerformanceReport from "@/pages/app/risk/performance-report/index.vue";
 import RiskOperations from "@/pages/app/risk/operations/index.vue";
 import RiskDoingTask from "@/pages/app/risk/doing-task/index.vue";
 import SectionPlaceholderPage from "@/pages/app/shared/SectionPlaceholderPage.vue";
@@ -164,7 +168,7 @@ const routes = [
                             {
                                 path: "dashboard",
                                 name: "app-compliance-dashboard",
-                                component: SectionPlaceholderPage,
+                                component: ComplianceDashboard,
                                 meta: { breadcrumbLabel: 'menu.dashboard' },
                             },
                             {
@@ -190,7 +194,7 @@ const routes = [
                             {
                                 path: "performance-report",
                                 name: "app-compliance-performance-report",
-                                component: SectionPlaceholderPage,
+                                component: CompliancePerformanceReport,
                                 meta: { breadcrumbLabel: 'menu.performance-report' },
                             },
                         ],
@@ -204,7 +208,7 @@ const routes = [
                             {
                                 path: "dashboard",
                                 name: "app-risk-dashboard",
-                                component: SectionPlaceholderPage,
+                                component: RiskDashboard,
                                 meta: { breadcrumbLabel: 'menu.dashboard' },
                             },
                             {
@@ -230,7 +234,7 @@ const routes = [
                             {
                                 path: "performance-report",
                                 name: "app-risk-performance-report",
-                                component: SectionPlaceholderPage,
+                                component: RiskPerformanceReport,
                                 meta: { breadcrumbLabel: 'menu.performance-report' },
                             },
                         ],

@@ -10,6 +10,7 @@ import { ermRepo } from '@/core/repositories/ermRepo';
 import { invalidateRuleLightListCache } from '@/core/erm/ruleAuthorTypeOptionsCache';
 import { useBreadcrumbSlot } from '@/composables/useBreadcrumb';
 import { useGlobalModal } from '@/composables/useGlobalModal';
+import { useDownload } from '@/core/composables/useDownload';
 import Button from '@/base-components/Button';
 import Lucide from '@/base-components/Lucide';
 import RulesRegulationsToolbar from './RulesRegulationsToolbar.vue';
@@ -20,6 +21,7 @@ const { t } = useI18n();
 const router = useRouter();
 const { setContent: setBreadcrumbSlot } = useBreadcrumbSlot();
 const { openModal } = useGlobalModal();
+const { download: downloadFile, loading: exportLoading } = useDownload();
 
 const fetchRules: FetchFn = async ({ page, limit, sort, filters }) => {
   const res = await ermRepo.list({
@@ -163,9 +165,20 @@ function onImportRules() {
   // TODO: open import dialog / file picker
   console.log('Import rules');
 }
-
-function onExportRules() {
-  table.exportCSV();
+async function onExportRules() {
+  try {
+    await downloadFile(
+        'erm/rule/export',
+        {
+          limit: 10,
+          page: 1,
+          status: 1,
+        },
+        'rules-export.xlsx'
+    );
+  } catch (error) {
+    console.error('Export failed:', error);
+  }
 }
 
 function onTrashRules() {

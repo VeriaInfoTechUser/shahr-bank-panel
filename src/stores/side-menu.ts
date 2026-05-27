@@ -94,6 +94,38 @@ export const useSideMenuStore = defineStore("sideMenu", {
                 ],
             },
             {
+                icon: "Globe",
+                pageName: "app-esg",
+                title: "menu.esg",
+                subMenu: [
+                    {
+                        icon: "LayoutDashboard",
+                        pageName: "app-esg-dashboard",
+                        title: "menu.esg-dashboard",
+                    },
+                    {
+                        icon: "ShieldCheck",
+                        pageName: "app-esg-governance",
+                        title: "menu.esg-governance",
+                    },
+                    {
+                        icon: "Users",
+                        pageName: "app-esg-social",
+                        title: "menu.esg-social",
+                    },
+                    {
+                        icon: "Leaf",
+                        pageName: "app-esg-environment",
+                        title: "menu.esg-environment",
+                    },
+                    {
+                        icon: "BarChart3",
+                        pageName: "app-esg-report",
+                        title: "menu.esg-report",
+                    },
+                ],
+            },
+            {
                 icon: "Settings",
                 pageName: "app-settings",
                 title: "menu.settings",

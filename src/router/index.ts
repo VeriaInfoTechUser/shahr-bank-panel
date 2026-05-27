@@ -26,6 +26,11 @@ import RiskDashboard from "@/pages/app/risk/dashboard/index.vue";
 import RiskPerformanceReport from "@/pages/app/risk/performance-report/index.vue";
 import RiskOperations from "@/pages/app/risk/operations/index.vue";
 import RiskDoingTask from "@/pages/app/risk/doing-task/index.vue";
+import EsgDashboard from "@/pages/app/esg/dashboard/index.vue";
+import EsgGovernance from "@/pages/app/esg/governance/index.vue";
+import EsgSocial from "@/pages/app/esg/social/index.vue";
+import EsgEnvironment from "@/pages/app/esg/environment/index.vue";
+import EsgReport from "@/pages/app/esg/report/index.vue";
 import SectionPlaceholderPage from "@/pages/app/shared/SectionPlaceholderPage.vue";
 import AuthLogin from "@/pages/auth/login/index.vue";
 
@@ -236,6 +241,44 @@ const routes = [
                                 name: "app-risk-performance-report",
                                 component: RiskPerformanceReport,
                                 meta: { breadcrumbLabel: 'menu.performance-report' },
+                            },
+                        ],
+                    },
+                    {
+                        path: "esg",
+                        name: "app-esg",
+                        redirect: { name: "app-esg-dashboard" },
+                        meta: { breadcrumbLabel: 'menu.esg' },
+                        children: [
+                            {
+                                path: "dashboard",
+                                name: "app-esg-dashboard",
+                                component: EsgDashboard,
+                                meta: { breadcrumbLabel: 'menu.esg-dashboard' },
+                            },
+                            {
+                                path: "governance",
+                                name: "app-esg-governance",
+                                component: EsgGovernance,
+                                meta: { breadcrumbLabel: 'menu.esg-governance' },
+                            },
+                            {
+                                path: "social",
+                                name: "app-esg-social",
+                                component: EsgSocial,
+                                meta: { breadcrumbLabel: 'menu.esg-social' },
+                            },
+                            {
+                                path: "environment",
+                                name: "app-esg-environment",
+                                component: EsgEnvironment,
+                                meta: { breadcrumbLabel: 'menu.esg-environment' },
+                            },
+                            {
+                                path: "report",
+                                name: "app-esg-report",
+                                component: EsgReport,
+                                meta: { breadcrumbLabel: 'menu.esg-report' },
                             },
                         ],
                     },

@@ -1386,5 +1386,24 @@
     "paid": "پرداخت شده",
     "shipping": "در حال ارسال",
     "processing": "در حال پردازش"
+  },
+  "governance": {
+    "domains-title": "حوزه‌های حاکمیت",
+    "controls-title": "کنترل‌ها",
+    "clear-filter": "پاک کردن فیلتر",
+    "selected-domains-controls": "کنترل‌های حوزه انتخاب شده",
+    "all-controls": "تمام کنترل‌های حاکمیت",
+    "no-control-found": "کنترلی برای این حوزه یافت نشد",
+    "answer-question": "پاسخ به سوال",
+    "your-answer": "پاسخ شما",
+    "enter-number": "عدد را وارد کنید",
+    "percentage-range": "0-100",
+    "enter-answer": "پاسخ خود را وارد کنید...",
+    "cancel": "انصراف",
+    "clear": "پاک کردن",
+    "submit-answer": "ثبت پاسخ",
+    "submitting": "در حال ارسال...",
+    "error-loading": "خطا در بارگذاری داده‌ها",
+    "domains-count": "حوزه"
   }
 }

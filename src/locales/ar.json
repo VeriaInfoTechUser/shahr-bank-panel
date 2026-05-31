@@ -804,5 +804,24 @@
     "thumbnail": "الصورة المصغرة",
     "title": "العنوان",
     "upload_image": "رفع الصورة"
+  },
+  "governance": {
+    "domains-title": "مجالات الحوكمة",
+    "controls-title": "الضوابط",
+    "clear-filter": "مسح الفلتر",
+    "selected-domains-controls": "ضوابط المجالات المختارة",
+    "all-controls": "جميع ضوابط الحوكمة",
+    "no-control-found": "لم يتم العثور على ضابط لهذا المجال",
+    "answer-question": "الإجابة على السؤال",
+    "your-answer": "إجابتك",
+    "enter-number": "أدخل رقم",
+    "percentage-range": "0-100",
+    "enter-answer": "أدخل إجابتك...",
+    "cancel": "إلغاء",
+    "clear": "مسح",
+    "submit-answer": "إرسال الإجابة",
+    "submitting": "قيد الإرسال...",
+    "error-loading": "خطأ في تحميل البيانات",
+    "domains-count": "مجال"
   }
 }

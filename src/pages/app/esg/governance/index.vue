@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { useI18n } from "vue-i18n";
-import { useQuery } from "@core/composables";
-import { esgRepo } from "@core/repositories/esgRepo";
-import { computed, onMounted, onUnmounted, ref } from "vue";
+import {useI18n} from "vue-i18n";
+import {useQuery} from "@core/composables";
+import {esgRepo} from "@core/repositories/esgRepo";
+import {computed, onMounted, onUnmounted, ref} from "vue";
 import Button from "@/base-components/Button";
 
-const { t } = useI18n();
+const {t} = useI18n();
 
 interface Domain {
   id: number;
@@ -73,13 +73,13 @@ const {
   refetch,
   invalidate,
 } = useQuery(
-  ["esg-governance-list"],
-  () => esgRepo.list({ type: ["domain", "control"], source: "governance" }),
-  {
-    enabled: true,
-    staleTime: 300000,
-    refetchOnMount: true,
-  }
+    ["esg-governance-list"],
+    () => esgRepo.list({type: ["domain", "control"], source: "governance"}),
+    {
+      enabled: true,
+      staleTime: 300000,
+      refetchOnMount: true,
+    }
 );
 
 // Computed properties
@@ -100,21 +100,21 @@ const filteredControls = computed(() => {
     return controls.value;
   }
   return controls.value.filter(
-    (control) => selectedDomainFilter.value.includes(control.domain_slug)
+      (control) => selectedDomainFilter.value.includes(control.domain_slug)
   );
 });
 
 // Calculate domain statistics
 const getDomainStats = (domain: Domain) => {
   const domainControls = controls.value.filter(
-    (control) => control.domain_slug === domain.slug
+      (control) => control.domain_slug === domain.slug
   );
   const answered = domainControls.filter(
-    (control) => control.answer_status === "answered"
+      (control) => control.answer_status === "answered"
   ).length;
   const total = domainControls.length;
   const unanswered = total - answered;
-  const answeredPercent = total > 0 ? Math.round((answered / total) * 100)  : 0;
+  const answeredPercent = total > 0 ? Math.round((answered / total) * 100) : 0;
   const unansweredPercent = total > 0 ? Math.round((unanswered / total) * 100) : 0;
 
   return {
@@ -181,17 +181,6 @@ onUnmounted(() => {
   invalidate();
 });
 
-// Helper functions
-const getAnswerStatusColor = (status: string) => {
-  switch (status) {
-    case "answered":
-      return "bg-green-100 dark:bg-green-500/15 text-green-700 dark:text-green-400";
-    case "pending":
-      return "bg-yellow-100 dark:bg-yellow-500/15 text-yellow-700 dark:text-yellow-400";
-    default:
-      return "bg-slate-100 dark:bg-slate-700/50 text-slate-700 dark:text-slate-400";
-  }
-};
 
 
 </script>
@@ -211,41 +200,42 @@ const getAnswerStatusColor = (status: string) => {
 
     <!-- Error State -->
     <div
-      v-else-if="error"
-      class="rounded-xl border border-red-200 bg-red-50 dark:border-red-900/50 dark:bg-red-900/20 p-4 text-red-700 dark:text-red-400"
+        v-else-if="error"
+        class="rounded-xl border border-red-200 bg-red-50 dark:border-red-900/50 dark:bg-red-900/20 p-4 text-red-700 dark:text-red-400"
     >
       <div class="flex gap-3">
         <svg
-          class="w-5 h-5 mt-0.5 flex-shrink-0"
-          fill="currentColor"
-          viewBox="0 0 20 20"
+            class="w-5 h-5 mt-0.5 flex-shrink-0"
+            fill="currentColor"
+            viewBox="0 0 20 20"
         >
           <path
-            fill-rule="evenodd"
-            d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-            clip-rule="evenodd"
+              fill-rule="evenodd"
+              d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+              clip-rule="evenodd"
           />
         </svg>
         <div>
-          <p class="font-medium">خطا در بارگذاری داده‌ها</p>
+          <p class="font-medium">{{ t("governance.error-loading") }}</p>
           <p class="text-sm mt-1">{{ t("general.error") }}</p>
         </div>
       </div>
     </div>
 
     <!-- Empty State -->
-    <div v-else-if="domains.length === 0" class="rounded-xl border border-slate-200/60 bg-white p-12 text-center shadow-sm dark:border-darkmode-700/60 dark:bg-darkmode-800">
+    <div v-else-if="domains.length === 0"
+         class="rounded-xl border border-slate-200/60 bg-white p-12 text-center shadow-sm dark:border-darkmode-700/60 dark:bg-darkmode-800">
       <svg
-        class="w-16 h-16 mx-auto mb-4 text-slate-400 dark:text-slate-600"
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
+          class="w-16 h-16 mx-auto mb-4 text-slate-400 dark:text-slate-600"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
       >
         <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-          d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
         />
       </svg>
       <p class="text-slate-600 dark:text-slate-400">{{ t("general.no-data") }}</p>
@@ -254,327 +244,432 @@ const getAnswerStatusColor = (status: string) => {
     <!-- Main Content -->
     <template v-else>
       <!-- Domain Cards Section -->
-      <div class="mb-8">
-        <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-4">
-          حوزه‌های حاکمیت
-        </h2>
-        <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-3">
+      <div class="mb-2">
+        <p class="text-[11px] font-medium uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-3">
+          {{ t("governance.domains-title") }}
+        </p>
+
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-2">
           <div
               v-for="domain in domains"
               :key="domain.id"
               @click="handleDomainClick(domain)"
               :class="[
-      'cursor-pointer rounded-md border p-3.5 transition-all duration-200 group',
-      'hover:shadow-sm hover:-translate-y-0.5 active:scale-[0.985]',
-      selectedDomainFilter.includes(domain.slug)
-        ? 'border-blue-500 bg-blue-50 dark:bg-blue-500/10 dark:border-blue-400'
-        : 'border-slate-200 bg-white hover:border-slate-300 dark:border-darkmode-700 dark:bg-darkmode-800 dark:hover:border-darkmode-600'
-    ]"
+        'relative cursor-pointer rounded-xl border p-3 transition-all duration-150 select-none',
+        'hover:-translate-y-px active:scale-[0.985]',
+        selectedDomainFilter.includes(domain.slug)
+          ? 'border-blue-400 bg-blue-50 dark:bg-blue-950/40 dark:border-blue-500'
+          : 'border-slate-200/80 bg-white hover:border-slate-300 dark:border-white/8 dark:bg-darkmode-800 dark:hover:border-white/15'
+      ]"
           >
-            <!-- Header -->
-            <div class="flex items-start justify-between gap-3 mb-2 mx-1 mt-2">
-              <div class="flex items-center gap-2.5 flex-1 min-w-0">
-                <!-- Title -->
-                <h3 class="  text-slate-900 dark:text-slate-100 text-sm line-clamp-2 leading-tight">
-                  {{ domain.title }}
-                </h3>
+            <!-- Check badge -->
+            <Transition name="pop">
+              <div
+                  v-if="selectedDomainFilter.includes(domain.slug)"
+                  class="absolute top-2.5 right-2.5 w-4 h-4 rounded-full bg-blue-500 flex items-center justify-center"
+              >
+                <svg class="w-2.5 h-2.5 text-white" viewBox="0 0 10 10" fill="none">
+                  <path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                        stroke-linejoin="round"/>
+                </svg>
               </div>
-            </div>
+            </Transition>
 
-            <!-- Progress -->
-            <div class="space-y-2 px-2">
-              <div class="flex items-center justify-between text-xs">
-        <span class="text-slate-500 dark:text-slate-400 font-medium">
-          {{ getDomainStats(domain).answered }}/{{ getDomainStats(domain).total }}
-        </span>
-                <span class="font-semibold text-slate-700 dark:text-slate-200">
-          {{ getDomainStats(domain).answeredPercent }}%
-        </span>
+            <!-- Title -->
+            <h3 :class="[
+        'text-[13px] font-medium leading-snug line-clamp-2 mb-3 pr-5',
+        selectedDomainFilter.includes(domain.slug)
+          ? 'text-blue-700 dark:text-blue-300'
+          : 'text-slate-800 dark:text-slate-100'
+      ]">
+              {{ domain.title }}
+            </h3>
+
+            <!-- Stats + Progress -->
+            <div>
+              <div class="flex items-center justify-between mb-1.5">
+          <span class="text-[11px] text-slate-400 dark:text-slate-500">
+            {{ getDomainStats(domain).answered }}/{{ getDomainStats(domain).total }}
+          </span>
+                <span :class="[
+            'text-[12px] font-medium',
+            selectedDomainFilter.includes(domain.slug)
+              ? 'text-blue-600 dark:text-blue-400'
+              : 'text-slate-500 dark:text-slate-400'
+          ]">
+            {{ getDomainStats(domain).answeredPercent }}%
+          </span>
               </div>
 
-              <!-- Progress Bar -->
-              <div class="h-1.5 bg-slate-200 dark:bg-darkmode-600 rounded-full overflow-hidden transition-all duration-500 ltr " dir="ltr">
+              <div class="h-[3px] bg-slate-200 dark:bg-white/10 rounded-full overflow-hidden" dir="ltr">
                 <div
-                    class="h-full bg-gradient-to-r from-green-500 to-emerald-500 dark:from-green-400 dark:to-emerald-400 rounded-full transition-all duration-300"
+                    class="h-full rounded-full transition-all duration-500"
+                    :class="selectedDomainFilter.includes(domain.slug)
+              ? 'bg-blue-500 dark:bg-blue-400'
+              : 'bg-emerald-500 dark:bg-emerald-400'"
                     :style="{ width: getDomainStats(domain).answeredPercent + '%' }"
-                >
-                </div>
+                />
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Clear Filter Button -->
-        <div v-if="selectedDomainFilter.length > 0" class="mt-4 flex justify-start">
-          <Button
-            variant="outline-primary"
-            size="sm"
-            @click="selectedDomainFilter = []"
-          >
-            <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
-            پاک کردن فیلتر
-          </Button>
+        <!-- Footer row -->
+        <div class="mt-3 flex items-center justify-between min-h-[28px]">
+          <Transition name="fade">
+      <span v-if="selectedDomainFilter.length > 0" class="text-xs text-slate-400 dark:text-slate-500">
+        {{ selectedDomainFilter.length }} domain{{ selectedDomainFilter.length > 1 ? 's' : '' }} selected
+      </span>
+          </Transition>
+
+          <Transition name="fade">
+            <button
+                v-if="selectedDomainFilter.length > 0"
+                @click="selectedDomainFilter = []"
+                class="inline-flex items-center gap-1.5 text-xs font-medium text-slate-500 dark:text-slate-400
+               bg-slate-100 dark:bg-white/8 hover:bg-slate-200 dark:hover:bg-white/12
+               border border-slate-200 dark:border-white/10 rounded-lg px-2.5 py-1.5
+               transition-colors duration-150"
+            >
+              <svg class="w-3 h-3" viewBox="0 0 12 12" fill="none">
+                <path d="M2 2l8 8M10 2L2 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+              </svg>
+              {{ t("governance.clear-filter") }}
+            </button>
+          </Transition>
         </div>
       </div>
 
-      <!-- Controls List Section -->
-      <div class="rounded-xl border border-slate-200/60 bg-white shadow-sm dark:border-darkmode-700/60 dark:bg-darkmode-800">
-        <!-- List Header -->
-        <div class="border-b border-slate-200 dark:border-darkmode-700 px-6 py-4">
-          <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">
-            کنترل‌ها
-            <span class="text-sm font-normal text-slate-500 dark:text-slate-400 ml-2">
-              ({{ filteredControls.length }})
-            </span>
-          </h2>
-          <p class="mt-1 text-sm text-slate-600 dark:text-slate-400">
-            {{
-              selectedDomainFilter.length > 0
-                ? `کنترل‌های حوزه انتخاب شده (${selectedDomainFilter.length} حوزه)`
-                : "تمام کنترل‌های حاکمیت"
-            }}
-          </p>
-        </div>
 
-        <!-- Controls List -->
-        <div class="divide-y divide-slate-200 dark:divide-darkmode-700">
-          <!-- Empty State for Filtered -->
-          <div
+      <!-- Controls List -->
+      <div class="divide-y divide-slate-200 dark:divide-darkmode-700">
+        <!-- Empty State for Filtered -->
+        <div
             v-if="filteredControls.length === 0"
             class="px-6 py-12 text-center"
-          >
-            <svg
+        >
+          <svg
               class="w-12 h-12 mx-auto mb-3 text-slate-400 dark:text-slate-600"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
-            >
-              <path
+          >
+            <path
                 stroke-linecap="round"
                 stroke-linejoin="round"
                 stroke-width="2"
                 d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
-              />
-            </svg>
-            <p class="text-slate-600 dark:text-slate-400">
-              کنترلی برای این حوزه یافت نشد
-            </p>
+            />
+          </svg>
+          <p class="text-slate-600 dark:text-slate-400">{{ t("governance.no-control-found") }}</p>
+        </div>
+
+        <!-- Controls Items -->
+
+
+        <div
+            class="rounded-xl border border-slate-200/80 dark:border-white/8 overflow-hidden bg-white dark:bg-darkmode-800">
+
+          <!-- List header -->
+          <div
+              class="flex items-center justify-between px-4 py-2.5 bg-slate-50 dark:bg-darkmode-700 border-b border-slate-200/80 dark:border-white/8">
+    <span class="text-[11px] font-medium uppercase tracking-wider text-slate-400 dark:text-slate-500">
+      {{ t('governance.controls') }}
+    </span>
+            <span class="text-xs text-slate-400 dark:text-slate-500">
+      {{ filteredControls.length }} {{ t('governance.items') }}
+    </span>
           </div>
 
-          <!-- Controls Items -->
+          <!-- Rows -->
           <div
-            v-for="control in filteredControls"
-            :key="control.id"
-            @click="handleControlClick(control)"
-            class="cursor-pointer px-6 py-4 hover:bg-slate-50 dark:hover:bg-darkmode-700/50 transition-colors"
+              v-for="control in filteredControls"
+              :key="control.id"
+              @click="handleControlClick(control)"
+              class="flex items-stretch border-b border-slate-100 dark:border-white/6 last:border-b-0
+           cursor-pointer hover:bg-slate-50 dark:hover:bg-darkmode-700/50 transition-colors group"
           >
-            <div class="flex items-start justify-between gap-4">
-              <!-- Left Content -->
-              <div class="flex-1 min-w-0">
-                <!-- Title and Status -->
-                <div class="flex items-start justify-between gap-3 mb-2">
+            <!-- Status stripe -->
+            <div
+                class="w-[3px] flex-shrink-0 transition-colors"
+                :class="control.answer_status === 'answered'
+        ? 'bg-emerald-500 dark:bg-emerald-400'
+        : 'bg-slate-200 dark:bg-white/10'"
+            />
 
-                  <p class="text-xs text-slate-600 dark:text-slate-400 line-clamp-2 mb-3">
-                    {{ control.summary }}
-                  </p>
+            <!-- Body -->
+            <div class="flex flex-1 min-w-0 items-center gap-4 px-4 py-3.5">
+
+              <!-- Main content (RTL text) -->
+              <div class="flex-1 min-w-0" dir="rtl">
+
+                <!-- Badges row -->
+                <div class="flex items-center flex-wrap gap-1.5 mb-1.5">
+          <span class="inline-flex items-center text-[11px] font-mono font-medium px-1.5 py-0.5
+                       rounded bg-slate-100 dark:bg-white/8 text-slate-500 dark:text-slate-400
+                       border border-slate-200 dark:border-white/10">
+            {{ control.metric_code }}
+          </span>
+
+                  <span
+                      class="inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-full"
+                      :class="control.answer_status === 'answered'
+              ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400'
+              : 'bg-slate-100 dark:bg-white/8 text-slate-400 dark:text-slate-500'"
+                  >
+            <svg v-if="control.answer_status === 'answered'" class="w-2.5 h-2.5" viewBox="0 0 10 10" fill="none">
+              <path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                    stroke-linejoin="round"/>
+            </svg>
+            {{ control.answer_status === 'answered' ? t('governance.answered') : t('governance.unanswered') }}
+          </span>
+
+                  <span class="inline-flex text-[11px] font-medium px-2 py-0.5 rounded-full
+                       bg-purple-50 dark:bg-purple-950/30 text-purple-700 dark:text-purple-400">
+            {{ control.domain_title }}
+          </span>
                 </div>
 
-                <!-- Description -->
-                <h3 class="font-medium text-slate-900 dark:text-slate-100 text-sm">
+                <!-- Summary -->
+                <p class="text-xs text-slate-400 dark:text-slate-500 mb-1 line-clamp-1">
+                  {{ control.summary }}
+                </p>
+
+                <!-- Title -->
+                <h3
+                    class="text-[13px] font-medium leading-snug line-clamp-2"
+                    :class="control.answer_status === 'answered'
+            ? 'text-slate-800 dark:text-slate-100'
+            : 'text-slate-400 dark:text-slate-500'"
+                >
                   {{ control.title }}
                 </h3>
 
-
-              </div>
-
-              <!-- Right Content - Answer Display -->
-              <div class="flex-shrink-0 text-right">
-                <div v-if="control.answer !== null && control.answer !== ''" class="mb-2">
-                  <p class="text-lg font-semibold text-slate-900 dark:text-slate-100">
-                    <span v-if="control.answer_unit" class="text-sm font-normal ml-1">
-                      {{ control.answer_unit }}
-                    </span>
-                    {{ control.answer }}
-                  </p>
+                <!-- Framework tags -->
+                <div v-if="control.frameworks?.length" class="flex flex-wrap gap-1 mt-2">
+          <span
+              v-for="fw in control.frameworks"
+              :key="fw"
+              class="text-[10px] text-slate-400 dark:text-slate-500 bg-slate-100 dark:bg-white/6
+                   rounded px-1.5 py-0.5 leading-none"
+          >
+            {{ fw }}
+          </span>
                 </div>
-
               </div>
+
+              <!-- Answer value -->
+              <div class="flex-shrink-0 text-right flex flex-col items-end gap-1 min-w-[56px]">
+                <template v-if="control.answer !== null && control.answer !== ''">
+          <span class="text-xl font-medium text-slate-900 dark:text-slate-100 leading-none tabular-nums">
+            {{ control.answer }}
+          </span>
+                  <span v-if="control.answer_unit" class="text-[11px] text-slate-400 dark:text-slate-500">
+            {{ control.answer_unit }}
+          </span>
+                </template>
+                <span v-else class="text-slate-300 dark:text-slate-600 text-base">—</span>
+              </div>
+
+              <!-- Hover arrow -->
+              <i class="ti ti-chevron-right text-sm text-slate-300 dark:text-slate-600
+                opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" aria-hidden="true"/>
             </div>
           </div>
         </div>
+
+
       </div>
+
     </template>
 
     <!-- Answer Modal -->
     <Teleport to="body">
-      <Transition
-        enter-active-class="transition duration-200"
-        enter-from-class="opacity-0"
-        enter-to-class="opacity-100"
-        leave-active-class="transition duration-200"
-        leave-from-class="opacity-100"
-        leave-to-class="opacity-0"
-      >
-        <div
-          v-if="showAnswerModal"
-          class="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4"
-          @click="closeAnswerModal"
-        >
-          <Transition
-            enter-active-class="transition duration-200"
-            enter-from-class="scale-95 opacity-0"
-            enter-to-class="scale-100 opacity-100"
-            leave-active-class="transition duration-200"
-            leave-from-class="scale-100 opacity-100"
-            leave-to-class="scale-95 opacity-0"
-          >
-            <div
-              v-if="showAnswerModal && selectedControl"
-              class="bg-white dark:bg-darkmode-800 rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
-              @click.stop
-            >
-              <!-- Modal Header -->
-              <div class="sticky top-0 border-b border-slate-200 dark:border-darkmode-700 bg-white dark:bg-darkmode-800 px-6 py-4 flex items-center justify-between">
-                <div>
-                  <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">
-                    پاسخ به سوال
-                  </h2>
-                  <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">
-                    {{ selectedControl.metric_code }}
-                  </p>
+      <Transition enter-active-class="transition duration-200" enter-from-class="opacity-0"
+                  enter-to-class="opacity-100" leave-active-class="transition duration-150"
+                  leave-from-class="opacity-100" leave-to-class="opacity-0">
+        <div v-if="showAnswerModal"
+             class="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4"
+             @click="closeAnswerModal">
+
+          <Transition enter-active-class="transition duration-200"
+                      enter-from-class="scale-95 opacity-0" enter-to-class="scale-100 opacity-100"
+                      leave-active-class="transition duration-150"
+                      leave-from-class="scale-100 opacity-100" leave-to-class="scale-95 opacity-0">
+            <div v-if="showAnswerModal && selectedControl"
+                 class="bg-white dark:bg-darkmode-800 rounded-2xl border border-slate-200/80 dark:border-white/8
+                 w-full max-w-xl max-h-[90vh] overflow-y-auto flex flex-col"
+                 @click.stop>
+
+              <!-- Header -->
+              <div class="sticky top-0 z-10 bg-white dark:bg-darkmode-800 px-5 pt-3 pb-2
+                      border-b border-slate-100 dark:border-white/8">
+                <div class="flex items-start justify-between gap-3">
+                  <div class="flex flex-col gap-1.5 min-w-0">
+                    <div class="flex items-center gap-2 flex-wrap">
+<!--                  <span class="font-mono text-[11px] text-slate-400 dark:text-slate-500-->
+<!--                               bg-slate-100 dark:bg-white/8 border border-slate-200 dark:border-white/10-->
+<!--                               rounded px-2 py-0.5">-->
+<!--                    {{ selectedControl.metric_code }}-->
+<!--                  </span>-->
+                      <span class="text-[11px] font-medium px-2 py-0.5 rounded-full
+                               bg-purple-50 dark:bg-purple-950/30 text-purple-700 dark:text-purple-400">
+                    {{ selectedControl.domain_title }}
+                  </span>
+                    </div>
+<!--                    <h2 class="text-[15px] font-medium text-slate-900 dark:text-slate-100">-->
+<!--                      {{ t("governance.answer-question") }}-->
+<!--                    </h2>-->
+<!--                    <div class="flex items-center gap-4 flex-wrap">-->
+<!--                  <span class="text-[11px] text-slate-400 dark:text-slate-500 flex items-center gap-1">-->
+<!--                    <i class="ti ti-tag text-[12px]" aria-hidden="true"></i>-->
+<!--                    {{ selectedControl.kpi_code }}-->
+<!--                  </span>-->
+<!--                      <span class="text-[11px] text-slate-400 dark:text-slate-500 flex items-center gap-1">-->
+<!--                    <i class="ti ti-clock text-[12px]" aria-hidden="true"></i>-->
+<!--                    {{ selectedControl.time_update_view }}-->
+<!--                  </span>-->
+<!--                    </div>-->
+                  </div>
+                  <button @click="closeAnswerModal"
+                          class="w-7 h-7 flex-shrink-0 rounded-lg border border-slate-200 dark:border-white/10
+                       bg-slate-100 dark:bg-white/8 flex items-center justify-center
+                       text-slate-400 hover:text-slate-600 dark:hover:text-slate-300
+                       hover:bg-slate-200 dark:hover:bg-white/12 transition-colors"
+                          :aria-label="t('governance.close')">
+                    X
+                  </button>
                 </div>
-                <button
-                  @click="closeAnswerModal"
-                  class="text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300 transition-colors"
-                >
-                  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
               </div>
 
-              <!-- Modal Body -->
-              <div class="px-6 py-6 space-y-6">
-                <!-- Question Info -->
-                <div class="bg-blue-50 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/30 rounded-lg p-4">
-                  <h3 class="font-semibold text-blue-900 dark:text-blue-100 mb-2">
-                    {{ selectedControl.summary }}
-                  </h3>
-                  <p class="text-sm text-blue-800 dark:text-blue-200">
-                    {{ selectedControl.title }}
-                  </p>
-                  <p class="text-xs text-blue-700 dark:text-blue-300 mt-2">
-                    {{ selectedControl.description }}
-                  </p>
-                </div>
+              <!-- Body -->
+              <div class="px-3 py-3 space-y-4 flex-1">
 
-                <!-- Form -->
-                <div class="space-y-4">
-                  <!-- Answer Type Label -->
-                  <div>
-                    <label class="block text-sm font-medium text-slate-900 dark:text-slate-100 mb-2">
-                      پاسخ شما
-                      <span class="text-xs text-slate-500 dark:text-slate-400 font-normal ml-2">
-                        ({{ selectedControl.answer_type }}
-                        <span v-if="selectedControl.answer_unit">
-                          - {{ selectedControl.answer_unit }}
-                        </span>
-                        )
-                      </span>
-                    </label>
-
-                    <!-- Input Field -->
-                    <div
-                      v-if="
-                        selectedControl.answer_type === 'number' ||
-                        selectedControl.answer_type === 'percentage'
-                      "
-                    >
-                      <div class="relative">
-                        <input
-                          v-model.number="answerInput"
-                          type="number"
-                          :placeholder="`${
-                            selectedControl.answer_type === 'percentage'
-                              ? '0-100'
-                              : 'عدد را وارد کنید'
-                          }`"
-                          class="w-full px-4 py-2 border border-slate-300 dark:border-darkmode-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-darkmode-700 dark:text-slate-100 transition-colors"
-                          :min="selectedControl.answer_type === 'percentage' ? 0 : undefined"
-                          :max="
-                            selectedControl.answer_type === 'percentage'
-                              ? 100
-                              : undefined
-                          "
-                        />
-                        <span
-                          v-if="selectedControl.answer_unit"
-                          class="absolute left-4 top-2.5 text-slate-500 dark:text-slate-400 text-sm pointer-events-none"
-                        >
-                          {{ selectedControl.answer_unit }}
-                        </span>
-                      </div>
-                    </div>
-
-                    <!-- Textarea for Text Answers -->
-                    <textarea
-                      v-else
-                      v-model="answerInput"
-                      rows="4"
-                      placeholder="پاسخ خود را وارد کنید..."
-                      class="w-full px-4 py-2 border border-slate-300 dark:border-darkmode-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-darkmode-700 dark:text-slate-100 transition-colors"
-                    />
+                <!-- Question block -->
+                <div class="border border-slate-200/80 dark:border-white/8 rounded-xl overflow-hidden" dir="rtl">
+                  <div class="flex items-center justify-between gap-3 px-4 py-2.5
+                          bg-slate-50 dark:bg-white/4 border-b border-slate-100 dark:border-white/8">
+                <span class="text-[12px] font-medium text-slate-500 dark:text-slate-400">
+                  {{ selectedControl.summary }}
+                </span>
+                    <span class="text-[10px] font-medium px-2 py-0.5 rounded-full
+                             bg-slate-100 dark:bg-white/8 text-slate-400 dark:text-slate-500
+                             border border-slate-200 dark:border-white/10 whitespace-nowrap">
+                  {{ selectedControl.answer_type }}
+                  <span v-if="selectedControl.answer_unit"> · {{ selectedControl.answer_unit }}</span>
+                </span>
+                  </div>
+                  <div class="px-4 py-3 space-y-2">
+                    <p class="text-[13px] font-medium text-slate-800 dark:text-slate-100 leading-relaxed">
+                      {{ selectedControl.title }}
+                    </p>
+                    <p class="text-[12px] text-slate-500 dark:text-slate-400 leading-relaxed">
+                      {{ selectedControl.description }}
+                    </p>
+                  </div>
+                  <div v-if="selectedControl.frameworks?.length"
+                       class="flex flex-wrap gap-1.5 px-4 py-2.5
+                       border-t border-slate-100 dark:border-white/8">
+                <span v-for="fw in selectedControl.frameworks" :key="fw"
+                      class="text-[10px] text-slate-400 dark:text-slate-500
+                         bg-slate-100 dark:bg-white/6 rounded px-1.5 py-0.5">
+                  {{ fw }}
+                </span>
                   </div>
                 </div>
+
+                <!-- Current answer banner -->
+                <!--                <div v-if="selectedControl.answer !== null && selectedControl.answer !== ''"-->
+                <!--                     class="flex items-center gap-3 px-4 py-2.5 rounded-xl-->
+                <!--                     bg-emerald-50 dark:bg-emerald-950/30-->
+                <!--                     border border-emerald-200 dark:border-emerald-800/40">-->
+                <!--                  <i class="ti ti-circle-check text-emerald-600 dark:text-emerald-400 text-[16px]" aria-hidden="true"></i>-->
+                <!--                  <span class="text-[11px] text-emerald-700 dark:text-emerald-400 flex-1">-->
+                <!--                {{ t("governance.current-answer") }}-->
+                <!--              </span>-->
+                <!--                  <span class="text-[16px] font-medium text-emerald-800 dark:text-emerald-300 tabular-nums">-->
+                <!--                {{ selectedControl.answer }}-->
+                <!--              </span>-->
+                <!--                  <span v-if="selectedControl.answer_unit"-->
+                <!--                        class="text-[11px] text-emerald-600 dark:text-emerald-500">-->
+                <!--                {{ selectedControl.answer_unit }}-->
+                <!--              </span>-->
+                <!--                </div>-->
+
+                <!-- Input -->
+                <div>
+                  <label
+                      class="block text-[12px] font-medium text-slate-500 dark:text-slate-400 mb-2 flex items-center gap-2">
+                    {{ t("governance.your-answer") }}
+                    <span class="font-normal text-slate-400 dark:text-slate-500">
+                  ({{ selectedControl.answer_type }}
+                  <span v-if="selectedControl.answer_unit"> · {{ selectedControl.answer_unit }}</span>)
+                </span>
+                  </label>
+
+                  <div v-if="selectedControl.answer_type === 'number' || selectedControl.answer_type === 'percentage'"
+                       class="relative">
+                    <input v-model.number="answerInput" type="number" dir="ltr"
+                           :placeholder="selectedControl.answer_type === 'percentage' ? '0 – 100' : t('governance.enter-number')"
+                           :min="selectedControl.answer_type === 'percentage' ? 0 : undefined"
+                           :max="selectedControl.answer_type === 'percentage' ? 100 : undefined"
+                           class="w-full px-4 py-2.5 pr-4 text-[15px] font-medium
+                         border border-slate-200 dark:border-white/10 rounded-xl
+                         bg-white dark:bg-darkmode-700
+                         text-slate-900 dark:text-slate-100
+                         focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400
+                         dark:focus:border-blue-500 transition-colors"
+                           :class="selectedControl.answer_unit ? 'pl-16' : ''"/>
+                    <span v-if="selectedControl.answer_unit"
+                          class="absolute left-4 top-1/2 -translate-y-1/2
+                         text-[12px] text-slate-400 dark:text-slate-500 pointer-events-none">
+                  {{ selectedControl.answer_unit }}
+                </span>
+                  </div>
+
+                  <textarea v-else v-model="answerInput" rows="4"
+                            :placeholder="t('governance.enter-answer')"
+                            class="w-full px-4 py-2.5 text-[13px]
+                       border border-slate-200 dark:border-white/10 rounded-xl
+                       bg-white dark:bg-darkmode-700
+                       text-slate-900 dark:text-slate-100
+                       focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400
+                       dark:focus:border-blue-500 transition-colors resize-none"
+                            dir="rtl"/>
+                </div>
               </div>
 
-              <!-- Modal Footer -->
-              <div class="border-t border-slate-200 dark:border-darkmode-700 bg-slate-50 dark:bg-darkmode-900/50 px-6 py-4 flex justify-end gap-3">
-                <Button
-                  variant="outline-secondary"
-                  @click="closeAnswerModal"
-                  :disabled="submittingAnswer"
-                >
-                  انصراف
-                </Button>
-                <Button
-                  variant="outline-secondary"
-                  @click="handleClearAnswer"
-                  :disabled="submittingAnswer"
-                >
-                  پاک کردن
-                </Button>
-                <Button
-                  variant="primary"
-                  @click="handleSubmitAnswer"
-                  :disabled="submittingAnswer"
-                >
-                  <svg
-                    v-if="submittingAnswer"
-                    class="w-4 h-4 ml-2 animate-spin"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-                    />
-                  </svg>
-                  {{
-                    submittingAnswer ? "در حال ارسال..." : "ثبت پاسخ"
-                  }}
-                </Button>
+              <!-- Footer -->
+              <div class="sticky bottom-0 border-t border-slate-100 dark:border-white/8
+                      bg-slate-50 dark:bg-darkmode-900/60 px-5 py-3.5
+                      flex items-center justify-between gap-3">
+                <button @click="handleClearAnswer" :disabled="submittingAnswer"
+                        class="inline-flex items-center gap-1.5 text-[12px] font-medium px-3 py-1.5 rounded-lg
+                     text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/30
+                     border border-red-200 dark:border-red-800/40
+                     hover:bg-red-100 dark:hover:bg-red-950/50 transition-colors disabled:opacity-40">
+                  <i class="ti ti-eraser text-[13px]" aria-hidden="true"></i>
+                  {{ t("governance.clear") }}
+                </button>
+
+                <div class="flex items-center gap-2">
+                  <button @click="closeAnswerModal" :disabled="submittingAnswer"
+                          class="inline-flex items-center text-[13px] font-medium px-4 py-1.5 rounded-lg
+                       text-slate-500 dark:text-slate-400
+                       border border-slate-200 dark:border-white/10
+                       hover:bg-slate-100 dark:hover:bg-white/8 transition-colors disabled:opacity-40 btn-xs">
+                    {{ t("governance.cancel") }}
+                  </button>
+                  <button @click="handleSubmitAnswer" :disabled="submittingAnswer"
+                          class="inline-flex items-center gap-2 text-[13px] font-medium px-4 py-1.5 rounded-lg
+                       bg-blue-600 hover:bg-blue-700 text-white transition-colors disabled:opacity-50">
+                    <i v-if="!submittingAnswer" class="ti ti-check text-[14px]" aria-hidden="true"></i>
+                    <i v-else class="ti ti-loader-2 text-[14px] animate-spin" aria-hidden="true"></i>
+                    {{ submittingAnswer ? t("governance.submitting") : t("governance.submit-answer") }}
+                  </button>
+                </div>
               </div>
+
             </div>
           </Transition>
         </div>
@@ -582,3 +677,22 @@ const getAnswerStatusColor = (status: string) => {
     </Teleport>
   </div>
 </template>
+<style>
+.pop-enter-active {
+  transition: opacity 0.15s, transform 0.15s;
+}
+
+.pop-enter-from {
+  opacity: 0;
+  transform: scale(0.5);
+}
+
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.15s, transform 0.15s;
+}
+
+.fade-enter-from, .fade-leave-to {
+  opacity: 0;
+  transform: translateY(4px);
+}
+</style>

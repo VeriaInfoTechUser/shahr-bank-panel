@@ -238,9 +238,12 @@
     "uploading": "در حال آپلود...",
     "size": "اندازه",
     "created-at": "تاریخ ایجاد",
+    "created": "ایجاد شده",
+    "updated": "به‌روزرسانی شده",
     "type": "نوع",
     "extension": "پسوند",
-    "actions": "عملیات"
+    "actions": "عملیات",
+    "error": "خطای سیستمی"
   },
   "login-history": {
     "title": "تاریخچه ورود",

@@ -220,9 +220,12 @@
     "uploading": "Uploading...",
     "size": "Size",
     "created-at": "Created At",
+    "created": "Created",
+    "updated": "Updated",
     "type": "Type",
     "extension": "Extension",
-    "actions": "Actions"
+    "actions": "Actions",
+    "error": "An error occurred"
   },
   "login-history": {
     "title": "Login History",

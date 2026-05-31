@@ -89,9 +89,12 @@
     "uploading": "جاري الرفع...",
     "size": "الحجم",
     "created-at": "تاريخ الإنشاء",
+    "created": "تم الإنشاء",
+    "updated": "تم التحديث",
     "type": "النوع",
     "extension": "الامتداد",
-    "actions": "الإجراءات"
+    "actions": "الإجراءات",
+    "error": "حدث خطأ ما"
   },
   "login-history": {
     "title": "سجل الدخول",

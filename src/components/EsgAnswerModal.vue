@@ -116,6 +116,12 @@ const handleSubmit = () => emit("submit");
 const handleClear = () => emit("clear");
 </script>
 
+<style scoped>
+textarea::placeholder {
+  text-align: left;
+}
+</style>
+
 <template>
   <Teleport to="body">
     <Transition enter-active-class="transition duration-200" enter-from-class="opacity-0"
@@ -188,6 +194,11 @@ const handleClear = () => emit("clear");
 
                 <div v-if="control.answer_type === 'number' || control.answer_type === 'percentage'"
                      class="relative">
+                  <span v-if="getDisplayUnit(control)"
+                        class="absolute pr-10 top-1/2 -translate-y-1/2
+                               text-[12px] text-slate-400 dark:text-slate-500 pointer-events-none">
+                    {{ getDisplayUnit(control) }}
+                  </span>
                   <FormInput v-model="localAnswer"
                              type="number"
                              dir="ltr"
@@ -195,12 +206,8 @@ const handleClear = () => emit("clear");
                              :min="control.answer_type === 'percentage' ? 0 : undefined"
                              :max="control.answer_type === 'percentage' ? 100 : undefined"
                              formInputSize="sm"
-                             :class="control.answer_unit ? 'pl-16' : ''" />
-                  <span v-if="getDisplayUnit(control)"
-                        class="absolute left-4 top-1/2 -translate-y-1/2
-                               text-[12px] text-slate-400 dark:text-slate-500 pointer-events-none">
-                    {{ getDisplayUnit(control) }}
-                  </span>
+                             :class="['placeholder-shown:text-right', control.answer_unit ? ' pr-4' : 'pr-4']" />
+
                 </div>
 
                 <FormInput v-else v-model="localAnswer" type="textarea" :rows="4"

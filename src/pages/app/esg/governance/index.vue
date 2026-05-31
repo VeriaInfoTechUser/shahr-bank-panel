@@ -3,8 +3,7 @@ import {useI18n} from "vue-i18n";
 import {useQuery} from "@core/composables";
 import {esgRepo} from "@core/repositories/esgRepo";
 import {computed, onMounted, onUnmounted, ref} from "vue";
-import Button from "@/base-components/Button";
-import { FormInput } from "@/base-components/Form";
+import EsgAnswerModal from "@/components/EsgAnswerModal.vue";
 
 const {t} = useI18n();
 
@@ -129,8 +128,9 @@ const getDomainStats = (domain: Domain) => {
 
 const getAnswerUnitLabel = (unit: string | null | undefined) => {
   if (!unit) return "";
-  const translation = t(`governance.unit.${unit}`);
-  return translation === `governance.unit.${unit}` ? unit : translation;
+  const unitKey = unit.toString().toLowerCase();
+  const translation = t(`governance.unit.${unitKey}`);
+  return translation === `governance.unit.${unitKey}` ? unit : translation;
 };
 
 const getDisplayUnit = (control: Control | null | undefined, forList = false) => {
@@ -543,159 +543,15 @@ onUnmounted(() => {
 
     </template>
 
-    <!-- Answer Modal -->
-    <Teleport to="body">
-      <Transition enter-active-class="transition duration-200" enter-from-class="opacity-0"
-                  enter-to-class="opacity-100" leave-active-class="transition duration-150"
-                  leave-from-class="opacity-100" leave-to-class="opacity-0">
-        <div v-if="showAnswerModal"
-             class="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4"
-             @click="closeAnswerModal">
-
-          <Transition enter-active-class="transition duration-200"
-                      enter-from-class="scale-95 opacity-0" enter-to-class="scale-100 opacity-100"
-                      leave-active-class="transition duration-150"
-                      leave-from-class="scale-100 opacity-100" leave-to-class="scale-95 opacity-0">
-            <div v-if="showAnswerModal && selectedControl"
-                 class="bg-white dark:bg-darkmode-800 rounded-2xl border border-slate-200/80 dark:border-white/8
-                 w-full max-w-xl max-h-[90vh] overflow-y-auto flex flex-col"
-                 @click.stop>
-
-              <!-- Header -->
-              <div class="sticky top-0 z-10 bg-white dark:bg-darkmode-800 px-5 pt-3 pb-2
-                      border-b border-slate-100 dark:border-white/8">
-                <div class="flex items-start justify-between gap-3">
-                  <div class="flex flex-col gap-1.5 min-w-0">
-                    <div class="flex items-center gap-2 flex-wrap">
-<!--                  <span class="font-mono text-[11px] text-slate-400 dark:text-slate-500-->
-<!--                               bg-slate-100 dark:bg-white/8 border border-slate-200 dark:border-white/10-->
-<!--                               rounded px-2 py-0.5">-->
-<!--                    {{ selectedControl.metric_code }}-->
-<!--                  </span>-->
-                      <span class="text-[11px] font-medium px-2 py-0.5 rounded-full
-                               bg-purple-50 dark:bg-purple-950/30 text-purple-700 dark:text-purple-400">
-                    {{ selectedControl.domain_title }}
-                  </span>
-                    </div>
-<!--                    <h2 class="text-[15px] font-medium text-slate-900 dark:text-slate-100">-->
-<!--                      {{ t("governance.answer-question") }}-->
-<!--                    </h2>-->
-<!--                    <div class="flex items-center gap-4 flex-wrap">-->
-<!--                  <span class="text-[11px] text-slate-400 dark:text-slate-500 flex items-center gap-1">-->
-<!--                    <i class="ti ti-tag text-[12px]" aria-hidden="true"></i>-->
-<!--                    {{ selectedControl.kpi_code }}-->
-<!--                  </span>-->
-<!--                      <span class="text-[11px] text-slate-400 dark:text-slate-500 flex items-center gap-1">-->
-<!--                    <i class="ti ti-clock text-[12px]" aria-hidden="true"></i>-->
-<!--                    {{ selectedControl.time_update_view }}-->
-<!--                  </span>-->
-<!--                    </div>-->
-                  </div>
-                  <button @click="closeAnswerModal"
-                          class="w-7 h-7 flex-shrink-0 rounded-lg border border-slate-200 dark:border-white/10
-                       bg-slate-100 dark:bg-white/8 flex items-center justify-center
-                       text-slate-400 hover:text-slate-600 dark:hover:text-slate-300
-                       hover:bg-slate-200 dark:hover:bg-white/12 transition-colors"
-                          :aria-label="t('governance.close')">
-                    X
-                  </button>
-                </div>
-              </div>
-
-              <!-- Body -->
-              <div class="px-3 py-3 space-y-4 flex-1">
-
-                <!-- Question block -->
-                <div class="border border-slate-200/80 dark:border-white/8 rounded-xl overflow-hidden" dir="rtl">
-                  <div class="flex items-center justify-between gap-3 px-4 py-2.5
-                          bg-slate-50 dark:bg-white/4 border-b border-slate-100 dark:border-white/8">
-                <span class="text-[12px] font-medium text-slate-500 dark:text-slate-400">
-                  {{ selectedControl.summary }}
-                </span>
-                  </div>
-                  <div class="px-4 py-3 space-y-2">
-                    <p class="text-[13px] font-medium text-slate-800 dark:text-slate-100 leading-relaxed">
-                      {{ selectedControl.title }}
-                    </p>
-                    <p class="text-[12px] text-slate-500 dark:text-slate-400 leading-relaxed">
-                      {{ selectedControl.description }}
-                    </p>
-                  </div>
-                  <div v-if="selectedControl.frameworks?.length"
-                       class="flex flex-wrap gap-1.5 px-4 py-2.5
-                       border-t border-slate-100 dark:border-white/8">
-                <span v-for="fw in selectedControl.frameworks" :key="fw"
-                      class="text-[10px] text-slate-400 dark:text-slate-500
-                         bg-slate-100 dark:bg-white/6 rounded px-1.5 py-0.5">
-                  {{ fw }}
-                </span>
-                  </div>
-                </div> 
-                <div>
-                  <label
-                      class="block text-[12px] font-medium text-slate-500 dark:text-slate-400 mb-2 flex items-center gap-2">
-                    {{ t("governance.your-answer") }}
-                  </label>
-
-                    <div v-if="selectedControl.answer_type === 'number' || selectedControl.answer_type === 'percentage'"
-                         class="relative">
-                      <FormInput v-model="answerInput"
-                                 type="number"
-                                 dir="ltr"
-                                 :placeholder="selectedControl.answer_type === 'percentage' ? '0 – 100' : t('governance.enter-number')"
-                                 :min="selectedControl.answer_type === 'percentage' ? 0 : undefined"
-                                 :max="selectedControl.answer_type === 'percentage' ? 100 : undefined"
-                                 formInputSize="sm"
-                                 :class="selectedControl.answer_unit ? 'pl-16' : ''" />
-                      <span v-if="getDisplayUnit(selectedControl)"
-                            class="absolute left-4 top-1/2 -translate-y-1/2
-                           text-[12px] text-slate-400 dark:text-slate-500 pointer-events-none">
-                    {{ getDisplayUnit(selectedControl) }}
-                  </span>
-                    </div>
-
-                    <FormInput v-else v-model="answerInput" type="textarea" :rows="4"
-                               :placeholder="t('governance.enter-answer')"
-                               formInputSize="sm" dir="rtl" />
-                </div>
-              </div>
-
-              <!-- Footer -->
-              <div class="sticky bottom-0 border-t border-slate-100 dark:border-white/8
-                      bg-slate-50 dark:bg-darkmode-900/60 px-5 py-3.5
-                      flex items-center justify-between gap-3">
-                <button @click="handleClearAnswer" :disabled="submittingAnswer"
-                        class="inline-flex items-center gap-1.5 text-[12px] font-medium px-3 py-1.5 rounded-lg btn-xs
-                     text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/30
-                     border border-red-200 dark:border-red-800/40
-                     hover:bg-red-100 dark:hover:bg-red-950/50 transition-colors disabled:opacity-40">
-                  <i class="ti ti-eraser text-[13px]" aria-hidden="true"></i>
-                  {{ t("governance.clear") }}
-                </button>
-
-                <div class="flex items-center gap-2">
-                  <button @click="closeAnswerModal" :disabled="submittingAnswer"
-                          class="inline-flex items-center text-[13px] font-medium px-4 py-1.5 rounded-lg
-                       text-slate-500 dark:text-slate-400
-                       border border-slate-200 dark:border-white/10
-                       hover:bg-slate-100 dark:hover:bg-white/8 transition-colors disabled:opacity-40 btn-xs">
-                    {{ t("governance.cancel") }}
-                  </button>
-                  <button @click="handleSubmitAnswer" :disabled="submittingAnswer"
-                          class="inline-flex items-center gap-2 text-[13px] font-medium px-4 py-1.5 rounded-lg btn-xs
-                       bg-blue-600 hover:bg-blue-700 text-white transition-colors disabled:opacity-50">
-                    <i v-if="!submittingAnswer" class="ti ti-check text-[14px]" aria-hidden="true"></i>
-                    <i v-else class="ti ti-loader-2 text-[14px] animate-spin" aria-hidden="true"></i>
-                    {{ submittingAnswer ? t("governance.submitting") : t("governance.submit") }}
-                  </button>
-                </div>
-              </div>
-
-            </div>
-          </Transition>
-        </div>
-      </Transition>
-    </Teleport>
+    <EsgAnswerModal
+      v-model:show="showAnswerModal"
+      :control="selectedControl"
+      v-model:answer="answerInput"
+      :submitting="submittingAnswer"
+      @submit="handleSubmitAnswer"
+      @clear="handleClearAnswer"
+      @close="closeAnswerModal"
+    />
   </div>
 </template>
 <style>

@@ -827,6 +827,30 @@
     "submit-answer": "إرسال الإجابة",
     "submitting": "قيد الإرسال...",
     "error-loading": "خطأ في تحميل البيانات",
+    "unit": {
+      "percent": "%",
+      "count": "العدد",
+      "currency": "العملة",
+      "person": "شخص",
+      "hour": "ساعة",
+      "hour_per_week": "ساعة / أسبوع",
+      "hour_per_employee": "ساعة / موظف",
+      "ratio": "نسبة",
+      "rate": "معدل",
+      "day": "يوم",
+      "employee": "الموظف",
+      "kwh": "كيلوواط ساعة",
+      "kwh_per_employee": "كيلوواط ساعة / موظف",
+      "kg": "كغم",
+      "liter": "لتر",
+      "m3": "م³",
+      "m3_per_unit": "م³ / وحدة",
+      "tco2e": "طن مكافئ CO₂",
+      "tco2e_per_unit": "طن مكافئ CO₂ / وحدة",
+      "ton": "طن",
+      "ton_per_unit": "طن / وحدة",
+      "hectare": "هكتار"
+    },
     "domains-count": "مجال"
   }
 }

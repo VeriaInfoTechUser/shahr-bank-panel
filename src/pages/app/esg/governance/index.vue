@@ -126,6 +126,12 @@ const getDomainStats = (domain: Domain) => {
   };
 };
 
+const getAnswerUnitLabel = (unit: string | null | undefined) => {
+  if (!unit) return "";
+  const translation = t(`governance.unit.${unit}`);
+  return translation === `governance.unit.${unit}` ? unit : translation;
+};
+
 // Handlers
 const handleDomainClick = (domain: Domain) => {
   const index = selectedDomainFilter.value.indexOf(domain.slug);
@@ -454,14 +460,11 @@ onUnmounted(() => {
                 </div>
               </div>
 
-              <!-- Answer value -->
+              <!-- Answer value (unit removed from bottom; show % inline for percentage answers) -->
               <div class="flex-shrink-0 text-right flex flex-col items-end gap-1 min-w-[56px]">
                 <template v-if="control.answer !== null && control.answer !== ''">
           <span class="text-xl font-medium text-slate-900 dark:text-slate-100 leading-none tabular-nums">
-            {{ control.answer }}
-          </span>
-                  <span v-if="control.answer_unit" class="text-[11px] text-slate-400 dark:text-slate-500">
-            {{ control.answer_unit }}
+            {{ control.answer }}<template v-if="control.answer_type === 'percentage'">%</template>
           </span>
                 </template>
                 <span v-else class="text-slate-300 dark:text-slate-600 text-base">—</span>
@@ -552,7 +555,7 @@ onUnmounted(() => {
                              bg-slate-100 dark:bg-white/8 text-slate-400 dark:text-slate-500
                              border border-slate-200 dark:border-white/10 whitespace-nowrap">
                   {{ selectedControl.answer_type }}
-                  <span v-if="selectedControl.answer_unit"> · {{ selectedControl.answer_unit }}</span>
+                  <span v-if="selectedControl.answer_unit"> · {{ getAnswerUnitLabel(selectedControl.answer_unit) }}</span>
                 </span>
                   </div>
                   <div class="px-4 py-3 space-y-2">
@@ -619,7 +622,7 @@ onUnmounted(() => {
                     <span v-if="selectedControl.answer_unit"
                           class="absolute left-4 top-1/2 -translate-y-1/2
                          text-[12px] text-slate-400 dark:text-slate-500 pointer-events-none">
-                  {{ selectedControl.answer_unit }}
+                  {{ getAnswerUnitLabel(selectedControl.answer_unit) }}
                 </span>
                   </div>
 

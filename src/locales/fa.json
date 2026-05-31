@@ -1408,6 +1408,30 @@
     "submit-answer": "ثبت پاسخ",
     "submitting": "در حال ارسال...",
     "error-loading": "خطا در بارگذاری داده‌ها",
+    "unit": {
+      "percent": "%",
+      "count": "تعداد",
+      "currency": "ارز",
+      "person": "شخص",
+      "hour": "ساعت",
+      "hour_per_week": "ساعت / هفته",
+      "hour_per_employee": "ساعت / کارمند",
+      "ratio": "نسبت",
+      "rate": "نرخ",
+      "day": "روز",
+      "employee": "کارمند",
+      "kwh": "کیلووات ساعت",
+      "kwh_per_employee": "کیلووات ساعت / کارمند",
+      "kg": "کیلوگرم",
+      "liter": "لیتر",
+      "m3": "متر مکعب",
+      "m3_per_unit": "متر مکعب / واحد",
+      "tco2e": "تن معادل CO₂",
+      "tco2e_per_unit": "تن معادل CO₂ / واحد",
+      "ton": "تن",
+      "ton_per_unit": "تن / واحد",
+      "hectare": "هکتار"
+    },
     "domains-count": "حوزه"
   }
 }

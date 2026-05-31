@@ -1357,6 +1357,30 @@
     "submit-answer": "Submit Answer",
     "submitting": "Submitting...",
     "error-loading": "Error loading data",
+    "unit": {
+      "percent": "%",
+      "count": "Count",
+      "currency": "Currency",
+      "person": "Person",
+      "hour": "Hour",
+      "hour_per_week": "Hour / Week",
+      "hour_per_employee": "Hour / Employee",
+      "ratio": "Ratio",
+      "rate": "Rate",
+      "day": "Day",
+      "employee": "Employee",
+      "kwh": "kWh",
+      "kwh_per_employee": "kWh / Employee",
+      "kg": "kg",
+      "liter": "Liter",
+      "m3": "m³",
+      "m3_per_unit": "m³ / Unit",
+      "tco2e": "tCO₂e",
+      "tco2e_per_unit": "tCO₂e / Unit",
+      "ton": "Ton",
+      "ton_per_unit": "Ton / Unit",
+      "hectare": "Hectare"
+    },
     "domains-count": "domain"
   }
 }

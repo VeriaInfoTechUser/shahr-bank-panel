@@ -1,7 +1,38 @@
 <script setup lang="ts">
 import { useI18n } from "vue-i18n";
+import {useQuery} from "@core/composables";
+import {ermRepo} from "@core/repositories";
+import {esgRepo} from "@core/repositories/esgRepo";
+import {onMounted, onUnmounted} from "vue";
 const { t } = useI18n();
+
+
+const {
+  data: performanceData,
+  isLoading,
+  error,
+  refetch,
+  invalidate,
+} = useQuery(
+    ['esg-governance-list',],
+    () => esgRepo.list({type:'domain',source:'governance'}) ,
+    {
+      enabled: true,
+      staleTime: 300000,
+      refetchOnMount: true,
+    }
+);
+
+
+onMounted(() => {
+});
+
+onUnmounted(() => {
+  invalidate();
+});
+
 </script>
+
 
 <template>
   <div class="mx-auto max-w-7xl px-1 pb-12 pt-2 md:px-2">

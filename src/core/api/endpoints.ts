@@ -48,7 +48,6 @@ export const endpoints = {
     erm: {
       rule: {
         list: 'erm/rule/list',
-        /** لیست سبک قوانین فقط `{ id, rule }` برای دراپ‌داون */
         lightList: 'erm/rule/light-list',
         add: 'erm/rule/add',
         edit: 'erm/rule/edit',
@@ -114,5 +113,11 @@ export const endpoints = {
         delete: 'erm/rule/type/delete',
       },
     },
+
+    esg: {
+      governance: {
+        list: 'content/item/list',
+      },
+    }
   },
 };

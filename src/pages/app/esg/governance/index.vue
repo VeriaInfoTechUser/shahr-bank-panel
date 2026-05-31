@@ -132,6 +132,62 @@ const getAnswerUnitLabel = (unit: string | null | undefined) => {
   return translation === `governance.unit.${unit}` ? unit : translation;
 };
 
+const getDisplayUnit = (control: Control | null | undefined, forList = false) => {
+  if (!control) return "";
+  if (control.answer_type === "percentage") return "%";
+  // Prefer explicit answer_unit when available
+  if (control.answer_unit) {
+    const unitKey = control.answer_unit;
+    if (forList && unitKey === 'count') return "";
+    return getAnswerUnitLabel(unitKey);
+  }
+
+  // Conservative heuristics based on metric_code / kpi_code / title
+  const code = (control.metric_code || "").toString().toLowerCase();
+  const kpi = (control.kpi_code || "").toString().toLowerCase();
+  const title = (control.title || "").toString().toLowerCase();
+
+  const combined = `${code} ${kpi} ${title}`;
+
+  const mapping: { [key: string]: string } = {
+    'tco2': 'tco2e',
+    'tco2e': 'tco2e',
+    'co2': 'tco2e',
+    'kwh': 'kwh',
+    'kwh/h': 'kwh',
+    'kg': 'kg',
+    'liter': 'liter',
+    'l ': 'liter',
+    'm3': 'm3',
+    'm³': 'm3',
+    'ton': 'ton',
+    'tonne': 'ton',
+    'ha': 'hectare',
+    'hectare': 'hectare',
+    'person': 'person',
+    'people': 'person',
+    'employee': 'person',
+    'staff': 'person',
+    'animal': 'animal',
+    'head': 'animal',
+    'hour': 'hour',
+    'hr': 'hour',
+    'count': 'count'
+  };
+
+  for (const key in mapping) {
+    if (Object.prototype.hasOwnProperty.call(mapping, key)) {
+      if (combined.includes(key)) {
+        const unitKey = mapping[key];
+        if (forList && unitKey === 'count') return "";
+        return getAnswerUnitLabel(unitKey);
+      }
+    }
+  }
+
+  return "";
+};
+
 // Handlers
 const handleDomainClick = (domain: Domain) => {
   const index = selectedDomainFilter.value.indexOf(domain.slug);
@@ -464,7 +520,11 @@ onUnmounted(() => {
               <div class="flex-shrink-0 text-right flex flex-col items-end gap-1 min-w-[56px]">
                 <template v-if="control.answer !== null && control.answer !== ''">
           <span class="text-xl font-medium text-slate-900 dark:text-slate-100 leading-none tabular-nums">
-            {{ control.answer }}<template v-if="control.answer_type === 'percentage'">%</template>
+            {{ control.answer }}
+            <template v-if="control.answer_type === 'percentage'">%</template>
+            <template v-else-if="control.answer_type === 'number'">
+              <template v-if="getDisplayUnit(control, true)"> {{ getDisplayUnit(control, true) }}</template>
+            </template>
           </span>
                 </template>
                 <span v-else class="text-slate-300 dark:text-slate-600 text-base">—</span>
@@ -551,12 +611,6 @@ onUnmounted(() => {
                 <span class="text-[12px] font-medium text-slate-500 dark:text-slate-400">
                   {{ selectedControl.summary }}
                 </span>
-                    <span class="text-[10px] font-medium px-2 py-0.5 rounded-full
-                             bg-slate-100 dark:bg-white/8 text-slate-400 dark:text-slate-500
-                             border border-slate-200 dark:border-white/10 whitespace-nowrap">
-                  {{ selectedControl.answer_type }}
-                  <span v-if="selectedControl.answer_unit"> · {{ getAnswerUnitLabel(selectedControl.answer_unit) }}</span>
-                </span>
                   </div>
                   <div class="px-4 py-3 space-y-2">
                     <p class="text-[13px] font-medium text-slate-800 dark:text-slate-100 leading-relaxed">
@@ -600,13 +654,9 @@ onUnmounted(() => {
                   <label
                       class="block text-[12px] font-medium text-slate-500 dark:text-slate-400 mb-2 flex items-center gap-2">
                     {{ t("governance.your-answer") }}
-                    <span class="font-normal text-slate-400 dark:text-slate-500">
-                  ({{ selectedControl.answer_type }}
-                  <span v-if="selectedControl.answer_unit"> · {{ selectedControl.answer_unit }}</span>)
-                </span>
                   </label>
 
-                  <div v-if="selectedControl.answer_type === 'number' || selectedControl.answer_type === 'percentage'"
+                    <div v-if="selectedControl.answer_type === 'number' || selectedControl.answer_type === 'percentage'"
                        class="relative">
                     <input v-model.number="answerInput" type="number" dir="ltr"
                            :placeholder="selectedControl.answer_type === 'percentage' ? '0 – 100' : t('governance.enter-number')"
@@ -619,10 +669,10 @@ onUnmounted(() => {
                          focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400
                          dark:focus:border-blue-500 transition-colors"
                            :class="selectedControl.answer_unit ? 'pl-16' : ''"/>
-                    <span v-if="selectedControl.answer_unit"
+                    <span v-if="getDisplayUnit(selectedControl)"
                           class="absolute left-4 top-1/2 -translate-y-1/2
                          text-[12px] text-slate-400 dark:text-slate-500 pointer-events-none">
-                  {{ getAnswerUnitLabel(selectedControl.answer_unit) }}
+                  {{ getDisplayUnit(selectedControl) }}
                 </span>
                   </div>
 

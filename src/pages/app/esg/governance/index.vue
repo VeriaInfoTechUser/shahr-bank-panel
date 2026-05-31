@@ -245,17 +245,17 @@ onUnmounted(() => {
     <template v-else>
       <!-- Domain Cards Section -->
       <div class="mb-2">
-        <p class="text-[11px] font-medium uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-3">
+        <p class="text-[11px] font-medium uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-2.5">
           {{ t("governance.domains-title") }}
         </p>
 
-        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-2">
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-1.5">
           <div
               v-for="domain in domains"
               :key="domain.id"
               @click="handleDomainClick(domain)"
               :class="[
-        'relative cursor-pointer rounded-xl border p-3 transition-all duration-150 select-none',
+        'relative cursor-pointer rounded-xl border p-2.5 transition-all duration-150 select-none',
         'hover:-translate-y-px active:scale-[0.985]',
         selectedDomainFilter.includes(domain.slug)
           ? 'border-blue-400 bg-blue-50 dark:bg-blue-950/40 dark:border-blue-500'
@@ -264,44 +264,37 @@ onUnmounted(() => {
           >
             <!-- Check badge -->
             <Transition name="pop">
-              <div
-                  v-if="selectedDomainFilter.includes(domain.slug)"
-                  class="absolute top-2.5 right-2.5 w-4 h-4 rounded-full bg-blue-500 flex items-center justify-center"
-              >
-                <svg class="w-2.5 h-2.5 text-white" viewBox="0 0 10 10" fill="none">
-                  <path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
-                        stroke-linejoin="round"/>
+              <div v-if="selectedDomainFilter.includes(domain.slug)"
+                   class="absolute top-2 right-2 w-[15px] h-[15px] rounded-full bg-blue-500 flex items-center justify-center">
+                <svg class="w-2 h-2 text-white" viewBox="0 0 8 8" fill="none">
+                  <path d="M1.5 4l2 2 3-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
               </div>
             </Transition>
 
-            <!-- Title -->
-            <h3 :class="[
-        'text-[13px] font-medium leading-snug line-clamp-2 mb-3 pr-5',
-        selectedDomainFilter.includes(domain.slug)
-          ? 'text-blue-700 dark:text-blue-300'
-          : 'text-slate-800 dark:text-slate-100'
-      ]">
-              {{ domain.title }}
-            </h3>
+            <!-- Code + Title -->
+            <div class="flex items-start gap-1.5 mb-2" dir="rtl">
+              <h3 :class="[
+          'text-[12px] font-medium leading-snug line-clamp-2 flex-1 min-w-0 pr-4',
+          selectedDomainFilter.includes(domain.slug)
+            ? 'text-blue-700 dark:text-blue-300'
+            : 'text-slate-800 dark:text-slate-100'
+        ]">
+                {{ domain.title }}
+              </h3>
+              <span :class="[
+          'font-mono text-[10px] px-1.5 py-0.5 rounded border whitespace-nowrap flex-shrink-0 leading-relaxed',
+          selectedDomainFilter.includes(domain.slug)
+            ? 'bg-blue-100 dark:bg-blue-900/40 border-blue-200 dark:border-blue-700 text-blue-700 dark:text-blue-400'
+            : 'bg-slate-100 dark:bg-white/6 border-slate-200 dark:border-white/10 text-slate-400 dark:text-slate-500'
+        ]">
+          {{ domain.code }}
+        </span>
+            </div>
 
-            <!-- Stats + Progress -->
-            <div>
-              <div class="flex items-center justify-between mb-1.5">
-          <span class="text-[11px] text-slate-400 dark:text-slate-500">
-            {{ getDomainStats(domain).answered }}/{{ getDomainStats(domain).total }}
-          </span>
-                <span :class="[
-            'text-[12px] font-medium',
-            selectedDomainFilter.includes(domain.slug)
-              ? 'text-blue-600 dark:text-blue-400'
-              : 'text-slate-500 dark:text-slate-400'
-          ]">
-            {{ getDomainStats(domain).answeredPercent }}%
-          </span>
-              </div>
-
-              <div class="h-[3px] bg-slate-200 dark:bg-white/10 rounded-full overflow-hidden" dir="ltr">
+            <!-- Progress -->
+            <div class="flex items-center gap-1.5">
+              <div class="flex-1 h-[3px] bg-slate-200 dark:bg-white/10 rounded-full overflow-hidden" dir="ltr">
                 <div
                     class="h-full rounded-full transition-all duration-500"
                     :class="selectedDomainFilter.includes(domain.slug)
@@ -310,30 +303,33 @@ onUnmounted(() => {
                     :style="{ width: getDomainStats(domain).answeredPercent + '%' }"
                 />
               </div>
+              <span :class="[
+          'text-[11px] font-medium min-w-[28px] text-right',
+          selectedDomainFilter.includes(domain.slug)
+            ? 'text-blue-600 dark:text-blue-400'
+            : 'text-slate-400 dark:text-slate-500'
+        ]">
+          {{ getDomainStats(domain).answeredPercent }}%
+        </span>
             </div>
           </div>
         </div>
 
-        <!-- Footer row -->
-        <div class="mt-3 flex items-center justify-between min-h-[28px]">
+        <!-- Footer -->
+        <div class="mt-2 flex items-center justify-between min-h-[26px]">
           <Transition name="fade">
-      <span v-if="selectedDomainFilter.length > 0" class="text-xs text-slate-400 dark:text-slate-500">
-        {{ selectedDomainFilter.length }} domain{{ selectedDomainFilter.length > 1 ? 's' : '' }} selected
+      <span v-if="selectedDomainFilter.length > 0" class="text-[11px] text-slate-400 dark:text-slate-500">
+        {{ selectedDomainFilter.length }} {{ t('governance.domains-selected') }}
       </span>
           </Transition>
-
           <Transition name="fade">
-            <button
-                v-if="selectedDomainFilter.length > 0"
-                @click="selectedDomainFilter = []"
-                class="inline-flex items-center gap-1.5 text-xs font-medium text-slate-500 dark:text-slate-400
+            <button v-if="selectedDomainFilter.length > 0" @click="selectedDomainFilter = []"
+                    class="inline-flex items-center gap-1.5 text-[11px] font-medium
+               text-slate-500 dark:text-slate-400
                bg-slate-100 dark:bg-white/8 hover:bg-slate-200 dark:hover:bg-white/12
-               border border-slate-200 dark:border-white/10 rounded-lg px-2.5 py-1.5
-               transition-colors duration-150"
-            >
-              <svg class="w-3 h-3" viewBox="0 0 12 12" fill="none">
-                <path d="M2 2l8 8M10 2L2 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-              </svg>
+               border border-slate-200 dark:border-white/10 rounded-lg px-2.5 py-1
+               transition-colors duration-150">
+              <i class="ti ti-x text-[11px]" aria-hidden="true"></i>
               {{ t("governance.clear-filter") }}
             </button>
           </Transition>
@@ -644,7 +640,7 @@ onUnmounted(() => {
                       bg-slate-50 dark:bg-darkmode-900/60 px-5 py-3.5
                       flex items-center justify-between gap-3">
                 <button @click="handleClearAnswer" :disabled="submittingAnswer"
-                        class="inline-flex items-center gap-1.5 text-[12px] font-medium px-3 py-1.5 rounded-lg
+                        class="inline-flex items-center gap-1.5 text-[12px] font-medium px-3 py-1.5 rounded-lg btn-xs
                      text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/30
                      border border-red-200 dark:border-red-800/40
                      hover:bg-red-100 dark:hover:bg-red-950/50 transition-colors disabled:opacity-40">
@@ -661,7 +657,7 @@ onUnmounted(() => {
                     {{ t("governance.cancel") }}
                   </button>
                   <button @click="handleSubmitAnswer" :disabled="submittingAnswer"
-                          class="inline-flex items-center gap-2 text-[13px] font-medium px-4 py-1.5 rounded-lg
+                          class="inline-flex items-center gap-2 text-[13px] font-medium px-4 py-1.5 rounded-lg btn-xs
                        bg-blue-600 hover:bg-blue-700 text-white transition-colors disabled:opacity-50">
                     <i v-if="!submittingAnswer" class="ti ti-check text-[14px]" aria-hidden="true"></i>
                     <i v-else class="ti ti-loader-2 text-[14px] animate-spin" aria-hidden="true"></i>

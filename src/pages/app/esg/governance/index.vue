@@ -4,6 +4,7 @@ import {useQuery} from "@core/composables";
 import {esgRepo} from "@core/repositories/esgRepo";
 import {computed, onMounted, onUnmounted, ref} from "vue";
 import Button from "@/base-components/Button";
+import { FormInput } from "@/base-components/Form";
 
 const {t} = useI18n();
 
@@ -629,27 +630,7 @@ onUnmounted(() => {
                   {{ fw }}
                 </span>
                   </div>
-                </div>
-
-                <!-- Current answer banner -->
-                <!--                <div v-if="selectedControl.answer !== null && selectedControl.answer !== ''"-->
-                <!--                     class="flex items-center gap-3 px-4 py-2.5 rounded-xl-->
-                <!--                     bg-emerald-50 dark:bg-emerald-950/30-->
-                <!--                     border border-emerald-200 dark:border-emerald-800/40">-->
-                <!--                  <i class="ti ti-circle-check text-emerald-600 dark:text-emerald-400 text-[16px]" aria-hidden="true"></i>-->
-                <!--                  <span class="text-[11px] text-emerald-700 dark:text-emerald-400 flex-1">-->
-                <!--                {{ t("governance.current-answer") }}-->
-                <!--              </span>-->
-                <!--                  <span class="text-[16px] font-medium text-emerald-800 dark:text-emerald-300 tabular-nums">-->
-                <!--                {{ selectedControl.answer }}-->
-                <!--              </span>-->
-                <!--                  <span v-if="selectedControl.answer_unit"-->
-                <!--                        class="text-[11px] text-emerald-600 dark:text-emerald-500">-->
-                <!--                {{ selectedControl.answer_unit }}-->
-                <!--              </span>-->
-                <!--                </div>-->
-
-                <!-- Input -->
+                </div> 
                 <div>
                   <label
                       class="block text-[12px] font-medium text-slate-500 dark:text-slate-400 mb-2 flex items-center gap-2">
@@ -657,34 +638,25 @@ onUnmounted(() => {
                   </label>
 
                     <div v-if="selectedControl.answer_type === 'number' || selectedControl.answer_type === 'percentage'"
-                       class="relative">
-                    <input v-model.number="answerInput" type="number" dir="ltr"
-                           :placeholder="selectedControl.answer_type === 'percentage' ? '0 – 100' : t('governance.enter-number')"
-                           :min="selectedControl.answer_type === 'percentage' ? 0 : undefined"
-                           :max="selectedControl.answer_type === 'percentage' ? 100 : undefined"
-                           class="w-full px-4 py-2.5 pr-4 text-[15px] font-medium
-                         border border-slate-200 dark:border-white/10 rounded-xl
-                         bg-white dark:bg-darkmode-700
-                         text-slate-900 dark:text-slate-100
-                         focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400
-                         dark:focus:border-blue-500 transition-colors"
-                           :class="selectedControl.answer_unit ? 'pl-16' : ''"/>
-                    <span v-if="getDisplayUnit(selectedControl)"
-                          class="absolute left-4 top-1/2 -translate-y-1/2
-                         text-[12px] text-slate-400 dark:text-slate-500 pointer-events-none">
-                  {{ getDisplayUnit(selectedControl) }}
-                </span>
-                  </div>
+                         class="relative">
+                      <FormInput v-model="answerInput"
+                                 type="number"
+                                 dir="ltr"
+                                 :placeholder="selectedControl.answer_type === 'percentage' ? '0 – 100' : t('governance.enter-number')"
+                                 :min="selectedControl.answer_type === 'percentage' ? 0 : undefined"
+                                 :max="selectedControl.answer_type === 'percentage' ? 100 : undefined"
+                                 formInputSize="sm"
+                                 :class="selectedControl.answer_unit ? 'pl-16' : ''" />
+                      <span v-if="getDisplayUnit(selectedControl)"
+                            class="absolute left-4 top-1/2 -translate-y-1/2
+                           text-[12px] text-slate-400 dark:text-slate-500 pointer-events-none">
+                    {{ getDisplayUnit(selectedControl) }}
+                  </span>
+                    </div>
 
-                  <textarea v-else v-model="answerInput" rows="4"
-                            :placeholder="t('governance.enter-answer')"
-                            class="w-full px-4 py-2.5 text-[13px]
-                       border border-slate-200 dark:border-white/10 rounded-xl
-                       bg-white dark:bg-darkmode-700
-                       text-slate-900 dark:text-slate-100
-                       focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400
-                       dark:focus:border-blue-500 transition-colors resize-none"
-                            dir="rtl"/>
+                    <FormInput v-else v-model="answerInput" type="textarea" :rows="4"
+                               :placeholder="t('governance.enter-answer')"
+                               formInputSize="sm" dir="rtl" />
                 </div>
               </div>
 
@@ -714,7 +686,7 @@ onUnmounted(() => {
                        bg-blue-600 hover:bg-blue-700 text-white transition-colors disabled:opacity-50">
                     <i v-if="!submittingAnswer" class="ti ti-check text-[14px]" aria-hidden="true"></i>
                     <i v-else class="ti ti-loader-2 text-[14px] animate-spin" aria-hidden="true"></i>
-                    {{ submittingAnswer ? t("governance.submitting") : t("governance.submit-answer") }}
+                    {{ submittingAnswer ? t("governance.submitting") : t("governance.submit") }}
                   </button>
                 </div>
               </div>

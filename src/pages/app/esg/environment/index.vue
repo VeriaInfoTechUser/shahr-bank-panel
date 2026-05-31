@@ -1,6 +1,35 @@
 <script setup lang="ts">
 import { useI18n } from "vue-i18n";
+import {useQuery} from "@core/composables";
+import {esgRepo} from "@core/repositories/esgRepo";
+import {onMounted, onUnmounted} from "vue";
 const { t } = useI18n();
+
+
+const {
+  data: performanceData,
+  isLoading,
+  error,
+  refetch,
+  invalidate,
+} = useQuery(
+    ['esg-environment-list',],
+    () => esgRepo.list({type:'domain',source:'environmental'}) ,
+    {
+      enabled: true,
+      staleTime: 300000,
+      refetchOnMount: true,
+    }
+);
+
+
+onMounted(() => {
+});
+
+onUnmounted(() => {
+  invalidate();
+});
+
 </script>
 
 <template>

@@ -272,7 +272,7 @@ const getAnswerStatusColor = (status: string) => {
     ]"
           >
             <!-- Header -->
-            <div class="flex items-start justify-between gap-3 mb-2 mx-2 mt-2">
+            <div class="flex items-start justify-between gap-3 mb-2 mx-1 mt-2">
               <div class="flex items-center gap-2.5 flex-1 min-w-0">
                 <!-- Title -->
                 <h3 class="  text-slate-900 dark:text-slate-100 text-sm line-clamp-2 leading-tight">
@@ -293,7 +293,7 @@ const getAnswerStatusColor = (status: string) => {
               </div>
 
               <!-- Progress Bar -->
-              <div class="h-1.5 bg-slate-200 dark:bg-darkmode-600 rounded-full overflow-hidden ltr " dir="ltr">
+              <div class="h-1.5 bg-slate-200 dark:bg-darkmode-600 rounded-full overflow-hidden transition-all duration-500 ltr " dir="ltr">
                 <div
                     class="h-full bg-gradient-to-r from-green-500 to-emerald-500 dark:from-green-400 dark:to-emerald-400 rounded-full transition-all duration-300"
                     :style="{ width: getDomainStats(domain).answeredPercent + '%' }"

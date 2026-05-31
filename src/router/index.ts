@@ -20,10 +20,12 @@ import SettingsLegislativeAuthority from "@/pages/app/settings/legislative-autho
 import SettingsLawType from "@/pages/app/settings/law-type/index.vue";
 import ComplianceDashboard from "@/pages/app/compliance/dashboard/index.vue";
 import CompliancePerformanceReport from "@/pages/app/compliance/performance-report/index.vue";
+import ComplianceReport from "@/pages/app/compliance/report/index.vue";
 import ComplianceOperations from "@/pages/app/compliance/operations/index.vue";
 import ComplianceDoingTask from "@/pages/app/compliance/doing-task/index.vue";
 import RiskDashboard from "@/pages/app/risk/dashboard/index.vue";
 import RiskPerformanceReport from "@/pages/app/risk/performance-report/index.vue";
+import RiskReport from "@/pages/app/risk/report/index.vue";
 import RiskOperations from "@/pages/app/risk/operations/index.vue";
 import RiskDoingTask from "@/pages/app/risk/doing-task/index.vue";
 import EsgDashboard from "@/pages/app/esg/dashboard/index.vue";
@@ -202,6 +204,12 @@ const routes = [
                                 component: CompliancePerformanceReport,
                                 meta: { breadcrumbLabel: 'menu.performance-report' },
                             },
+                            {
+                                path: "report",
+                                name: "app-compliance-report",
+                                component: ComplianceReport,
+                                meta: { breadcrumbLabel: 'menu.report' },
+                            },
                         ],
                     },
                     {
@@ -241,6 +249,12 @@ const routes = [
                                 name: "app-risk-performance-report",
                                 component: RiskPerformanceReport,
                                 meta: { breadcrumbLabel: 'menu.performance-report' },
+                            },
+                            {
+                                path: "report",
+                                name: "app-risk-report",
+                                component: RiskReport,
+                                meta: { breadcrumbLabel: 'menu.report' },
                             },
                         ],
                     },

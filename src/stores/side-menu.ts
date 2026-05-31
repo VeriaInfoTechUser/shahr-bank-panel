@@ -69,6 +69,11 @@ export const useSideMenuStore = defineStore("sideMenu", {
                         pageName: "app-compliance-performance-report",
                         title: "menu.performance-report",
                     },
+                    {
+                        icon: "FileText",
+                        pageName: "app-compliance-report",
+                        title: "menu.report",
+                    },
                 ],
             },
             {
@@ -90,6 +95,11 @@ export const useSideMenuStore = defineStore("sideMenu", {
                         icon: "BarChart3",
                         pageName: "app-risk-performance-report",
                         title: "menu.performance-report",
+                    },
+                    {
+                        icon: "FileText",
+                        pageName: "app-risk-report",
+                        title: "menu.report",
                     },
                 ],
             },

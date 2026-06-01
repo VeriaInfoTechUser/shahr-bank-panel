@@ -331,8 +331,8 @@ onMounted(loadDashboard);
             </div>
           </div>
 
-          <div class="grid gap-5 p-5 lg:grid-cols-[360px_minmax(0,1fr)]">
-            <div class="rounded-lg border border-slate-200/70 bg-slate-50 p-4 dark:border-darkmode-600 dark:bg-darkmode-700/30">
+          <div class="grid grid-cols-2 gap-5 p-5">
+            <div class="col-span-2 rounded-lg border border-slate-200/70 bg-slate-50 p-4 dark:border-darkmode-600 dark:bg-darkmode-700/30">
               <h3 class="mb-3 text-sm font-semibold text-slate-900 dark:text-slate-50">
                 امتیاز دامنه‌ها
               </h3>
@@ -344,68 +344,66 @@ onMounted(loadDashboard);
               />
             </div>
 
-            <div class="grid gap-4 xl:grid-cols-2">
-              <article
-                v-for="domain in activePillar.domains"
-                :key="domainKey(domain)"
-                v-memo="[domain.id, domain.slug, domain.stats?.completion_score, domain.chart?.echarts_config]"
-                class="rounded-lg border border-slate-200/80 bg-white p-4 shadow-sm dark:border-darkmode-600 dark:bg-darkmode-800"
-              >
-                <div class="mb-4 flex items-start justify-between gap-3">
-                  <div class="min-w-0">
-                    <h3 class="text-sm font-semibold leading-6 text-slate-900 dark:text-slate-50">
-                      {{ domainTitle(domain) }}
-                    </h3>
-                    <p class="mt-1 text-xs font-medium text-slate-400 dark:text-slate-500" dir="ltr">
-                      {{ domain.code }}
-                    </p>
-                  </div>
-                  <span
-                    class="shrink-0 rounded-lg px-2.5 py-1 text-xs font-semibold"
+            <article
+              v-for="domain in activePillar.domains"
+              :key="domainKey(domain)"
+              v-memo="[domain.id, domain.slug, domain.stats?.completion_score, domain.chart?.echarts_config]"
+              class="rounded-lg border border-slate-200/80 bg-white p-4 shadow-sm dark:border-darkmode-600 dark:bg-darkmode-800"
+            >
+              <div class="mb-4 flex items-start justify-between gap-3">
+                <div class="min-w-0">
+                  <h3 class="text-sm font-semibold leading-6 text-slate-900 dark:text-slate-50">
+                    {{ domainTitle(domain) }}
+                  </h3>
+                  <p class="mt-1 text-xs font-medium text-slate-400 dark:text-slate-500" dir="ltr">
+                    {{ domain.code }}
+                  </p>
+                </div>
+                <span
+                  class="shrink-0 rounded-lg px-2.5 py-1 text-xs font-semibold"
+                  :style="{
+                    color: pillarColor(activePillar),
+                    backgroundColor: `${pillarColor(activePillar)}1f`,
+                  }"
+                >
+                  {{ formatNumber(domainCompletion(domain)) }}%
+                </span>
+              </div>
+
+              <div class="mb-4">
+                <div class="h-2 overflow-hidden rounded-full bg-slate-100 dark:bg-darkmode-700">
+                  <div
+                    class="h-full rounded-full"
                     :style="{
-                      color: pillarColor(activePillar),
-                      backgroundColor: `${pillarColor(activePillar)}1f`,
+                      width: `${domainCompletion(domain)}%`,
+                      backgroundColor: pillarColor(activePillar),
                     }"
-                  >
-                    {{ formatNumber(domainCompletion(domain)) }}%
+                  />
+                </div>
+              </div>
+
+              <VChart
+                v-if="domain.chart?.echarts_config"
+                :option="domain.chart.echarts_config"
+                autoresize
+                class="h-[220px] w-full"
+              />
+
+              <div class="mt-4 divide-y divide-slate-100 rounded-lg border border-slate-100 dark:divide-darkmode-600 dark:border-darkmode-600">
+                <div
+                  v-for="control in domain.controls"
+                  :key="control.id ?? control.slug ?? control.metric_code"
+                  class="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-3 py-2 text-xs"
+                >
+                  <span class="min-w-0 truncate text-slate-600 dark:text-slate-300">
+                    {{ controlLabel(control) }}
+                  </span>
+                  <span class="whitespace-nowrap font-semibold text-slate-900 dark:text-slate-50">
+                    {{ formatControlValue(control) }}
                   </span>
                 </div>
-
-                <div class="mb-4">
-                  <div class="h-2 overflow-hidden rounded-full bg-slate-100 dark:bg-darkmode-700">
-                    <div
-                      class="h-full rounded-full"
-                      :style="{
-                        width: `${domainCompletion(domain)}%`,
-                        backgroundColor: pillarColor(activePillar),
-                      }"
-                    />
-                  </div>
-                </div>
-
-                <VChart
-                  v-if="domain.chart?.echarts_config"
-                  :option="domain.chart.echarts_config"
-                  autoresize
-                  class="h-[220px] w-full"
-                />
-
-                <div class="mt-4 divide-y divide-slate-100 rounded-lg border border-slate-100 dark:divide-darkmode-600 dark:border-darkmode-600">
-                  <div
-                    v-for="control in domain.controls"
-                    :key="control.id ?? control.slug ?? control.metric_code"
-                    class="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-3 py-2 text-xs"
-                  >
-                    <span class="min-w-0 truncate text-slate-600 dark:text-slate-300">
-                      {{ controlLabel(control) }}
-                    </span>
-                    <span class="whitespace-nowrap font-semibold text-slate-900 dark:text-slate-50">
-                      {{ formatControlValue(control) }}
-                    </span>
-                  </div>
-                </div>
-              </article>
-            </div>
+              </div>
+            </article>
           </div>
         </article>
       </section>

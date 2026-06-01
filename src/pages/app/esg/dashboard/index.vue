@@ -1,641 +1,414 @@
 <script setup lang="ts">
-import { useI18n } from "vue-i18n";
-import { useQuery } from "@core/composables";
-import { esgRepo } from "@core/repositories/esgRepo";
-import { computed, onMounted, onUnmounted, ref } from "vue";
-import { useChartRegistry, getChartComponent } from "./composables/useChartRegistry";
+import { computed, onMounted, shallowRef, ref } from 'vue';
+import VChart from 'vue-echarts';
+import { use } from 'echarts/core';
+import { CanvasRenderer } from 'echarts/renderers';
+import { BarChart, PieChart, RadarChart } from 'echarts/charts';
+import {
+  GridComponent,
+  LegendComponent,
+  RadarComponent,
+  TooltipComponent,
+} from 'echarts/components';
+import { useI18n } from 'vue-i18n';
+import { userRepo } from '@/core/repositories/userRepo';
+import type {
+  EsgDashboardControl,
+  EsgDashboardDomain,
+  EsgDashboardPayload,
+  EsgDashboardPillar,
+} from '@/core/repositories/userRepo';
+
+use([
+  CanvasRenderer,
+  BarChart,
+  PieChart,
+  RadarChart,
+  TooltipComponent,
+  GridComponent,
+  LegendComponent,
+  RadarComponent,
+]);
 
 const { t } = useI18n();
 
-// TypeScript Interfaces for complete type safety
-interface DashboardMeta {
-  version: string;
-  generated_at: string;
-  chart_library: string;
-  rtl: boolean;
-}
+const dashboardPayload = shallowRef<EsgDashboardPayload | null>(null);
+const dashboardLoading = ref(true);
+const dashboardError = ref('');
+const activePillarKey = ref<string>('environmental');
 
-interface PillarScore {
-  score: number;
-  i18n_key: string;
-  color_theme: string;
-  color_hex: string;
-  icon: string;
-  completion_pct: number;
-}
-
-interface ChartSeries {
-  i18n_key?: string;
-  value?: number;
-  color?: string;
-  key?: string;
-  score?: number;
-  [key: string]: unknown;
-}
-
-interface DashboardChart {
-  chart_type: string;
-  component_name: string;
-  series: ChartSeries[];
-  echarts_config?: Record<string, unknown>;
-  indicators_i18n?: string[];
-  title?: string;
-  i18n_key?: string;
-  [key: string]: unknown;
-}
-
-interface KPIMetric {
-  id: string;
-  i18n_key: string;
-  value: number | string;
-  unit?: string;
-  target?: number;
-  color?: string;
-  icon?: string;
-  trend?: "up" | "down" | "stable";
-  trend_value?: number;
-  metric_code?: string;
-  dashboard_usage?: boolean;
-}
-
-interface Domain {
-  key: string;
-  i18n_key: string;
-  controlled_count?: number;
-  unanswered_count?: number;
-  answered_count?: number;
-  total_controls?: number;
-  metric_code?: string;
-  dashboard_usage?: boolean;
-}
-
-interface DashboardSummary {
-  overall_score: number;
-  overall_completion: number;
-  total_domains: number;
-  total_controls: number;
-  answered_controls: number;
-  unanswered_controls: number;
-  pillar_scores: Record<string, PillarScore>;
-  completion_chart?: DashboardChart;
-  pillar_compare_chart?: DashboardChart;
-  top_kpis?: DashboardChart[] | KPIMetric[];
-  trend_charts?: DashboardChart[];
-  [key: string]: unknown;
-}
-
-interface Pillar {
-  key: string;
-  i18n_key: string;
-  icon: string;
-  color_hex: string;
-  color_theme: string;
-  order: number;
-  stats: Record<string, unknown>;
-  domains: Domain[];
-  radar_chart?: DashboardChart;
-  charts?: DashboardChart[];
-  top_metrics?: KPIMetric[] | DashboardChart[];
-  key_charts?: DashboardChart[];
-  domain_breakdown?: DashboardChart;
-}
-
-interface DashboardResponse {
-  result: boolean;
-  data: {
-    meta: DashboardMeta;
-    summary: DashboardSummary;
-    pillars: Pillar[];
-  };
-  error: unknown[];
-}
-
-// API Query Hook
-const {
-  data: dashboardData,
-  isLoading,
-  error,
-  refetch,
-  invalidate,
-} = useQuery(
-  ["esg-dashboard"],
-  () => esgRepo.dashboard(),
-  {
-    enabled: true,
-    staleTime: 300000,
-    refetchOnMount: true,
-  }
-);
-
-// Computed properties for reactive data access
-const dashboardContent = computed(() => {
-  return dashboardData.value?.data;
-});
-
-const summary = computed(() => {
-  return dashboardContent.value?.summary;
-});
-
-const pillars = computed(() => {
-  return dashboardContent.value?.pillars || [];
-});
-
-const meta = computed(() => {
-  return dashboardContent.value?.meta;
-});
-
-// Computed top KPIs - extract from summary.top_kpis
-const topKPIs = computed((): KPIMetric[] => {
-  const kpis = summary.value?.top_kpis;
-  if (!kpis) return [];
-  
-  // If top_kpis contains DashboardChart objects, extract data from series
-  if (Array.isArray(kpis)) {
-    return kpis.map((item: any, idx: number) => ({
-      id: `kpi-${idx}`,
-      i18n_key: item.i18n_key || `esg.kpi-${idx}`,
-      value: item.value ?? item.series?.[0]?.value ?? 0,
-      unit: item.unit || "",
-      target: item.target,
-      color: item.color || item.series?.[0]?.color,
-      icon: item.icon,
-      trend: item.trend,
-      trend_value: item.trend_value,
-      metric_code: item.metric_code,
-      dashboard_usage: item.dashboard_usage,
-    }));
-  }
-  return [];
-});
-
-// Computed trend charts
-const trendCharts = computed(() => {
-  return summary.value?.trend_charts || [];
-});
-
-// Active pillar for tabbed navigation (optional)
-const activePillarKey = ref<string | null>(null);
-
-const chartRegistry = useChartRegistry();
-
-const getComponentForChart = (chart: DashboardChart | undefined) => {
-  if (!chart?.component_name) return null;
-  return getChartComponent(chart.component_name, chartRegistry);
+const pillarFallbackColors: Record<string, string> = {
+  environmental: '#6BCB77',
+  social: '#4D96FF',
+  governance: '#9B59B6',
 };
 
-// Helper: Check if metric is a KPI or Chart object
-const isKPIMetric = (item: any): item is KPIMetric => {
-  return !item.component_name && (item.value !== undefined || item.metric_code);
+const unitLabels: Record<string, string> = {
+  percent: '%',
+  kWh: 'kWh',
+  kwh: 'kWh',
+  m3: 'm3',
+  liter: 'لیتر',
+  ton: 'تن',
+  tco2e: 'tCO2e',
+  kg: 'کیلوگرم',
+  hectare: 'هکتار',
+  hour: 'ساعت',
+  day: 'روز',
+  count: 'عدد',
+  person: 'نفر',
+  employee: 'کارمند',
+  rate: 'نرخ',
+  ratio: 'نسبت',
+  currency: 'ریال',
+  kwh_per_employee: 'kWh/کارمند',
+  m3_per_unit: 'm3/واحد',
+  tco2e_per_unit: 'tCO2e/واحد',
+  ton_per_unit: 'تن/واحد',
+  hour_per_week: 'ساعت/هفته',
+  hour_per_employee: 'ساعت/کارمند',
 };
 
-// Helper: Get pillar color with alpha
-const getPillarColorWithAlpha = (color: string, alpha: number) => {
-  if (color.startsWith("#")) {
-    const hex = color.replace("#", "");
-    const r = parseInt(hex.substring(0, 2), 16);
-    const g = parseInt(hex.substring(2, 4), 16);
-    const b = parseInt(hex.substring(4, 6), 16);
-    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
-  }
-  return color;
-};
+const summary = computed(() => dashboardPayload.value?.summary ?? null);
+const pillars = computed(() => dashboardPayload.value?.pillars ?? []);
+const activePillar = computed(() => (
+  pillars.value.find((pillar) => pillar.key === activePillarKey.value) ?? pillars.value[0] ?? null
+));
 
-// Initialize active pillar
-onMounted(() => {
-  if (pillars.value.length > 0) {
-    activePillarKey.value = pillars.value[0].key;
-  }
+const summaryKpis = computed(() => {
+  const currentSummary = summary.value;
+  return [
+    {
+      key: 'overall_score',
+      title: 'امتیاز کل',
+      value: formatNumber(currentSummary?.overall_score),
+      caption: '/100',
+      color: '#2563eb',
+    },
+    {
+      key: 'total_domains',
+      title: 'دامنه‌ها',
+      value: formatNumber(currentSummary?.total_domains),
+      caption: 'دامنه',
+      color: '#7c3aed',
+    },
+    {
+      key: 'total_controls',
+      title: 'کنترل‌ها',
+      value: formatNumber(currentSummary?.total_controls),
+      caption: 'کنترل',
+      color: '#059669',
+    },
+  ];
 });
 
-onUnmounted(() => {
-  invalidate();
-});
+function displayText(value?: string, fallback = '-') {
+  if (!value) return fallback;
+  return value.startsWith('esg.') ? t(value) : value;
+}
+
+function formatNumber(value: unknown, maximumFractionDigits = 1) {
+  if (value === null || value === undefined || value === '') return '-';
+  const numericValue = Number(value);
+  if (!Number.isFinite(numericValue)) return String(value);
+
+  return new Intl.NumberFormat('fa-IR', {
+    maximumFractionDigits,
+  }).format(numericValue);
+}
+
+function normalizePercent(value: unknown) {
+  const numericValue = Number(value ?? 0);
+  if (!Number.isFinite(numericValue)) return 0;
+  return Math.min(Math.max(numericValue, 0), 100);
+}
+
+function formatControlValue(control: EsgDashboardControl) {
+  const value = control.answer;
+  const unit = control.answer_unit ?? '';
+
+  if (value === null || value === undefined || value === '') return 'بدون پاسخ';
+  if (typeof value === 'boolean') return value ? 'بله' : 'خیر';
+
+  if (unit === 'percent' || control.answer_type === 'percentage') {
+    return `${formatNumber(value)}%`;
+  }
+
+  if (unit === 'currency') {
+    return `${formatNumber(value, 0)} ریال`;
+  }
+
+  const label = unitLabels[unit] ?? unit;
+  return label ? `${formatNumber(value)} ${label}` : formatNumber(value);
+}
+
+function pillarColor(pillar: EsgDashboardPillar) {
+  return pillar.color_hex || pillarFallbackColors[pillar.key] || '#64748b';
+}
+
+function domainTitle(domain: EsgDashboardDomain) {
+  return displayText(domain.title || domain.i18n_key);
+}
+
+function domainKey(domain: EsgDashboardDomain) {
+  return domain.id ?? domain.slug ?? domain.code ?? domain.title;
+}
+
+function domainCompletion(domain: EsgDashboardDomain) {
+  return normalizePercent(domain.stats?.completion_score ?? domain.stats?.completion_pct);
+}
+
+function controlLabel(control: EsgDashboardControl) {
+  return displayText(control.summary || control.title || control.i18n_key);
+}
+
+async function loadDashboard() {
+  dashboardLoading.value = true;
+  dashboardError.value = '';
+
+  try {
+    const response = await userRepo.getEsgDashboard();
+
+    if (!response?.result || !response.data) {
+      throw new Error('داده‌ای برای داشبورد ESG دریافت نشد.');
+    }
+
+    dashboardPayload.value = response.data;
+    activePillarKey.value = response.data.pillars?.[0]?.key ?? 'environmental';
+  } catch (error) {
+    dashboardError.value = error instanceof Error ? error.message : 'خطا در دریافت داشبورد ESG';
+  } finally {
+    dashboardLoading.value = false;
+  }
+}
+
+onMounted(loadDashboard);
 </script>
 
 <template>
-  <div class="mx-auto max-w-7xl px-1 pb-12 pt-2 md:px-2">
-    <!-- Loading State -->
-    <div v-if="isLoading" class="space-y-4">
-      <div class="animate-pulse">
-        <div class="h-40 bg-slate-200 dark:bg-darkmode-700 rounded-xl"></div>
-      </div>
-      <div class="animate-pulse">
-        <div class="h-96 bg-slate-200 dark:bg-darkmode-700 rounded-xl"></div>
-      </div>
-      <div class="animate-pulse">
-        <div class="h-96 bg-slate-200 dark:bg-darkmode-700 rounded-xl"></div>
-      </div>
-    </div>
-
-    <!-- Error State -->
-    <div
-      v-else-if="error"
-      class="rounded-xl border border-red-200 bg-red-50 dark:border-red-900/50 dark:bg-red-900/20 p-4 text-red-700 dark:text-red-400"
-    >
-      <div class="flex gap-3">
-        <svg class="w-5 h-5 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
-        </svg>
-        <div>
-          <p class="font-medium">{{ t("esg.error-loading") }}</p>
-          <p class="text-sm mt-1">{{ t("general.error") }}</p>
+  <div dir="rtl" class="mx-auto max-w-7xl px-1 pb-12 pt-2 md:px-2">
+    <section v-if="dashboardLoading" class="space-y-6">
+      <div class="grid gap-4 md:grid-cols-3">
+        <div
+          v-for="item in 3"
+          :key="item"
+          class="h-32 animate-pulse rounded-lg border border-slate-200/80 bg-white p-5 shadow-sm dark:border-darkmode-600 dark:bg-darkmode-800"
+        >
+          <div class="mb-5 h-4 w-1/3 rounded bg-slate-200 dark:bg-darkmode-600" />
+          <div class="h-8 w-1/2 rounded bg-slate-100 dark:bg-darkmode-700" />
         </div>
       </div>
-    </div>
+      <div class="grid gap-5 lg:grid-cols-2">
+        <div class="h-[240px] animate-pulse rounded-lg bg-slate-200 dark:bg-darkmode-700" />
+        <div class="h-[240px] animate-pulse rounded-lg bg-slate-200 dark:bg-darkmode-700" />
+      </div>
+      <div class="h-[420px] animate-pulse rounded-lg bg-slate-200 dark:bg-darkmode-700" />
+    </section>
 
-    <!-- No Data State -->
-    <div
-      v-else-if="!dashboardContent"
-      class="rounded-xl border border-slate-200/60 bg-white p-12 text-center shadow-sm dark:border-darkmode-700/60 dark:bg-darkmode-800"
+    <section
+      v-else-if="dashboardError"
+      class="rounded-lg border border-danger/25 bg-danger/5 p-5 text-sm font-medium text-danger dark:border-danger/40 dark:bg-danger/10"
     >
-      <svg class="w-16 h-16 mx-auto mb-4 text-slate-400 dark:text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-      </svg>
-      <p class="text-slate-600 dark:text-slate-400">{{ t("general.no-data") }}</p>
-    </div>
+      {{ dashboardError }}
+    </section>
 
-    <!-- Dashboard Content -->
+    <section
+      v-else-if="!dashboardPayload"
+      class="rounded-lg border border-slate-200/80 bg-white p-10 text-center text-sm text-slate-500 shadow-sm dark:border-darkmode-600 dark:bg-darkmode-800 dark:text-slate-400"
+    >
+      داده‌ای برای داشبورد ESG یافت نشد.
+    </section>
+
     <template v-else>
-      <!-- Header -->
-      <div class="mb-6 rounded-xl border border-slate-200/80 dark:border-white/8 bg-white dark:bg-darkmode-800 p-6">
-        <h1 class="text-2xl font-semibold text-slate-900 dark:text-slate-100 mb-2">
-          {{ t("menu.esg") }} - {{ t("menu.esg-dashboard") }}
-        </h1>
-        <p class="text-sm text-slate-500 dark:text-slate-400">
-          {{ meta?.generated_at ? `${t("general.last-updated")}: ${new Date(meta.generated_at).toLocaleString()}` : "" }}
-        </p>
-      </div>
-
-      <!-- Summary Cards - Key Metrics -->
-      <div v-if="summary" class="mb-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <!-- Overall Score -->
-        <div class="rounded-xl border border-slate-200/80 dark:border-white/8 bg-white dark:bg-darkmode-800 p-6 hover:shadow-md transition-shadow">
-          <p class="text-sm font-medium text-slate-500 dark:text-slate-400 mb-2">{{ t("esg.overall-score") }}</p>
-          <div class="flex items-end gap-2">
-            <span class="text-3xl font-bold text-blue-600 dark:text-blue-400">{{ summary.overall_score }}</span>
-            <span class="text-sm text-slate-400 dark:text-slate-500">/100</span>
+      <header class="mb-6 rounded-lg border border-slate-200/80 bg-white p-5 shadow-sm dark:border-darkmode-600 dark:bg-darkmode-800">
+        <div class="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
+          <div>
+            <p class="text-sm font-semibold text-primary">{{ t('menu.esg') }}</p>
+            <h1 class="mt-1 text-2xl font-semibold text-slate-900 dark:text-slate-50">
+              {{ t('menu.esg-dashboard') }}
+            </h1>
           </div>
-          <div class="mt-2 h-1.5 bg-slate-200 dark:bg-white/10 rounded-full overflow-hidden">
-            <div class="h-full bg-blue-500 rounded-full" :style="`width: ${summary.overall_score}%`"></div>
-          </div>
-        </div>
-
-        <!-- Overall Completion -->
-        <div class="rounded-xl border border-slate-200/80 dark:border-white/8 bg-white dark:bg-darkmode-800 p-6 hover:shadow-md transition-shadow">
-          <p class="text-sm font-medium text-slate-500 dark:text-slate-400 mb-2">{{ t("esg.overall-completion") }}</p>
-          <div class="flex items-end gap-2">
-            <span class="text-3xl font-bold text-purple-600 dark:text-purple-400">{{ summary.overall_completion }}</span>
-            <span class="text-sm text-slate-400 dark:text-slate-500">%</span>
-          </div>
-          <div class="mt-2 h-1.5 bg-slate-200 dark:bg-white/10 rounded-full overflow-hidden">
-            <div class="h-full bg-purple-500 rounded-full" :style="`width: ${summary.overall_completion}%`"></div>
-          </div>
-        </div>
-
-        <!-- Answered Controls -->
-        <div class="rounded-xl border border-slate-200/80 dark:border-white/8 bg-white dark:bg-darkmode-800 p-6 hover:shadow-md transition-shadow">
-          <p class="text-sm font-medium text-slate-500 dark:text-slate-400 mb-2">{{ t("esg.answered-controls") }}</p>
-          <div class="flex items-end gap-2">
-            <span class="text-3xl font-bold text-emerald-600 dark:text-emerald-400">{{ summary.answered_controls }}</span>
-            <span class="text-sm text-slate-400 dark:text-slate-500">/ {{ summary.total_controls }}</span>
-          </div>
-          <p class="text-xs text-slate-500 dark:text-slate-400 mt-2">
-            {{ Math.round((summary.answered_controls / summary.total_controls) * 100) }}% {{ t("esg.completion") }}
+          <p
+            v-if="dashboardPayload.meta?.generated_at"
+            class="text-xs text-slate-400 dark:text-slate-500"
+          >
+            آخرین بروزرسانی: {{ new Date(dashboardPayload.meta.generated_at).toLocaleString('fa-IR') }}
           </p>
         </div>
+      </header>
 
-        <!-- Total Domains -->
-        <div class="rounded-xl border border-slate-200/80 dark:border-white/8 bg-white dark:bg-darkmode-800 p-6 hover:shadow-md transition-shadow">
-          <p class="text-sm font-medium text-slate-500 dark:text-slate-400 mb-2">{{ t("esg.total-domains") }}</p>
-          <div class="flex items-end gap-2">
-            <span class="text-3xl font-bold text-orange-600 dark:text-orange-400">{{ summary.total_domains }}</span>
-          </div>
-          <p class="text-xs text-slate-500 dark:text-slate-400 mt-2">
-            {{ summary.unanswered_controls }} {{ t("general.unanswered") }}
-          </p>
-        </div>
-      </div>
-
-      <!-- Pillar Scores -->
-      <div v-if="summary?.pillar_scores" class="mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div
-          v-for="(pillar, key) in summary.pillar_scores"
-          :key="key"
-          class="rounded-xl border border-slate-200/80 dark:border-white/8 bg-white dark:bg-darkmode-800 p-6 hover:shadow-md transition-shadow"
-        >
-          <div class="flex items-center gap-3 mb-4">
-            <div class="w-10 h-10 rounded-lg flex items-center justify-center" :style="`background-color: ${pillar.color_hex}20`">
-              <i :class="`ti ti-${pillar.icon} text-lg`" :style="`color: ${pillar.color_hex}`" aria-hidden="true"></i>
+      <section v-if="summary" class="mb-6 space-y-5">
+        <div class="grid gap-4 md:grid-cols-3">
+          <article
+            v-for="kpi in summaryKpis"
+            :key="kpi.key"
+            class="rounded-lg border border-slate-200/80 bg-white p-5 shadow-sm dark:border-darkmode-600 dark:bg-darkmode-800"
+          >
+            <p class="text-sm font-medium text-slate-500 dark:text-slate-400">
+              {{ kpi.title }}
+            </p>
+            <div class="mt-4 flex items-end gap-2">
+              <strong class="text-3xl font-semibold leading-none" :style="{ color: kpi.color }">
+                {{ kpi.value }}
+              </strong>
+              <span class="text-xs text-slate-400 dark:text-slate-500">{{ kpi.caption }}</span>
             </div>
+          </article>
+        </div>
+
+        <div class="grid gap-5 lg:grid-cols-2">
+          <article class="rounded-lg border border-slate-200/80 bg-white p-5 shadow-sm dark:border-darkmode-600 dark:bg-darkmode-800">
+            <h2 class="mb-4 text-base font-semibold text-slate-900 dark:text-slate-50">
+              وضعیت تکمیل
+            </h2>
+            <VChart
+              v-if="summary.completion_chart?.echarts_config"
+              :option="summary.completion_chart.echarts_config"
+              autoresize
+              class="h-[200px] w-full"
+            />
+          </article>
+
+          <article class="rounded-lg border border-slate-200/80 bg-white p-5 shadow-sm dark:border-darkmode-600 dark:bg-darkmode-800">
+            <h2 class="mb-4 text-base font-semibold text-slate-900 dark:text-slate-50">
+              مقایسه ستون‌های ESG
+            </h2>
+            <VChart
+              v-if="summary.pillar_compare_chart?.echarts_config"
+              :option="summary.pillar_compare_chart.echarts_config"
+              autoresize
+              class="h-[200px] w-full"
+            />
+          </article>
+        </div>
+      </section>
+
+      <section v-if="pillars.length" class="space-y-6">
+        <div class="overflow-x-auto border-b border-slate-200/80 pb-3 dark:border-darkmode-600">
+          <div class="flex min-w-max gap-2">
+            <button
+              v-for="pillar in pillars"
+              :key="pillar.key"
+              type="button"
+              class="inline-flex items-center gap-2 rounded-lg border px-4 py-2 text-sm font-semibold transition"
+              :class="activePillarKey === pillar.key
+                ? 'border-transparent bg-slate-900 text-white shadow-sm dark:bg-slate-100 dark:text-slate-950'
+                : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300 dark:border-darkmode-600 dark:bg-darkmode-800 dark:text-slate-300'"
+              @click="activePillarKey = pillar.key"
+            >
+              <span
+                class="h-2.5 w-2.5 rounded-full"
+                :style="{ backgroundColor: pillarColor(pillar) }"
+              />
+              {{ displayText(pillar.i18n_key, pillar.key) }}
+            </button>
+          </div>
+        </div>
+
+        <article
+          v-if="activePillar"
+          :key="activePillar.key"
+          class="rounded-lg border border-slate-200/80 bg-white shadow-sm dark:border-darkmode-600 dark:bg-darkmode-800"
+        >
+          <div class="flex flex-col gap-4 border-b border-slate-200/70 p-5 dark:border-darkmode-600 md:flex-row md:items-center md:justify-between">
             <div>
-              <p class="text-xs font-medium text-slate-500 dark:text-slate-400">{{ t(pillar.i18n_key) }}</p>
+              <p class="text-sm font-medium text-slate-500 dark:text-slate-400">
+                ستون ESG
+              </p>
+              <h2 class="mt-1 text-xl font-semibold text-slate-900 dark:text-slate-50">
+                {{ displayText(activePillar.i18n_key, activePillar.key) }}
+              </h2>
+            </div>
+            <div
+              class="inline-flex w-fit items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold"
+              :style="{
+                color: pillarColor(activePillar),
+                backgroundColor: `${pillarColor(activePillar)}20`,
+              }"
+            >
+              <span>{{ formatNumber(activePillar.stats?.completion_score ?? summary?.pillar_scores?.[activePillar.key]?.score) }}</span>
+              <span>/100</span>
             </div>
           </div>
 
-          <div class="mb-3">
-            <div class="flex items-end gap-2 mb-2">
-              <span class="text-2xl font-bold text-slate-900 dark:text-slate-100">{{ pillar.score }}</span>
-              <span class="text-sm text-slate-400 dark:text-slate-500">/100</span>
-            </div>
-            <div class="w-full h-2 bg-slate-200 dark:bg-white/10 rounded-full overflow-hidden">
-              <div
-                class="h-full rounded-full transition-all duration-500"
-                :style="`width: ${pillar.score}%; background-color: ${pillar.color_hex}`"
+          <div class="grid gap-5 p-5 lg:grid-cols-[360px_minmax(0,1fr)]">
+            <div class="rounded-lg border border-slate-200/70 bg-slate-50 p-4 dark:border-darkmode-600 dark:bg-darkmode-700/30">
+              <h3 class="mb-3 text-sm font-semibold text-slate-900 dark:text-slate-50">
+                امتیاز دامنه‌ها
+              </h3>
+              <VChart
+                v-if="activePillar.radar_chart?.echarts_config"
+                :option="activePillar.radar_chart.echarts_config"
+                autoresize
+                class="h-[280px] w-full"
               />
             </div>
-          </div>
 
-          <p class="text-xs text-slate-500 dark:text-slate-400">
-            {{ t("esg.completion") }}: {{ pillar.completion_pct }}%
-          </p>
-        </div>
-      </div>
-
-      <!-- Summary Charts Section -->
-      <div v-if="summary?.completion_chart || summary?.pillar_compare_chart" class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        <!-- Completion Chart -->
-        <div v-if="summary?.completion_chart" class="rounded-xl border border-slate-200/80 dark:border-white/8 bg-white dark:bg-darkmode-800 p-6">
-          <h3 class="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-4">
-            {{ t("esg.completion-status") }}
-          </h3>
-          <div class="h-64">
-            <template v-if="getComponentForChart(summary.completion_chart)">
-              <component 
-                :is="getComponentForChart(summary.completion_chart)"
-                :echarts_config="summary.completion_chart.echarts_config"
-                :series="summary.completion_chart.series"
-                :rtl="meta?.rtl"
-              />
-            </template>
-          </div>
-        </div>
-
-        <!-- Pillar Compare Chart -->
-        <div v-if="summary?.pillar_compare_chart" class="rounded-xl border border-slate-200/80 dark:border-white/8 bg-white dark:bg-darkmode-800 p-6">
-          <h3 class="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-4">
-            {{ t("esg.pillar-comparison") }}
-          </h3>
-          <div class="h-64">
-            <template v-if="getComponentForChart(summary.pillar_compare_chart)">
-              <component 
-                :is="getComponentForChart(summary.pillar_compare_chart)"
-                :echarts_config="summary.pillar_compare_chart.echarts_config"
-                :series="summary.pillar_compare_chart.series"
-                :rtl="meta?.rtl"
-              />
-            </template>
-          </div>
-        </div>
-      </div>
-
-      <!-- Top KPIs Section -->
-      <div v-if="topKPIs.length > 0" class="mb-6 rounded-xl border border-slate-200/80 dark:border-white/8 bg-white dark:bg-darkmode-800 p-6">
-        <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-4">{{ t("esg.top-kpis") }}</h2>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div
-            v-for="kpi in topKPIs.slice(0, 8)"
-            :key="kpi.id"
-            class="p-4 bg-slate-50 dark:bg-darkmode-700/50 rounded-lg border border-slate-100 dark:border-white/10 hover:shadow transition-shadow"
-          >
-            <div class="flex items-start justify-between mb-2">
-              <p class="text-xs font-medium text-slate-500 dark:text-slate-400">{{ t(kpi.i18n_key) }}</p>
-              <div v-if="kpi.trend" class="flex items-center gap-1">
-                <i 
-                  :class="`ti ${kpi.trend === 'up' ? 'ti-arrow-up' : kpi.trend === 'down' ? 'ti-arrow-down' : 'ti-minus'} text-xs`"
-                  :style="`color: ${kpi.trend === 'up' ? '#10b981' : kpi.trend === 'down' ? '#ef4444' : '#6b7280'}`"
-                  aria-hidden="true"
-                ></i>
-                <span class="text-xs" :style="`color: ${kpi.trend === 'up' ? '#10b981' : kpi.trend === 'down' ? '#ef4444' : '#6b7280'}`">
-                  {{ kpi.trend_value }}%
-                </span>
-              </div>
-            </div>
-            <div class="flex items-end gap-2 mb-2">
-              <span class="text-2xl font-bold text-slate-900 dark:text-slate-100">{{ kpi.value }}</span>
-              <span v-if="kpi.unit" class="text-xs text-slate-500 dark:text-slate-400">{{ kpi.unit }}</span>
-            </div>
-            <div v-if="kpi.target" class="text-xs text-slate-500 dark:text-slate-400">
-              Target: {{ kpi.target }}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Trend Charts Section -->
-      <div v-if="trendCharts.length > 0" class="mb-6 space-y-6">
-        <div
-          v-for="(chart, idx) in trendCharts"
-          :key="`trend-${idx}`"
-          class="rounded-xl border border-slate-200/80 dark:border-white/8 bg-white dark:bg-darkmode-800 p-6"
-        >
-          <h3 class="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-4">
-            {{ chart.title || t(chart.i18n_key || `esg.trend-${idx}`) }}
-          </h3>
-          <div class="h-80">
-            <template v-if="getComponentForChart(chart)">
-              <component 
-                :is="getComponentForChart(chart)"
-                :echarts_config="chart.echarts_config"
-                :series="chart.series"
-                :rtl="meta?.rtl"
-              />
-            </template>
-          </div>
-        </div>
-      </div>
-
-      <!-- Pillars Details with Enhanced Content -->
-      <div v-if="pillars.length > 0" class="space-y-6">
-        <!-- Tab Navigation for Pillars -->
-        <div class="flex gap-2 mb-6 overflow-x-auto pb-2 border-b border-slate-200 dark:border-white/10">
-          <button
-            v-for="pillar in pillars"
-            :key="pillar.key"
-            @click="activePillarKey = pillar.key"
-            :class="[
-              'px-4 py-2 rounded-lg font-medium text-sm whitespace-nowrap transition-all',
-              activePillarKey === pillar.key
-                ? 'bg-slate-100 dark:bg-white/15 text-slate-900 dark:text-slate-100 border-b-2'
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100'
-            ]"
-          >
-            <i :class="`ti ti-${pillar.icon} mr-2`" aria-hidden="true"></i>
-            {{ t(pillar.i18n_key) }}
-          </button>
-        </div>
-
-        <!-- Pillar Details Content -->
-        <div v-for="pillar in pillars" :key="`detail-${pillar.key}`">
-          <template v-if="!activePillarKey || activePillarKey === pillar.key">
-            <div class="rounded-xl border border-slate-200/80 dark:border-white/8 bg-white dark:bg-darkmode-800 p-6">
-              <!-- Pillar Header -->
-              <div class="flex items-center justify-between mb-6">
-                <div class="flex items-center gap-3">
-                  <div class="w-12 h-12 rounded-lg flex items-center justify-center" :style="`background-color: ${pillar.color_hex}20`">
-                    <i :class="`ti ti-${pillar.icon} text-xl`" :style="`color: ${pillar.color_hex}`" aria-hidden="true"></i>
+            <div class="grid gap-4 xl:grid-cols-2">
+              <article
+                v-for="domain in activePillar.domains"
+                :key="domainKey(domain)"
+                v-memo="[domain.id, domain.slug, domain.stats?.completion_score, domain.chart?.echarts_config]"
+                class="rounded-lg border border-slate-200/80 bg-white p-4 shadow-sm dark:border-darkmode-600 dark:bg-darkmode-800"
+              >
+                <div class="mb-4 flex items-start justify-between gap-3">
+                  <div class="min-w-0">
+                    <h3 class="text-sm font-semibold leading-6 text-slate-900 dark:text-slate-50">
+                      {{ domainTitle(domain) }}
+                    </h3>
+                    <p class="mt-1 text-xs font-medium text-slate-400 dark:text-slate-500" dir="ltr">
+                      {{ domain.code }}
+                    </p>
                   </div>
-                  <div>
-                    <h3 class="text-lg font-semibold text-slate-900 dark:text-slate-100">{{ t(pillar.i18n_key) }}</h3>
-                    <p class="text-sm text-slate-500 dark:text-slate-400">{{ pillar.domains?.length || 0 }} {{ t("esg.domains") }}</p>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Pillar Stats Grid -->
-              <div v-if="pillar.stats" class="mb-6 grid grid-cols-2 md:grid-cols-4 gap-3">
-                <div v-if="pillar.stats.domain_count" class="p-3 bg-slate-50 dark:bg-darkmode-700/30 rounded-lg">
-                  <p class="text-xs text-slate-500 dark:text-slate-400">{{ t("esg.domain-count") }}</p>
-                  <p class="text-lg font-semibold text-slate-900 dark:text-slate-100">{{ pillar.stats.domain_count }}</p>
-                </div>
-                <div v-if="pillar.stats.total_controls" class="p-3 bg-slate-50 dark:bg-darkmode-700/30 rounded-lg">
-                  <p class="text-xs text-slate-500 dark:text-slate-400">{{ t("esg.total-controls") }}</p>
-                  <p class="text-lg font-semibold text-slate-900 dark:text-slate-100">{{ pillar.stats.total_controls }}</p>
-                </div>
-                <div v-if="pillar.stats.answered_controls" class="p-3 bg-slate-50 dark:bg-darkmode-700/30 rounded-lg">
-                  <p class="text-xs text-slate-500 dark:text-slate-400">{{ t("esg.answered-controls") }}</p>
-                  <p class="text-lg font-semibold text-emerald-600 dark:text-emerald-400">{{ pillar.stats.answered_controls }}</p>
-                </div>
-                <div v-if="pillar.stats.completion_pct" class="p-3 bg-slate-50 dark:bg-darkmode-700/30 rounded-lg">
-                  <p class="text-xs text-slate-500 dark:text-slate-400">{{ t("esg.completion") }}</p>
-                  <p class="text-lg font-semibold text-slate-900 dark:text-slate-100">{{ pillar.stats.completion_pct }}%</p>
-                </div>
-              </div>
-
-              <!-- Per-Pillar Top Metrics -->
-              <div v-if="pillar.top_metrics && pillar.top_metrics.length > 0" class="mb-6">
-                <h4 class="text-sm font-semibold text-slate-900 dark:text-slate-100 mb-3">{{ t("esg.top-metrics") }}</h4>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
-                  <div
-                    v-for="(metric, mIdx) in pillar.top_metrics.slice(0, 4)"
-                    :key="`metric-${mIdx}`"
-                    class="p-3 bg-slate-50 dark:bg-darkmode-700/30 rounded-lg border border-slate-100 dark:border-white/10"
+                  <span
+                    class="shrink-0 rounded-lg px-2.5 py-1 text-xs font-semibold"
+                    :style="{
+                      color: pillarColor(activePillar),
+                      backgroundColor: `${pillarColor(activePillar)}1f`,
+                    }"
                   >
-                    <template v-if="isKPIMetric(metric)">
-                      <p class="text-xs text-slate-500 dark:text-slate-400 mb-1">{{ t(metric.i18n_key) }}</p>
-                      <p class="text-lg font-semibold text-slate-900 dark:text-slate-100">{{ metric.value }}</p>
-                    </template>
-                    <template v-else>
-                      <p class="text-xs text-slate-500 dark:text-slate-400 mb-1">{{ t(metric.i18n_key) }}</p>
-                      <p class="text-xs text-slate-600 dark:text-slate-400">Chart: {{ metric.chart_type }}</p>
-                    </template>
-                  </div>
+                    {{ formatNumber(domainCompletion(domain)) }}%
+                  </span>
                 </div>
-              </div>
 
-              <!-- Key Charts per Pillar -->
-              <div v-if="pillar.key_charts && pillar.key_charts.length > 0" class="mb-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div
-                  v-for="(chart, cIdx) in pillar.key_charts.slice(0, 2)"
-                  :key="`key-chart-${cIdx}`"
-                  class="rounded-lg border border-slate-100 dark:border-white/10 p-4"
-                >
-                  <h4 class="text-sm font-medium text-slate-900 dark:text-slate-100 mb-3">
-                    {{ chart.title || t(chart.i18n_key || `esg.chart-${cIdx}`) }}
-                  </h4>
-                  <div class="h-64">
-                    <template v-if="getComponentForChart(chart)">
-                      <component 
-                        :is="getComponentForChart(chart)"
-                        :echarts_config="chart.echarts_config"
-                        :series="chart.series"
-                        :indicators_i18n="chart.indicators_i18n"
-                        :rtl="meta?.rtl"
-                      />
-                    </template>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Pillar Radar Chart - Domain Breakdown -->
-              <div v-if="pillar.radar_chart" class="mb-6">
-                <h4 class="text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">{{ t("esg.domain-breakdown") }}</h4>
-                <div class="h-96 rounded-lg border border-slate-100 dark:border-white/10 p-4 bg-slate-50 dark:bg-darkmode-700/30">
-                  <template v-if="getComponentForChart(pillar.radar_chart)">
-                    <component 
-                      :is="getComponentForChart(pillar.radar_chart)"
-                      :echarts_config="pillar.radar_chart.echarts_config"
-                      :indicators_i18n="pillar.radar_chart.indicators_i18n"
-                      :rtl="meta?.rtl"
+                <div class="mb-4">
+                  <div class="h-2 overflow-hidden rounded-full bg-slate-100 dark:bg-darkmode-700">
+                    <div
+                      class="h-full rounded-full"
+                      :style="{
+                        width: `${domainCompletion(domain)}%`,
+                        backgroundColor: pillarColor(activePillar),
+                      }"
                     />
-                  </template>
-                </div>
-              </div>
-
-              <!-- Domain Breakdown Grid -->
-              <div v-if="pillar.domains && pillar.domains.length > 0">
-                <h4 class="text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">{{ t("esg.domains") }}</h4>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                  <div
-                    v-for="domain in pillar.domains"
-                    :key="domain.key"
-                    class="p-4 bg-slate-50 dark:bg-darkmode-700/30 rounded-lg border border-slate-100 dark:border-white/10 hover:shadow transition-shadow"
-                  >
-                    <h5 class="text-sm font-medium text-slate-900 dark:text-slate-100 mb-2">{{ t(domain.i18n_key) }}</h5>
-                    <div class="space-y-1 text-xs">
-                      <p class="text-slate-600 dark:text-slate-400">
-                        <span class="text-slate-500 dark:text-slate-500">Total: </span>
-                        <span class="font-semibold">{{ domain.total_controls || 0 }}</span>
-                      </p>
-                      <p class="text-slate-600 dark:text-slate-400">
-                        <span class="text-slate-500 dark:text-slate-500">Answered: </span>
-                        <span class="font-semibold text-emerald-600 dark:text-emerald-400">{{ domain.answered_count || 0 }}</span>
-                      </p>
-                      <p v-if="domain.total_controls" class="text-slate-600 dark:text-slate-400">
-                        <span class="text-slate-500 dark:text-slate-500">Progress: </span>
-                        <span class="font-semibold">{{ Math.round(((domain.answered_count || 0) / (domain.total_controls || 1)) * 100) }}%</span>
-                      </p>
-                    </div>
-                    <div v-if="domain.total_controls" class="mt-2 h-1.5 bg-slate-200 dark:bg-white/10 rounded-full overflow-hidden">
-                      <div 
-                        class="h-full bg-emerald-500 rounded-full"
-                        :style="`width: ${((domain.answered_count || 0) / (domain.total_controls || 1)) * 100}%`"
-                      ></div>
-                    </div>
                   </div>
                 </div>
-              </div>
+
+                <VChart
+                  v-if="domain.chart?.echarts_config"
+                  :option="domain.chart.echarts_config"
+                  autoresize
+                  class="h-[220px] w-full"
+                />
+
+                <div class="mt-4 divide-y divide-slate-100 rounded-lg border border-slate-100 dark:divide-darkmode-600 dark:border-darkmode-600">
+                  <div
+                    v-for="control in domain.controls"
+                    :key="control.id ?? control.slug ?? control.metric_code"
+                    class="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-3 py-2 text-xs"
+                  >
+                    <span class="min-w-0 truncate text-slate-600 dark:text-slate-300">
+                      {{ controlLabel(control) }}
+                    </span>
+                    <span class="whitespace-nowrap font-semibold text-slate-900 dark:text-slate-50">
+                      {{ formatControlValue(control) }}
+                    </span>
+                  </div>
+                </div>
+              </article>
             </div>
-          </template>
-        </div>
-      </div>
+          </div>
+        </article>
+      </section>
     </template>
   </div>
 </template>
-
-<style scoped>
-/* Smooth scrolling for tabs */
-::-webkit-scrollbar {
-  height: 4px;
-}
-
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 2px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
-}
-
-/* Dark mode scrollbar */
-:global(.dark) ::-webkit-scrollbar-thumb {
-  background: #475569;
-}
-
-:global(.dark) ::-webkit-scrollbar-thumb:hover {
-  background: #64748b;
-}
-
-/* Smooth transitions for all interactive elements */
-* {
-  @apply transition-colors duration-200;
-}
-
-button {
-  @apply active:scale-95;
-}
-</style>

@@ -21,9 +21,20 @@ export interface ESGListResponse {
   };
 }
 
+export interface ESGUpdateParams {
+  id?: number;
+  slug?: string;
+  answer?: string | number | null;
+  [key: string]: unknown;
+}
+
 export class ESGRepo extends BaseRepo {
   async list(params: ESGListParams) {
     return this.post<ESGListResponse>(endpoints.admin.esg.governance.list, params);
+  }
+
+  async updateControl(payload: ESGUpdateParams) {
+    return this.post<ApiResult<unknown>>(endpoints.admin.esg.governance.update, payload);
   }
 }
 

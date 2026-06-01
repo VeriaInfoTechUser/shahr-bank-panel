@@ -1438,6 +1438,7 @@
       "hectare": "هکتار"
     },
     "domains-count": "حوزه",
-    "domains-selected": "حوزه‌های انتخاب شده"
+    "domains-selected": "حوزه‌های انتخاب شده",
+    "confirm-clear-answer-message": "آیا مطمئن هستید می‌خواهید این پاسخ را حذف کنید؟"
   }
 }

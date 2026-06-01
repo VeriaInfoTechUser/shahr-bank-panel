@@ -117,6 +117,7 @@ export const endpoints = {
     esg: {
       governance: {
         list: 'content/item/list',
+        update: 'content/item/update',
       },
     }
   },

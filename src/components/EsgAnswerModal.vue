@@ -160,6 +160,7 @@ const handleSubmit = () => {
 
 const handleClear = () => {
   validationError.value = "";
+  emit("update:answer", null);
   emit("clear");
 };
 </script>

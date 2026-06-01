@@ -4,8 +4,11 @@ import {useQuery} from "@core/composables";
 import {esgRepo} from "@core/repositories/esgRepo";
 import {computed, onMounted, onUnmounted, ref} from "vue";
 import EsgAnswerModal from "@/components/EsgAnswerModal.vue";
+import BaseConfirmModal from "@core/ui/base/BaseConfirmModal.vue";
+import { useGlobalModal } from '@/composables/useGlobalModal';
 
 const {t} = useI18n();
+const { openModal } = useGlobalModal();
 
 interface Domain {
   id: number;
@@ -72,7 +75,7 @@ const {
   invalidate,
 } = useQuery(
     ["esg-environment-list"],
-    () => esgRepo.list({type: ["domain", "control"] }),
+    () => esgRepo.list({type: ["domain", "control"], source: "environmental"}),
     {
       enabled: true,
       staleTime: 300000,
@@ -200,19 +203,55 @@ const handleControlClick = (control: Control) => {
 const handleSubmitAnswer = async () => {
   if (!selectedControl.value) return;
 
-  submittingAnswer.value = true;
   try {
+    // Send complete control object with updated answer
+    const payload = {
+      ...selectedControl.value,
+      answer: answerInput.value,
+    };
+
+    await esgRepo.updateControl(payload);
+
+    // Update local state
     selectedControl.value.answer = answerInput.value;
     selectedControl.value.answer_status = "answered";
+
     closeAnswerModal();
   } catch (err) {
     console.error("Error submitting answer:", err);
-  } finally {
-    submittingAnswer.value = false;
   }
 };
 
-const handleClearAnswer = () => {
+const confirmClearAnswer = () => {
+  openModal({
+    component: BaseConfirmModal,
+    props: {
+      titleKey: 'general.confirm-dialog-title',
+      messageKey: 'governance.confirm-clear-answer-message',
+      confirmVariant: 'danger' as const,
+      onConfirmAction: handleClearAnswer,
+    },
+    onSuccess: () => {
+      closeAnswerModal();
+    },
+  });
+};
+
+const handleClearAnswer = async () => {
+  if (!selectedControl.value) return;
+
+  // Send complete control object with null answer and unanswered status
+  const payload = {
+    ...selectedControl.value,
+    answer: null,
+    answer_status: "unanswered",
+  };
+
+  await esgRepo.updateControl(payload);
+
+  // Update local state
+  selectedControl.value.answer = null;
+  selectedControl.value.answer_status = "unanswered";
   answerInput.value = "";
 };
 
@@ -503,15 +542,7 @@ onUnmounted(() => {
       v-model:answer="answerInput"
       :submitting="submittingAnswer"
       @submit="handleSubmitAnswer"
-      @clear="handleClearAnswer"
-      @close="closeAnswerModal"
-    />    <EsgAnswerModal
-      v-model:show="showAnswerModal"
-      :control="selectedControl"
-      v-model:answer="answerInput"
-      :submitting="submittingAnswer"
-      @submit="handleSubmitAnswer"
-      @clear="handleClearAnswer"
+      @clear="confirmClearAnswer"
       @close="closeAnswerModal"
     />
   </div>

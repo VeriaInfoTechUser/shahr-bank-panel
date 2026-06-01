@@ -857,6 +857,7 @@
       "hectare": "هكتار"
     },
     "domains-count": "مجال",
-    "domains-selected": "المجالات المختارة"
+    "domains-selected": "المجالات المختارة",
+    "confirm-clear-answer-message": "هل أنت متأكد من أنك تريد إزالة هذه الإجابة؟"
   }
 }

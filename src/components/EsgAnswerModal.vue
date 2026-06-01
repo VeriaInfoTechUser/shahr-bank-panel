@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { Teleport, Transition } from "vue";
 import Button from "@/base-components/Button";
@@ -40,6 +40,48 @@ const { t } = useI18n();
 const localAnswer = computed({
   get: () => props.answer,
   set: (value: string | number) => emit("update:answer", value),
+});
+
+const validationError = ref("");
+
+const validateAnswer = (): boolean => {
+  validationError.value = "";
+
+  if (localAnswer.value === "" || localAnswer.value === null || localAnswer.value === undefined) {
+    return true;
+  }
+
+  const value = Number(localAnswer.value);
+
+  if (props.control?.answer_type === "percentage") {
+    if (isNaN(value) || value < 0 || value > 100) {
+      validationError.value = t("governance.percentage-error") || "Value must be between 0 and 100";
+      return false;
+    }
+  } else if (props.control?.answer_type === "number") {
+    if (isNaN(value)) {
+      validationError.value = t("governance.number-error") || "Please enter a valid number";
+      return false;
+    }
+  }
+
+  return true;
+};
+
+const handleAnswerInput = (value: string | number) => {
+  localAnswer.value = value;
+  validateAnswer();
+};
+
+const isFormValid = computed(() => {
+  if (validationError.value) return false;
+  if (props.control?.answer_type === "percentage") {
+    const v = Number(localAnswer.value);
+    if (localAnswer.value !== "" && (isNaN(v) || v < 0 || v > 100)) return false;
+  } else if (props.control?.answer_type === "number") {
+    if (localAnswer.value !== "" && isNaN(Number(localAnswer.value))) return false;
+  }
+  return true;
 });
 
 const getAnswerUnitLabel = (unit: string | null | undefined) => {
@@ -112,15 +154,15 @@ const closeModal = () => {
   emit("close");
 };
 
-const handleSubmit = () => emit("submit");
-const handleClear = () => emit("clear");
-</script>
+const handleSubmit = () => {
+  if (validateAnswer()) emit("submit");
+};
 
-<style scoped>
-textarea::placeholder {
-  text-align: left;
-}
-</style>
+const handleClear = () => {
+  validationError.value = "";
+  emit("clear");
+};
+</script>
 
 <template>
   <Teleport to="body">
@@ -188,7 +230,7 @@ textarea::placeholder {
               </div>
 
               <div>
-                <label class="block text-[12px] font-medium text-slate-500 dark:text-slate-400 mb-2 flex items-center gap-2">
+                <label class="block text-[12px] font-medium text-slate-500 dark:text-slate-400 mb-2">
                   {{ t("governance.your-answer") }}
                 </label>
 
@@ -199,15 +241,19 @@ textarea::placeholder {
                                text-[12px] text-slate-400 dark:text-slate-500 pointer-events-none">
                     {{ getDisplayUnit(control) }}
                   </span>
-                  <FormInput v-model="localAnswer"
-                             type="number"
-                             dir="ltr"
-                             :placeholder="answerPlaceholder"
-                             :min="control.answer_type === 'percentage' ? 0 : undefined"
-                             :max="control.answer_type === 'percentage' ? 100 : undefined"
-                             formInputSize="sm"
-                             :class="['placeholder-shown:text-right', control.answer_unit ? ' pr-4' : 'pr-4']" />
-
+                  <FormInput
+                      :model-value="localAnswer"
+                      @update:model-value="handleAnswerInput"
+                      type="number"
+                      dir="ltr"
+                      :placeholder="answerPlaceholder"
+                      :min="control.answer_type === 'percentage' ? 0 : undefined"
+                      :max="control.answer_type === 'percentage' ? 100 : undefined"
+                      formInputSize="sm"
+                      :class="[control.answer_unit ? 'pr-4' : 'pr-4', validationError ? 'border-red-500' : '']" />
+                  <p v-if="validationError" class="mt-1 text-[11px] text-red-600 dark:text-red-400">
+                    {{ validationError }}
+                  </p>
                 </div>
 
                 <FormInput v-else v-model="localAnswer" type="textarea" :rows="4"
@@ -224,25 +270,31 @@ textarea::placeholder {
                              text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/30
                              border border-red-200 dark:border-red-800/40
                              hover:bg-red-100 dark:hover:bg-red-950/50 transition-colors disabled:opacity-40">
-                <i class="ti ti-eraser text-[13px]" aria-hidden="true"></i>
                 {{ t("governance.clear") }}
               </button>
 
               <div class="flex items-center gap-2">
                 <button @click="closeModal" :disabled="submitting"
-                        class="inline-flex items-center text-[13px] font-medium px-4 py-1.5 rounded-lg
+                        class="inline-flex items-center text-[13px] font-medium px-4 py-1.5 rounded-lg btn-xs
                                text-slate-500 dark:text-slate-400
                                border border-slate-200 dark:border-white/10
-                               hover:bg-slate-100 dark:hover:bg-white/8 transition-colors disabled:opacity-40 btn-xs">
+                               hover:bg-slate-100 dark:hover:bg-white/8 transition-colors disabled:opacity-40">
                   {{ t("governance.cancel") }}
                 </button>
-                <Button variant="primary" size="sm" :disabled="submitting" @click="handleSubmit">
-                  <i v-if="!submitting" class="ti ti-check text-[14px]" aria-hidden="true"></i>
-                  <i v-else class="ti ti-loader-2 text-[14px] animate-spin" aria-hidden="true"></i>
-                  {{ submitting ? t("governance.submitting") : t("governance.submit") }}
-                </Button>
+
+                <span :title="!isFormValid ? (validationError || t('governance.fix-errors')) : ''">
+                  <Button
+                      variant="primary"
+                      :disabled="submitting || !isFormValid"
+                      @click="handleSubmit"
+                      class="btn-xs"
+                      :class="{ 'opacity-50 cursor-not-allowed': !isFormValid }">
+                    {{ submitting ? t("governance.submitting") : t("governance.submit") }}
+                  </Button>
+                </span>
               </div>
             </div>
+
           </div>
         </Transition>
       </div>

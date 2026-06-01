@@ -72,7 +72,7 @@ const {
   invalidate,
 } = useQuery(
     ["esg-environment-list"],
-    () => esgRepo.list({type: ["domain", "control"], source: "environmental"}),
+    () => esgRepo.list({type: ["domain", "control"] }),
     {
       enabled: true,
       staleTime: 300000,

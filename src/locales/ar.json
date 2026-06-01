@@ -829,6 +829,9 @@
     "submit-answer": "إرسال الإجابة",
     "submitting": "قيد الإرسال...",
     "error-loading": "خطأ في تحميل البيانات",
+    "percentage-error": "يجب أن تكون القيمة بين 0 و 100",
+    "number-error": "يرجى إدخال رقم صحيح",
+    "fix-errors": "يرجى تصحيح الأخطاء",
     "unit": {
       "percent": "%",
       "count": "العدد",
@@ -853,6 +856,7 @@
       "ton_per_unit": "طن / وحدة",
       "hectare": "هكتار"
     },
-    "domains-count": "مجال"
+    "domains-count": "مجال",
+    "domains-selected": "المجالات المختارة"
   }
 }

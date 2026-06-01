@@ -1359,6 +1359,9 @@
     "submit-answer": "Submit Answer",
     "submitting": "Submitting...",
     "error-loading": "Error loading data",
+    "percentage-error": "Value must be between 0 and 100",
+    "number-error": "Please enter a valid number",
+    "fix-errors": "Please fix the errors",
     "unit": {
       "percent": "%",
       "count": "Count",
@@ -1383,6 +1386,7 @@
       "ton_per_unit": "Ton / Unit",
       "hectare": "Hectare"
     },
-    "domains-count": "domain"
+    "domains-count": "domain",
+    "domains-selected": "domains selected"
   }
 }

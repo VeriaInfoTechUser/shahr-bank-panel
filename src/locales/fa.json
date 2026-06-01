@@ -1410,6 +1410,9 @@
     "submit-answer": "ثبت پاسخ",
     "submitting": "در حال ارسال...",
     "error-loading": "خطا در بارگذاری داده‌ها",
+    "percentage-error": "مقدار باید بین 0 و 100 باشد",
+    "number-error": "لطفا یک عدد معتبر وارد کنید",
+    "fix-errors": "لطفا خطاها را تصحیح کنید",
     "unit": {
       "percent": "%",
       "count": "تعداد",
@@ -1434,6 +1437,7 @@
       "ton_per_unit": "تن / واحد",
       "hectare": "هکتار"
     },
-    "domains-count": "حوزه"
+    "domains-count": "حوزه",
+    "domains-selected": "حوزه‌های انتخاب شده"
   }
 }

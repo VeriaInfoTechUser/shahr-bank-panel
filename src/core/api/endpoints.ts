@@ -119,6 +119,9 @@ export const endpoints = {
         list: 'content/item/list',
         update: 'content/item/update',
       },
+      dashboard: {
+        get: 'content/dashboard/get',
+      },
     }
   },
 };

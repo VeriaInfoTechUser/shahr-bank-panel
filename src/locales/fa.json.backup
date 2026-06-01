@@ -127,6 +127,7 @@
     "timeline": "جدول زمانی",
     "edit-request": "ویرایش درخواست",
     "follow-up-date": "تاریخ پیگیری بعدی",
+    "attachments": "پیوست‌ها",
     "attachment": "پیوست",
     "avatar": "آواتار",
     "company": "شرکت",
@@ -242,9 +243,7 @@
     "type": "نوع",
     "extension": "پسوند",
     "actions": "عملیات",
-    "error": "خطای سیستمی",
-    "last-updated": "آخرین به‌روزرسانی",
-    "chart-component": "نوع نمودار"
+    "error": "خطای سیستمی"
   },
   "login-history": {
     "title": "تاریخچه ورود",
@@ -1441,62 +1440,5 @@
     "domains-count": "حوزه",
     "domains-selected": "حوزه‌های انتخاب شده",
     "confirm-clear-answer-message": "آیا مطمئن هستید می‌خواهید این پاسخ را حذف کنید؟"
-  },
-  "esg": {
-    "overall-score": "امتیاز کلی",
-    "overall-completion": "درصد تکمیل کلی",
-    "answered-controls": "کنترل‌های پاسخ‌داده‌شده",
-    "total-domains": "کل حوزه‌ها",
-    "total-controls": "کل کنترل‌ها",
-    "completion-status": "وضعیت تکمیل",
-    "pillar-comparison": "مقایسه ستون‌های ESG",
-    "domain-breakdown": "تفکیک حوزه‌ها",
-    "domains": "حوزه‌ها",
-    "domain-count": "تعداد حوزه",
-    "completion": "درصد تکمیل",
-    "error-loading": "خطا در بارگذاری داده‌های ESG",
-    "pillar": {
-      "environmental": "محیط‌زیستی",
-      "social": "اجتماعی",
-      "governance": "حاکمیت"
-    },
-    "status": {
-      "answered": "پاسخ‌داده‌شده",
-      "unanswered": "بدون پاسخ"
-    },
-    "domain": {
-      "energy_resource_management": "مدیریت انرژی و منابع",
-      "greenhouse_gas_emissions": "انتشار گازهای گلخانه‌ای",
-      "water_management": "مدیریت آب",
-      "waste_management_circular_economy": "مدیریت پسماند و اقتصاد چرخشی",
-      "pollution_environmental_impact": "آلودگی و اثرات زیست‌محیطی",
-      "climate_change_strategy": "استراتژی تغییرات اقلیمی",
-      "biodiversity_ecosystem_impact": "تنوع زیستی و اثر بر اکوسیستم",
-      "resource_efficiency_material_use": "بهره‌وری منابع و مصرف مواد",
-      "environmental_compliance_permitting": "انطباق و مجوزهای محیط‌زیستی",
-      "workforce_structure_demographics": "ساختار نیروی کار و جمعیت‌شناسی",
-      "diversity_equity_inclusion": "تنوع، عدالت و فراگیری",
-      "employment_conditions": "شرایط اشتغال",
-      "health_safety_wellbeing": "سلامت، ایمنی و رفاه",
-      "learning_development": "یادگیری و توسعه",
-      "employee_engagement_retention": "درگیری و باقی‌ماندن کارمندان",
-      "human_rights_labor_practices": "حقوق بشر و شیوه‌های کاری",
-      "community_impact": "تأثیر اجتماعی",
-      "customer_responsibility_product_safety": "مسئولیت مشتری و ایمنی محصول",
-      "labor_relations_industrial_relations": "روابط کاری و روابط صنعتی",
-      "talent_attraction_workforce_planning": "جذب استعدادها و برنامه‌ریزی نیروی کار",
-      "corporate_governance_structure": "ساختار حاکمیت شرکتی",
-      "ethics_integrity": "اخلاق و تمامیت",
-      "compliance_management": "مدیریت تطبیق",
-      "risk_management": "مدیریت ریسک",
-      "data_privacy_cybersecurity": "حفاظت از داده‌ها و امنیت سایبری",
-      "supply_chain_governance": "حاکمیت زنجیره تامین",
-      "esg_governance_reporting": "گزارش‌دهی و حاکمیت ESG",
-      "internal_audit_control_systems": "سیستم‌های بازرسی داخلی و کنترل",
-      "financial_tax_transparency": "شفافیت مالی و مالیاتی",
-      "regulatory_legal_compliance_risk": "ریسک تطبیق قانونی و نظارتی",
-      "anti_money_laundering_financial_crime": "مبارزه با پول‌شویی و جرائم مالی",
-      "esg_data_governance_data_quality": "حاکمیت داده‌های ESG و کیفیت داده"
-    }
   }
 }

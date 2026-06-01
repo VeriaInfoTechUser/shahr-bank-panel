@@ -94,9 +94,7 @@
     "type": "النوع",
     "extension": "الامتداد",
     "actions": "الإجراءات",
-    "error": "حدث خطأ ما",
-    "last-updated": "آخر تحديث",
-    "chart-component": "نوع المخطط"
+    "error": "حدث خطأ ما"
   },
   "login-history": {
     "title": "سجل الدخول",
@@ -861,62 +859,5 @@
     "domains-count": "مجال",
     "domains-selected": "المجالات المختارة",
     "confirm-clear-answer-message": "هل أنت متأكد من أنك تريد إزالة هذه الإجابة؟"
-  },
-  "esg": {
-    "overall-score": "النقاط الإجمالية",
-    "overall-completion": "نسبة الإكمال الإجمالية",
-    "answered-controls": "الضوابط المجابة",
-    "total-domains": "إجمالي المجالات",
-    "total-controls": "إجمالي الضوابط",
-    "completion-status": "حالة الإكمال",
-    "pillar-comparison": "مقارنة الأعمدة",
-    "domain-breakdown": "تفصيل المجالات",
-    "domains": "المجالات",
-    "domain-count": "عدد المجالات",
-    "completion": "نسبة الإكمال",
-    "error-loading": "خطأ في تحميل بيانات ESG",
-    "pillar": {
-      "environmental": "البيئة",
-      "social": "اجتماعي",
-      "governance": "الحوكمة"
-    },
-    "status": {
-      "answered": "مجاب",
-      "unanswered": "بدون إجابة"
-    },
-    "domain": {
-      "energy_resource_management": "إدارة الطاقة والموارد",
-      "greenhouse_gas_emissions": "انبعاثات الغازات الدفيئة",
-      "water_management": "إدارة المياه",
-      "waste_management_circular_economy": "إدارة النفايات والاقتصاد الدائري",
-      "pollution_environmental_impact": "التلوث والتأثيرات البيئية",
-      "climate_change_strategy": "استراتيجية تغير المناخ",
-      "biodiversity_ecosystem_impact": "التنوع البيولوجي وتأثيرات النظام البيئي",
-      "resource_efficiency_material_use": "كفاءة الموارد واستخدام المواد",
-      "environmental_compliance_permitting": "الامتثال البيئي والترخيص",
-      "workforce_structure_demographics": "هيكل القوى العاملة والديموغرافيا",
-      "diversity_equity_inclusion": "التنوع والمساواة والشمول",
-      "employment_conditions": "شروط التوظيف",
-      "health_safety_wellbeing": "الصحة والسلامة والرفاهية",
-      "learning_development": "التعلم والتطوير",
-      "employee_engagement_retention": "تفاعل الموظفين والاحتفاظ",
-      "human_rights_labor_practices": "حقوق الإنسان والممارسات العمالية",
-      "community_impact": "التأثير المجتمعي",
-      "customer_responsibility_product_safety": "المسؤولية تجاه العملاء وسلامة المنتج",
-      "labor_relations_industrial_relations": "العلاقات العمالية والعلاقات الصناعية",
-      "talent_attraction_workforce_planning": "جذب المواهب وتخطيط القوى العاملة",
-      "corporate_governance_structure": "هيكل حوكمة الشركات",
-      "ethics_integrity": "الأخلاقيات والسلامة",
-      "compliance_management": "إدارة الامتثال",
-      "risk_management": "إدارة المخاطر",
-      "data_privacy_cybersecurity": "خصوصية البيانات والأمن السيبراني",
-      "supply_chain_governance": "حوكمة سلسلة التوريد",
-      "esg_governance_reporting": "حوكمة ESG والإبلاغ",
-      "internal_audit_control_systems": "التدقيق الداخلي وأنظمة الرقابة",
-      "financial_tax_transparency": "الشفافية المالية والضريبية",
-      "regulatory_legal_compliance_risk": "مخاطر الامتثال التنظيمي والقانوني",
-      "anti_money_laundering_financial_crime": "مكافحة غسل الأموال والجريمة المالية",
-      "esg_data_governance_data_quality": "حوكمة بيانات ESG وجودة البيانات"
-    }
   }
 }

@@ -129,6 +129,7 @@
     "timeline": "Timeline",
     "edit-request": "Edit request",
     "follow-up-date": "Next follow up",
+    "attachments": "Attachments",
     "attachment": "Attachment",
     "avatar": "Avatar",
     "company": "Company",
@@ -224,9 +225,7 @@
     "type": "Type",
     "extension": "Extension",
     "actions": "Actions",
-    "error": "An error occurred",
-    "last-updated": "Last Updated",
-    "chart-component": "Chart Type"
+    "error": "An error occurred"
   },
   "login-history": {
     "title": "Login History",
@@ -1390,62 +1389,5 @@
     "domains-count": "domain",
     "domains-selected": "domains selected",
     "confirm-clear-answer-message": "Are you sure you want to remove this answer?"
-  },
-  "esg": {
-    "overall-score": "Overall Score",
-    "overall-completion": "Overall Completion",
-    "answered-controls": "Answered Controls",
-    "total-domains": "Total Domains",
-    "total-controls": "Total Controls",
-    "completion-status": "Completion Status",
-    "pillar-comparison": "Pillar Comparison",
-    "domain-breakdown": "Domain Breakdown",
-    "domains": "Domains",
-    "domain-count": "Domain Count",
-    "completion": "Completion",
-    "error-loading": "Error loading ESG data",
-    "pillar": {
-      "environmental": "Environmental",
-      "social": "Social",
-      "governance": "Governance"
-    },
-    "status": {
-      "answered": "Answered",
-      "unanswered": "Unanswered"
-    },
-    "domain": {
-      "energy_resource_management": "Energy & Resource Management",
-      "greenhouse_gas_emissions": "Greenhouse Gas Emissions",
-      "water_management": "Water Management",
-      "waste_management_circular_economy": "Waste Management & Circular Economy",
-      "pollution_environmental_impact": "Pollution & Environmental Impact",
-      "climate_change_strategy": "Climate Change Strategy",
-      "biodiversity_ecosystem_impact": "Biodiversity & Ecosystem Impact",
-      "resource_efficiency_material_use": "Resource Efficiency & Material Use",
-      "environmental_compliance_permitting": "Environmental Compliance & Permitting",
-      "workforce_structure_demographics": "Workforce Structure & Demographics",
-      "diversity_equity_inclusion": "Diversity, Equity & Inclusion",
-      "employment_conditions": "Employment Conditions",
-      "health_safety_wellbeing": "Health, Safety & Wellbeing",
-      "learning_development": "Learning & Development",
-      "employee_engagement_retention": "Employee Engagement & Retention",
-      "human_rights_labor_practices": "Human Rights & Labor Practices",
-      "community_impact": "Community Impact",
-      "customer_responsibility_product_safety": "Customer Responsibility & Product Safety",
-      "labor_relations_industrial_relations": "Labor Relations & Industrial Relations",
-      "talent_attraction_workforce_planning": "Talent Attraction & Workforce Planning",
-      "corporate_governance_structure": "Corporate Governance Structure",
-      "ethics_integrity": "Ethics & Integrity",
-      "compliance_management": "Compliance Management",
-      "risk_management": "Risk Management",
-      "data_privacy_cybersecurity": "Data Privacy & Cybersecurity",
-      "supply_chain_governance": "Supply Chain Governance",
-      "esg_governance_reporting": "ESG Governance & Reporting",
-      "internal_audit_control_systems": "Internal Audit & Control Systems",
-      "financial_tax_transparency": "Financial & Tax Transparency",
-      "regulatory_legal_compliance_risk": "Regulatory & Legal Compliance Risk",
-      "anti_money_laundering_financial_crime": "Anti-Money Laundering & Financial Crime",
-      "esg_data_governance_data_quality": "ESG Data Governance & Data Quality"
-    }
   }
 }

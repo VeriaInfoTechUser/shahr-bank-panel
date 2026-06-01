@@ -226,7 +226,8 @@
     "actions": "Actions",
     "error": "An error occurred",
     "last-updated": "Last Updated",
-    "chart-component": "Chart Type"
+    "chart-component": "Chart Type",
+    "unanswered": "Unanswered"
   },
   "login-history": {
     "title": "Login History",
@@ -1404,6 +1405,9 @@
     "domain-count": "Domain Count",
     "completion": "Completion",
     "error-loading": "Error loading ESG data",
+    "top-kpis": "Top KPIs",
+    "top-metrics": "Top Metrics",
+    "trend-0": "Data Trends",
     "pillar": {
       "environmental": "Environmental",
       "social": "Social",

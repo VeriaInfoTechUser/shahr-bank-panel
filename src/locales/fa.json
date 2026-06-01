@@ -244,7 +244,8 @@
     "actions": "عملیات",
     "error": "خطای سیستمی",
     "last-updated": "آخرین به‌روزرسانی",
-    "chart-component": "نوع نمودار"
+    "chart-component": "نوع نمودار",
+    "unanswered": "بدون پاسخ"
   },
   "login-history": {
     "title": "تاریخچه ورود",
@@ -1455,6 +1456,9 @@
     "domain-count": "تعداد حوزه",
     "completion": "درصد تکمیل",
     "error-loading": "خطا در بارگذاری داده‌های ESG",
+    "top-kpis": "KPI‌های برتر",
+    "top-metrics": "معیارهای برتر",
+    "trend-0": "روند داده‌ها",
     "pillar": {
       "environmental": "محیط‌زیستی",
       "social": "اجتماعی",

@@ -96,7 +96,8 @@
     "actions": "الإجراءات",
     "error": "حدث خطأ ما",
     "last-updated": "آخر تحديث",
-    "chart-component": "نوع المخطط"
+    "chart-component": "نوع المخطط",
+    "unanswered": "لم يتم الرد"
   },
   "login-history": {
     "title": "سجل الدخول",
@@ -875,6 +876,9 @@
     "domain-count": "عدد المجالات",
     "completion": "نسبة الإكمال",
     "error-loading": "خطأ في تحميل بيانات ESG",
+    "top-kpis": "أهم مؤشرات الأداء",
+    "top-metrics": "أهم المقاييس",
+    "trend-0": "اتجاهات البيانات",
     "pillar": {
       "environmental": "البيئة",
       "social": "اجتماعي",

@@ -215,6 +215,7 @@ const handleSubmitAnswer = async () => {
     const payload = {
       ...selectedControl.value,
       answer: answerInput.value,
+      answer_status: "answered",
     };
 
     await esgRepo.updateControl(payload);
@@ -580,7 +581,6 @@ onUnmounted(() => {
       v-model:show="showAnswerModal"
       :control="selectedControl"
       v-model:answer="answerInput"
-      :submitting="submittingAnswer"
       @submit="handleSubmitAnswer"
       @clear="confirmClearAnswer"
       @close="closeAnswerModal"

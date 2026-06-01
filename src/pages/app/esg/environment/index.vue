@@ -65,7 +65,6 @@ const selectedDomainFilter = ref<string[]>([]);
 const selectedControl = ref<Control | null>(null);
 const showAnswerModal = ref(false);
 const answerInput = ref<string | number>("");
-const submittingAnswer = ref(false);
 
 const {
   data: environmentData,
@@ -208,6 +207,7 @@ const handleSubmitAnswer = async () => {
     const payload = {
       ...selectedControl.value,
       answer: answerInput.value,
+      answer_status: "answered",
     };
 
     await esgRepo.updateControl(payload);
@@ -540,7 +540,6 @@ onUnmounted(() => {
       v-model:show="showAnswerModal"
       :control="selectedControl"
       v-model:answer="answerInput"
-      :submitting="submittingAnswer"
       @submit="handleSubmitAnswer"
       @clear="confirmClearAnswer"
       @close="closeAnswerModal"

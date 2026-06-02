@@ -1438,6 +1438,9 @@
         }
       },
       "sections": {
+        "environmental": "Environmental",
+        "social": "Social",
+        "governance": "Governance",
         "domain_breakdown": {
           "title": "Domain Breakdown"
         },

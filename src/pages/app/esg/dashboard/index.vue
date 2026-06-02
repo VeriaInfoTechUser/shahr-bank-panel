@@ -25,14 +25,14 @@ async function loadDashboard() {
 
   try {
     const response = await esgRepo.dashboard({});
-    
+
     if (!response || typeof response !== 'object') {
       throw new Error('داده‌ای برای داشبورد دریافت نشد.');
     }
 
     // Handle API envelope format
     const data = (response as any).data ?? (response as any).result ?? response;
-    
+
     if (!data || typeof data !== 'object') {
       console.error('Invalid response format:', response);
       throw new Error('فرمت پاسخ نامعتبر است.');
@@ -118,7 +118,7 @@ onMounted(loadDashboard);
             'px-4 py-2 text-slate-600 transition hover:text-slate-900 dark:text-slate-400 dark:hover:text-white': activeSection !== section,
           }"
         >
-          {{ t(`esg.section.${section}`) }}
+          {{ t(`esg.sections.${section}`) }}
         </button>
       </div>
 

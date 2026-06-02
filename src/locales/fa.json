@@ -1484,6 +1484,9 @@
   "dashboard": {
     "governance": {
       "sections": {
+        "environmental": "محیط زیست",
+        "social": "اجتماعی",
+        "governance": "حاکمیت شرکتی",
         "domain_breakdown": {
           "title": "تفکیک حوزه‌ها"
         },

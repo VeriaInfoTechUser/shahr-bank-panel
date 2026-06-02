@@ -922,5 +922,265 @@
       "anti_money_laundering_financial_crime": "مكافحة غسل الأموال والجريمة المالية",
       "esg_data_governance_data_quality": "حوكمة بيانات ESG وجودة البيانات"
     }
-  }
+  },
+  "dashboard": {
+    "governance": {
+      "table": {
+        "columns": {
+          "title": "Title",
+          "domain": "Domain",
+          "value": "Value",
+          "status": "Status",
+          "severity": "Severity"
+        }
+      },
+      "workflow": {
+        "approved": "Approved",
+        "under_review": "Under Review",
+        "pending_evidence": "Pending Evidence",
+        "rejected_rework": "Rejected / Rework"
+      },
+      "units": {
+        "risk_management": {
+          "title": "Risk Management"
+        },
+        "compliance": {
+          "title": "Compliance"
+        },
+        "internal_audit": {
+          "title": "Internal Audit"
+        },
+        "information_security": {
+          "title": "Information Security"
+        },
+        "procurement": {
+          "title": "Procurement"
+        },
+        "finance_tax": {
+          "title": "Finance & Tax"
+        }
+      },
+      "stats": {
+        "unanswered_controls": {
+          "title": "Unanswered Controls"
+        },
+        "domains_below_target": {
+          "title": "Domains Below Target"
+        },
+        "evidence_requests": {
+          "title": "Evidence Requests"
+        },
+        "overdue_approvals": {
+          "title": "Overdue Approvals"
+        }
+      },
+      "activities": {
+        "risk_treatment_progress_updated": {
+          "title": "Risk Treatment Progress Updated",
+          "description": "تم تحديث برامج معالجة المخاطر من قبل وحدة إدارة المخاطر."
+        },
+        "aml_evidence_approved": {
+          "title": "تمت الموافقة على أدلة مكافحة غسل الأموال"
+        },
+        "supplier_governance_review_requested": {
+          "title": "تم طلب مراجعة حوكمة الموردين"
+        },
+        "board_governance_kpi_refreshed": {
+          "title": "تم تحديث مؤشرات حوكمة المجلس"
+        }
+      },
+      "cards": {
+        "overall_governance": {
+          "title": "الحوكمة العامة"
+        }
+      },
+      "sections": {
+        "domain_breakdown": {
+          "title": "توزيع المجالات"
+        },
+        "trend": {
+          "title": "اتجاه الحوكمة"
+        },
+        "domain_progress": {
+          "title": "تقدم المجالات"
+        },
+        "key_indicators": {
+          "title": "المؤشرات الرئيسية"
+        },
+        "high_priority_risks": {
+          "title": "المخاطر ذات الأولوية العالية"
+        },
+        "approval_workflow": {
+          "title": "سير العمل للموافقة"
+        },
+        "unit_progress": {
+          "title": "تقدم الوحدة"
+        },
+        "incomplete_items": {
+          "title": "العناصر غير المكتملة"
+        },
+        "recent_activities": {
+          "title": "الأنشطة الأخيرة"
+        }
+      },
+      "domains": {
+        "regulatory_legal_compliance_risk": {
+          "title": "مخاطر الامتثال القانوني والتنظيمي"
+        },
+        "anti_money_laundering_financial_crime": {
+          "title": "مكافحة غسل الأموال والجرائم المالية"
+        },
+        "data_privacy_cybersecurity": {
+          "title": "خصوصية البيانات والأمن السيبراني"
+        },
+        "esg_data_governance_data_quality": {
+          "title": "حوكمة بيانات ESG وجودة البيانات"
+        },
+        "compliance_management": {
+          "title": "إدارة الامتثال"
+        },
+        "ethics_integrity": {
+          "title": "الأخلاقيات والنزاهة"
+        },
+        "internal_audit_control_systems": {
+          "title": "التدقيق الداخلي وأنظمة الرقابة"
+        },
+        "esg_governance_reporting": {
+          "title": "حوكمة ESG وإعداد التقارير"
+        },
+        "supply_chain_governance": {
+          "title": "حوكمة سلسلة الإمداد"
+        },
+        "financial_tax_transparency": {
+          "title": "الشفافية المالية والضريبية"
+        },
+        "risk_management": {
+          "title": "إدارة المخاطر"
+        },
+        "corporate_governance_structure": {
+          "title": "هيكل الحوكمة المؤسسية"
+        }
+      },
+      "metrics": {
+        "key_legal_requirements_review_coverage": {
+          "title": "تغطية مراجعة المتطلبات القانونية"
+        },
+        "legal_case_controlled_resolution_rate": {
+          "title": "معدل حل القضايا القانونية"
+        },
+        "active_legal_cases_count": {
+          "title": "القضايا القانونية النشطة"
+        },
+        "legal_fines_damages_provisions_amount": {
+          "title": "الغرامات والمخصصات القانونية"
+        },
+        "aml_alerts_generated_count": {
+          "title": "تنبيهات غسل الأموال"
+        },
+        "aml_screening_coverage_rate": {
+          "title": "تغطية فحص AML"
+        },
+        "aml_financial_crime_training_completion_rate": {
+          "title": "إكمال تدريب الجرائم المالية"
+        },
+        "aml_case_closure_rate": {
+          "title": "معدل إغلاق قضايا AML"
+        },
+        "high_risk_vulnerability_remediation_rate": {
+          "title": "معالجة الثغرات عالية المخاطر"
+        },
+        "information_security_privacy_training_completion_rate": {
+          "title": "إكمال تدريب الأمن والخصوصية"
+        },
+        "critical_systems_security_assessment_coverage": {
+          "title": "تغطية تقييم أنظمة الأمان"
+        },
+        "data_subject_request_response_rate": {
+          "title": "معدل الاستجابة لطلبات البيانات"
+        },
+        "esg_data_fields_with_owner_rate": {
+          "title": "حقول بيانات ESG مع مالك"
+        },
+        "esg_data_completeness_rate": {
+          "title": "اكتمال بيانات ESG"
+        },
+        "esg_data_accuracy_rate": {
+          "title": "دقة بيانات ESG"
+        },
+        "esg_records_with_traceability_rate": {
+          "title": "قابلية تتبع بيانات ESG"
+        },
+        "legal_regulatory_non_compliance_count": {
+          "title": "حالات عدم الامتثال"
+        },
+        "regulatory_requirements_with_defined_controls_rate": {
+          "title": "تغطية الضوابط التنظيمية"
+        },
+        "compliance_training_completion_rate": {
+          "title": "إكمال تدريب الامتثال"
+        },
+        "compliance_corrective_action_closure_rate": {
+          "title": "معدل إغلاق الإجراءات التصحيحية"
+        },
+        "corruption_ethics_risk_assessments_count": {
+          "title": "تقييمات مخاطر الأخلاقيات"
+        },
+        "ethics_anti_corruption_training_completion_rate": {
+          "title": "تدريب مكافحة الفساد"
+        },
+        "corruption_bribery_ethics_incidents_count": {
+          "title": "حوادث أخلاقية"
+        },
+        "ethics_case_closure_rate": {
+          "title": "معدل إغلاق القضايا الأخلاقية"
+        },
+        "esg_risk_compliance_internal_audits_count": {
+          "title": "عدد التدقيقات الداخلية"
+        },
+        "high_risk_audit_finding_closure_rate": {
+          "title": "معدل إغلاق الملاحظات الخطرة"
+        },
+        "key_controls_testing_coverage_rate": {
+          "title": "تغطية اختبار الضوابط"
+        },
+        "key_controls_evidence_traceability_rate": {
+          "title": "قابلية تتبع الأدلة"
+        },
+        "esg_data_owner_coverage_rate": {
+          "title": "تغطية مالك بيانات ESG"
+        },
+        "esg_kpi_coverage_rate": {
+          "title": "تغطية مؤشرات ESG"
+        },
+        "internal_esg_reporting_timeliness_rate": {
+          "title": "توقيت تقارير ESG"
+        },
+        "esg_governance_meetings_count": {
+          "title": "اجتماعات الحوكمة"
+        },
+        "high_risk_suppliers_count": {
+          "title": "الموردون عالي الخطورة"
+        },
+        "supplier_audits_count": {
+          "title": "تدقيق الموردين"
+        },
+        "key_suppliers_esg_assessment_coverage": {
+          "title": "تغطية تقييم ESG للموردين"
+        },
+        "supplier_code_of_conduct_acceptance_rate": {
+          "title": "قبول مدونة سلوك الموردين"
+        },
+        "tax_non_compliance_disputes_count": {
+          "title": "نزاعات ضريبية"
+        },
+        "timely_key_financial_information_completion_rate": {
+          "title": "توقيت المعلومات المالية"
+        }
+      }
+    }
+  },
+  "برنامه‌های درمان ریسک توسط واحد مدیریت ریسک به‌روزرسانی شد.": "تم تحديث برامج معالجة المخاطر من قبل وحدة إدارة المخاطر.",
+  "مستندات غربالگری AML توسط واحد انطباق تأیید شد.": "تمت الموافقة على وثائق فحص مكافحة غسل الأموال من قبل وحدة الامتثال.",
+  "برای ارزیابی زنجیره تأمین درخواست بازبینی تکمیلی ثبت شد.": "تم تسجيل طلب مراجعة إضافية لتقييم سلسلة التوريد.",
+  "شاخص‌های ساختار حاکمیت شرکتی برای دوره سالانه ۲۰۲۴ بازخوانی شد.": "تم تحديث مؤشرات هيكل حوكمة الشركات للفترة السنوية 2024."
 }

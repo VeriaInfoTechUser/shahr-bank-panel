@@ -1502,5 +1502,310 @@
       "anti_money_laundering_financial_crime": "مبارزه با پول‌شویی و جرائم مالی",
       "esg_data_governance_data_quality": "حاکمیت داده‌های ESG و کیفیت داده"
     }
-  }
+  },
+  "dashboard": {
+    "governance": {
+      "sections": {
+        "domain_breakdown": {
+          "title": "تفکیک حوزه‌ها"
+        },
+        "trend": {
+          "title": "روند حاکمیت"
+        },
+        "domain_progress": {
+          "title": "پیشرفت حوزه‌ها"
+        },
+        "key_indicators": {
+          "title": "شاخص‌های کلیدی"
+        },
+        "high_priority_risks": {
+          "title": "ریسک‌های اولویت بالا"
+        },
+        "approval_workflow": {
+          "title": "گردش‌کار تأیید"
+        },
+        "unit_progress": {
+          "title": "پیشرفت واحد"
+        },
+        "incomplete_items": {
+          "title": "موارد ناتمام"
+        },
+        "recent_activities": {
+          "title": "فعالیت‌های اخیر"
+        }
+      },
+      "metrics": {
+        "effective_tax_rate": {
+          "title": "نرخ مؤثر مالیات"
+        },
+        "tax_payment_timeliness_rate": {
+          "title": "به‌موقع بودن پرداخت مالیات"
+        },
+        "high_critical_risks_share": {
+          "title": "سهم ریسک‌های بحرانی بالا"
+        },
+        "risk_assessment_coverage_rate": {
+          "title": "پوشش ارزیابی ریسک"
+        },
+        "risk_treatment_plan_completion_rate": {
+          "title": "تکمیل برنامه درمان ریسک"
+        },
+        "identified_enterprise_esg_risks_count": {
+          "title": "ریسک‌های ESG شناسایی‌شده"
+        },
+        "independent_board_members_share": {
+          "title": "سهم اعضای مستقل هیئت‌مدیره"
+        },
+        "female_board_members_share": {
+          "title": "سهم اعضای زن هیئت‌مدیره"
+        },
+        "board_meeting_attendance_rate": {
+          "title": "نرخ حضور در جلسات هیئت‌مدیره"
+        },
+        "board_members_count": {
+          "title": "تعداد اعضای هیئت‌مدیره"
+        },
+        "responsible_local_procurement_spend_share": {
+          "title": "سهم خرید محلی مسئولانه"
+        },
+        "risk_appetite_breaches_count": {
+          "title": "تخطی از سطح ریسک‌پذیری"
+        },
+        "cybersecurity_incidents_count": {
+          "title": "حوادث امنیت سایبری"
+        },
+        "supplier_corrective_action_closure_rate": {
+          "title": "نرخ بستن اقدامات اصلاحی تأمین‌کننده"
+        },
+        "key_legal_requirements_review_coverage": {
+          "title": "پوشش بررسی الزامات حقوقی کلیدی"
+        },
+        "legal_case_controlled_resolution_rate": {
+          "title": "نرخ حل کنترل‌شده پروندهای حقوقی"
+        },
+        "active_legal_cases_count": {
+          "title": "تعداد پروندهای حقوقی فعال"
+        },
+        "legal_fines_damages_provisions_amount": {
+          "title": "مبلغ تخصیص‌های جریمه و خسارت حقوقی"
+        },
+        "aml_alerts_generated_count": {
+          "title": "تعداد هشدارهای AML تولید‌شده"
+        },
+        "aml_screening_coverage_rate": {
+          "title": "نرخ پوشش غربالگری AML"
+        },
+        "aml_financial_crime_training_completion_rate": {
+          "title": "نرخ تکمیل آموزش جرائم مالی AML"
+        },
+        "aml_case_closure_rate": {
+          "title": "نرخ بستن پروندهای AML"
+        },
+        "high_risk_vulnerability_remediation_rate": {
+          "title": "نرخ رفع آسیب‌پذیری‌های ریسک بالا"
+        },
+        "information_security_privacy_training_completion_rate": {
+          "title": "نرخ تکمیل آموزش امنیت اطلاعات و حریم خصوصی"
+        },
+        "critical_systems_security_assessment_coverage": {
+          "title": "پوشش ارزیابی امنیت سیستم‌های بحرانی"
+        },
+        "data_subject_request_response_rate": {
+          "title": "نرخ پاسخ به درخواست‌های موضوع داده"
+        },
+        "esg_data_fields_with_owner_rate": {
+          "title": "نرخ فیلدهای داده ESG با مالک"
+        },
+        "esg_data_completeness_rate": {
+          "title": "نرخ تکمیل داده ESG"
+        },
+        "esg_data_accuracy_rate": {
+          "title": "نرخ دقت داده ESG"
+        },
+        "esg_records_with_traceability_rate": {
+          "title": "نرخ سوابق ESG با ردیابی‌پذیری"
+        },
+        "legal_regulatory_non_compliance_count": {
+          "title": "تعداد عدم انطباق حقوقی و مقررات"
+        },
+        "regulatory_requirements_with_defined_controls_rate": {
+          "title": "نرخ الزامات مقررات با کنترل‌های تعریف‌شده"
+        },
+        "compliance_training_completion_rate": {
+          "title": "نرخ تکمیل آموزش انطباق"
+        },
+        "compliance_corrective_action_closure_rate": {
+          "title": "نرخ بستن اقدامات اصلاحی انطباق"
+        },
+        "corruption_ethics_risk_assessments_count": {
+          "title": "تعداد ارزیابی‌های ریسک اخلاق‌فساد"
+        },
+        "ethics_anti_corruption_training_completion_rate": {
+          "title": "نرخ تکمیل آموزش اخلاق ضد فساد"
+        },
+        "corruption_bribery_ethics_incidents_count": {
+          "title": "تعداد حوادث اخلاق رشوه و فساد"
+        },
+        "ethics_case_closure_rate": {
+          "title": "نرخ بستن پروندهای اخلاق"
+        },
+        "esg_risk_compliance_internal_audits_count": {
+          "title": "تعداد ممیزی‌های داخلی انطباق ریسک ESG"
+        },
+        "high_risk_audit_finding_closure_rate": {
+          "title": "نرخ بستن یافته‌های ممیزی ریسک بالا"
+        },
+        "key_controls_testing_coverage_rate": {
+          "title": "نرخ پوشش آزمایش کنترل‌های کلیدی"
+        },
+        "key_controls_evidence_traceability_rate": {
+          "title": "نرخ ردیابی‌پذیری شواهد کنترل کلیدی"
+        },
+        "esg_data_owner_coverage_rate": {
+          "title": "نرخ پوشش مالک داده ESG"
+        },
+        "esg_kpi_coverage_rate": {
+          "title": "نرخ پوشش KPI های ESG"
+        },
+        "internal_esg_reporting_timeliness_rate": {
+          "title": "نرخ به‌موقعیت گزارش‌دهی داخلی ESG"
+        },
+        "esg_governance_meetings_count": {
+          "title": "تعداد جلسات حاکمیت ESG"
+        },
+        "high_risk_suppliers_count": {
+          "title": "تعداد تأمین‌کنندگان ریسک بالا"
+        },
+        "supplier_audits_count": {
+          "title": "تعداد ممیزی‌های تأمین‌کننده"
+        },
+        "key_suppliers_esg_assessment_coverage": {
+          "title": "پوشش ارزیابی ESG تأمین‌کنندگان کلیدی"
+        },
+        "supplier_code_of_conduct_acceptance_rate": {
+          "title": "نرخ پذیرش قوانین رفتار تأمین‌کننده"
+        },
+        "tax_non_compliance_disputes_count": {
+          "title": "تعداد نزاع‌های عدم انطباق مالیاتی"
+        },
+        "timely_key_financial_information_completion_rate": {
+          "title": "نرخ تکمیل اطلاعات مالی کلیدی به‌موقع"
+        }
+      },
+      "table": {
+        "columns": {
+          "title": "عنوان",
+          "domain": "حوزه",
+          "value": "مقدار",
+          "status": "وضعیت",
+          "severity": "شدت"
+        }
+      },
+      "workflow": {
+        "approved": "تأیید شده",
+        "under_review": "در حال بررسی",
+        "pending_evidence": "در انتظار مدرک",
+        "rejected_rework": "رد شده / نیاز به اصلاح"
+      },
+      "units": {
+        "risk_management": {
+          "title": "مدیریت ریسک"
+        },
+        "compliance": {
+          "title": "انطباق"
+        },
+        "internal_audit": {
+          "title": "ممیزی داخلی"
+        },
+        "information_security": {
+          "title": "امنیت اطلاعات"
+        },
+        "procurement": {
+          "title": "تأمین"
+        },
+        "finance_tax": {
+          "title": "مالی و مالیات"
+        }
+      },
+      "stats": {
+        "unanswered_controls": {
+          "title": "کنترل‌های بی‌پاسخ"
+        },
+        "domains_below_target": {
+          "title": "حوزه‌های زیر هدف"
+        },
+        "evidence_requests": {
+          "title": "درخواست‌های مدرک"
+        },
+        "overdue_approvals": {
+          "title": "تأییدهای عقب‌افتاده"
+        }
+      },
+      "activities": {
+        "risk_treatment_progress_updated": {
+          "title": "به‌روزرسانی پیشرفت درمان ریسک",
+          "description": "برنامه‌های درمان ریسک توسط واحد مدیریت ریسک به‌روزرسانی شد."
+        },
+        "aml_evidence_approved": {
+          "title": "مستندات غربالگری AML تأیید شد",
+          "description": "مستندات غربالگری AML توسط واحد انطباق تأیید شد."
+        },
+        "supplier_governance_review_requested": {
+          "title": "بازبینی حاکمیت تأمین‌کننده درخواست شد",
+          "description": "برای ارزیابی زنجیره تأمین درخواست بازبینی تکمیلی ثبت شد."
+        },
+        "board_governance_kpi_refreshed": {
+          "title": "شاخص‌های حاکمیت هیئت‌مدیره بازخوانی شد",
+          "description": "شاخص‌های ساختار حاکمیت شرکتی برای دوره سالانه ۲۰۲۴ بازخوانی شد."
+        }
+      },
+      "cards": {
+        "overall_governance": {
+          "title": "حاکمیت کلی"
+        }
+      },
+      "domains": {
+        "regulatory_legal_compliance_risk": {
+          "title": "ریسک انطباق حقوقی و مقرراتی"
+        },
+        "anti_money_laundering_financial_crime": {
+          "title": "مبارزه با پول‌شویی و جرائم مالی"
+        },
+        "data_privacy_cybersecurity": {
+          "title": "حریم خصوصی داده و امنیت سایبری"
+        },
+        "esg_data_governance_data_quality": {
+          "title": "حاکمیت داده ESG و کیفیت داده"
+        },
+        "compliance_management": {
+          "title": "مدیریت انطباق"
+        },
+        "ethics_integrity": {
+          "title": "اخلاق و یکپارچگی"
+        },
+        "internal_audit_control_systems": {
+          "title": "ممیزی داخلی و سیستم‌های کنترلی"
+        },
+        "esg_governance_reporting": {
+          "title": "حاکمیت و گزارش‌دهی ESG"
+        },
+        "supply_chain_governance": {
+          "title": "حاکمیت زنجیره تأمین"
+        },
+        "financial_tax_transparency": {
+          "title": "شفافیت مالی و مالیاتی"
+        },
+        "risk_management": {
+          "title": "مدیریت ریسک"
+        },
+        "corporate_governance_structure": {
+          "title": "ساختار حاکمیت شرکتی"
+        }
+      }
+    }
+  },
+  "برنامه‌های درمان ریسک توسط واحد مدیریت ریسک به‌روزرسانی شد.": "برنامه‌های درمان ریسک توسط واحد مدیریت ریسک به‌روزرسانی شد.",
+  "مستندات غربالگری AML توسط واحد انطباق تأیید شد.": "مستندات غربالگری AML توسط واحد انطباق تأیید شد.",
+  "برای ارزیابی زنجیره تأمین درخواست بازبینی تکمیلی ثبت شد.": "برای ارزیابی زنجیره تأمین درخواست بازبینی تکمیلی ثبت شد.",
+  "شاخص‌های ساختار حاکمیت شرکتی برای دوره سالانه ۲۰۲۴ بازخوانی شد.": "شاخص‌های ساختار حاکمیت شرکتی برای دوره سالانه ۲۰۲۴ بازخوانی شد."
 }

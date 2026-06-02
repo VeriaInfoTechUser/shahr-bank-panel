@@ -1451,5 +1451,219 @@
       "anti_money_laundering_financial_crime": "Anti-Money Laundering & Financial Crime",
       "esg_data_governance_data_quality": "ESG Data Governance & Data Quality"
     }
-  }
+  },
+  "dashboard": {
+    "governance": {
+      "cards": {
+        "overall_governance": {
+          "title": "Overall Governance"
+        }
+      },
+      "sections": {
+        "domain_breakdown": {
+          "title": "Domain Breakdown"
+        },
+        "trend": {
+          "title": "Governance Trend"
+        },
+        "domain_progress": {
+          "title": "Domain Progress"
+        },
+        "key_indicators": {
+          "title": "Key Indicators"
+        },
+        "high_priority_risks": {
+          "title": "High Priority Risks"
+        },
+        "approval_workflow": {
+          "title": "Approval Workflow"
+        },
+        "unit_progress": {
+          "title": "Unit Progress"
+        },
+        "incomplete_items": {
+          "title": "Incomplete Items"
+        },
+        "recent_activities": {
+          "title": "Recent Activities"
+        }
+      },
+      "domains": {
+        "regulatory_legal_compliance_risk": {
+          "title": "Regulatory & Legal Compliance Risk"
+        },
+        "anti_money_laundering_financial_crime": {
+          "title": "Anti-Money Laundering & Financial Crime"
+        },
+        "data_privacy_cybersecurity": {
+          "title": "Data Privacy & Cybersecurity"
+        },
+        "esg_data_governance_data_quality": {
+          "title": "ESG Data Governance & Data Quality"
+        },
+        "compliance_management": {
+          "title": "Compliance Management"
+        },
+        "ethics_integrity": {
+          "title": "Ethics & Integrity"
+        },
+        "internal_audit_control_systems": {
+          "title": "Internal Audit & Control Systems"
+        },
+        "esg_governance_reporting": {
+          "title": "ESG Governance & Reporting"
+        },
+        "supply_chain_governance": {
+          "title": "Supply Chain Governance"
+        },
+        "financial_tax_transparency": {
+          "title": "Financial & Tax Transparency"
+        },
+        "risk_management": {
+          "title": "Risk Management"
+        },
+        "corporate_governance_structure": {
+          "title": "Corporate Governance Structure"
+        }
+      },
+      "metrics": {
+        "key_legal_requirements_review_coverage": {
+          "title": "Key Legal Requirements Review Coverage"
+        },
+        "legal_case_controlled_resolution_rate": {
+          "title": "Legal Case Controlled Resolution Rate"
+        },
+        "active_legal_cases_count": {
+          "title": "Active Legal Cases"
+        },
+        "legal_fines_damages_provisions_amount": {
+          "title": "Legal Fines & Damages Provisions"
+        },
+        "aml_alerts_generated_count": {
+          "title": "AML Alerts Generated"
+        },
+        "aml_screening_coverage_rate": {
+          "title": "AML Screening Coverage Rate"
+        },
+        "aml_financial_crime_training_completion_rate": {
+          "title": "AML Training Completion Rate"
+        },
+        "aml_case_closure_rate": {
+          "title": "AML Case Closure Rate"
+        },
+        "high_risk_vulnerability_remediation_rate": {
+          "title": "High Risk Vulnerability Remediation Rate"
+        },
+        "information_security_privacy_training_completion_rate": {
+          "title": "Security & Privacy Training Completion Rate"
+        },
+        "critical_systems_security_assessment_coverage": {
+          "title": "Critical Systems Security Assessment Coverage"
+        },
+        "data_subject_request_response_rate": {
+          "title": "Data Subject Request Response Rate"
+        },
+        "esg_data_fields_with_owner_rate": {
+          "title": "ESG Data Fields with Owner Rate"
+        },
+        "esg_data_completeness_rate": {
+          "title": "ESG Data Completeness Rate"
+        },
+        "esg_data_accuracy_rate": {
+          "title": "ESG Data Accuracy Rate"
+        },
+        "esg_records_with_traceability_rate": {
+          "title": "ESG Records Traceability Rate"
+        },
+        "legal_regulatory_non_compliance_count": {
+          "title": "Non-Compliance Count"
+        },
+        "regulatory_requirements_with_defined_controls_rate": {
+          "title": "Regulatory Controls Coverage Rate"
+        },
+        "compliance_training_completion_rate": {
+          "title": "Compliance Training Completion Rate"
+        },
+        "compliance_corrective_action_closure_rate": {
+          "title": "Corrective Action Closure Rate"
+        },
+        "corruption_ethics_risk_assessments_count": {
+          "title": "Ethics Risk Assessments"
+        },
+        "ethics_anti_corruption_training_completion_rate": {
+          "title": "Anti-Corruption Training Rate"
+        },
+        "corruption_bribery_ethics_incidents_count": {
+          "title": "Ethics Incident Count"
+        },
+        "ethics_case_closure_rate": {
+          "title": "Ethics Case Closure Rate"
+        },
+        "esg_risk_compliance_internal_audits_count": {
+          "title": "Internal Audit Count"
+        },
+        "high_risk_audit_finding_closure_rate": {
+          "title": "Audit Finding Closure Rate"
+        },
+        "key_controls_testing_coverage_rate": {
+          "title": "Key Controls Testing Coverage"
+        },
+        "key_controls_evidence_traceability_rate": {
+          "title": "Control Evidence Traceability"
+        },
+        "esg_data_owner_coverage_rate": {
+          "title": "ESG Data Owner Coverage"
+        },
+        "esg_kpi_coverage_rate": {
+          "title": "ESG KPI Coverage"
+        },
+        "internal_esg_reporting_timeliness_rate": {
+          "title": "ESG Reporting Timeliness"
+        },
+        "esg_governance_meetings_count": {
+          "title": "Governance Meetings"
+        },
+        "high_risk_suppliers_count": {
+          "title": "High Risk Suppliers"
+        },
+        "supplier_audits_count": {
+          "title": "Supplier Audits"
+        },
+        "key_suppliers_esg_assessment_coverage": {
+          "title": "Supplier ESG Assessment Coverage"
+        },
+        "supplier_code_of_conduct_acceptance_rate": {
+          "title": "Supplier Code of Conduct Acceptance"
+        },
+        "tax_non_compliance_disputes_count": {
+          "title": "Tax Disputes Count"
+        },
+        "timely_key_financial_information_completion_rate": {
+          "title": "Financial Reporting Timeliness"
+        }
+      },
+      "activities": {
+        "aml_evidence_approved": {
+          "title": "AML Evidence Approved",
+          "description": "AML screening documents were approved by the Compliance unit."
+        },
+        "supplier_governance_review_requested": {
+          "title": "Supplier Governance Review Requested",
+          "description": "Additional review request was recorded for supply chain assessment."
+        },
+        "board_governance_kpi_refreshed": {
+          "title": "Board Governance KPI Refreshed",
+          "description": "Corporate governance structure indicators were refreshed for the 2024 annual period."
+        },
+        "risk_treatment_progress_updated": {
+          "title": "Risk Treatment Progress Updated",
+          "description": "Risk treatment programs were updated by the Risk Management unit."
+        }
+      }
+    }
+  },
+  "برنامه‌های درمان ریسک توسط واحد مدیریت ریسک به‌روزرسانی شد.": "Risk treatment programs were updated by the Risk Management unit.",
+  "مستندات غربالگری AML توسط واحد انطباق تأیید شد.": "AML screening documents were approved by the Compliance unit.",
+  "برای ارزیابی زنجیره تأمین درخواست بازبینی تکمیلی ثبت شد.": "Additional review request was recorded for supply chain assessment.",
+  "شاخص‌های ساختار حاکمیت شرکتی برای دوره سالانه ۲۰۲۴ بازخوانی شد.": "Corporate governance structure indicators were refreshed for the 2024 annual period."
 }

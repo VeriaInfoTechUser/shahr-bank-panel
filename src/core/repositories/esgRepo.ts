@@ -37,6 +37,10 @@ export class ESGRepo extends BaseRepo {
     return this.post<unknown>(endpoints.admin.esg.dashboard.get, params);
   }
 
+  async report(params: ESGListParams = {}) {
+    return this.post<unknown>(endpoints.admin.esg.report.get, params);
+  }
+
   async updateControl(payload: ESGUpdateParams) {
     return this.post<ApiResult<unknown>>(endpoints.admin.esg.governance.update, payload);
   }

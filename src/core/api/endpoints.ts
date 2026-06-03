@@ -122,6 +122,9 @@ export const endpoints = {
       dashboard: {
         get: 'content/dashboard/get',
       },
+      report: {
+        get: 'content/report/get',
+      },
     }
   },
 };

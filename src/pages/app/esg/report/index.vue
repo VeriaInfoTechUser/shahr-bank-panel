@@ -129,13 +129,32 @@ async function exportPDF() {
       }
     }
 
-    const all = clone.querySelectorAll('*')
+    const all = Array.from(clone.querySelectorAll('*')) as HTMLElement[]
     all.forEach((elem) => {
-      const el = elem as HTMLElement
-      const style = window.getComputedStyle(elem as Element)
+      try {
+        const style = window.getComputedStyle(elem as Element)
+        const bg = style.backgroundColor
+        const unsafeColor = (s: string | null) => !s || s.includes('oklch') || s.includes('oklab') || s.includes('color(')
+        if (bg && !unsafeColor(bg) && bg !== 'rgba(0, 0, 0, 0)' && bg !== 'transparent') {
+          elem.style.backgroundColor = bg
+        } else if (elem === clone || elem.tagName.toLowerCase() === 'body') {
+          elem.style.backgroundColor = '#ffffff'
+        }
 
-      if (style.backgroundColor.includes('oklch')) el.style.backgroundColor = '#fff'
-      if (style.color.includes('oklch')) el.style.color = '#0f172a'
+        const fg = style.color
+        if (fg && !unsafeColor(fg)) elem.style.color = fg
+
+        // Remove gradients and complex styles that html2canvas may not support
+        elem.style.backgroundImage = 'none'
+        elem.style.boxShadow = 'none'
+        elem.style.filter = 'none'
+        elem.style.webkitFilter = 'none'
+        elem.style.backdropFilter = 'none'
+
+        if (style.borderColor && style.borderColor !== 'transparent') elem.style.borderColor = style.borderColor
+      } catch (err) {
+        // ignore
+      }
     })
 
     const opt = {

@@ -141,6 +141,27 @@ const exportToPDF = async () => {
       } catch (err) { console.warn('Canvas->img failed', err) }
     })
 
+    // Sanitize styles to avoid unsupported color functions (e.g., oklch) and complex backgrounds
+    const all = Array.from(clone.querySelectorAll('*')) as HTMLElement[]
+    all.forEach((elem) => {
+      try {
+        const style = window.getComputedStyle(elem as Element)
+        const bg = style.backgroundColor
+        const unsafeColor = (s: string | null) => !s || s.includes('oklch') || s.includes('oklab') || s.includes('color(')
+        if (bg && !unsafeColor(bg) && bg !== 'rgba(0, 0, 0, 0)' && bg !== 'transparent') {
+          elem.style.backgroundColor = bg
+        } else if (elem === clone || elem.tagName.toLowerCase() === 'body') {
+          elem.style.backgroundColor = '#ffffff'
+        }
+        const fg = style.color
+        if (fg && !unsafeColor(fg)) elem.style.color = fg
+        elem.style.backgroundImage = 'none'
+        elem.style.boxShadow = 'none'
+        elem.style.filter = 'none'
+        if (style.borderColor && style.borderColor !== 'transparent') elem.style.borderColor = style.borderColor
+      } catch (err) {}
+    })
+
     const opt = {
       margin: [15, 15, 15, 15],
       filename: `ESG-Report-${data.value.reporting_period}.pdf`,

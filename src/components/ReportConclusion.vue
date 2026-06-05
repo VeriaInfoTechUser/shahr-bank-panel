@@ -223,16 +223,50 @@ const exportPDF = async () => {
     const { html2pdf } = await import('html2pdf.js')
     
     const element = document.body
+    // Use a clone to modify styles safely
+    const clone = element.cloneNode(true) as HTMLElement
+
+    // Convert canvases to images
+    const canvases = Array.from(clone.querySelectorAll('canvas'))
+    for (const canvas of canvases) {
+      try {
+        const dataURL = (canvas as HTMLCanvasElement).toDataURL('image/png')
+        const img = document.createElement('img')
+        img.src = dataURL
+        img.style.width = (canvas as HTMLCanvasElement).style.width || (canvas as HTMLCanvasElement).width + 'px'
+        img.style.height = (canvas as HTMLCanvasElement).style.height || (canvas as HTMLCanvasElement).height + 'px'
+        canvas.parentNode?.replaceChild(img, canvas)
+      } catch (err) { console.warn('Canvas conversion failed', err) }
+    }
+
+    // Sanitize styles
+    const all = Array.from(clone.querySelectorAll('*')) as HTMLElement[]
+    all.forEach((elem) => {
+      try {
+        const style = window.getComputedStyle(elem as Element)
+        const bg = style.backgroundColor
+        const unsafeColor = (s: string | null) => !s || s.includes('oklch') || s.includes('oklab') || s.includes('color(')
+        if (bg && !unsafeColor(bg) && bg !== 'rgba(0, 0, 0, 0)' && bg !== 'transparent') elem.style.backgroundColor = bg
+        else if (elem === clone || elem.tagName.toLowerCase() === 'body') elem.style.backgroundColor = '#ffffff'
+        const fg = style.color
+        if (fg && !unsafeColor(fg)) elem.style.color = fg
+        elem.style.backgroundImage = 'none'
+        elem.style.boxShadow = 'none'
+        elem.style.filter = 'none'
+        if (style.borderColor && style.borderColor !== 'transparent') elem.style.borderColor = style.borderColor
+      } catch (err) {}
+    })
+
     const opt = {
       margin: 10,
       filename: `ESG-Report-${props.reportData?.meta?.reporting_year || 'Report'}.pdf`,
       image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { scale: 2, useCORS: true },
+      html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
       jsPDF: { orientation: 'portrait', unit: 'mm', format: 'a4' },
       pagebreak: { mode: ['avoid-all', 'css', 'legacy'] },
     }
-    
-    html2pdf().set(opt).from(element).save()
+
+    html2pdf().set(opt).from(clone).save()
     
     exportMessage.value = t('esg.report.pdf_export_success')
     exportMessageType.value = 'success'

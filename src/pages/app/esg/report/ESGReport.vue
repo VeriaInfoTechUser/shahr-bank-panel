@@ -86,7 +86,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import RadarChart from './RadarChart.vue'
 import html2pdf from 'html2pdf.js'
@@ -122,24 +122,66 @@ const overallScore = computed(() => {
 })
 
 // Export to PDF
-const exportToPDF = () => {
+const exportToPDF = async () => {
   const element = document.getElementById('esg-report-content') || document.body
+  try {
+    const { default: html2pdf } = await import('html2pdf.js')
+    const clone = element.cloneNode(true)
 
-  const opt = {
-    margin: [15, 15, 15, 15],
-    filename: `ESG-Report-${data.value.reporting_period}.pdf`,
-    image: { type: 'jpeg', quality: 0.98 },
-    html2canvas: { scale: 2, useCORS: true },
-    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    // Convert canvases to images
+    const canvases = Array.from(clone.querySelectorAll('canvas'))
+    canvases.forEach((canvas: HTMLCanvasElement) => {
+      try {
+        const dataURL = canvas.toDataURL('image/png')
+        const img = document.createElement('img')
+        img.src = dataURL
+        img.style.width = canvas.style.width || canvas.width + 'px'
+        img.style.height = canvas.style.height || canvas.height + 'px'
+        canvas.parentNode?.replaceChild(img, canvas)
+      } catch (err) { console.warn('Canvas->img failed', err) }
+    })
+
+    const opt = {
+      margin: [15, 15, 15, 15],
+      filename: `ESG-Report-${data.value.reporting_period}.pdf`,
+      image: { type: 'jpeg', quality: 0.97 },
+      html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+      pagebreak: { mode: ['css', 'legacy'] },
+    }
+
+    const worker = html2pdf().set(opt).from(clone)
+    worker.toPdf().get('pdf').then((pdf) => {
+      const totalPages = pdf.internal.getNumberOfPages()
+      const pageWidth = pdf.internal.pageSize.getWidth()
+      const pageHeight = pdf.internal.pageSize.getHeight()
+      pdf.setFontSize(9)
+      pdf.setTextColor(100)
+      for (let i = 1; i <= totalPages; i++) {
+        pdf.setPage(i)
+        pdf.text(`Page ${i} / ${totalPages}`, pageWidth / 2, pageHeight - 8, { align: 'center' })
+      }
+      pdf.save(opt.filename)
+    })
+  } catch (err) {
+    console.error('PDF export error:', err)
+    alert('PDF export failed')
   }
-
-  html2pdf().set(opt).from(element).save()
 }
 </script>
 
 <style scoped>
 /* Custom styles for better print */
 @media print {
-  .fixed { display: none !important; }
+  .fixed, .no-print { display: none !important; }
+  .page-break { page-break-before: always; break-before: page; }
+  .pdf-page { page-break-after: auto; break-after: auto; }
+  html, body { background: #fff !important; color: #000 !important; -webkit-print-color-adjust: exact; }
+  .max-w-7xl { width: 100% !important; max-width: 100% !important; padding: 0 !important; margin: 0 auto !important; }
+  .h-96 { height: 360px !important; } /* ensure charts fit */
+  .bg-gradient-to-r, .bg-emerald-600 { background: transparent !important; }
+  table { border-collapse: collapse; width: 100%; }
+  th, td { border: 1px solid #ddd; padding: 6px; font-size: 12px; }
+  th { background: #f3f4f6; }
 }
 </style>

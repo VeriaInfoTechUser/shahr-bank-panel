@@ -99,6 +99,36 @@ async function exportPDF() {
 
     const clone = el.cloneNode(true) as HTMLElement
 
+    // Convert canvases and svgs for reliable PDF rendering
+    const canvases = Array.from(clone.querySelectorAll('canvas')) as HTMLCanvasElement[]
+    for (const canvas of canvases) {
+      try {
+        const dataURL = canvas.toDataURL('image/png')
+        const img = document.createElement('img')
+        img.src = dataURL
+        img.style.width = canvas.style.width || canvas.width + 'px'
+        img.style.height = canvas.style.height || canvas.height + 'px'
+        canvas.parentNode?.replaceChild(img, canvas)
+      } catch (err) {
+        console.warn('Canvas to image failed during PDF export', err)
+      }
+    }
+
+    const svgs = Array.from(clone.querySelectorAll('svg'))
+    for (const svg of svgs) {
+      try {
+        const xml = new XMLSerializer().serializeToString(svg)
+        const svg64 = btoa(unescape(encodeURIComponent(xml)))
+        const img = document.createElement('img')
+        img.src = 'data:image/svg+xml;base64,' + svg64
+        img.style.width = (svg as HTMLElement).style.width || '100%'
+        img.style.height = (svg as HTMLElement).style.height || 'auto'
+        svg.parentNode?.replaceChild(img, svg)
+      } catch (err) {
+        // ignore
+      }
+    }
+
     const all = clone.querySelectorAll('*')
     all.forEach((elem) => {
       const el = elem as HTMLElement
@@ -108,22 +138,29 @@ async function exportPDF() {
       if (style.color.includes('oklch')) el.style.color = '#0f172a'
     })
 
-    await html2pdf()
-        .set({
-          margin: [8, 8],
-          filename: `ESG-Report-${reportData.value?.meta.reporting_period || 'report'}.pdf`,
-          image: { type: 'jpeg', quality: 0.95 },
-          html2canvas: {
-            scale: 2,
-            useCORS: true,
-            scrollY: 0,
-            backgroundColor: '#ffffff',
-          },
-          jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-          pagebreak: { mode: ['css', 'legacy'] },
-        })
-        .from(clone)
-        .save()
+    const opt = {
+      margin: [12, 12],
+      filename: `ESG-Report-${reportData.value?.meta.reporting_period || 'report'}.pdf`,
+      image: { type: 'jpeg', quality: 0.97 },
+      html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+      pagebreak: { mode: ['css', 'legacy'] },
+    }
+
+    // Generate PDF and add page numbers
+    const worker = html2pdf().set(opt).from(clone)
+    worker.toPdf().get('pdf').then((pdf: any) => {
+      const totalPages = pdf.internal.getNumberOfPages()
+      const pageWidth = pdf.internal.pageSize.getWidth()
+      const pageHeight = pdf.internal.pageSize.getHeight()
+      pdf.setFontSize(9)
+      pdf.setTextColor(100)
+      for (let i = 1; i <= totalPages; i++) {
+        pdf.setPage(i)
+        pdf.text(`Page ${i} / ${totalPages}`, pageWidth / 2, pageHeight - 8, { align: 'center' })
+      }
+      pdf.save(opt.filename)
+    })
   } catch (e) {
     console.error(e)
     alert('PDF export failed')

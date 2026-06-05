@@ -1,3 +1,12 @@
+<script setup>
+defineProps({
+  domains: {
+    type: Array,
+    required: true
+  }
+})
+</script>
+
 <template>
   <div class="space-y-8">
     <div v-for="domain in domains" :key="domain.code"

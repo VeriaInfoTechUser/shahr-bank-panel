@@ -161,3 +161,51 @@ export interface AnswerStatus {
 export interface KpiSortable extends ESGKpi {
   domainCode?: string;
 }
+
+/**
+ * Transformed Report Data Types (from esgDataTransformer)
+ */
+export interface TransformedControl {
+  id: number
+  slug: string
+  title: string
+  code?: string
+  description?: string
+  value?: number | string
+  unit?: string
+  status?: 'answered' | 'pending'
+  summary?: string
+}
+
+export interface TransformedDomain {
+  id: number
+  slug: string
+  title: string
+  description?: string
+  code?: string
+  order?: number
+  kpis: TransformedControl[]
+  avg_score?: number
+}
+
+export interface TransformedSummary {
+  avg_score: number
+  completion: number
+  answered: number
+  total_kpis: number
+}
+
+export interface TransformedSection {
+  domains: TransformedDomain[]
+  summary?: TransformedSummary
+}
+
+export interface TransformedReportData {
+  meta: {
+    reporting_period?: string
+    reporting_year?: number
+  }
+  environmental: TransformedSection
+  social: TransformedSection
+  governance: TransformedSection
+}

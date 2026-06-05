@@ -1,0 +1,473 @@
+// ============================================================================
+// DESIGN TOKENS & COLOR PALETTE
+// ============================================================================
+
+// Primary Color Palette
+$primary-color: #2c5aa0;
+$primary-light: #3d6fb0;
+$primary-lighter: #4d7dc0;
+$primary-dark: #1a3860;
+$primary-darker: #0f2240;
+
+// Secondary Colors (Status)
+$success-color: #27ae60;
+$success-light: #45c577;
+$success-lighter: #5fd97d;
+$success-dark: #1a6f3a;
+
+$warning-color: #f39c12;
+$warning-light: #f7b533;
+$warning-lighter: #f9c555;
+$warning-dark: #c67c0e;
+
+$error-color: #e74c3c;
+$error-light: #ec6e64;
+$error-lighter: #f18b84;
+$error-dark: #b92a1f;
+
+$info-color: #3498db;
+$info-light: #5aaddc;
+$info-lighter: #7cc3e1;
+$info-dark: #2a7fb4;
+
+// Neutral Colors
+$neutral-dark: #34495e;
+$neutral-medium: #7f8c8d;
+$neutral-light: #bdc3c7;
+$neutral-lighter: #ecf0f1;
+
+// Background Colors
+$bg-primary: #ffffff;
+$bg-secondary: #f8f9fa;
+$bg-tertiary: #ecf0f1;
+
+// Dark Mode Colors
+$dark-bg-primary: #1a1a1a;
+$dark-bg-secondary: #242424;
+$dark-bg-tertiary: #2d2d2d;
+$dark-text-primary: #ffffff;
+$dark-text-secondary: #e0e0e0;
+$dark-text-tertiary: #a0a0a0;
+
+// ============================================================================
+// TYPOGRAPHY
+// ============================================================================
+
+// Font Families
+$font-family-base: 'Vazir', 'Tahoma', 'Segoe UI', system-ui, sans-serif;
+$font-family-heading: 'Vazir', 'Tahoma', system-ui, sans-serif;
+$font-family-mono: 'Courier New', 'IBM Plex Mono', monospace;
+
+// Font Sizes (px)
+$font-size-xs: 12px;
+$font-size-sm: 14px;
+$font-size-base: 16px;
+$font-size-lg: 18px;
+$font-size-xl: 20px;
+$font-size-2xl: 24px;
+$font-size-3xl: 28px;
+$font-size-4xl: 32px;
+
+// Font Weights
+$font-weight-light: 300;
+$font-weight-normal: 400;
+$font-weight-medium: 500;
+$font-weight-semibold: 600;
+$font-weight-bold: 700;
+$font-weight-extrabold: 800;
+
+// Line Heights
+$line-height-tight: 1.2;
+$line-height-snug: 1.375;
+$line-height-normal: 1.5;
+$line-height-relaxed: 1.625;
+$line-height-loose: 2;
+
+// ============================================================================
+// SPACING
+// ============================================================================
+
+$space-0: 0;
+$space-1: 4px;
+$space-2: 8px;
+$space-3: 12px;
+$space-4: 16px;
+$space-5: 20px;
+$space-6: 24px;
+$space-7: 28px;
+$space-8: 32px;
+$space-9: 36px;
+$space-10: 40px;
+$space-12: 48px;
+$space-14: 56px;
+$space-16: 64px;
+
+// Shorthand
+$spacing: (
+  0: $space-0,
+  1: $space-1,
+  2: $space-2,
+  3: $space-3,
+  4: $space-4,
+  5: $space-5,
+  6: $space-6,
+  7: $space-7,
+  8: $space-8,
+  9: $space-9,
+  10: $space-10,
+  12: $space-12,
+  14: $space-14,
+  16: $space-16,
+);
+
+// ============================================================================
+// LAYOUT
+// ============================================================================
+
+$container-sm: 640px;
+$container-md: 768px;
+$container-lg: 1024px;
+$container-xl: 1200px;
+$container-2xl: 1400px;
+
+$max-width-default: $container-xl;
+
+// Breakpoints (mobile-first)
+$breakpoint-xs: 320px;
+$breakpoint-sm: 640px;
+$breakpoint-md: 768px;
+$breakpoint-lg: 1024px;
+$breakpoint-xl: 1200px;
+$breakpoint-2xl: 1400px;
+
+// ============================================================================
+// BORDER RADIUS
+// ============================================================================
+
+$radius-none: 0;
+$radius-sm: 2px;
+$radius-md: 4px;
+$radius-lg: 8px;
+$radius-xl: 12px;
+$radius-2xl: 16px;
+$radius-full: 9999px;
+
+// ============================================================================
+// SHADOWS
+// ============================================================================
+
+$shadow-none: none;
+$shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+$shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+$shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+$shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.1);
+$shadow-2xl: 0 25px 50px rgba(0, 0, 0, 0.25);
+
+// ============================================================================
+// TRANSITIONS
+// ============================================================================
+
+$transition-fast: 150ms ease-in-out;
+$transition-base: 300ms ease-in-out;
+$transition-slow: 500ms ease-in-out;
+
+// ============================================================================
+// BORDERS
+// ============================================================================
+
+$border-width-thin: 1px;
+$border-width-normal: 2px;
+$border-width-thick: 3px;
+
+$border-color-light: $neutral-light;
+$border-color-dark: $neutral-medium;
+
+// ============================================================================
+// RESPONSIVE HELPER MIXINS
+// ============================================================================
+
+@mixin media-sm {
+  @media (min-width: $breakpoint-sm) {
+    @content;
+  }
+}
+
+@mixin media-md {
+  @media (min-width: $breakpoint-md) {
+    @content;
+  }
+}
+
+@mixin media-lg {
+  @media (min-width: $breakpoint-lg) {
+    @content;
+  }
+}
+
+@mixin media-xl {
+  @media (min-width: $breakpoint-xl) {
+    @content;
+    
+  }
+}
+
+@mixin media-2xl {
+  @media (min-width: $breakpoint-2xl) {
+    @content;
+  }
+}
+
+// Mobile-first approach (default is mobile, then add styles above breakpoints)
+@mixin max-md {
+  @media (max-width: #{$breakpoint-md - 1}) {
+    @content;
+  }
+}
+
+@mixin max-lg {
+  @media (max-width: #{$breakpoint-lg - 1}) {
+    @content;
+  }
+}
+
+// ============================================================================
+// RTL SUPPORT MIXINS
+// ============================================================================
+
+@mixin rtl-flex {
+  [dir='rtl'] & {
+    flex-direction: row-reverse;
+  }
+}
+
+@mixin rtl-margin-right($value) {
+  margin-right: $value;
+  [dir='rtl'] & {
+    margin-right: 0;
+    margin-left: $value;
+  }
+}
+
+@mixin rtl-margin-left($value) {
+  margin-left: $value;
+  [dir='rtl'] & {
+    margin-left: 0;
+    margin-right: $value;
+  }
+}
+
+@mixin rtl-padding-right($value) {
+  padding-right: $value;
+  [dir='rtl'] & {
+    padding-right: 0;
+    padding-left: $value;
+  }
+}
+
+@mixin rtl-padding-left($value) {
+  padding-left: $value;
+  [dir='rtl'] & {
+    padding-left: 0;
+    padding-right: $value;
+  }
+}
+
+@mixin rtl-border-left($width, $style, $color) {
+  border-left: $width $style $color;
+  [dir='rtl'] & {
+    border-left: none;
+    border-right: $width $style $color;
+  }
+}
+
+@mixin rtl-border-right($width, $style, $color) {
+  border-right: $width $style $color;
+  [dir='rtl'] & {
+    border-right: none;
+    border-left: $width $style $color;
+  }
+}
+
+@mixin rtl-text-align($direction) {
+  text-align: $direction;
+  [dir='rtl'] & {
+    text-align: if($direction == 'left', 'right', if($direction == 'right', 'left', $direction));
+  }
+}
+
+// ============================================================================
+// TYPOGRAPHY MIXINS
+// ============================================================================
+
+@mixin font-h1 {
+  font-size: $font-size-3xl;
+  font-weight: $font-weight-bold;
+  line-height: $line-height-tight;
+  letter-spacing: -0.5px;
+}
+
+@mixin font-h2 {
+  font-size: $font-size-2xl;
+  font-weight: $font-weight-bold;
+  line-height: $line-height-tight;
+  letter-spacing: -0.25px;
+}
+
+@mixin font-h3 {
+  font-size: $font-size-xl;
+  font-weight: $font-weight-semibold;
+  line-height: $line-height-snug;
+}
+
+@mixin font-h4 {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  line-height: $line-height-snug;
+}
+
+@mixin font-body-lg {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-normal;
+  line-height: $line-height-relaxed;
+}
+
+@mixin font-body {
+  font-size: $font-size-base;
+  font-weight: $font-weight-normal;
+  line-height: $line-height-normal;
+}
+
+@mixin font-body-sm {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-normal;
+  line-height: $line-height-normal;
+}
+
+@mixin font-caption {
+  font-size: $font-size-xs;
+  font-weight: $font-weight-normal;
+  line-height: $line-height-tight;
+}
+
+@mixin font-mono {
+  font-family: $font-family-mono;
+  font-size: $font-size-sm;
+  letter-spacing: 0.5px;
+}
+
+// ============================================================================
+// DARK MODE MIXIN
+// ============================================================================
+
+@mixin dark-mode {
+  @media (prefers-color-scheme: dark) {
+    @content;
+  }
+
+  [data-theme='dark'] & {
+    @content;
+  }
+}
+
+@mixin light-mode {
+  @media (prefers-color-scheme: light) {
+    @content;
+  }
+
+  [data-theme='light'] & {
+    @content;
+  }
+}
+
+// ============================================================================
+// UTILITY MIXINS
+// ============================================================================
+
+@mixin truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@mixin truncate-lines($lines: 2) {
+  display: -webkit-box;
+  -webkit-line-clamp: $lines;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@mixin flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+@mixin focus-ring {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba($primary-color, 0.1);
+  border-color: $primary-color;
+}
+
+@mixin smooth-transition {
+  transition: all $transition-base;
+}
+
+@mixin container-padding {
+  padding-left: $space-4;
+  padding-right: $space-4;
+
+  @include media-md {
+    padding-left: $space-6;
+    padding-right: $space-6;
+  }
+
+  @include media-xl {
+    padding-left: $space-8;
+    padding-right: $space-8;
+  }
+}
+
+@mixin button-base {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: $space-2;
+  padding: $space-3 $space-4;
+  border: none;
+  border-radius: $radius-lg;
+  font-weight: $font-weight-medium;
+  cursor: pointer;
+  user-select: none;
+  transition: all $transition-base;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+@mixin input-base {
+  width: 100%;
+  padding: $space-3 $space-4;
+  border: $border-width-thin solid $border-color-light;
+  border-radius: $radius-lg;
+  font-family: $font-family-base;
+  font-size: $font-size-base;
+  transition: all $transition-base;
+
+  &:focus {
+    @include focus-ring;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background-color: $bg-tertiary;
+  }
+}

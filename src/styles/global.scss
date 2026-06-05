@@ -1,0 +1,589 @@
+// ============================================================================
+// GLOBAL STYLES
+// ============================================================================
+
+@import 'variables';
+
+// ============================================================================
+// FONT IMPORTS
+// ============================================================================
+
+// Vazir font for Persian support
+@font-face {
+  font-family: 'Vazir';
+  src: url('/fonts/Vazir.woff2') format('woff2'),
+       url('/fonts/Vazir.woff') format('woff'),
+       url('/fonts/Vazir.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Vazir';
+  src: url('/fonts/Vazir-Bold.woff2') format('woff2'),
+       url('/fonts/Vazir-Bold.woff') format('woff'),
+       url('/fonts/Vazir-Bold.ttf') format('truetype');
+  font-weight: bold;
+  font-style: normal;
+  font-display: swap;
+}
+
+// ============================================================================
+// ROOT & BASE STYLES
+// ============================================================================
+
+:root {
+  // Light mode (default)
+  --color-primary: #{$primary-color};
+  --color-primary-light: #{$primary-light};
+  --color-primary-dark: #{$primary-dark};
+  --color-success: #{$success-color};
+  --color-warning: #{$warning-color};
+  --color-error: #{$error-color};
+  --color-info: #{$info-color};
+  --color-neutral: #{$neutral-dark};
+  --color-neutral-light: #{$neutral-light};
+
+  --bg-primary: #{$bg-primary};
+  --bg-secondary: #{$bg-secondary};
+  --bg-tertiary: #{$bg-tertiary};
+  --text-primary: #{$neutral-dark};
+  --text-secondary: #{$neutral-medium};
+  --text-tertiary: #{$neutral-light};
+  --border-color: #{$border-color-light};
+
+  @include dark-mode {
+    --color-primary: #{$primary-light};
+    --bg-primary: #{$dark-bg-primary};
+    --bg-secondary: #{$dark-bg-secondary};
+    --bg-tertiary: #{$dark-bg-tertiary};
+    --text-primary: #{$dark-text-primary};
+    --text-secondary: #{$dark-text-secondary};
+    --text-tertiary: #{$dark-text-tertiary};
+    --border-color: #{$neutral-medium};
+  }
+
+  // Font size variables
+  --font-size-xs: #{$font-size-xs};
+  --font-size-sm: #{$font-size-sm};
+  --font-size-base: #{$font-size-base};
+  --font-size-lg: #{$font-size-lg};
+  --font-size-xl: #{$font-size-xl};
+  --font-size-2xl: #{$font-size-2xl};
+  --font-size-3xl: #{$font-size-3xl};
+
+  // Spacing variables
+  --space-1: #{$space-1};
+  --space-2: #{$space-2};
+  --space-3: #{$space-3};
+  --space-4: #{$space-4};
+  --space-6: #{$space-6};
+  --space-8: #{$space-8};
+}
+
+// ============================================================================
+// HTML & BODY
+// ============================================================================
+
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: $font-family-base;
+  font-size: $font-size-base;
+  font-weight: $font-weight-normal;
+  line-height: $line-height-normal;
+  color: var(--text-primary);
+  background-color: var(--bg-secondary);
+  transition: background-color $transition-base, color $transition-base;
+
+  // RTL support
+  [dir='rtl'] & {
+    direction: rtl;
+    text-align: right;
+  }
+
+  [dir='ltr'] & {
+    direction: ltr;
+    text-align: left;
+  }
+}
+
+// ============================================================================
+// TYPOGRAPHY
+// ============================================================================
+
+h1, h2, h3, h4, h5, h6 {
+  margin: 0;
+  font-weight: $font-weight-bold;
+  line-height: $line-height-tight;
+  color: var(--text-primary);
+}
+
+h1 {
+  @include font-h1;
+}
+
+h2 {
+  @include font-h2;
+}
+
+h3 {
+  @include font-h3;
+}
+
+h4 {
+  @include font-h4;
+}
+
+h5 {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+}
+
+h6 {
+  font-size: $font-size-base;
+  font-weight: $font-weight-semibold;
+}
+
+p {
+  margin: 0 0 $space-4 0;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+// Lists
+ul, ol {
+  margin: 0 0 $space-4 0;
+  padding-inline-start: $space-6;
+
+  li {
+    margin-bottom: $space-2;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+}
+
+dl {
+  margin: 0;
+}
+
+dt {
+  font-weight: $font-weight-semibold;
+  color: var(--text-primary);
+  margin-top: $space-4;
+}
+
+dd {
+  margin: 0 0 $space-4 0;
+  color: var(--text-secondary);
+}
+
+// Links
+a {
+  color: var(--color-primary);
+  text-decoration: none;
+  transition: color $transition-base;
+
+  &:hover {
+    color: var(--color-primary-dark);
+    text-decoration: underline;
+  }
+
+  &:focus {
+    @include focus-ring;
+    border-radius: $radius-md;
+  }
+}
+
+// Code
+code {
+  @include font-mono;
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
+  padding: $space-1 $space-2;
+  border-radius: $radius-md;
+}
+
+pre {
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
+  padding: $space-4;
+  border-radius: $radius-lg;
+  overflow-x: auto;
+  margin: 0 0 $space-4 0;
+
+  code {
+    background: transparent;
+    padding: 0;
+  }
+}
+
+// Blockquote
+blockquote {
+  margin: 0 0 $space-4 0;
+  padding: $space-4;
+  padding-inline-start: $space-6;
+  border-inline-start: $border-width-thick solid var(--color-primary);
+  background-color: var(--bg-tertiary);
+  font-style: italic;
+  color: var(--text-secondary);
+
+  [dir='rtl'] & {
+    padding-inline-start: 0;
+    padding-inline-end: $space-6;
+    border-inline-start: none;
+    border-inline-end: $border-width-thick solid var(--color-primary);
+  }
+}
+
+// ============================================================================
+// FORMS
+// ============================================================================
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: $space-4;
+}
+
+fieldset {
+  margin: 0;
+  padding: 0;
+  border: none;
+}
+
+label {
+  display: block;
+  margin-bottom: $space-2;
+  font-weight: $font-weight-medium;
+  color: var(--text-primary);
+}
+
+input[type='text'],
+input[type='email'],
+input[type='password'],
+input[type='number'],
+input[type='date'],
+input[type='time'],
+input[type='url'],
+textarea,
+select {
+  @include input-base;
+}
+
+textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+select {
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right $space-3 center;
+  background-size: 20px;
+  padding-right: $space-8;
+  appearance: none;
+
+  [dir='rtl'] & {
+    background-position: left $space-3 center;
+    padding-right: $space-4;
+    padding-left: $space-8;
+  }
+}
+
+// ============================================================================
+// BUTTONS
+// ============================================================================
+
+button,
+input[type='button'],
+input[type='submit'],
+input[type='reset'] {
+  @include button-base;
+  background-color: var(--color-primary);
+  color: white;
+
+  &:hover:not(:disabled) {
+    background-color: var(--color-primary-dark);
+  }
+
+  &:focus {
+    @include focus-ring;
+  }
+
+  &.secondary {
+    background-color: var(--bg-tertiary);
+    color: var(--text-primary);
+    border: $border-width-thin solid var(--border-color);
+
+    &:hover:not(:disabled) {
+      background-color: var(--bg-secondary);
+    }
+  }
+
+  &.success {
+    background-color: $success-color;
+
+    &:hover:not(:disabled) {
+      background-color: $success-dark;
+    }
+  }
+
+  &.warning {
+    background-color: $warning-color;
+    color: white;
+
+    &:hover:not(:disabled) {
+      background-color: $warning-dark;
+    }
+  }
+
+  &.danger {
+    background-color: $error-color;
+    color: white;
+
+    &:hover:not(:disabled) {
+      background-color: $error-dark;
+    }
+  }
+}
+
+// ============================================================================
+// TABLES
+// ============================================================================
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: $space-6;
+}
+
+thead {
+  background-color: var(--bg-tertiary);
+}
+
+th {
+  padding: $space-4;
+  text-align: left;
+  font-weight: $font-weight-semibold;
+  color: var(--text-primary);
+  border-bottom: $border-width-normal solid var(--border-color);
+
+  [dir='rtl'] & {
+    text-align: right;
+  }
+}
+
+td {
+  padding: $space-3;
+  border-bottom: $border-width-thin solid var(--border-color);
+}
+
+tbody tr {
+  transition: background-color $transition-base;
+
+  &:hover {
+    background-color: var(--bg-tertiary);
+  }
+}
+
+// ============================================================================
+// IMAGES & MEDIA
+// ============================================================================
+
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+figure {
+  margin: 0 0 $space-6 0;
+}
+
+figcaption {
+  font-size: $font-size-sm;
+  color: var(--text-secondary);
+  margin-top: $space-2;
+}
+
+// ============================================================================
+// UTILITIES
+// ============================================================================
+
+// Container
+.container {
+  width: 100%;
+  max-width: $max-width-default;
+  margin: 0 auto;
+  @include container-padding;
+}
+
+// Visibility
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+// Text utilities
+.text-center {
+  text-align: center;
+}
+
+.text-right {
+  text-align: right;
+
+  [dir='rtl'] & {
+    text-align: left;
+  }
+}
+
+.text-left {
+  text-align: left;
+
+  [dir='rtl'] & {
+    text-align: right;
+  }
+}
+
+.truncate {
+  @include truncate;
+}
+
+.line-clamp-2 {
+  @include truncate-lines(2);
+}
+
+.line-clamp-3 {
+  @include truncate-lines(3);
+}
+
+// Display
+.d-flex {
+  display: flex;
+}
+
+.d-grid {
+  display: grid;
+}
+
+.d-none {
+  display: none;
+
+  @include media-md {
+    display: none !important;
+  }
+}
+
+.d-md-block {
+  display: none;
+
+  @include media-md {
+    display: block;
+  }
+}
+
+// ============================================================================
+// RESPONSIVE TYPOGRAPHY
+// ============================================================================
+
+@include max-md {
+  h1 {
+    font-size: $font-size-2xl;
+  }
+
+  h2 {
+    font-size: $font-size-xl;
+  }
+
+  h3 {
+    font-size: $font-size-lg;
+  }
+
+  body {
+    font-size: $font-size-sm;
+  }
+}
+
+// ============================================================================
+// PRINT STYLES
+// ============================================================================
+
+@media print {
+  body {
+    background-color: white;
+    color: black;
+  }
+
+  a {
+    text-decoration: underline;
+  }
+
+  button,
+  input[type='button'],
+  input[type='submit'] {
+    display: none;
+  }
+
+  table {
+    border-collapse: collapse;
+  }
+
+  tr {
+    page-break-inside: avoid;
+  }
+
+  img {
+    max-width: 100%;
+  }
+}
+
+// ============================================================================
+// SCROLLBAR STYLING
+// ============================================================================
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-neutral-light);
+  border-radius: $radius-full;
+
+  &:hover {
+    background: var(--color-neutral);
+  }
+}
+
+// ============================================================================
+// SELECTION STYLING
+// ============================================================================
+
+::selection {
+  background-color: var(--color-primary);
+  color: white;
+}

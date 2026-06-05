@@ -1,0 +1,503 @@
+// ============================================================================
+// LAYOUT UTILITIES & RESPONSIVE GRID
+// ============================================================================
+
+@import 'variables';
+
+// ============================================================================
+// CONTAINER
+// ============================================================================
+
+.container {
+  width: 100%;
+  max-width: $container-xl;
+  margin-left: auto;
+  margin-right: auto;
+
+  @include container-padding;
+
+  // Responsive container sizes
+  @include media-sm {
+    max-width: $container-sm;
+  }
+
+  @include media-md {
+    max-width: $container-md;
+  }
+
+  @include media-lg {
+    max-width: $container-lg;
+  }
+
+  @include media-xl {
+    max-width: $container-xl;
+  }
+
+  @include media-2xl {
+    max-width: $container-2xl;
+  }
+}
+
+// ============================================================================
+// GRID SYSTEM
+// ============================================================================
+
+.grid {
+  display: grid;
+  gap: $space-4;
+
+  @include media-md {
+    gap: $space-6;
+  }
+
+  @include media-lg {
+    gap: $space-8;
+  }
+
+  // Responsive column layouts
+  &.grid-1 {
+    grid-template-columns: 1fr;
+  }
+
+  &.grid-2 {
+    grid-template-columns: 1fr;
+
+    @include media-md {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  &.grid-3 {
+    grid-template-columns: 1fr;
+
+    @include media-md {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    @include media-lg {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  &.grid-4 {
+    grid-template-columns: 1fr;
+
+    @include media-md {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    @include media-lg {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+
+  &.grid-auto {
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+
+    @include media-md {
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    }
+
+    @include media-lg {
+      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    }
+  }
+}
+
+// ============================================================================
+// FLEX LAYOUTS
+// ============================================================================
+
+.flex-stack {
+  display: flex;
+  flex-direction: column;
+  gap: $space-4;
+
+  @include media-md {
+    flex-direction: row;
+    gap: $space-6;
+  }
+}
+
+.flex-center {
+  @include flex-center;
+}
+
+.flex-between {
+  @include flex-between;
+}
+
+// ============================================================================
+// ROW & COLUMN
+// ============================================================================
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $space-4;
+  margin: 0 (-$space-2);
+
+  @include media-md {
+    gap: $space-6;
+    margin: 0 (-$space-3);
+  }
+
+  @include media-lg {
+    gap: $space-8;
+    margin: 0 (-$space-4);
+  }
+
+  > [class*='col-'] {
+    padding: 0 $space-2;
+
+    @include media-md {
+      padding: 0 $space-3;
+    }
+
+    @include media-lg {
+      padding: 0 $space-4;
+    }
+  }
+}
+
+.col-12 { width: 100%; }
+.col-11 { width: 91.666%; }
+.col-10 { width: 83.333%; }
+.col-9 { width: 75%; }
+.col-8 { width: 66.666%; }
+.col-7 { width: 58.333%; }
+.col-6 { width: 50%; }
+.col-5 { width: 41.666%; }
+.col-4 { width: 33.333%; }
+.col-3 { width: 25%; }
+.col-2 { width: 16.666%; }
+.col-1 { width: 8.333%; }
+
+// Responsive column classes
+@include media-md {
+  .md\:col-12 { width: 100%; }
+  .md\:col-6 { width: 50%; }
+  .md\:col-4 { width: 33.333%; }
+  .md\:col-3 { width: 25%; }
+}
+
+@include media-lg {
+  .lg\:col-12 { width: 100%; }
+  .lg\:col-8 { width: 66.666%; }
+  .lg\:col-6 { width: 50%; }
+  .lg\:col-4 { width: 33.333%; }
+  .lg\:col-3 { width: 25%; }
+}
+
+// ============================================================================
+// SECTIONS
+// ============================================================================
+
+section {
+  padding: $space-8;
+
+  @include media-md {
+    padding: $space-10 $space-6;
+  }
+
+  @include media-lg {
+    padding: $space-12 $space-8;
+  }
+
+  &.section-sm {
+    padding: $space-4;
+
+    @include media-md {
+      padding: $space-6;
+    }
+  }
+
+  &.section-lg {
+    padding: $space-12;
+
+    @include media-md {
+      padding: $space-14 $space-8;
+    }
+
+    @include media-lg {
+      padding: $space-16 $space-10;
+    }
+  }
+}
+
+// ============================================================================
+// SIDEBAR LAYOUTS
+// ============================================================================
+
+.sidebar-layout {
+  display: grid;
+  gap: $space-6;
+
+  @include media-lg {
+    grid-template-columns: 250px 1fr;
+    gap: $space-8;
+  }
+
+  @include media-xl {
+    grid-template-columns: 300px 1fr;
+  }
+}
+
+.sidebar-layout-reverse {
+  display: grid;
+  gap: $space-6;
+
+  @include media-lg {
+    grid-template-columns: 1fr 250px;
+    gap: $space-8;
+  }
+}
+
+// ============================================================================
+// HERO SECTION
+// ============================================================================
+
+.hero {
+  padding: $space-12 $space-4;
+  background: linear-gradient(135deg, $primary-lighter 0%, $primary-light 100%);
+  color: white;
+  text-align: center;
+  border-radius: $radius-lg;
+  margin-bottom: $space-8;
+
+  @include media-md {
+    padding: $space-14 $space-6;
+  }
+
+  @include media-lg {
+    padding: $space-16 $space-8;
+  }
+
+  h1 {
+    margin-bottom: $space-4;
+    color: white;
+  }
+
+  p {
+    margin-bottom: 0;
+    font-size: $font-size-lg;
+    opacity: 0.95;
+  }
+}
+
+// ============================================================================
+// FOOTER LAYOUT
+// ============================================================================
+
+.footer {
+  background-color: var(--bg-secondary);
+  border-top: $border-width-thin solid var(--border-color);
+  padding: $space-8 $space-4;
+
+  @include media-md {
+    padding: $space-10 $space-6;
+  }
+
+  .footer-content {
+    max-width: $container-xl;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: $space-8;
+
+    @include media-md {
+      gap: $space-10;
+    }
+  }
+
+  .footer-section {
+    h4 {
+      margin-bottom: $space-4;
+      color: var(--text-primary);
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+
+      li {
+        margin-bottom: $space-2;
+
+        a {
+          color: var(--text-secondary);
+          transition: color $transition-base;
+
+          &:hover {
+            color: var(--color-primary);
+          }
+        }
+      }
+    }
+  }
+
+  .footer-bottom {
+    text-align: center;
+    margin-top: $space-8;
+    padding-top: $space-6;
+    border-top: $border-width-thin solid var(--border-color);
+    color: var(--text-secondary);
+    font-size: $font-size-sm;
+  }
+}
+
+// ============================================================================
+// BREADCRUMB
+// ============================================================================
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: $space-2;
+  margin-bottom: $space-4;
+  font-size: $font-size-sm;
+
+  [dir='rtl'] & {
+    flex-direction: row-reverse;
+  }
+
+  .breadcrumb-item {
+    color: var(--text-secondary);
+
+    &.active {
+      color: var(--text-primary);
+      font-weight: $font-weight-medium;
+    }
+
+    a {
+      color: var(--color-primary);
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+
+    &:not(:last-child)::after {
+      content: '/';
+      margin: 0 $space-2;
+      color: var(--text-tertiary);
+
+      [dir='rtl'] & {
+        content: '\\';
+      }
+    }
+  }
+}
+
+// ============================================================================
+// TABS LAYOUT
+// ============================================================================
+
+.tabs {
+  display: flex;
+  flex-direction: column;
+  gap: $space-4;
+
+  .tabs-header {
+    display: flex;
+    gap: 0;
+    border-bottom: $border-width-normal solid var(--border-color);
+    overflow-x: auto;
+
+    .tab-link {
+      padding: $space-4;
+      background: none;
+      border: none;
+      border-bottom: $border-width-normal solid transparent;
+      cursor: pointer;
+      color: var(--text-secondary);
+      font-weight: $font-weight-medium;
+      transition: all $transition-base;
+      white-space: nowrap;
+
+      &:hover {
+        color: var(--color-primary);
+        border-bottom-color: var(--color-primary);
+      }
+
+      &.active {
+        color: var(--color-primary);
+        border-bottom-color: var(--color-primary);
+      }
+    }
+  }
+
+  .tabs-content {
+    padding: $space-4;
+  }
+}
+
+// ============================================================================
+// CARD LAYOUTS
+// ============================================================================
+
+.card-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: $space-4;
+
+  @include media-sm {
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: $space-6;
+  }
+
+  @include media-lg {
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: $space-8;
+  }
+}
+
+.card-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: $space-4;
+
+  @include media-md {
+    grid-template-columns: repeat(2, 1fr);
+    gap: $space-6;
+  }
+
+  @include media-lg {
+    grid-template-columns: repeat(3, 1fr);
+    gap: $space-8;
+  }
+}
+
+// ============================================================================
+// ASPECT RATIOS
+// ============================================================================
+
+.aspect-square { aspect-ratio: 1; }
+.aspect-video { aspect-ratio: 16 / 9; }
+.aspect-[3/2] { aspect-ratio: 3 / 2; }
+.aspect-[4/3] { aspect-ratio: 4 / 3; }
+.aspect-[1/2] { aspect-ratio: 1 / 2; }
+
+// ============================================================================
+// CENTERING
+// ============================================================================
+
+.center-content {
+  @include flex-center;
+  flex-direction: column;
+  text-align: center;
+}
+
+// ============================================================================
+// SPACING BETWEEN CHILDREN
+// ============================================================================
+
+.space-y-2 > * + * { margin-top: $space-2; }
+.space-y-4 > * + * { margin-top: $space-4; }
+.space-y-6 > * + * { margin-top: $space-6; }
+.space-y-8 > * + * { margin-top: $space-8; }
+
+.space-x-2 > * + * { margin-left: $space-2; }
+.space-x-4 > * + * { margin-left: $space-4; }
+.space-x-6 > * + * { margin-left: $space-6; }
+.space-x-8 > * + * { margin-left: $space-8; }

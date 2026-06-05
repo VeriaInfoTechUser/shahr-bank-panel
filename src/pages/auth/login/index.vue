@@ -1,5 +1,5 @@
 <script setup lang="js">
-import logoUrl from "@/assets/shahr/logo.png";
+import logoUrl from "@/assets/demo/logo.png";
 import { FormInput } from "@/base-components/Form";
 import Button from "@/base-components/Button";
 import { ref } from "vue";

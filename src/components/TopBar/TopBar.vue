@@ -2,7 +2,7 @@
 import {computed, onMounted, onUnmounted, ref} from "vue";
 import {useI18n} from "vue-i18n";
 import Lucide from "../../base-components/Lucide";
-import logoUrl from "@/assets/shahr/logo.png";
+import logoUrl from "@/assets/demo/logo.png";
 import Breadcrumb from "../../base-components/Breadcrumb";
 import {Menu} from "../../base-components/Headless";
 import {useLogout} from "@/composables/useLogout.js";

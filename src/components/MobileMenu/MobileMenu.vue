@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useRoute, useRouter } from "vue-router";
 import { twMerge } from "tailwind-merge";
-import logoUrl from "@/assets/shahr/logo.png";
+import logoUrl from "@/assets/demo/logo.png";
 import Lucide from "../../base-components/Lucide";
 import { useSideMenuStore } from "../../stores/side-menu";
 import { FormattedMenu, nestedMenu } from "../../layouts/SideMenu/side-menu";

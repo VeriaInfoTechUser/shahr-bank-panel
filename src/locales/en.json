@@ -254,7 +254,12 @@
     "spot-rules-desc": "Browse laws, regulations, and circulars",
     "spot-tasks-desc": "Manage the tasks and commitments registered in the system",
     "footer-hint": "All other areas remain available from the side menu.",
-    "cta": "Open"
+    "cta": "Open",
+    "spot-esg-dashboard-desc": "View key sustainability metrics and performance status",
+    "spot-esg-governance-desc": "Manage corporate governance structure and initiatives",
+    "spot-esg-social-desc": "Track social impact and company initiatives",
+    "spot-esg-environment-desc": "Manage environmental impacts and reduction actions",
+    "spot-esg-report-desc": "Prepare and compile sustainability and ESG reports"
   },
   "compliance-dashboard": {
     "subtitle": "Track and manage your compliance commitments and progress",

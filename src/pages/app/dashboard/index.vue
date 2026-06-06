@@ -53,7 +53,12 @@ type PrimaryRoute =
   | 'app-compliance-operations'
   | 'app-risk-operations'
   | 'app-base-info-rules-regulations'
-  | 'app-base-info-tasks';
+  | 'app-base-info-tasks'
+  | 'app-esg-dashboard'
+  | 'app-esg-governance'
+  | 'app-esg-social'
+  | 'app-esg-environment'
+  | 'app-esg-report';
 
 interface Spot {
   route: PrimaryRoute;
@@ -86,6 +91,36 @@ const spots = computed<Spot[]>(() => [
     titleKey: 'menu.risk-operations',
     descKey: 'dashboard-page.spot-risk-desc',
     icon: 'AlertTriangle',
+  },
+  // {
+  //   route: 'app-esg-dashboard',
+  //   titleKey: 'menu.esg-dashboard',
+  //   descKey: 'dashboard-page.spot-esg-dashboard-desc',
+  //   icon: 'BarChart3',
+  // },
+  {
+    route: 'app-esg-governance',
+    titleKey: 'menu.esg-governance',
+    descKey: 'dashboard-page.spot-esg-governance-desc',
+    icon: 'Building2',
+  },
+  {
+    route: 'app-esg-social',
+    titleKey: 'menu.esg-social',
+    descKey: 'dashboard-page.spot-esg-social-desc',
+    icon: 'Users',
+  },
+  {
+    route: 'app-esg-environment',
+    titleKey: 'menu.esg-environment',
+    descKey: 'dashboard-page.spot-esg-environment-desc',
+    icon: 'Leaf',
+  },
+  {
+    route: 'app-esg-report',
+    titleKey: 'menu.esg-report',
+    descKey: 'dashboard-page.spot-esg-report-desc',
+    icon: 'FileText',
   },
 ]);
 
@@ -260,7 +295,7 @@ function go(name: PrimaryRoute) {
       </div>
     </header>
 
-    <div class="grid gap-5 md:grid-cols-2 lg:gap-6">
+    <div class="grid gap-5 md:grid-cols-4 lg:gap-6">
       <button
         v-for="spot in spots"
         :key="spot.route"
@@ -271,19 +306,21 @@ function go(name: PrimaryRoute) {
         <div
           class="pointer-events-none absolute inset-0 bg-gradient-to-br from-slate-50/0 to-slate-50/80 opacity-0 transition group-hover:opacity-100 dark:from-transparent dark:to-darkmode-900/40"
         />
-        <div class="relative flex flex-1 flex-col p-6 md:p-7">
+        <div class="relative flex flex-1 flex-col p-4">
+          <div class="flex flex-row gap-2">
           <div
             class="mb-5 inline-flex h-11 w-11 items-center justify-center rounded-xl bg-slate-100 text-slate-700 transition group-hover:bg-primary/10 group-hover:text-primary dark:bg-darkmode-700 dark:text-slate-200 dark:group-hover:bg-primary/15 dark:group-hover:text-primary"
           >
             <Lucide :icon="spot.icon" class="h-5 w-5" />
           </div>
           <h2
-            class="mb-2 text-base font-semibold text-slate-900 dark:text-slate-50"
+            class="mt-2 text-base font-semibold text-slate-900 dark:text-slate-50"
           >
             {{ t(spot.titleKey) }}
           </h2>
+          </div>
           <p
-            class="mb-6 flex-1 text-sm leading-relaxed text-slate-500 dark:text-slate-400"
+            class="mb-4 flex-1 text-xs leading-relaxed text-slate-500 dark:text-slate-400"
           >
             {{ t(spot.descKey) }}
           </p>

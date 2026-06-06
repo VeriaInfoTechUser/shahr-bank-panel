@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import html2canvas from 'html2canvas'
+import { jsPDF } from 'jspdf'
 
 const props = defineProps<{ response: any }>()
 
@@ -45,11 +47,9 @@ async function downloadPDF() {
 
   try {
     // Dynamically load html2canvas and jsPDF from CDN
-    await loadScript('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js')
-    await loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js')
+    // await loadScript('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js')
+    // await loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js')
 
-    const { jsPDF } = (window as any).jspdf
-    const html2canvas = (window as any).html2canvas
 
     const pages = document.querySelectorAll('.page') as NodeListOf<HTMLElement>
     const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' })
@@ -64,10 +64,20 @@ async function downloadPDF() {
       const canvas = await html2canvas(page, {
         scale: 2,
         useCORS: true,
-        backgroundColor: '#ffffff',
-        logging: false,
-        width: page.scrollWidth,
-        height: page.scrollHeight,
+
+        onclone: (doc) => {
+          doc.querySelectorAll('*').forEach((el) => {
+            const style = getComputedStyle(el)
+
+            if (style.backgroundColor.includes('oklch')) {
+              ;(el as HTMLElement).style.backgroundColor = '#ffffff'
+            }
+
+            if (style.color.includes('oklch')) {
+              ;(el as HTMLElement).style.color = '#000000'
+            }
+          })
+        },
       })
 
       const imgData = canvas.toDataURL('image/jpeg', 0.95)
@@ -93,17 +103,7 @@ async function downloadPDF() {
     progress.value = 0
   }
 }
-
-function loadScript(src: string): Promise<void> {
-  return new Promise((resolve, reject) => {
-    if (document.querySelector(`script[src="${src}"]`)) { resolve(); return }
-    const s = document.createElement('script')
-    s.src = src
-    s.onload = () => resolve()
-    s.onerror = () => reject(new Error(`Failed to load ${src}`))
-    document.head.appendChild(s)
-  })
-}
+ 
 </script>
 
 <template>
@@ -233,7 +233,7 @@ function loadScript(src: string): Promise<void> {
       <!-- PAGE 3: Environmental Intro + All Env Domains -->
       <div class="page">
         <div class="page-header">
-          <span class="section-pill pill-env">🌿 محیط‌زیست — مقدمه</span>
+          <span class="section-pill pill-env"> <i class=" ti ti-plant-2" />  محیط‌زیست — مقدمه</span>
           <div class="header-meta"><div class="hm-label">حوزه‌ها</div><div class="hm-value">{{ meta.sections?.environmental?.domains }}</div></div>
         </div>
         <div class="narrative-box env-border">{{ narratives.environmental?.intro }}</div>
@@ -249,7 +249,7 @@ function loadScript(src: string): Promise<void> {
       <!-- PAGE 4: Energy -->
       <div class="page">
         <div class="page-header">
-          <span class="section-pill pill-env">🌿 محیط‌زیست — انرژی</span>
+          <span class="section-pill pill-env"> <i class=" ti ti-plant-2" /> محیط‌زیست — انرژی</span>
           <div class="header-meta"><div class="hm-label">بخش</div><div class="hm-value">۲</div></div>
         </div>
         <div class="section-title">مدیریت انرژی و منابع</div>
@@ -289,7 +289,7 @@ function loadScript(src: string): Promise<void> {
       <!-- PAGE 5: GHG -->
       <div class="page">
         <div class="page-header">
-          <span class="section-pill pill-env">🌿 محیط‌زیست — گازهای گلخانه‌ای</span>
+          <span class="section-pill pill-env"> <i class=" ti ti-plant-2" /> محیط‌زیست — گازهای گلخانه‌ای</span>
           <div class="header-meta"><div class="hm-label">بخش</div><div class="hm-value">۳</div></div>
         </div>
         <div class="section-title">انتشار گازهای گلخانه‌ای (GHG)</div>
@@ -344,7 +344,7 @@ function loadScript(src: string): Promise<void> {
       <!-- PAGE 6: Water & Waste -->
       <div class="page">
         <div class="page-header">
-          <span class="section-pill pill-env">🌿 محیط‌زیست — آب و پسماند</span>
+          <span class="section-pill pill-env"> <i class=" ti ti-plant-2" /> محیط‌زیست — آب و پسماند</span>
           <div class="header-meta"><div class="hm-label">بخش</div><div class="hm-value">۴</div></div>
         </div>
         <div class="section-title">مدیریت آب و پسماند</div>
@@ -396,7 +396,7 @@ function loadScript(src: string): Promise<void> {
       <!-- PAGE 7: Climate & Other Env Domains -->
       <div class="page">
         <div class="page-header">
-          <span class="section-pill pill-env">🌿 محیط‌زیست — اقلیم و سایر</span>
+          <span class="section-pill pill-env"> <i class=" ti ti-plant-2" /> محیط‌زیست — اقلیم و سایر</span>
           <div class="header-meta"><div class="hm-label">بخش</div><div class="hm-value">۵</div></div>
         </div>
         <div class="two-col">
@@ -429,7 +429,7 @@ function loadScript(src: string): Promise<void> {
       <!-- PAGE 8: Social Intro + Domains -->
       <div class="page">
         <div class="page-header">
-          <span class="section-pill pill-soc">👥 اجتماعی — مقدمه</span>
+          <span class="section-pill pill-soc"> <i class=" ti ti-users" /> اجتماعی — مقدمه</span>
           <div class="header-meta"><div class="hm-label">حوزه‌ها</div><div class="hm-value">{{ meta.sections?.social?.domains }}</div></div>
         </div>
         <div class="narrative-box soc-border">{{ narratives.social?.intro }}</div>
@@ -445,7 +445,7 @@ function loadScript(src: string): Promise<void> {
       <!-- PAGE 9: Workforce -->
       <div class="page">
         <div class="page-header">
-          <span class="section-pill pill-soc">👥 اجتماعی — نیروی انسانی</span>
+          <span class="section-pill pill-soc"> <i class=" ti ti-users" /> اجتماعی — نیروی انسانی</span>
           <div class="header-meta"><div class="hm-label">بخش</div><div class="hm-value">۶</div></div>
         </div>
         <div class="section-title">ساختار و جمعیت‌شناسی نیروی انسانی</div>
@@ -495,7 +495,7 @@ function loadScript(src: string): Promise<void> {
       <!-- PAGE 10: Health, Safety, Engagement -->
       <div class="page">
         <div class="page-header">
-          <span class="section-pill pill-soc">👥 اجتماعی — سلامت و مشارکت</span>
+          <span class="section-pill pill-soc"> <i class=" ti ti-users" /> اجتماعی — سلامت و مشارکت</span>
           <div class="header-meta"><div class="hm-label">بخش</div><div class="hm-value">۷</div></div>
         </div>
         <div class="section-title">سلامت، ایمنی و مشارکت کارکنان</div>
@@ -541,7 +541,7 @@ function loadScript(src: string): Promise<void> {
       <!-- PAGE 11: Social Community & Human Rights -->
       <div class="page">
         <div class="page-header">
-          <span class="section-pill pill-soc">👥 اجتماعی — جامعه و حقوق بشر</span>
+          <span class="section-pill pill-soc"> <i class=" ti ti-users" /> اجتماعی — جامعه و حقوق بشر</span>
           <div class="header-meta"><div class="hm-label">بخش</div><div class="hm-value">۸</div></div>
         </div>
         <div class="two-col">
@@ -566,7 +566,7 @@ function loadScript(src: string): Promise<void> {
       <!-- PAGE 12: Governance Intro + All Domains -->
       <div class="page">
         <div class="page-header">
-          <span class="section-pill pill-gov">🏛 حاکمیت — مقدمه</span>
+          <span class="section-pill pill-gov"> <i class=" ti ti-building-bank" /> حاکمیت — مقدمه</span>
           <div class="header-meta"><div class="hm-label">حوزه‌ها</div><div class="hm-value">{{ meta.sections?.governance?.domains }}</div></div>
         </div>
         <div class="narrative-box gov-border">{{ narratives.governance?.intro }}</div>
@@ -582,7 +582,7 @@ function loadScript(src: string): Promise<void> {
       <!-- PAGE 13: Governance Board & Risk -->
       <div class="page">
         <div class="page-header">
-          <span class="section-pill pill-gov">🏛 حاکمیت — هیئت‌مدیره و ریسک</span>
+          <span class="section-pill pill-gov"> <i class=" ti ti-building-bank" /> حاکمیت — هیئت‌مدیره و ریسک</span>
           <div class="header-meta"><div class="hm-label">بخش</div><div class="hm-value">۹</div></div>
         </div>
         <div class="section-title">ساختار حاکمیت شرکتی و مدیریت ریسک</div>
@@ -630,7 +630,7 @@ function loadScript(src: string): Promise<void> {
       <!-- PAGE 14: Ethics & Compliance -->
       <div class="page">
         <div class="page-header">
-          <span class="section-pill pill-gov">🏛 حاکمیت — اخلاق و انطباق</span>
+          <span class="section-pill pill-gov"> <i class=" ti ti-building-bank" /> حاکمیت — اخلاق و انطباق</span>
           <div class="header-meta"><div class="hm-label">بخش</div><div class="hm-value">۱۰</div></div>
         </div>
         <div class="section-title">اخلاق، انطباق، امنیت و زنجیره تأمین</div>
@@ -677,7 +677,7 @@ function loadScript(src: string): Promise<void> {
       <!-- PAGE 15: Governance - Financial, Internal Audit, ESG Reporting, AML -->
       <div class="page">
         <div class="page-header">
-          <span class="section-pill pill-gov">🏛 حاکمیت — شفافیت و کنترل</span>
+          <span class="section-pill pill-gov"> <i class=" ti ti-building-bank" /> حاکمیت — شفافیت و کنترل</span>
           <div class="header-meta"><div class="hm-label">بخش</div><div class="hm-value">۱۱</div></div>
         </div>
         <div class="two-col">

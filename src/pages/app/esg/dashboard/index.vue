@@ -4,6 +4,12 @@ import { useI18n } from 'vue-i18n';
 import { esgRepo } from '@/core/repositories/esgRepo';
 import ESGOverallDashboard from './ESGOverallDashboard.vue';
 import ESGGovernanceDashboard from './ESGDashboardNew.vue';
+import {
+  IconLeaf,
+  IconPlant2,
+  IconUsers,
+  IconBuildingBank,
+} from '@tabler/icons-vue'
 
 const { t } = useI18n();
 
@@ -78,23 +84,34 @@ onMounted(loadDashboard);
             v-for="(view) in (['overall', 'governance', 'social', 'environmental'] as const)"
             :key="view"
             @click="activeView = view"
-            class="flex-1 rounded-lg px-4 py-2 text-xs font-medium transition-all"
-            :class="activeView === view
-            ? 'bg-white text-slate-900 shadow-sm dark:bg-slate-800 dark:text-white'
-            : 'text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200'"
+            class="flex flex-1 items-center justify-center gap-2 rounded-lg px-4 py-2 text-xs font-medium transition-all"
+            :class="
+      activeView === view
+        ? 'bg-white text-slate-900 shadow-sm dark:bg-slate-800 dark:text-white'
+        : 'text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200'
+    "
         >
-          <span v-if="view === 'overall'">
-            <i class=" ti ti-leaf" />
-            کلی</span>
-          <span v-else-if="view === 'environmental'">
-            <i class=" ti ti-plant-2" /> محیط‌زیست</span>
-          <span v-else-if="view === 'social'">
-            <i class=" ti ti-users" /> اجتماعی</span>
-          <span v-else-if="view === 'governance'">
-            <i class=" ti ti-building-bank" /> حاکمیت</span>
+          <template v-if="view === 'overall'">
+            <IconLeaf :size="16" :stroke-width="2" />
+            <span>کلی</span>
+          </template>
+
+          <template v-else-if="view === 'environmental'">
+            <IconPlant2 :size="16" :stroke-width="2" />
+            <span>محیط‌زیست</span>
+          </template>
+
+          <template v-else-if="view === 'social'">
+            <IconUsers :size="16" :stroke-width="2" />
+            <span>اجتماعی</span>
+          </template>
+
+          <template v-else-if="view === 'governance'">
+            <IconBuildingBank :size="16" :stroke-width="2" />
+            <span>حاکمیت</span>
+          </template>
         </button>
       </div>
-
       <!-- Overall ESG Dashboard -->
       <ESGOverallDashboard
           v-if="activeView === 'overall'"

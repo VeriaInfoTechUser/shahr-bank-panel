@@ -1,17 +1,63 @@
 <script setup lang="ts">
-import { computed, ref, onMounted, nextTick } from 'vue';
-import { useI18n } from 'vue-i18n';
+import {computed, ref, onMounted, nextTick} from 'vue';
+import {useI18n} from 'vue-i18n';
 import VChart from 'vue-echarts';
-import { use } from 'echarts/core';
-import { CanvasRenderer } from 'echarts/renderers';
-import { RadarChart, BarChart, PieChart } from 'echarts/charts';
+import {use} from 'echarts/core';
+import {CanvasRenderer} from 'echarts/renderers';
+import {RadarChart, BarChart, PieChart} from 'echarts/charts';
 import {
   TitleComponent,
   TooltipComponent,
   LegendComponent,
   GridComponent,
 } from 'echarts/components';
-import type { ESGSectionData } from '@/types/esg-dashboard.interface';
+import type {ESGSectionData} from '@/types/esg-dashboard.interface';
+import {
+  IconLayoutGrid,
+  IconCheck,
+  IconAlertCircle,
+  IconCards,
+  IconChecklist,
+  IconInfoCircle,
+  IconDatabaseImport,
+  IconActivity,
+  IconChartBar,
+  IconChartPie,
+  IconChartDonut3,
+  IconRadar2,
+  IconBuildingCommunity,
+  IconScale,
+  IconShieldCheck,
+  IconAlertTriangle,
+  IconLock,
+  IconLink,
+  IconChartLine,
+  IconClipboardCheck,
+  IconCoins,
+  IconGavel,
+  IconSpy,
+  IconDatabase,
+  IconCircle,
+  // Social Icons
+  IconUsers,
+  IconUserCheck,
+  IconHeartHandshake,
+  IconUsersGroup,
+  IconHandThreeFingers,
+  IconUserHeart,
+  IconSchool,
+  IconFirstAidKit,
+  IconBriefcase,
+  IconChartDots,
+  IconLeaf,
+  IconRecycle,
+  IconTree,
+  IconCloudStorm,
+  IconMathSin,
+  IconDroplet,
+  IconFlame,
+  IconSun,
+} from '@tabler/icons-vue'
 
 use([CanvasRenderer, RadarChart, BarChart, PieChart, TitleComponent, TooltipComponent, LegendComponent, GridComponent]);
 
@@ -27,8 +73,8 @@ interface Props {
   };
 }
 
-const props = withDefaults(defineProps<Props>(), { section: 'governance' });
-const { t } = useI18n();
+const props = withDefaults(defineProps<Props>(), {section: 'governance'});
+const {t} = useI18n();
 
 // ─── Section Data ──────────────────────────────────────────────────────────────
 const sectionData = computed(() => props.dashboardData[props.section]);
@@ -57,7 +103,7 @@ const fmt = (v: number | null, unit?: string) => {
   if (v === null || v === undefined) return '—';
   const n = Number(v);
   if (!Number.isFinite(n)) return '—';
-  const formatted = new Intl.NumberFormat('fa-IR', { maximumFractionDigits: 1 }).format(n);
+  const formatted = new Intl.NumberFormat('fa-IR', {maximumFractionDigits: 1}).format(n);
   if (unit === 'percent') return `${formatted}%`;
   if (unit === 'currency') return `${formatted} ريال`;
   return formatted;
@@ -66,11 +112,6 @@ const fmt = (v: number | null, unit?: string) => {
 // ─── Summary Stats ─────────────────────────────────────────────────────────────
 const summary = computed(() => sectionData.value?.summary);
 
-const avgPercentScore = computed(() => {
-  const pctKpis = sectionData.value?.all_kpis?.filter(k => k.unit === 'percent' && k.value !== null) ?? [];
-  if (!pctKpis.length) return summary.value?.avg_score ?? 0;
-  return pctKpis.reduce((s, k) => s + Number(k.value), 0) / pctKpis.length;
-});
 
 // ─── KPI type distribution ─────────────────────────────────────────────────────
 const typeDistribution = computed(() => {
@@ -84,18 +125,18 @@ const typeDistribution = computed(() => {
 
 const typeChartOption = computed(() => ({
   backgroundColor: 'transparent',
-  tooltip: { trigger: 'item', formatter: '{b}: {c} ({d}%)' },
-  legend: { show: false },
+  tooltip: {trigger: 'item', formatter: '{b}: {c} ({d}%)'},
+  legend: {show: false},
   series: [{
     type: 'pie',
     radius: ['50%', '75%'],
     avoidLabelOverlap: false,
-    label: { show: false },
-    emphasis: { label: { show: true, fontSize: 12, fontWeight: 'bold' } },
+    label: {show: false},
+    emphasis: {label: {show: true, fontSize: 12, fontWeight: 'bold'}},
     data: Object.entries(typeDistribution.value).map(([name, value], i) => ({
       name,
       value,
-      itemStyle: { color: ['#378ADD', '#534AB7', '#D85A30', '#1D9E75', '#BA7517', '#94a3b8'][i % 6] },
+      itemStyle: {color: ['#378ADD', '#534AB7', '#D85A30', '#1D9E75', '#BA7517', '#94a3b8'][i % 6]},
     })),
   }],
 }));
@@ -106,8 +147,8 @@ const statusChartOption = computed(() => {
   const unanswered = summary.value?.unanswered ?? 0;
   return {
     backgroundColor: 'transparent',
-    tooltip: { trigger: 'item', formatter: '{b}: {c}' },
-    legend: { show: false },
+    tooltip: {trigger: 'item', formatter: '{b}: {c}'},
+    legend: {show: false},
     series: [{
       type: 'pie',
       radius: ['55%', '78%'],
@@ -116,14 +157,14 @@ const statusChartOption = computed(() => {
         position: 'center',
         formatter: () => `{val|${summary.value?.completion.toFixed(0)}%}\n{sub|تکمیل}`,
         rich: {
-          val: { fontSize: 22, fontWeight: 'bold', color: '#1e293b', lineHeight: 28 },
-          sub: { fontSize: 11, color: '#94a3b8', lineHeight: 18 },
+          val: {fontSize: 22, fontWeight: 'bold', color: '#1e293b', lineHeight: 28},
+          sub: {fontSize: 11, color: '#94a3b8', lineHeight: 18},
         },
       },
-      emphasis: { scale: false },
+      emphasis: {scale: false},
       data: [
-        { value: answered, name: 'پاسخ‌داده‌شده', itemStyle: { color: '#1D9E75' } },
-        { value: unanswered, name: 'بدون‌پاسخ', itemStyle: { color: '#ef4444' } },
+        {value: answered, name: 'پاسخ‌داده‌شده', itemStyle: {color: '#1D9E75'}},
+        {value: unanswered, name: 'بدون‌پاسخ', itemStyle: {color: '#ef4444'}},
       ],
     }],
   };
@@ -134,23 +175,23 @@ const radarChartOption = computed(() => {
   const domains = sectionData.value?.domains ?? [];
   return {
     backgroundColor: 'transparent',
-    tooltip: { trigger: 'item' },
+    tooltip: {trigger: 'item'},
     radar: {
       shape: 'polygon',
-      indicator: domains.map(d => ({ name: d.title.length > 12 ? d.title.slice(0, 12) + '…' : d.title, max: 100 })),
-      axisLine: { lineStyle: { color: '#e2e8f0' } },
-      splitLine: { lineStyle: { color: '#e2e8f0' } },
-      splitArea: { areaStyle: { color: ['rgba(148,163,184,0.04)', 'transparent'] } },
-      name: { textStyle: { color: '#64748b', fontSize: 10 }, rich: {} },
+      indicator: domains.map(d => ({name: d.title.length > 12 ? d.title.slice(0, 12) + '…' : d.title, max: 100})),
+      axisLine: {lineStyle: {color: '#e2e8f0'}},
+      splitLine: {lineStyle: {color: '#e2e8f0'}},
+      splitArea: {areaStyle: {color: ['rgba(148,163,184,0.04)', 'transparent']}},
+      name: {textStyle: {color: '#64748b', fontSize: 10}, rich: {}},
     },
     series: [{
       type: 'radar',
       data: [{
         value: domains.map(d => d.avg_score),
         name: 'میانگین امتیاز',
-        areaStyle: { color: 'rgba(55,138,221,0.15)' },
-        lineStyle: { color: '#378ADD', width: 2 },
-        itemStyle: { color: '#378ADD' },
+        areaStyle: {color: 'rgba(55,138,221,0.15)'},
+        lineStyle: {color: '#378ADD', width: 2},
+        itemStyle: {color: '#378ADD'},
         symbol: 'circle',
         symbolSize: 5,
       }],
@@ -163,14 +204,21 @@ const domainBarOption = computed(() => {
   const domains = [...(sectionData.value?.domains ?? [])].sort((a, b) => a.avg_score - b.avg_score);
   return {
     backgroundColor: 'transparent',
-    tooltip: { trigger: 'axis', formatter: (p: any) => `${p[0].name}: ${p[0].value.toFixed(1)}%` },
-    grid: { left: 10, right: 55, top: 8, bottom: 8, containLabel: true },
-    xAxis: { type: 'value', max: 100, axisLabel: { formatter: '{value}%', fontSize: 10, color: '#94a3b8' }, splitLine: { lineStyle: { color: '#f1f5f9' } }, axisLine: { show: false }, axisTick: { show: false } },
+    tooltip: {trigger: 'axis', formatter: (p: any) => `${p[0].name}: ${p[0].value.toFixed(1)}%`},
+    grid: {left: 10, right: 55, top: 8, bottom: 8, containLabel: true},
+    xAxis: {
+      type: 'value',
+      max: 100,
+      axisLabel: {formatter: '{value}%', fontSize: 10, color: '#94a3b8'},
+      splitLine: {lineStyle: {color: '#f1f5f9'}},
+      axisLine: {show: false},
+      axisTick: {show: false}
+    },
     yAxis: {
       type: 'category',
       data: domains.map(d => d.title.length > 16 ? d.title.slice(0, 16) + '…' : d.title),
-      axisLabel: { fontSize: 10, color: '#64748b' },
-      axisLine: { show: false }, axisTick: { show: false },
+      axisLabel: {fontSize: 10, color: '#64748b'},
+      axisLine: {show: false}, axisTick: {show: false},
     },
     series: [{
       type: 'bar',
@@ -182,7 +230,13 @@ const domainBarOption = computed(() => {
           borderRadius: [0, 4, 4, 0],
         },
       })),
-      label: { show: true, position: 'right', formatter: (p: any) => `${p.value.toFixed(0)}%`, fontSize: 10, color: '#475569' },
+      label: {
+        show: true,
+        position: 'right',
+        formatter: (p: any) => `${p.value.toFixed(0)}%`,
+        fontSize: 10,
+        color: '#475569'
+      },
     }],
   };
 });
@@ -195,18 +249,30 @@ const frameworkBarOption = computed(() => {
   const colors = ['#378ADD', '#1D9E75', '#534AB7', '#D85A30', '#BA7517'];
   return {
     backgroundColor: 'transparent',
-    tooltip: { trigger: 'axis' },
-    grid: { left: 10, right: 30, top: 10, bottom: 8, containLabel: true },
-    xAxis: { type: 'category', data: fw.map(f => f.name), axisLabel: { fontSize: 10, color: '#64748b' }, axisLine: { lineStyle: { color: '#e2e8f0' } }, axisTick: { show: false } },
-    yAxis: { type: 'value', axisLabel: { fontSize: 10, color: '#94a3b8' }, splitLine: { lineStyle: { color: '#f1f5f9' } }, axisLine: { show: false }, axisTick: { show: false } },
+    tooltip: {trigger: 'axis'},
+    grid: {left: 10, right: 30, top: 10, bottom: 8, containLabel: true},
+    xAxis: {
+      type: 'category',
+      data: fw.map(f => f.name),
+      axisLabel: {fontSize: 10, color: '#64748b'},
+      axisLine: {lineStyle: {color: '#e2e8f0'}},
+      axisTick: {show: false}
+    },
+    yAxis: {
+      type: 'value',
+      axisLabel: {fontSize: 10, color: '#94a3b8'},
+      splitLine: {lineStyle: {color: '#f1f5f9'}},
+      axisLine: {show: false},
+      axisTick: {show: false}
+    },
     series: [{
       type: 'bar',
       barMaxWidth: 40,
       data: fw.map((f, i) => ({
         value: f.count,
-        itemStyle: { color: colors[i % colors.length], borderRadius: [4, 4, 0, 0] },
+        itemStyle: {color: colors[i % colors.length], borderRadius: [4, 4, 0, 0]},
       })),
-      label: { show: true, position: 'top', fontSize: 10, color: '#475569' },
+      label: {show: true, position: 'top', fontSize: 10, color: '#475569'},
     }],
   };
 });
@@ -217,10 +283,10 @@ const domainMiniOption = (kpis: any[]) => {
   if (!pct.length) return null;
   return {
     backgroundColor: 'transparent',
-    tooltip: { trigger: 'axis' },
-    grid: { left: 0, right: 0, top: 4, bottom: 0, containLabel: true },
-    xAxis: { type: 'category', show: false, data: pct.map(k => k.code.split('-').pop()) },
-    yAxis: { type: 'value', show: false, max: 100 },
+    tooltip: {trigger: 'axis'},
+    grid: {left: 0, right: 0, top: 4, bottom: 0, containLabel: true},
+    xAxis: {type: 'category', show: false, data: pct.map(k => k.code.split('-').pop())},
+    yAxis: {type: 'value', show: false, max: 100},
     series: [{
       type: 'bar',
       barMaxWidth: 16,
@@ -247,24 +313,45 @@ const sectionLabel: Record<string, string> = {
   social: 'اجتماعی',
   environmental: 'محیط‌زیست',
 };
-
-// ─── Domain icon mapping ───────────────────────────────────────────────────────
 const domainIcon = (code: string) => {
-  const icons: Record<string, string> = {
-    'GOV-CGS': 'ti-building-community',
-    'GOV-ETH': 'ti-scale',
-    'GOV-CMP': 'ti-shield-check',
-    'GOV-RSK': 'ti-alert-triangle',
-    'GOV-DPC': 'ti-lock',
-    'GOV-SCG': 'ti-link',
-    'GOV-EGR': 'ti-chart-line',
-    'GOV-IAC': 'ti-clipboard-check',
-    'GOV-FTT': 'ti-coins',
-    'GOV-RLC': 'ti-gavel',
-    'GOV-AML': 'ti-spy',
-    'GOV-DGQ': 'ti-database',
+  const icons: Record<string, any> = {
+    'GOV-CGS': IconBuildingCommunity,
+    'GOV-ETH': IconScale,
+    'GOV-CMP': IconShieldCheck,
+    'GOV-RSK': IconAlertTriangle,
+    'GOV-DPC': IconLock,
+    'GOV-SCG': IconLink,
+    'GOV-EGR': IconChartLine,
+    'GOV-IAC': IconClipboardCheck,
+    'GOV-FTT': IconCoins,
+    'GOV-RLC': IconGavel,
+    'GOV-AML': IconSpy,
+    'GOV-DGQ': IconDatabase,
+    // Social
+    'SOC-TAW': IconUsers,
+    'SOC-LIR': IconHeartHandshake,
+    'SOC-CRP': IconShieldCheck,
+    'SOC-COM': IconUsersGroup,
+    'SOC-HRL': IconHandThreeFingers,
+    'SOC-EER': IconUserHeart,
+    'SOC-LND': IconSchool,
+    'SOC-HSW': IconFirstAidKit,
+    'SOC-EMC': IconBriefcase,
+    // 'SOC-DEI': IconDiversity,
+    'SOC-WSD': IconChartDots,
+
+    // Environmental
+    'ENV-ECP': IconShieldCheck,
+    'ENV-REM': IconRecycle,
+    'ENV-BIO': IconTree,
+    'ENV-CCS': IconCloudStorm,
+    // 'ENV-PEI': IconWaves,
+    'ENV-WCE': IconRecycle,
+    'ENV-WTR': IconDroplet,
+    'ENV-GHG': IconFlame,
+    'ENV-ENR': IconSun,
   };
-  return icons[code] || 'ti-circle';
+  return icons[code] || IconCircle;
 };
 </script>
 
@@ -279,7 +366,6 @@ const domainIcon = (code: string) => {
         </h1>
         <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">
           <span class="inline-flex items-center gap-1">
-            <i class="ti ti-database-import text-slate-400" />
             {{ sectionData.summary.total_kpis }} شاخص کلیدی
           </span>
           <span class="mx-2 text-slate-300">·</span>
@@ -287,12 +373,6 @@ const domainIcon = (code: string) => {
           <span v-if="dashboardData.last_updated" class="mx-2 text-slate-300">·</span>
           <span v-if="dashboardData.last_updated">آخرین بروزرسانی {{ dashboardData.last_updated }}</span>
         </p>
-      </div>
-      <div class="flex items-center gap-2">
-        <span class="inline-flex items-center gap-1.5 rounded-md border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300">
-          <i class="ti ti-calendar-event text-slate-400" />
-          دوره گزارش: {{ dashboardData.reporting_period || '۲۰۲۴' }}
-        </span>
       </div>
     </div>
 
@@ -303,8 +383,9 @@ const domainIcon = (code: string) => {
         <p class="mt-2 text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
           {{ sectionData.summary.total_kpis }}
         </p>
-        <span class="mt-2 inline-flex items-center gap-1 rounded-md bg-sky-50 px-2 py-0.5 text-[11px] font-medium text-sky-700 dark:bg-sky-900/30 dark:text-sky-300">
-          <i class="ti ti-layout-grid text-[10px]" />{{ sectionData.domains.length }} دامنه
+        <span
+            class="mt-2 inline-flex items-center gap-1 rounded-md bg-sky-50 px-2 py-0.5 text-[11px] font-medium text-sky-700 dark:bg-sky-900/30 dark:text-sky-300">
+           <IconLayoutGrid :size="20"/>  {{ sectionData.domains.length }} دامنه
         </span>
       </div>
 
@@ -313,8 +394,9 @@ const domainIcon = (code: string) => {
         <p class="mt-2 text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
           {{ sectionData.summary.answered }}
         </p>
-        <span class="mt-2 inline-flex items-center gap-1 rounded-md bg-emerald-50 px-2 py-0.5 text-[11px] font-medium text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300">
-          <i class="ti ti-check text-[10px]" />{{ sectionData.summary.completion.toFixed(1) }}% کامل
+        <span
+            class="mt-2 inline-flex items-center gap-1 rounded-md bg-emerald-50 px-2 py-0.5 text-[11px] font-medium text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300">
+          <IconCheck :size="20"/>{{ sectionData.summary.completion.toFixed(1) }}% کامل
         </span>
       </div>
 
@@ -323,11 +405,13 @@ const domainIcon = (code: string) => {
         <p class="mt-2 text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
           {{ sectionData.summary.unanswered ?? 0 }}
         </p>
-        <span v-if="(sectionData.summary.unanswered ?? 0) > 0" class="mt-2 inline-flex items-center gap-1 rounded-md bg-red-50 px-2 py-0.5 text-[11px] font-medium text-red-700 dark:bg-red-900/30 dark:text-red-300">
-          <i class="ti ti-alert-circle text-[10px]" />نیاز به توجه
+        <span v-if="(sectionData.summary.unanswered ?? 0) > 0"
+              class="mt-2 inline-flex items-center gap-1 rounded-md bg-red-50 px-2 py-0.5 text-[11px] font-medium text-red-700 dark:bg-red-900/30 dark:text-red-300">
+           <IconAlertCircle :size="20"/>نیاز به توجه
         </span>
-        <span v-else class="mt-2 inline-flex items-center gap-1 rounded-md bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-600 dark:bg-slate-700 dark:text-slate-300">
-          <i class="ti ti-circle-check text-[10px]" />کامل
+        <span v-else
+              class="mt-2 inline-flex items-center gap-1 rounded-md bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-600 dark:bg-slate-700 dark:text-slate-300">
+          <IconAlertCircle :size="20"/>کامل
         </span>
       </div>
 
@@ -339,18 +423,24 @@ const domainIcon = (code: string) => {
         </p>
         <span class="mt-2 inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[11px] font-medium"
               :class="scoreClass(sectionData.summary.avg_score)">
-          {{ sectionData.summary.avg_score >= 80 ? 'عالی' : sectionData.summary.avg_score >= 70 ? 'خوب' : sectionData.summary.avg_score >= 50 ? 'متوسط' : 'نیاز به بهبود' }}
+          <IconChecklist :size="20"/>
+          {{
+            sectionData.summary.avg_score >= 80 ? 'عالی' : sectionData.summary.avg_score >= 70 ? 'خوب' : sectionData.summary.avg_score >= 50 ? 'متوسط' : 'نیاز به بهبود'
+          }}
         </span>
       </div>
 
-      <div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800 col-span-2 sm:col-span-1">
+      <div
+          class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800 col-span-2 sm:col-span-1">
         <p class="text-[11px] font-medium text-slate-500 dark:text-slate-400">نرخ تکمیل</p>
         <div class="mt-3 flex items-center gap-2">
           <div class="h-2 flex-1 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-700">
             <div class="h-2 rounded-full bg-emerald-500 transition-all duration-700"
-                 :style="{ width: `${sectionData.summary.completion}%` }" />
+                 :style="{ width: `${sectionData.summary.completion}%` }"/>
           </div>
-          <span class="text-sm font-bold text-slate-900 dark:text-white">{{ sectionData.summary.completion.toFixed(0) }}%</span>
+          <span class="text-sm font-bold text-slate-900 dark:text-white">{{
+              sectionData.summary.completion.toFixed(0)
+            }}%</span>
         </div>
         <p class="mt-2 text-[11px] text-slate-400 dark:text-slate-500">
           {{ sectionData.summary.answered }} از {{ sectionData.summary.total_kpis }} شاخص
@@ -362,9 +452,10 @@ const domainIcon = (code: string) => {
     <div class="grid gap-5 lg:grid-cols-5">
 
       <!-- Radar Chart -->
-      <div class="lg:col-span-3 rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-800">
+      <div
+          class="lg:col-span-3 rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-800">
         <div class="mb-1 flex items-center gap-2">
-          <i class="ti ti-radar-2 text-slate-400" />
+          <IconRadar2 :size="20" class="text-slate-400"/>
           <h3 class="text-sm font-semibold text-slate-900 dark:text-white">نمودار رادار دامنه‌ها</h3>
         </div>
         <p class="mb-3 text-[11px] text-slate-400">میانگین امتیاز درصدی هر دامنه</p>
@@ -378,24 +469,25 @@ const domainIcon = (code: string) => {
       <!-- Donut + Type Pie stacked -->
       <div class="lg:col-span-2 flex flex-col gap-5">
         <!-- Answer Status Donut -->
-        <div class="flex-1 rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-800">
+        <div
+            class="flex-1 rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-800">
           <div class="mb-1 flex items-center gap-2">
-            <i class="ti ti-chart-pie text-slate-400" />
+            <IconChartPie :size="20" class="text-slate-400"/>
             <h3 class="text-sm font-semibold text-slate-900 dark:text-white">وضعیت پاسخ‌ها</h3>
           </div>
           <div class="flex items-center gap-4">
-            <VChart :option="statusChartOption" autoresize style="height: 130px; width: 130px; flex-shrink: 0" />
+            <VChart :option="statusChartOption" autoresize style="height: 130px; width: 130px; flex-shrink: 0"/>
             <div class="space-y-2 text-xs">
               <div class="flex items-center justify-between gap-4">
                 <span class="flex items-center gap-1.5 text-slate-600 dark:text-slate-400">
-                  <span class="h-2.5 w-2.5 rounded-sm bg-emerald-500 flex-shrink-0" />
+                  <span class="h-2.5 w-2.5 rounded-sm bg-emerald-500 flex-shrink-0"/>
                   پاسخ‌داده‌شده
                 </span>
                 <span class="font-bold text-slate-900 dark:text-white">{{ sectionData.summary.answered }}</span>
               </div>
               <div class="flex items-center justify-between gap-4">
                 <span class="flex items-center gap-1.5 text-slate-600 dark:text-slate-400">
-                  <span class="h-2.5 w-2.5 rounded-sm bg-red-500 flex-shrink-0" />
+                  <span class="h-2.5 w-2.5 rounded-sm bg-red-500 flex-shrink-0"/>
                   بدون‌پاسخ
                 </span>
                 <span class="font-bold text-slate-900 dark:text-white">{{ sectionData.summary.unanswered ?? 0 }}</span>
@@ -405,19 +497,20 @@ const domainIcon = (code: string) => {
         </div>
 
         <!-- KPI Type Distribution -->
-        <div class="flex-1 rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-800">
+        <div
+            class="flex-1 rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-800">
           <div class="mb-1 flex items-center gap-2">
-            <i class="ti ti-chart-donut-3 text-slate-400" />
+            <IconChartDonut3 :size="20" class="text-slate-400"/>
             <h3 class="text-sm font-semibold text-slate-900 dark:text-white">توزیع نوع شاخص</h3>
           </div>
           <div class="flex items-center gap-3">
-            <VChart :option="typeChartOption" autoresize style="height: 130px; width: 130px; flex-shrink: 0" />
+            <VChart :option="typeChartOption" autoresize style="height: 130px; width: 130px; flex-shrink: 0"/>
             <div class="space-y-1.5 text-[11px]">
               <div v-for="([unit, count], i) in Object.entries(typeDistribution)" :key="unit"
                    class="flex items-center justify-between gap-3 text-slate-600 dark:text-slate-400">
                 <span class="flex items-center gap-1.5">
                   <span class="h-2 w-2 rounded-sm flex-shrink-0"
-                        :style="{ background: ['#378ADD','#534AB7','#D85A30','#1D9E75','#BA7517','#94a3b8'][i % 6] }" />
+                        :style="{ background: ['#378ADD','#534AB7','#D85A30','#1D9E75','#BA7517','#94a3b8'][i % 6] }"/>
                   {{ unit }}
                 </span>
                 <span class="font-semibold text-slate-800 dark:text-white">{{ count }}</span>
@@ -434,17 +527,18 @@ const domainIcon = (code: string) => {
       <!-- Domain Bar Chart -->
       <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-800">
         <div class="mb-1 flex items-center gap-2">
-          <i class="ti ti-chart-bar text-slate-400" />
+          <IconChartBar :size="20" class="text-slate-400"/>
           <h3 class="text-sm font-semibold text-slate-900 dark:text-white">امتیاز میانگین دامنه‌ها</h3>
         </div>
-        <p class="mb-3 text-[11px] text-slate-400">میانگین شاخص‌های درصدی هر دامنه (سبز ≥80، عنبری 50-79، قرمز &lt;50)</p>
-        <VChart :option="domainBarOption" autoresize style="height: 320px; width: 100%" />
+        <p class="mb-3 text-[11px] text-slate-400">میانگین شاخص‌های درصدی هر دامنه (سبز ≥80، عنبری 50-79، قرمز
+          &lt;50)</p>
+        <VChart :option="domainBarOption" autoresize style="height: 320px; width: 100%"/>
       </div>
 
       <!-- Framework Coverage -->
       <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-800">
         <div class="mb-1 flex items-center gap-2">
-          <i class="ti ti-activity text-slate-400" />
+          <IconActivity :size="20" class="text-slate-400"/>
           <h3 class="text-sm font-semibold text-slate-900 dark:text-white">پوشش چارچوب‌های گزارش‌دهی</h3>
         </div>
         <p class="mb-3 text-[11px] text-slate-400">تعداد KPI پوشش‌یافته در هر استاندارد</p>
@@ -461,8 +555,9 @@ const domainIcon = (code: string) => {
             {{ fw.name }} — {{ fw.count }}
           </span>
         </div>
-        <div class="mt-3 rounded-lg bg-slate-50 p-3 text-[11px] text-slate-500 dark:bg-slate-700/50 dark:text-slate-400">
-          <i class="ti ti-info-circle ml-1" />
+        <div
+            class="mt-3 rounded-lg bg-slate-50 p-3 text-[11px] text-slate-500 dark:bg-slate-700/50 dark:text-slate-400">
+          <IconInfoCircle :size="20" class="text-slate-400"/>
           TCFD فقط برای دامنه مدیریت ریسک اعمال می‌شود.
         </div>
       </div>
@@ -470,8 +565,8 @@ const domainIcon = (code: string) => {
 
     <!-- ═══════════ DOMAIN DETAIL CARDS ═══════════ -->
     <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-800">
-      <div class="mb-4 flex items-center gap-2">
-        <i class="ti ti-cards text-slate-400" />
+      <div class="mb-4 flex items-center gap-2"> 
+        <IconCards :size="20" class="text-slate-400"/>
         <h3 class="text-sm font-semibold text-slate-900 dark:text-white">جزئیات دامنه‌ها</h3>
         <span class="mr-auto text-[11px] text-slate-400">برای مشاهده شاخص‌ها کلیک کنید</span>
       </div>
@@ -490,8 +585,14 @@ const domainIcon = (code: string) => {
             <div class="flex items-start gap-2.5">
               <div class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg"
                    :style="{ background: scoreColor(domain.avg_score) + '20' }">
-                <i class="ti text-base" :class="domainIcon(domain.code)"
-                   :style="{ color: scoreColor(domain.avg_score) }" />
+
+                <component
+                    :is="domainIcon(domain.code)"
+                    class="text-base"
+                    :color="scoreColor(domain.avg_score)"
+                    size="20"
+                stroke-width="2"
+                />
               </div>
               <div>
                 <h4 class="text-xs font-semibold text-slate-900 dark:text-white leading-snug">{{ domain.title }}</h4>
@@ -514,11 +615,11 @@ const domainIcon = (code: string) => {
           <div class="border-t border-slate-100 px-4 py-3 dark:border-slate-700 bg-white dark:bg-slate-800">
             <div class="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 mb-2">
               <span>{{ domain.answered }}/{{ domain.kpi_count }} شاخص پاسخ‌داده</span>
-              <i class="ti" :class="activeDomain === domain.code ? 'ti-chevron-up' : 'ti-chevron-down'" />
+              <i class="ti" :class="activeDomain === domain.code ? 'ti-chevron-up' : 'ti-chevron-down'"/>
             </div>
             <div class="h-1.5 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-slate-700">
               <div class="h-1.5 rounded-full transition-all duration-700"
-                   :style="{ width: `${(domain.answered / domain.kpi_count) * 100}%`, background: scoreColor(domain.avg_score) }" />
+                   :style="{ width: `${(domain.answered / domain.kpi_count) * 100}%`, background: scoreColor(domain.avg_score) }"/>
             </div>
 
             <!-- Mini chart for percentage KPIs -->
@@ -555,71 +656,71 @@ const domainIcon = (code: string) => {
     </div>
 
     <!-- ═══════════ ALL KPIs HEATMAP TABLE ═══════════ -->
-<!--    <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-800">-->
-<!--      <div class="mb-3 flex items-center gap-2">-->
-<!--        <i class="ti ti-layout-grid text-slate-400" />-->
-<!--        <h3 class="text-sm font-semibold text-slate-900 dark:text-white">نقشه حرارتی تمام شاخص‌ها</h3>-->
-<!--        <span class="mr-auto rounded bg-slate-100 px-2 py-0.5 text-[11px] text-slate-500 dark:bg-slate-700 dark:text-slate-400">-->
-<!--          {{ sectionData.all_kpis.length }} شاخص-->
-<!--        </span>-->
-<!--      </div>-->
-<!--      <p class="mb-4 text-[11px] text-slate-400">-->
-<!--        <span class="mr-2 inline-flex items-center gap-1"><span class="inline-block h-2.5 w-2.5 rounded-sm bg-emerald-500" /> سبز ≥80%</span>-->
-<!--        <span class="mr-2 inline-flex items-center gap-1"><span class="inline-block h-2.5 w-2.5 rounded-sm bg-amber-400" /> عنبری 50-79%</span>-->
-<!--        <span class="mr-2 inline-flex items-center gap-1"><span class="inline-block h-2.5 w-2.5 rounded-sm bg-red-500" /> قرمز &lt;50%</span>-->
-<!--        <span class="inline-flex items-center gap-1"><span class="inline-block h-2.5 w-2.5 rounded-sm bg-slate-300" /> خاکستری = عدد/ارز</span>-->
-<!--      </p>-->
+    <!--    <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-800">-->
+    <!--      <div class="mb-3 flex items-center gap-2">-->
+    <!--        <i class="ti ti-layout-grid text-slate-400" />-->
+    <!--        <h3 class="text-sm font-semibold text-slate-900 dark:text-white">نقشه حرارتی تمام شاخص‌ها</h3>-->
+    <!--        <span class="mr-auto rounded bg-slate-100 px-2 py-0.5 text-[11px] text-slate-500 dark:bg-slate-700 dark:text-slate-400">-->
+    <!--          {{ sectionData.all_kpis.length }} شاخص-->
+    <!--        </span>-->
+    <!--      </div>-->
+    <!--      <p class="mb-4 text-[11px] text-slate-400">-->
+    <!--        <span class="mr-2 inline-flex items-center gap-1"><span class="inline-block h-2.5 w-2.5 rounded-sm bg-emerald-500" /> سبز ≥80%</span>-->
+    <!--        <span class="mr-2 inline-flex items-center gap-1"><span class="inline-block h-2.5 w-2.5 rounded-sm bg-amber-400" /> عنبری 50-79%</span>-->
+    <!--        <span class="mr-2 inline-flex items-center gap-1"><span class="inline-block h-2.5 w-2.5 rounded-sm bg-red-500" /> قرمز &lt;50%</span>-->
+    <!--        <span class="inline-flex items-center gap-1"><span class="inline-block h-2.5 w-2.5 rounded-sm bg-slate-300" /> خاکستری = عدد/ارز</span>-->
+    <!--      </p>-->
 
-<!--      <div class="overflow-x-auto">-->
-<!--        <table class="w-full text-[11px]" style="table-layout: fixed">-->
-<!--          <colgroup>-->
-<!--            <col style="width: 108px">-->
-<!--            <col style="width: auto">-->
-<!--            <col style="width: 80px">-->
-<!--            <col style="width: 60px">-->
-<!--            <col style="width: 72px">-->
-<!--          </colgroup>-->
-<!--          <thead>-->
-<!--          <tr class="border-b border-slate-100 dark:border-slate-700">-->
-<!--            <th class="p-2 text-right font-medium text-slate-500 dark:text-slate-400">کد</th>-->
-<!--            <th class="p-2 text-right font-medium text-slate-500 dark:text-slate-400">عنوان</th>-->
-<!--            <th class="p-2 text-center font-medium text-slate-500 dark:text-slate-400">مقدار</th>-->
-<!--            <th class="p-2 text-center font-medium text-slate-500 dark:text-slate-400">واحد</th>-->
-<!--            <th class="p-2 text-center font-medium text-slate-500 dark:text-slate-400">وضعیت</th>-->
-<!--          </tr>-->
-<!--          </thead>-->
-<!--          <tbody>-->
-<!--          <tr v-for="kpi in sectionData.all_kpis" :key="kpi.code"-->
-<!--              class="border-b border-slate-50 transition hover:bg-slate-50 dark:border-slate-700/50 dark:hover:bg-slate-700/20">-->
-<!--            <td class="p-2 font-mono text-[10px] text-slate-500 dark:text-slate-400 whitespace-nowrap">{{ kpi.code }}</td>-->
-<!--            <td class="p-2 text-slate-700 dark:text-slate-300 overflow-hidden">-->
-<!--              <span class="line-clamp-2 leading-snug" :title="kpi.title">{{ kpi.title }}</span>-->
-<!--            </td>-->
-<!--            <td class="p-2 text-center">-->
-<!--                <span v-if="kpi.value !== null"-->
-<!--                      class="inline-block rounded px-1.5 py-0.5 font-semibold"-->
-<!--                      :class="kpi.unit === 'percent'-->
-<!--                        ? scoreClass(Number(kpi.value))-->
-<!--                        : 'bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300'">-->
-<!--                  {{ fmt(kpi.value, kpi.unit) }}-->
-<!--                </span>-->
-<!--              <span v-else class="text-slate-400">—</span>-->
-<!--            </td>-->
-<!--            <td class="p-2 text-center text-slate-500 dark:text-slate-400">{{ kpi.unit }}</td>-->
-<!--            <td class="p-2 text-center">-->
-<!--                <span class="inline-flex items-center gap-0.5 rounded px-1.5 py-0.5 text-[10px] font-medium"-->
-<!--                      :class="kpi.status === 'answered'-->
-<!--                        ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300'-->
-<!--                        : 'bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-300'">-->
-<!--                  <i class="ti text-[9px]" :class="kpi.status === 'answered' ? 'ti-check' : 'ti-x'" />-->
-<!--                  {{ kpi.status === 'answered' ? 'پاسخ داده' : 'بدون پاسخ' }}-->
-<!--                </span>-->
-<!--            </td>-->
-<!--          </tr>-->
-<!--          </tbody>-->
-<!--        </table>-->
-<!--      </div>-->
-<!--    </div>-->
+    <!--      <div class="overflow-x-auto">-->
+    <!--        <table class="w-full text-[11px]" style="table-layout: fixed">-->
+    <!--          <colgroup>-->
+    <!--            <col style="width: 108px">-->
+    <!--            <col style="width: auto">-->
+    <!--            <col style="width: 80px">-->
+    <!--            <col style="width: 60px">-->
+    <!--            <col style="width: 72px">-->
+    <!--          </colgroup>-->
+    <!--          <thead>-->
+    <!--          <tr class="border-b border-slate-100 dark:border-slate-700">-->
+    <!--            <th class="p-2 text-right font-medium text-slate-500 dark:text-slate-400">کد</th>-->
+    <!--            <th class="p-2 text-right font-medium text-slate-500 dark:text-slate-400">عنوان</th>-->
+    <!--            <th class="p-2 text-center font-medium text-slate-500 dark:text-slate-400">مقدار</th>-->
+    <!--            <th class="p-2 text-center font-medium text-slate-500 dark:text-slate-400">واحد</th>-->
+    <!--            <th class="p-2 text-center font-medium text-slate-500 dark:text-slate-400">وضعیت</th>-->
+    <!--          </tr>-->
+    <!--          </thead>-->
+    <!--          <tbody>-->
+    <!--          <tr v-for="kpi in sectionData.all_kpis" :key="kpi.code"-->
+    <!--              class="border-b border-slate-50 transition hover:bg-slate-50 dark:border-slate-700/50 dark:hover:bg-slate-700/20">-->
+    <!--            <td class="p-2 font-mono text-[10px] text-slate-500 dark:text-slate-400 whitespace-nowrap">{{ kpi.code }}</td>-->
+    <!--            <td class="p-2 text-slate-700 dark:text-slate-300 overflow-hidden">-->
+    <!--              <span class="line-clamp-2 leading-snug" :title="kpi.title">{{ kpi.title }}</span>-->
+    <!--            </td>-->
+    <!--            <td class="p-2 text-center">-->
+    <!--                <span v-if="kpi.value !== null"-->
+    <!--                      class="inline-block rounded px-1.5 py-0.5 font-semibold"-->
+    <!--                      :class="kpi.unit === 'percent'-->
+    <!--                        ? scoreClass(Number(kpi.value))-->
+    <!--                        : 'bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300'">-->
+    <!--                  {{ fmt(kpi.value, kpi.unit) }}-->
+    <!--                </span>-->
+    <!--              <span v-else class="text-slate-400">—</span>-->
+    <!--            </td>-->
+    <!--            <td class="p-2 text-center text-slate-500 dark:text-slate-400">{{ kpi.unit }}</td>-->
+    <!--            <td class="p-2 text-center">-->
+    <!--                <span class="inline-flex items-center gap-0.5 rounded px-1.5 py-0.5 text-[10px] font-medium"-->
+    <!--                      :class="kpi.status === 'answered'-->
+    <!--                        ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300'-->
+    <!--                        : 'bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-300'">-->
+    <!--                  <i class="ti text-[9px]" :class="kpi.status === 'answered' ? 'ti-check' : 'ti-x'" />-->
+    <!--                  {{ kpi.status === 'answered' ? 'پاسخ داده' : 'بدون پاسخ' }}-->
+    <!--                </span>-->
+    <!--            </td>-->
+    <!--          </tr>-->
+    <!--          </tbody>-->
+    <!--        </table>-->
+    <!--      </div>-->
+    <!--    </div>-->
 
   </div>
 </template>
@@ -633,12 +734,15 @@ const domainIcon = (code: string) => {
 .badge-ok {
   @apply bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300;
 }
+
 .badge-warn {
   @apply bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300;
 }
+
 .badge-danger {
   @apply bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-300;
 }
+
 .badge-gray {
   @apply bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300;
 }

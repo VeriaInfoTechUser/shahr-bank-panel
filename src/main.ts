@@ -11,7 +11,6 @@ import './assets/css/app.css';
 import './assets/css/primevue-theme.css';
 import Shimmer from 'vue3-shimmer';
 import VueAwesomePaginate from "vue-awesome-paginate";
-import '@tabler/icons-webfont/dist/tabler-icons.min.css'
 
 const app = createApp(App);
 

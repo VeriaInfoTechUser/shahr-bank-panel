@@ -2,6 +2,12 @@
 import { computed, ref } from 'vue'
 import html2canvas from 'html2canvas'
 import { jsPDF } from 'jspdf'
+import {
+  IconPlant2,
+  IconUsers,
+  IconBuildingBank,
+  IconLeaf
+} from '@tabler/icons-vue'
 
 const props = defineProps<{ response: any }>()
 
@@ -27,18 +33,9 @@ function pct(val: number, max: number) {
   if (!max) return '0%'
   return Math.round((val / max) * 100) + '%'
 }
-function pctNum(val: number, max: number) {
-  if (!max) return 0
-  return Math.min(100, Math.round((val / max) * 100))
-}
 function getDomainEntries(section: 'environmental' | 'social' | 'governance') {
   const domains = narratives.value[section]?.domains || {}
   return Object.entries(domains) as [string, { title: string; body: string }][]
-}
-function getSectionItems(sectionData: any): any[] {
-  if (!sectionData) return []
-  if (Array.isArray(sectionData)) return sectionData
-  return Object.values(sectionData).flat().filter(Boolean) as any[]
 }
 
 async function downloadPDF() {
@@ -233,7 +230,7 @@ async function downloadPDF() {
       <!-- PAGE 3: Environmental Intro + All Env Domains -->
       <div class="page">
         <div class="page-header">
-          <span class="section-pill pill-env"> <i class=" ti ti-plant-2" />  محیط‌زیست — مقدمه</span>
+          <span class="section-pill pill-env"> <IconPlant2 :size="16" stroke-width="2" />  محیط‌زیست — مقدمه</span>
           <div class="header-meta"><div class="hm-label">حوزه‌ها</div><div class="hm-value">{{ meta.sections?.environmental?.domains }}</div></div>
         </div>
         <div class="narrative-box env-border">{{ narratives.environmental?.intro }}</div>
@@ -249,7 +246,7 @@ async function downloadPDF() {
       <!-- PAGE 4: Energy -->
       <div class="page">
         <div class="page-header">
-          <span class="section-pill pill-env"> <i class=" ti ti-plant-2" /> محیط‌زیست — انرژی</span>
+          <span class="section-pill pill-env"> <IconPlant2 :size="16" stroke-width="2" /> محیط‌زیست — انرژی</span>
           <div class="header-meta"><div class="hm-label">بخش</div><div class="hm-value">۲</div></div>
         </div>
         <div class="section-title">مدیریت انرژی و منابع</div>
@@ -289,7 +286,7 @@ async function downloadPDF() {
       <!-- PAGE 5: GHG -->
       <div class="page">
         <div class="page-header">
-          <span class="section-pill pill-env"> <i class=" ti ti-plant-2" /> محیط‌زیست — گازهای گلخانه‌ای</span>
+          <span class="section-pill pill-env"> <IconPlant2 :size="16" stroke-width="2" /> محیط‌زیست — گازهای گلخانه‌ای</span>
           <div class="header-meta"><div class="hm-label">بخش</div><div class="hm-value">۳</div></div>
         </div>
         <div class="section-title">انتشار گازهای گلخانه‌ای (GHG)</div>
@@ -344,7 +341,7 @@ async function downloadPDF() {
       <!-- PAGE 6: Water & Waste -->
       <div class="page">
         <div class="page-header">
-          <span class="section-pill pill-env"> <i class=" ti ti-plant-2" /> محیط‌زیست — آب و پسماند</span>
+          <span class="section-pill pill-env"> <IconPlant2 :size="16" stroke-width="2" /> محیط‌زیست — آب و پسماند</span>
           <div class="header-meta"><div class="hm-label">بخش</div><div class="hm-value">۴</div></div>
         </div>
         <div class="section-title">مدیریت آب و پسماند</div>
@@ -396,7 +393,7 @@ async function downloadPDF() {
       <!-- PAGE 7: Climate & Other Env Domains -->
       <div class="page">
         <div class="page-header">
-          <span class="section-pill pill-env"> <i class=" ti ti-plant-2" /> محیط‌زیست — اقلیم و سایر</span>
+          <span class="section-pill pill-env"> <IconPlant2 :size="16" stroke-width="2" /> محیط‌زیست — اقلیم و سایر</span>
           <div class="header-meta"><div class="hm-label">بخش</div><div class="hm-value">۵</div></div>
         </div>
         <div class="two-col">
@@ -429,7 +426,7 @@ async function downloadPDF() {
       <!-- PAGE 8: Social Intro + Domains -->
       <div class="page">
         <div class="page-header">
-          <span class="section-pill pill-soc"> <i class=" ti ti-users" /> اجتماعی — مقدمه</span>
+          <span class="section-pill pill-soc"> <IconUsers :size="16" stroke-width="2" /> اجتماعی — مقدمه</span>
           <div class="header-meta"><div class="hm-label">حوزه‌ها</div><div class="hm-value">{{ meta.sections?.social?.domains }}</div></div>
         </div>
         <div class="narrative-box soc-border">{{ narratives.social?.intro }}</div>
@@ -445,7 +442,7 @@ async function downloadPDF() {
       <!-- PAGE 9: Workforce -->
       <div class="page">
         <div class="page-header">
-          <span class="section-pill pill-soc"> <i class=" ti ti-users" /> اجتماعی — نیروی انسانی</span>
+          <span class="section-pill pill-soc"> <IconUsers :size="16" stroke-width="2" /> اجتماعی — نیروی انسانی</span>
           <div class="header-meta"><div class="hm-label">بخش</div><div class="hm-value">۶</div></div>
         </div>
         <div class="section-title">ساختار و جمعیت‌شناسی نیروی انسانی</div>
@@ -495,7 +492,7 @@ async function downloadPDF() {
       <!-- PAGE 10: Health, Safety, Engagement -->
       <div class="page">
         <div class="page-header">
-          <span class="section-pill pill-soc"> <i class=" ti ti-users" /> اجتماعی — سلامت و مشارکت</span>
+          <span class="section-pill pill-soc"> <IconUsers :size="16" stroke-width="2" /> اجتماعی — سلامت و مشارکت</span>
           <div class="header-meta"><div class="hm-label">بخش</div><div class="hm-value">۷</div></div>
         </div>
         <div class="section-title">سلامت، ایمنی و مشارکت کارکنان</div>
@@ -541,7 +538,7 @@ async function downloadPDF() {
       <!-- PAGE 11: Social Community & Human Rights -->
       <div class="page">
         <div class="page-header">
-          <span class="section-pill pill-soc"> <i class=" ti ti-users" /> اجتماعی — جامعه و حقوق بشر</span>
+          <span class="section-pill pill-soc"> <IconUsers :size="16" stroke-width="2" /> اجتماعی — جامعه و حقوق بشر</span>
           <div class="header-meta"><div class="hm-label">بخش</div><div class="hm-value">۸</div></div>
         </div>
         <div class="two-col">
@@ -566,7 +563,7 @@ async function downloadPDF() {
       <!-- PAGE 12: Governance Intro + All Domains -->
       <div class="page">
         <div class="page-header">
-          <span class="section-pill pill-gov"> <i class=" ti ti-building-bank" /> حاکمیت — مقدمه</span>
+          <span class="section-pill pill-gov"> <IconBuildingBank :size="16" stroke-width="2" /> حاکمیت — مقدمه</span>
           <div class="header-meta"><div class="hm-label">حوزه‌ها</div><div class="hm-value">{{ meta.sections?.governance?.domains }}</div></div>
         </div>
         <div class="narrative-box gov-border">{{ narratives.governance?.intro }}</div>
@@ -582,7 +579,7 @@ async function downloadPDF() {
       <!-- PAGE 13: Governance Board & Risk -->
       <div class="page">
         <div class="page-header">
-          <span class="section-pill pill-gov"> <i class=" ti ti-building-bank" /> حاکمیت — هیئت‌مدیره و ریسک</span>
+          <span class="section-pill pill-gov"> <IconBuildingBank :size="16" stroke-width="2" /> حاکمیت — هیئت‌مدیره و ریسک</span>
           <div class="header-meta"><div class="hm-label">بخش</div><div class="hm-value">۹</div></div>
         </div>
         <div class="section-title">ساختار حاکمیت شرکتی و مدیریت ریسک</div>
@@ -630,7 +627,7 @@ async function downloadPDF() {
       <!-- PAGE 14: Ethics & Compliance -->
       <div class="page">
         <div class="page-header">
-          <span class="section-pill pill-gov"> <i class=" ti ti-building-bank" /> حاکمیت — اخلاق و انطباق</span>
+          <span class="section-pill pill-gov"> <IconBuildingBank :size="16" stroke-width="2" /> حاکمیت — اخلاق و انطباق</span>
           <div class="header-meta"><div class="hm-label">بخش</div><div class="hm-value">۱۰</div></div>
         </div>
         <div class="section-title">اخلاق، انطباق، امنیت و زنجیره تأمین</div>
@@ -677,7 +674,7 @@ async function downloadPDF() {
       <!-- PAGE 15: Governance - Financial, Internal Audit, ESG Reporting, AML -->
       <div class="page">
         <div class="page-header">
-          <span class="section-pill pill-gov"> <i class=" ti ti-building-bank" /> حاکمیت — شفافیت و کنترل</span>
+          <span class="section-pill pill-gov"> <IconBuildingBank :size="16" stroke-width="2" /> حاکمیت — شفافیت و کنترل</span>
           <div class="header-meta"><div class="hm-label">بخش</div><div class="hm-value">۱۱</div></div>
         </div>
         <div class="two-col">

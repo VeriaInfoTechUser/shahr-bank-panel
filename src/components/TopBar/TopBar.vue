@@ -10,7 +10,6 @@ import {useUserStore} from "@/stores/user";
 import {useRoute} from "vue-router";
 import {useFetch} from "@/composables/useFetch.js";
 import {localeOptions, setting, uri} from "@/constants/config.js";
-import WalletDialog from "./WalletDialog.vue";
 import {useNumberFormat} from "@/composables/useNumberFormat.js";
 import { getDirection} from "@/utils/index.js";
 import {useLocaleStore} from "@/stores/locale.js";
@@ -41,7 +40,6 @@ const headerDateTime = computed(() => {
 
 const route = useRoute()
 const id = ref(route.params.id)
-const walletDialogPreviewFlag = ref(false)
 const loadingFlag = ref(false)
 const wallet = ref({})
 
@@ -59,10 +57,6 @@ async function getWallet() {
   } finally {
     loadingFlag.value = false;
   }
-}
-
-function setWalletDialogPreviewFlag(flag) {
-  walletDialogPreviewFlag.value = flag
 }
 
 
@@ -95,14 +89,6 @@ onUnmounted(() => {
 
 <template>
   <section>
-    <div v-if="walletDialogPreviewFlag">
-      <WalletDialog
-          v-if="setting.wallet.isActive"
-          @close="setWalletDialogPreviewFlag(false)"
-          @onSuccess="getWallet"
-          :show="walletDialogPreviewFlag"
-      />
-    </div>
     <!-- BEGIN: Top Bar -->
     <div
         class="top-bar-boxed h-[64px] z-[51] relative bg-slate-900 border border-white/10 my-1 px-4 md:px-6 rounded-xl shadow-md"
@@ -131,24 +117,6 @@ onUnmounted(() => {
         </Breadcrumb>
         <!-- END: Breadcrumb -->
 
-        <!-- BEGIN: Wallet -->
-        <div class="me-4 intro-x sm:me-6 flex gap-3 cursor-pointer" v-if="!loadingFlag &&setting.wallet.isActive"
-             @click="setWalletDialogPreviewFlag(true)">
-          <div class="dark:text-slate-500 mt-2 text-white flex gap-1">
-            <div class=" relative lg:text-xl md:text-xl font-bold">
-              {{ formatNumber(wallet?.amount) }}
-            </div>
-            <div class="pt-1">
-              {{ $t("title.currency-unit") }}
-            </div>
-          </div>
-          <div
-              class="relative text-white/70 outline-none block"
-          >
-            <Lucide icon="CreditCard" class="w-7 h-7 dark:text-slate-500 mt-1"/>
-          </div>
-        </div>
-        <!-- END: Wallet -->
         <!-- BEGIN: Live date/time (کنار منوی کاربر) -->
         <div
             class="me-2 flex flex-col items-end justify-center tabular-nums text-white/85 sm:me-3 rtl:items-start"

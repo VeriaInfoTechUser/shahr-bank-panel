@@ -1,5 +1,5 @@
 <script setup>
-import {computed, defineProps, defineEmits, ref} from 'vue';
+import {computed,  ref} from 'vue';
 import {VueAwesomePaginate} from "vue-awesome-paginate";
 
 const props = defineProps({

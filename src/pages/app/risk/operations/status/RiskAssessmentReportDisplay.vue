@@ -2,7 +2,7 @@
 /**
  * همان بلوک «گزارش ارزیابی ریسک» در RiskStatusDoneReviewView — فقط نمایش.
  */
-import { computed, onMounted, ref, withDefaults } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { ermRepo } from '@/core/repositories/ermRepo';
 import { isPersianDigitLocale, toPersianDigits } from '@/utils/persianDigits';

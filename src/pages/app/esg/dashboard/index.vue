@@ -83,10 +83,15 @@ onMounted(loadDashboard);
             ? 'bg-white text-slate-900 shadow-sm dark:bg-slate-800 dark:text-white'
             : 'text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200'"
         >
-          <span v-if="view === 'overall'">🌐 کلی</span>
-          <span v-else-if="view === 'environmental'">🌿 محیط‌زیست</span>
-          <span v-else-if="view === 'social'">👥 اجتماعی</span>
-          <span v-else-if="view === 'governance'">🏛 حاکمیت</span>
+          <span v-if="view === 'overall'">
+            <i class=" ti ti-leaf" />
+            کلی</span>
+          <span v-else-if="view === 'environmental'">
+            <i class=" ti ti-plant-2" /> محیط‌زیست</span>
+          <span v-else-if="view === 'social'">
+            <i class=" ti ti-users" /> اجتماعی</span>
+          <span v-else-if="view === 'governance'">
+            <i class=" ti ti-building-bank" /> حاکمیت</span>
         </button>
       </div>
 

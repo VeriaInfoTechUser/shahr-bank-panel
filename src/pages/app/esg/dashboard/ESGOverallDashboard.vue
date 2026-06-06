@@ -305,27 +305,90 @@ const dataSources = [
     <!-- ══════════════ TOP SCORE CARDS ══════════════ -->
     <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
       <!-- 4 score cards -->
-      <div v-for="(card, i) in scoreCards" :key="i"
-           class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800"
-           :class="i === 0 ? 'lg:col-span-1' : ''">
-        <div class="flex items-start justify-between gap-2">
-          <div class="flex-1">
-            <p class="text-[11px] font-medium text-slate-500 dark:text-slate-400 flex items-center gap-1">
-              <i class="ti text-sm" :class="card.icon" :style="{ color: card.color }" />
-              {{ card.label }}
-            </p>
-            <p class="mt-2 text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
-              {{ Math.round(card.score) }}<span class="text-base font-normal text-slate-400">/100</span>
-            </p>
-            <p class="mt-1 flex items-center gap-1 text-[11px]" :style="{ color: card.color }">
-              <i class="ti ti-trending-up text-[10px]" />{{ card.yoy }}% نسبت به سال قبل
-            </p>
+      <div
+        v-for="(card, i) in scoreCards"
+        :key="i"
+        class="group relative overflow-hidden rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl dark:border-slate-700 dark:bg-slate-800"
+    >
+      <!-- background glow -->
+      <div
+          class="absolute inset-0 opacity-5"
+          :style="{
+      background: `radial-gradient(circle at top right, ${card.color}, transparent 70%)`
+    }"
+      />
+
+        <div class="flex items-center gap-2">
+          <div
+              class="flex h-8 w-8 items-center justify-center rounded-lg"
+              :style="{ backgroundColor: `${card.color}15` }"
+          >
+            <i
+                class="ti text-lg"
+                :class="card.icon"
+                :style="{ color: card.color }"
+            />
           </div>
-          <div style="width:64px; height:64px; flex-shrink:0">
-            <VChart :option="ringOpt(card.score, card.color)" autoresize style="width:64px;height:64px" />
-          </div>
+
+          <span class="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+          {{ card.label }}
+        </span>
         </div>
+      <div class="relative flex items-center justify-between gap-4">
+
+        <!-- Left Content -->
+        <div class="flex-1 min-w-0">
+
+
+          <div class="mt-4 flex items-end gap-1">
+        <span class="text-4xl font-bold leading-none text-slate-900 dark:text-white">
+          {{ Math.round(card.score) }}
+        </span>
+
+            <span class="mb-1 text-sm text-slate-400">
+          /100
+        </span>
+          </div>
+
+          <!-- Mini Progress -->
+          <div class="mt-4">
+            <div class="h-2 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-700">
+              <div
+                  class="h-full rounded-full transition-all duration-700"
+                  :style="{
+              width: `${card.score}%`,
+              backgroundColor: card.color
+            }"
+              />
+            </div>
+          </div>
+
+          <!-- Trend -->
+<!--          <div-->
+<!--              v-if="card.yoy"-->
+<!--              class="mt-3 inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium"-->
+<!--              :style="{-->
+<!--          color: card.color,-->
+<!--          backgroundColor: `${card.color}10`-->
+<!--        }"-->
+<!--          >-->
+<!--            <i class="ti ti-trending-up text-[12px]" />-->
+<!--            {{ card.yoy }}%-->
+<!--          </div>-->
+
+        </div>
+
+        <!-- Right Ring -->
+        <div class="relative flex items-center justify-center">
+          <VChart
+              :option="ringOpt(card.score, card.color)"
+              autoresize
+              style="width:130px;height:130px"
+          />
+        </div>
+
       </div>
+    </div>
 
       <!-- Data Completion card -->
       <div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800">

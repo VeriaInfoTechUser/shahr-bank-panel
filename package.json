@@ -12,6 +12,7 @@
     "@bhplugin/vue3-datatable": "^1.1.4",
     "@headlessui/vue": "^1.7.13",
     "@primeuix/themes": "^2.0.3",
+    "@tabler/icons-webfont": "^3.44.0",
     "@vueuse/core": "^14.2.0",
     "axios": "^1.13.4",
     "chart.js": "^4.5.1",

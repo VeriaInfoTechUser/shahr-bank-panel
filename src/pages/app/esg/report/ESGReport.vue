@@ -126,20 +126,34 @@ const exportToPDF = async () => {
   const element = document.getElementById('esg-report-content') || document.body
   try {
     const { default: html2pdf } = await import('html2pdf.js')
-    const clone = element.cloneNode(true)
+    const clone = element.cloneNode(true) as HTMLElement
+    clone.setAttribute('data-esg-pdf-clone', '1')
+    clone.style.position = 'absolute'
+    clone.style.left = '-9999px'
+    clone.style.top = '0'
+    try { clone.style.width = (element as HTMLElement).getBoundingClientRect().width + 'px' } catch (err) {}
+    clone.style.visibility = 'hidden'
+    document.body.appendChild(clone)
 
-    // Convert canvases to images
-    const canvases = Array.from(clone.querySelectorAll('canvas'))
-    canvases.forEach((canvas: HTMLCanvasElement) => {
+    // Convert canvases to images using original canvas content
+    const originalCanvases = Array.from((element as HTMLElement).querySelectorAll('canvas')) as HTMLCanvasElement[]
+    const cloneCanvases = Array.from(clone.querySelectorAll('canvas')) as HTMLCanvasElement[]
+    for (let i = 0; i < cloneCanvases.length; i++) {
+      const cc = cloneCanvases[i]
+      const oc = originalCanvases[i]
       try {
-        const dataURL = canvas.toDataURL('image/png')
-        const img = document.createElement('img')
-        img.src = dataURL
-        img.style.width = canvas.style.width || canvas.width + 'px'
-        img.style.height = canvas.style.height || canvas.height + 'px'
-        canvas.parentNode?.replaceChild(img, canvas)
+        let dataURL = ''
+        if (oc && oc.toDataURL) dataURL = oc.toDataURL('image/png')
+        else if (cc && cc.toDataURL) dataURL = cc.toDataURL('image/png')
+        if (dataURL) {
+          const img = document.createElement('img')
+          img.src = dataURL
+          img.style.width = cc.style.width || cc.width + 'px'
+          img.style.height = cc.style.height || cc.height + 'px'
+          cc.parentNode?.replaceChild(img, cc)
+        }
       } catch (err) { console.warn('Canvas->img failed', err) }
-    })
+    }
 
     // Sanitize styles to avoid unsupported color functions (e.g., oklch) and complex backgrounds
     const all = Array.from(clone.querySelectorAll('*')) as HTMLElement[]
@@ -178,6 +192,19 @@ const exportToPDF = async () => {
       const pageHeight = pdf.internal.pageSize.getHeight()
       pdf.setFontSize(9)
       pdf.setTextColor(100)
+      for (let i = 1; i <= totalPages; i++) {
+        pdf.setPage(i)
+        pdf.text(`Page ${i} / ${totalPages}`, pageWidth / 2, pageHeight - 8, { align: 'center' })
+      }
+      pdf.save(opt.filename)
+      const existing = document.querySelector('[data-esg-pdf-clone="1"]')
+      if (existing && existing.parentNode) existing.parentNode.removeChild(existing)
+    }).catch((err) => {
+      console.error(err)
+      const existing = document.querySelector('[data-esg-pdf-clone="1"]')
+      if (existing && existing.parentNode) existing.parentNode.removeChild(existing)
+      throw err
+    })
       for (let i = 1; i <= totalPages; i++) {
         pdf.setPage(i)
         pdf.text(`Page ${i} / ${totalPages}`, pageWidth / 2, pageHeight - 8, { align: 'center' })

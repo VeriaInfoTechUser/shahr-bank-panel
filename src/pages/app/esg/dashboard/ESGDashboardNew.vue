@@ -371,7 +371,7 @@ const domainIcon = (code: string) => {
         <VChart
             :option="radarChartOption"
             autoresize
-            style="height:400px; width: 100%"
+            style="height:360px; width: 100%"
         />
       </div>
 
@@ -384,7 +384,7 @@ const domainIcon = (code: string) => {
             <h3 class="text-sm font-semibold text-slate-900 dark:text-white">وضعیت پاسخ‌ها</h3>
           </div>
           <div class="flex items-center gap-4">
-            <VChart :option="statusChartOption" autoresize style="height: 330px; width: 330px; flex-shrink: 0" />
+            <VChart :option="statusChartOption" autoresize style="height: 130px; width: 130px; flex-shrink: 0" />
             <div class="space-y-2 text-xs">
               <div class="flex items-center justify-between gap-4">
                 <span class="flex items-center gap-1.5 text-slate-600 dark:text-slate-400">
@@ -411,7 +411,7 @@ const domainIcon = (code: string) => {
             <h3 class="text-sm font-semibold text-slate-900 dark:text-white">توزیع نوع شاخص</h3>
           </div>
           <div class="flex items-center gap-3">
-            <VChart :option="typeChartOption" autoresize style="height: 300px; width: 300px; flex-shrink: 0" />
+            <VChart :option="typeChartOption" autoresize style="height: 130px; width: 130px; flex-shrink: 0" />
             <div class="space-y-1.5 text-[11px]">
               <div v-for="([unit, count], i) in Object.entries(typeDistribution)" :key="unit"
                    class="flex items-center justify-between gap-3 text-slate-600 dark:text-slate-400">
@@ -555,71 +555,71 @@ const domainIcon = (code: string) => {
     </div>
 
     <!-- ═══════════ ALL KPIs HEATMAP TABLE ═══════════ -->
-    <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-800">
-      <div class="mb-3 flex items-center gap-2">
-        <i class="ti ti-layout-grid text-slate-400" />
-        <h3 class="text-sm font-semibold text-slate-900 dark:text-white">نقشه حرارتی تمام شاخص‌ها</h3>
-        <span class="mr-auto rounded bg-slate-100 px-2 py-0.5 text-[11px] text-slate-500 dark:bg-slate-700 dark:text-slate-400">
-          {{ sectionData.all_kpis.length }} شاخص
-        </span>
-      </div>
-      <p class="mb-4 text-[11px] text-slate-400">
-        <span class="mr-2 inline-flex items-center gap-1"><span class="inline-block h-2.5 w-2.5 rounded-sm bg-emerald-500" /> سبز ≥80%</span>
-        <span class="mr-2 inline-flex items-center gap-1"><span class="inline-block h-2.5 w-2.5 rounded-sm bg-amber-400" /> عنبری 50-79%</span>
-        <span class="mr-2 inline-flex items-center gap-1"><span class="inline-block h-2.5 w-2.5 rounded-sm bg-red-500" /> قرمز &lt;50%</span>
-        <span class="inline-flex items-center gap-1"><span class="inline-block h-2.5 w-2.5 rounded-sm bg-slate-300" /> خاکستری = عدد/ارز</span>
-      </p>
+<!--    <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-800">-->
+<!--      <div class="mb-3 flex items-center gap-2">-->
+<!--        <i class="ti ti-layout-grid text-slate-400" />-->
+<!--        <h3 class="text-sm font-semibold text-slate-900 dark:text-white">نقشه حرارتی تمام شاخص‌ها</h3>-->
+<!--        <span class="mr-auto rounded bg-slate-100 px-2 py-0.5 text-[11px] text-slate-500 dark:bg-slate-700 dark:text-slate-400">-->
+<!--          {{ sectionData.all_kpis.length }} شاخص-->
+<!--        </span>-->
+<!--      </div>-->
+<!--      <p class="mb-4 text-[11px] text-slate-400">-->
+<!--        <span class="mr-2 inline-flex items-center gap-1"><span class="inline-block h-2.5 w-2.5 rounded-sm bg-emerald-500" /> سبز ≥80%</span>-->
+<!--        <span class="mr-2 inline-flex items-center gap-1"><span class="inline-block h-2.5 w-2.5 rounded-sm bg-amber-400" /> عنبری 50-79%</span>-->
+<!--        <span class="mr-2 inline-flex items-center gap-1"><span class="inline-block h-2.5 w-2.5 rounded-sm bg-red-500" /> قرمز &lt;50%</span>-->
+<!--        <span class="inline-flex items-center gap-1"><span class="inline-block h-2.5 w-2.5 rounded-sm bg-slate-300" /> خاکستری = عدد/ارز</span>-->
+<!--      </p>-->
 
-      <div class="overflow-x-auto">
-        <table class="w-full text-[11px]" style="table-layout: fixed">
-          <colgroup>
-            <col style="width: 108px">
-            <col style="width: auto">
-            <col style="width: 80px">
-            <col style="width: 60px">
-            <col style="width: 72px">
-          </colgroup>
-          <thead>
-          <tr class="border-b border-slate-100 dark:border-slate-700">
-            <th class="p-2 text-right font-medium text-slate-500 dark:text-slate-400">کد</th>
-            <th class="p-2 text-right font-medium text-slate-500 dark:text-slate-400">عنوان</th>
-            <th class="p-2 text-center font-medium text-slate-500 dark:text-slate-400">مقدار</th>
-            <th class="p-2 text-center font-medium text-slate-500 dark:text-slate-400">واحد</th>
-            <th class="p-2 text-center font-medium text-slate-500 dark:text-slate-400">وضعیت</th>
-          </tr>
-          </thead>
-          <tbody>
-          <tr v-for="kpi in sectionData.all_kpis" :key="kpi.code"
-              class="border-b border-slate-50 transition hover:bg-slate-50 dark:border-slate-700/50 dark:hover:bg-slate-700/20">
-            <td class="p-2 font-mono text-[10px] text-slate-500 dark:text-slate-400 whitespace-nowrap">{{ kpi.code }}</td>
-            <td class="p-2 text-slate-700 dark:text-slate-300 overflow-hidden">
-              <span class="line-clamp-2 leading-snug" :title="kpi.title">{{ kpi.title }}</span>
-            </td>
-            <td class="p-2 text-center">
-                <span v-if="kpi.value !== null"
-                      class="inline-block rounded px-1.5 py-0.5 font-semibold"
-                      :class="kpi.unit === 'percent'
-                        ? scoreClass(Number(kpi.value))
-                        : 'bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300'">
-                  {{ fmt(kpi.value, kpi.unit) }}
-                </span>
-              <span v-else class="text-slate-400">—</span>
-            </td>
-            <td class="p-2 text-center text-slate-500 dark:text-slate-400">{{ kpi.unit }}</td>
-            <td class="p-2 text-center">
-                <span class="inline-flex items-center gap-0.5 rounded px-1.5 py-0.5 text-[10px] font-medium"
-                      :class="kpi.status === 'answered'
-                        ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300'
-                        : 'bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-300'">
-                  <i class="ti text-[9px]" :class="kpi.status === 'answered' ? 'ti-check' : 'ti-x'" />
-                  {{ kpi.status === 'answered' ? 'پاسخ داده' : 'بدون پاسخ' }}
-                </span>
-            </td>
-          </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
+<!--      <div class="overflow-x-auto">-->
+<!--        <table class="w-full text-[11px]" style="table-layout: fixed">-->
+<!--          <colgroup>-->
+<!--            <col style="width: 108px">-->
+<!--            <col style="width: auto">-->
+<!--            <col style="width: 80px">-->
+<!--            <col style="width: 60px">-->
+<!--            <col style="width: 72px">-->
+<!--          </colgroup>-->
+<!--          <thead>-->
+<!--          <tr class="border-b border-slate-100 dark:border-slate-700">-->
+<!--            <th class="p-2 text-right font-medium text-slate-500 dark:text-slate-400">کد</th>-->
+<!--            <th class="p-2 text-right font-medium text-slate-500 dark:text-slate-400">عنوان</th>-->
+<!--            <th class="p-2 text-center font-medium text-slate-500 dark:text-slate-400">مقدار</th>-->
+<!--            <th class="p-2 text-center font-medium text-slate-500 dark:text-slate-400">واحد</th>-->
+<!--            <th class="p-2 text-center font-medium text-slate-500 dark:text-slate-400">وضعیت</th>-->
+<!--          </tr>-->
+<!--          </thead>-->
+<!--          <tbody>-->
+<!--          <tr v-for="kpi in sectionData.all_kpis" :key="kpi.code"-->
+<!--              class="border-b border-slate-50 transition hover:bg-slate-50 dark:border-slate-700/50 dark:hover:bg-slate-700/20">-->
+<!--            <td class="p-2 font-mono text-[10px] text-slate-500 dark:text-slate-400 whitespace-nowrap">{{ kpi.code }}</td>-->
+<!--            <td class="p-2 text-slate-700 dark:text-slate-300 overflow-hidden">-->
+<!--              <span class="line-clamp-2 leading-snug" :title="kpi.title">{{ kpi.title }}</span>-->
+<!--            </td>-->
+<!--            <td class="p-2 text-center">-->
+<!--                <span v-if="kpi.value !== null"-->
+<!--                      class="inline-block rounded px-1.5 py-0.5 font-semibold"-->
+<!--                      :class="kpi.unit === 'percent'-->
+<!--                        ? scoreClass(Number(kpi.value))-->
+<!--                        : 'bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300'">-->
+<!--                  {{ fmt(kpi.value, kpi.unit) }}-->
+<!--                </span>-->
+<!--              <span v-else class="text-slate-400">—</span>-->
+<!--            </td>-->
+<!--            <td class="p-2 text-center text-slate-500 dark:text-slate-400">{{ kpi.unit }}</td>-->
+<!--            <td class="p-2 text-center">-->
+<!--                <span class="inline-flex items-center gap-0.5 rounded px-1.5 py-0.5 text-[10px] font-medium"-->
+<!--                      :class="kpi.status === 'answered'-->
+<!--                        ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300'-->
+<!--                        : 'bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-300'">-->
+<!--                  <i class="ti text-[9px]" :class="kpi.status === 'answered' ? 'ti-check' : 'ti-x'" />-->
+<!--                  {{ kpi.status === 'answered' ? 'پاسخ داده' : 'بدون پاسخ' }}-->
+<!--                </span>-->
+<!--            </td>-->
+<!--          </tr>-->
+<!--          </tbody>-->
+<!--        </table>-->
+<!--      </div>-->
+<!--    </div>-->
 
   </div>
 </template>

@@ -225,17 +225,31 @@ const exportPDF = async () => {
     const element = document.body
     // Use a clone to modify styles safely
     const clone = element.cloneNode(true) as HTMLElement
+    clone.setAttribute('data-esg-pdf-clone', '1')
+    clone.style.position = 'absolute'
+    clone.style.left = '-9999px'
+    clone.style.top = '0'
+    try { clone.style.width = (element as HTMLElement).getBoundingClientRect().width + 'px' } catch (err) {}
+    clone.style.visibility = 'hidden'
+    document.body.appendChild(clone)
 
-    // Convert canvases to images
-    const canvases = Array.from(clone.querySelectorAll('canvas'))
-    for (const canvas of canvases) {
+    // Convert canvases to images using originals
+    const originalCanvases = Array.from((element as HTMLElement).querySelectorAll('canvas')) as HTMLCanvasElement[]
+    const cloneCanvases = Array.from(clone.querySelectorAll('canvas')) as HTMLCanvasElement[]
+    for (let i = 0; i < cloneCanvases.length; i++) {
+      const cc = cloneCanvases[i]
+      const oc = originalCanvases[i]
       try {
-        const dataURL = (canvas as HTMLCanvasElement).toDataURL('image/png')
-        const img = document.createElement('img')
-        img.src = dataURL
-        img.style.width = (canvas as HTMLCanvasElement).style.width || (canvas as HTMLCanvasElement).width + 'px'
-        img.style.height = (canvas as HTMLCanvasElement).style.height || (canvas as HTMLCanvasElement).height + 'px'
-        canvas.parentNode?.replaceChild(img, canvas)
+        let dataURL = ''
+        if (oc && oc.toDataURL) dataURL = oc.toDataURL('image/png')
+        else if ((cc as HTMLCanvasElement).toDataURL) dataURL = (cc as HTMLCanvasElement).toDataURL('image/png')
+        if (dataURL) {
+          const img = document.createElement('img')
+          img.src = dataURL
+          img.style.width = (cc as HTMLCanvasElement).style.width || (cc as HTMLCanvasElement).width + 'px'
+          img.style.height = (cc as HTMLCanvasElement).style.height || (cc as HTMLCanvasElement).height + 'px'
+          cc.parentNode?.replaceChild(img, cc)
+        }
       } catch (err) { console.warn('Canvas conversion failed', err) }
     }
 
@@ -266,8 +280,19 @@ const exportPDF = async () => {
       pagebreak: { mode: ['avoid-all', 'css', 'legacy'] },
     }
 
-    html2pdf().set(opt).from(clone).save()
-    
+    // Use worker to access jsPDF and cleanup clone after saving
+    const worker = html2pdf().set(opt).from(clone)
+    worker.toPdf().get('pdf').then((pdf: any) => {
+      pdf.save(opt.filename)
+      const existing = document.querySelector('[data-esg-pdf-clone="1"]')
+      if (existing && existing.parentNode) existing.parentNode.removeChild(existing)
+    }).catch((err) => {
+      console.error(err)
+      const existing = document.querySelector('[data-esg-pdf-clone="1"]')
+      if (existing && existing.parentNode) existing.parentNode.removeChild(existing)
+      throw err
+    })
+
     exportMessage.value = t('esg.report.pdf_export_success')
     exportMessageType.value = 'success'
     setTimeout(() => { exportMessage.value = '' }, 3000)

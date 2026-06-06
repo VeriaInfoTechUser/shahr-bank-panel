@@ -864,6 +864,30 @@
     "confirm-clear-answer-message": "هل أنت متأكد من أنك تريد إزالة هذه الإجابة؟"
   },
   "esg": {
+    "unit-list": {
+      "percent": "النسبة المئوية",
+      "count": "العدد",
+      "currency": "العملة",
+      "person": "شخص",
+      "employee": "موظف",
+      "day": "يوم",
+      "hour": "ساعة",
+      "hour_per_employee": "ساعة لكل موظف",
+      "hour_per_week": "ساعة في الأسبوع",
+      "rate": "معدل",
+      "ratio": "نسبة",
+      "m3": "متر مكعب",
+      "m3_per_unit": "متر مكعب لكل وحدة",
+      "ton": "طن",
+      "ton_per_unit": "طن لكل وحدة",
+      "liter": "لتر",
+      "kg": "كيلوغرام",
+      "tco2e": "طن مكافئ ثاني أكسيد الكربون",
+      "tco2e_per_unit": "طن مكافئ ثاني أكسيد الكربون لكل وحدة",
+      "kWh": "كيلوواط ساعة",
+      "kwh_per_employee": "كيلوواط ساعة لكل موظف",
+      "hectare": "هكتار"
+    },
     "report": {
       "download": {
         "button": "تنزيل PDF",

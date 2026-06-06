@@ -476,7 +476,6 @@ const domainIcon = (code: string) => {
             <h3 class="text-sm font-semibold text-slate-900 dark:text-white">وضعیت پاسخ‌ها</h3>
           </div>
           <div class="flex items-center gap-4">
-            <VChart :option="statusChartOption" autoresize style="height: 130px; width: 130px; flex-shrink: 0"/>
             <div class="space-y-2 text-xs">
               <div class="flex items-center justify-between gap-4">
                 <span class="flex items-center gap-1.5 text-slate-600 dark:text-slate-400">
@@ -493,6 +492,7 @@ const domainIcon = (code: string) => {
                 <span class="font-bold text-slate-900 dark:text-white">{{ sectionData.summary.unanswered ?? 0 }}</span>
               </div>
             </div>
+            <VChart class="mx-auto" :option="statusChartOption" autoresize style="height: 130px; width: 130px; flex-shrink: 0"/>
           </div>
         </div>
 
@@ -504,18 +504,18 @@ const domainIcon = (code: string) => {
             <h3 class="text-sm font-semibold text-slate-900 dark:text-white">توزیع نوع شاخص</h3>
           </div>
           <div class="flex items-center gap-3">
-            <VChart :option="typeChartOption" autoresize style="height: 130px; width: 130px; flex-shrink: 0"/>
-            <div class="space-y-1.5 text-[11px]">
+           <div class="space-y-1.5 text-[11px]">
               <div v-for="([unit, count], i) in Object.entries(typeDistribution)" :key="unit"
                    class="flex items-center justify-between gap-3 text-slate-600 dark:text-slate-400">
                 <span class="flex items-center gap-1.5">
                   <span class="h-2 w-2 rounded-sm flex-shrink-0"
                         :style="{ background: ['#378ADD','#534AB7','#D85A30','#1D9E75','#BA7517','#94a3b8'][i % 6] }"/>
-                  {{ unit }}
+                  {{ t(`esg.unit-list.${unit}`) }}
                 </span>
                 <span class="font-semibold text-slate-800 dark:text-white">{{ count }}</span>
               </div>
             </div>
+            <VChart class="mx-auto" :option="typeChartOption" autoresize style="height: 130px; width: 130px; flex-shrink: 0"/>
           </div>
         </div>
       </div>

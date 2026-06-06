@@ -19,50 +19,16 @@ import {
   IconStars,
   IconGitMerge,
   IconBuildingBank,
-  IconLayoutGrid,
   IconCloud,
   IconPlug,
   IconHistory,
-  IconCheck,
   IconAlertCircle,
-  IconCards,
-  IconChecklist,
-  IconInfoCircle,
-  IconDatabaseImport,
-  IconActivity,
   IconChartBar,
   IconChartPie,
-  IconChartDonut3,
-  IconRadar2,
   IconBuildingCommunity,
-  IconScale,
-  IconShieldCheck,
   IconAlertTriangle,
-  IconLock,
-  IconLink,
   IconChartLine,
-  IconClipboardCheck,
-  IconCoins,
-  IconGavel,
-  IconSpy,
   IconDatabase,
-  IconCircle,
-  IconUserCheck,
-  IconHeartHandshake,
-  IconUsersGroup,
-  IconHandThreeFingers,
-  IconUserHeart,
-  IconSchool,
-  IconFirstAidKit,
-  IconBriefcase,
-  IconChartDots,
-  IconRecycle,
-  IconTree,
-  IconCloudStorm,
-  IconMathSin,
-  IconDroplet,
-  IconFlame,
-  IconSun,
   IconFileX,
 } from '@tabler/icons-vue'
 
@@ -138,9 +104,6 @@ const sb = (v: number | null) => {
   if (v >= 50) return 'badge-warn';
   return 'badge-danger';
 };
-const slabel = (v: number | null) =>
-    v === null ? '—' : v >= 80 ? 'عالی' : v >= 70 ? 'خوب' : v >= 50 ? 'متوسط' : 'ضعیف';
-
 // ─── Overall aggregates ──────────────────────────────────────────────────────
 const gov = computed(() => props.dashboardData.governance);
 const soc = computed(() => props.dashboardData.social);
@@ -627,7 +590,7 @@ const dataSources = [
             <VChart
                 :option="ringOpt(card.score, card.color)"
                 autoresize
-                style="width:130px;height:130px"
+                style="width:100px;height:130px"
             />
           </div>
 
@@ -786,7 +749,6 @@ const dataSources = [
           <h3 class="text-sm font-semibold text-slate-900 dark:text-white">وضعیت گردش کار تأیید</h3>
         </div>
         <div class="flex items-center gap-4">
-          <VChart :option="workflowOpt" autoresize style="height:160px;width:160px;flex-shrink:0"/>
           <div class="space-y-3 text-xs flex-1">
             <div
                 v-for="([label, val, color]) in [['تکمیل‌شده', 68, COLORS.ok], ['در بررسی', 18, COLORS.blue], ['در انتظار', 10, COLORS.gray], ['رد‌شده', 4, COLORS.danger]]"
@@ -797,6 +759,7 @@ const dataSources = [
               <span class="font-semibold text-slate-900 dark:text-white">{{ val }}%</span>
             </div>
           </div>
+          <VChart :option="workflowOpt" autoresize style="height:200px;width:220px;flex-shrink:0"/>
         </div>
         <p class="mt-3 text-[11px] text-slate-400">پیشرفت کلی گردش کار تأیید</p>
       </div>

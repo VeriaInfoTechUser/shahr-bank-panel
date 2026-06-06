@@ -1393,6 +1393,33 @@
     "confirm-clear-answer-message": "Are you sure you want to remove this answer?"
   },
   "esg": {
+    "report": {
+      "download": {
+        "button": "Download PDF",
+        "generating": "Generating PDF... {progress}%",
+        "progressNote": "ESG Sustainability Report {year} — {answered} metrics",
+        "noPages": "No content to export.",
+        "saved": "PDF saved",
+        "error": "Failed to generate PDF. Please try again."
+      },
+      "cover": {
+        "title": "ESG Sustainability Report",
+        "subtitle": "Environmental · Social · Governance",
+        "reportingYear": "Reporting year {year}",
+        "answeredControls": "Answered metrics",
+        "totalDomains": "ESG domains",
+        "totalControls": "Total metrics",
+        "coverage": "Coverage"
+      },
+      "page": {
+        "executiveSummary": "Executive summary",
+        "conclusion": "Conclusion and recommendations",
+        "confidentialNote": "Confidential — Internal use only",
+        "pageLabel": "Page"
+      },
+      "filename": "ESG-Report-{year}.pdf"
+    },
+
     "governance": "ESG Governance",
     "social": "ESG Social",
     "environmental": "ESG Environmental",

@@ -864,6 +864,33 @@
     "confirm-clear-answer-message": "هل أنت متأكد من أنك تريد إزالة هذه الإجابة؟"
   },
   "esg": {
+    "report": {
+      "download": {
+        "button": "تنزيل PDF",
+        "generating": "جارٍ إنشاء PDF... {progress}%",
+        "progressNote": "تقرير الاستدامة ESG {year} — {answered} مؤشرات",
+        "noPages": "لا توجد محتويات للتصدير.",
+        "saved": "تم حفظ PDF",
+        "error": "فشل إنشاء PDF. حاول مرة أخرى."
+      },
+      "cover": {
+        "title": "تقرير الاستدامة ESG",
+        "subtitle": "Environmental · Social · Governance",
+        "reportingYear": "سنة التقرير {year}",
+        "answeredControls": "المؤشرات المجيبة",
+        "totalDomains": "مجالات ESG",
+        "totalControls": "إجمالي المؤشرات",
+        "coverage": "التغطية"
+      },
+      "page": {
+        "executiveSummary": "الملخص التنفيذي",
+        "conclusion": "النتيجة والتوصيات",
+        "confidentialNote": "سري — للاستخدام الداخلي فقط",
+        "pageLabel": "صفحة"
+      },
+      "filename": "ESG-Report-{year}.pdf"
+    },
+
     "overall-score": "النقاط الإجمالية",
     "overall-completion": "نسبة الإكمال الإجمالية",
     "answered-controls": "الضوابط المجابة",

@@ -1444,6 +1444,33 @@
     "confirm-clear-answer-message": "آیا مطمئن هستید می‌خواهید این پاسخ را حذف کنید؟"
   },
   "esg": {
+    "report": {
+      "download": {
+        "button": "دانلود PDF گزارش",
+        "generating": "در حال تولید PDF... {progress}%",
+        "progressNote": "گزارش پایداری ESG {year} — {answered} شاخص",
+        "noPages": "محتوایی برای صادر کردن یافت نشد.",
+        "saved": "PDF با موفقیت ذخیره شد.",
+        "error": "خطا در تولید PDF. لطفاً دوباره تلاش کنید."
+      },
+      "cover": {
+        "title": "گزارش پایداری ESG",
+        "subtitle": "Environmental · Social · Governance",
+        "reportingYear": "سال گزارش‌دهی {year}",
+        "answeredControls": "شاخص پاسخ‌داده‌شده",
+        "totalDomains": "حوزه‌های ESG",
+        "totalControls": "کل شاخص‌ها",
+        "coverage": "پوشش داده"
+      },
+      "page": {
+        "executiveSummary": "خلاصه اجرایی",
+        "conclusion": "نتیجه‌گیری و توصیه‌ها",
+        "confidentialNote": "محرمانه — جهت استفاده داخلی",
+        "pageLabel": "صفحه"
+      },
+      "filename": "گزارش-پایداری-ESG-{year}.pdf"
+    },
+
     "governance": "داشبورد حاکمیت ESG",
     "social": "بخش اجتماعی ESG",
     "environmental": "بخش محیطی ESG",

@@ -67,19 +67,13 @@ const login = async (values) => {
           class="w-72"
           :src="logoUrl"
         />
-        <div class="mt-8 text-2xl font-semibold text-slate-900 dark:text-slate-100">
-          {{ $t('title.panel-title') }}
-        </div>
-        <p class="mt-2 text-slate-600 dark:text-slate-400">
-          سامانه رعایت قوانین و مقررات و ریسک تطبیق
-        </p>
       </div>
 
       <!-- Right: Login form (Diamond-style card) -->
       <div class="flex-1 flex items-center justify-center">
         <div class="w-full max-w-md">
-          <div class="xl:hidden flex justify-center mb-8">
-            <img :alt="$t('title.logo-alt')" class="w-44" :src="logoUrl" />
+          <div class="xl:hidden flex justify-center">
+            <img :alt="$t('title.logo-alt')" class="w-52" :src="logoUrl" />
           </div>
 
           <div

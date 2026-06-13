@@ -9,10 +9,12 @@ export default defineConfig({
     vue(),
 
     visualizer({
+      filename: 'dist/stats.html',
       open: true,
       gzipSize: true,
       brotliSize: true,
-    }),
+      template: 'treemap',
+    })
   ],
 
   resolve: {

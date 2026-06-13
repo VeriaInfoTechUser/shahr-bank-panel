@@ -1,3 +1,4 @@
+// export const base_url = 'https://esg-core.veriainfotech.com/';
 export const base_url = 'http://localhost:8085/';
 
 export const setting = {

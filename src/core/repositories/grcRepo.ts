@@ -43,6 +43,10 @@ export interface GrcListParams {
   page?: number;
   limit?: number;
   status?: number;
+  title?: string;
+  frameworkSlug?: string;
+  domainSlug?: string;
+  [key: string]: unknown;
 }
 
 export interface GrcCreateFramework {

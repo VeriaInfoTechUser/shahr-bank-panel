@@ -14,6 +14,9 @@ import AppAccountNotification from "@/pages/app/account/notification/index.vue";
 import BaseInfoRulesRegulations from "@/pages/app/base-info/rules-regulations/index.vue";
 import BaseInfoRulesRegulationsDeleted from "@/pages/app/base-info/rules-regulations/deleted.vue";
 import BaseInfoTasks from "@/pages/app/base-info/tasks/index.vue";
+import BaseInfoFramework from "@/pages/app/base-info/framework/index.vue";
+import BaseInfoDomain from "@/pages/app/base-info/domain/index.vue";
+import BaseInfoControl from "@/pages/app/base-info/control/index.vue";
 import SettingsGuide from "@/pages/app/settings/guide/index.vue";
 import SettingsLiaisons from "@/pages/app/settings/liaisons/index.vue";
 import SettingsLegislativeAuthority from "@/pages/app/settings/legislative-authority/index.vue";
@@ -131,6 +134,24 @@ const routes = [
                                 name: "app-base-info-tasks",
                                 component: BaseInfoTasks,
                                 meta: { breadcrumbLabel: 'menu.tasks' },
+                            },
+                            {
+                                path: "framework",
+                                name: "app-base-info-framework",
+                                component: BaseInfoFramework,
+                                meta: { breadcrumbLabel: 'menu.framework' },
+                            },
+                            {
+                                path: "domain",
+                                name: "app-base-info-domain",
+                                component: BaseInfoDomain,
+                                meta: { breadcrumbLabel: 'menu.domain' },
+                            },
+                            {
+                                path: "control",
+                                name: "app-base-info-control",
+                                component: BaseInfoControl,
+                                meta: { breadcrumbLabel: 'menu.control' },
                             },
                         ]
                     },

@@ -47,6 +47,24 @@ export const useSideMenuStore = defineStore("sideMenu", {
                         title: "menu.tasks",
                         requiredRole: "grc_admin",
                     },
+                    {
+                        icon: "Layout",
+                        pageName: "app-base-info-framework",
+                        title: "menu.framework",
+                        requiredRole: "grc_admin",
+                    },
+                    {
+                        icon: "Globe",
+                        pageName: "app-base-info-domain",
+                        title: "menu.domain",
+                        requiredRole: "grc_admin",
+                    },
+                    {
+                        icon: "Shield",
+                        pageName: "app-base-info-control",
+                        title: "menu.control",
+                        requiredRole: "grc_admin",
+                    },
                 ],
             },
             {

@@ -1352,7 +1352,12 @@
     "edit-error": "فشل تحديث الإطار",
     "delete-confirm-title": "حذف الإطار",
     "delete-confirm-message": "هل أنت متأكد من حذف هذا الإطار؟",
-    "delete-error": "فشل حذف الإطار"
+    "delete-error": "فشل حذف الإطار",
+    "toolbar-filter": "تصفية",
+    "toolbar-clear-filters": "مسح عوامل التصفية",
+    "filter-panel-title": "تصفية الإطارات",
+    "filter-field-title": "العنوان",
+    "filter-badge-remove-aria": "إزالة تصفية {label}"
   },
   "domain": {
     "add": "إضافة مجال",
@@ -1380,7 +1385,13 @@
     "edit-error": "فشل تحديث المجال",
     "delete-confirm-title": "حذف المجال",
     "delete-confirm-message": "هل أنت متأكد من حذف هذا المجال؟",
-    "delete-error": "فشل حذف المجال"
+    "delete-error": "فشل حذف المجال",
+    "toolbar-filter": "تصفية",
+    "toolbar-clear-filters": "مسح عوامل التصفية",
+    "filter-panel-title": "تصفية المجالات",
+    "filter-field-title": "العنوان",
+    "filter-field-framework": "الإطار",
+    "filter-badge-remove-aria": "إزالة تصفية {label}"
   },
   "control": {
     "add": "إضافة تحكم",
@@ -1409,7 +1420,14 @@
     "edit-error": "فشل تحديث التحكم",
     "delete-confirm-title": "حذف التحكم",
     "delete-confirm-message": "هل أنت متأكد من حذف هذا التحكم؟",
-    "delete-error": "فشل حذف التحكم"
+    "delete-error": "فشل حذف التحكم",
+    "toolbar-filter": "تصفية",
+    "toolbar-clear-filters": "مسح عوامل التصفية",
+    "filter-panel-title": "تصفية الضوابط",
+    "filter-field-title": "العنوان",
+    "filter-field-framework": "الإطار",
+    "filter-field-domain": "المجال",
+    "filter-badge-remove-aria": "إزالة تصفية {label}"
   },
   "status": {
     "active": "نشط",

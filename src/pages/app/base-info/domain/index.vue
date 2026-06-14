@@ -21,8 +21,8 @@ const showAddModal = ref(false);
 const showEditModal = ref(false);
 const selectedDomain = ref<Record<string, unknown> | null>(null);
 
-const fetchDomains: FetchFn = async ({ page, limit }) => {
-  const res = await grcRepo.domainList({ page, limit });
+const fetchDomains: FetchFn = async ({ page, limit, filters }) => {
+  const res = await grcRepo.domainList({ page, limit, ...(filters ?? {}) });
   const list = res?.data?.list ?? [];
   const count = res?.data?.paginator?.count ?? 0;
   return { list: Array.isArray(list) ? list : [], count };
@@ -73,6 +73,7 @@ onMounted(() => {
   setBreadcrumbSlot(DomainBreadcrumbToolbar, {
     onAdd: onAddDomain,
     onExport: onExportDomains,
+    table,
   });
 });
 

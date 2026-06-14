@@ -21,8 +21,8 @@ const showAddModal = ref(false);
 const showEditModal = ref(false);
 const selectedFramework = ref<Record<string, unknown> | null>(null);
 
-const fetchFrameworks: FetchFn = async ({ page, limit }) => {
-  const res = await grcRepo.frameworkList({ page, limit });
+const fetchFrameworks: FetchFn = async ({ page, limit, filters }) => {
+  const res = await grcRepo.frameworkList({ page, limit, ...(filters ?? {}) });
   const list = res?.data?.list ?? [];
   const count = res?.data?.paginator?.count ?? 0;
   return { list: Array.isArray(list) ? list : [], count };
@@ -79,6 +79,7 @@ onMounted(() => {
   setBreadcrumbSlot(FrameworkBreadcrumbToolbar, {
     onAdd: onAddFramework,
     onExport: onExportFrameworks,
+    table,
   });
 });
 

@@ -21,8 +21,8 @@ const showAddModal = ref(false);
 const showEditModal = ref(false);
 const selectedControl = ref<Record<string, unknown> | null>(null);
 
-const fetchControls: FetchFn = async ({ page, limit }) => {
-  const res = await grcRepo.controlList({ page, limit });
+const fetchControls: FetchFn = async ({ page, limit, filters }) => {
+  const res = await grcRepo.controlList({ page, limit, ...(filters ?? {}) });
   const list = res?.data?.list ?? [];
   const count = res?.data?.paginator?.count ?? 0;
   return { list: Array.isArray(list) ? list : [], count };
@@ -67,6 +67,7 @@ onMounted(() => {
   setBreadcrumbSlot(ControlBreadcrumbToolbar, {
     onAdd: onAddControl,
     onExport: onExportControls,
+    table,
   });
 });
 

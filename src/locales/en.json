@@ -1869,7 +1869,12 @@
     "edit-error": "Could not update framework",
     "delete-confirm-title": "Delete Framework",
     "delete-confirm-message": "Are you sure you want to delete this framework?",
-    "delete-error": "Could not delete framework"
+    "delete-error": "Could not delete framework",
+    "toolbar-filter": "Filter",
+    "toolbar-clear-filters": "Clear filters",
+    "filter-panel-title": "Filter frameworks",
+    "filter-field-title": "Title",
+    "filter-badge-remove-aria": "Remove {label} filter"
   },
   "domain": {
     "add": "Add Domain",
@@ -1897,7 +1902,13 @@
     "edit-error": "Could not update domain",
     "delete-confirm-title": "Delete Domain",
     "delete-confirm-message": "Are you sure you want to delete this domain?",
-    "delete-error": "Could not delete domain"
+    "delete-error": "Could not delete domain",
+    "toolbar-filter": "Filter",
+    "toolbar-clear-filters": "Clear filters",
+    "filter-panel-title": "Filter domains",
+    "filter-field-title": "Title",
+    "filter-field-framework": "Framework",
+    "filter-badge-remove-aria": "Remove {label} filter"
   },
   "control": {
     "add": "Add Control",
@@ -1926,7 +1937,14 @@
     "edit-error": "Could not update control",
     "delete-confirm-title": "Delete Control",
     "delete-confirm-message": "Are you sure you want to delete this control?",
-    "delete-error": "Could not delete control"
+    "delete-error": "Could not delete control",
+    "toolbar-filter": "Filter",
+    "toolbar-clear-filters": "Clear filters",
+    "filter-panel-title": "Filter controls",
+    "filter-field-title": "Title",
+    "filter-field-framework": "Framework",
+    "filter-field-domain": "Domain",
+    "filter-badge-remove-aria": "Remove {label} filter"
   },
   "status": {
     "active": "Active",

@@ -113,7 +113,7 @@ function onDialogVisible(v: boolean) {
 async function onSubmit(values: Record<string, unknown>) {
   saving.value = true;
   try {
-    const payload = {
+    const { slug: _slug, ...rest } = {
       slug: String(values.slug ?? ''),
       title: String(values.title ?? ''),
       number: String(values.number ?? ''),
@@ -125,8 +125,8 @@ async function onSubmit(values: Record<string, unknown>) {
     };
 
     if (props.mode === 'edit' && props.framework) {
-      const slug = (props.framework.slug as string) ?? payload.slug;
-      const res = await grcRepo.frameworkUpdate(slug, payload);
+      const slug = (props.framework.slug as string) ?? _slug;
+      const res = await grcRepo.frameworkUpdate(slug, rest);
       if (res?.result) {
         toast(t('framework.edit-success'), { type: 'success' });
         emit('success');
@@ -135,7 +135,7 @@ async function onSubmit(values: Record<string, unknown>) {
         toast(res?.error?.[0] ?? t('framework.edit-error'), { type: 'error' });
       }
     } else {
-      const res = await grcRepo.frameworkCreate(payload);
+      const res = await grcRepo.frameworkCreate({ slug: _slug, ...rest });
       if (res?.result) {
         toast(t('framework.add-success'), { type: 'success' });
         emit('success');
@@ -161,6 +161,7 @@ async function onSubmit(values: Record<string, unknown>) {
   >
     <Form
       :key="formKey"
+      id="add-framework-modal-form"
       ref="formRef"
       :validation-schema="validationSchema"
       :initial-values="initialValues"
@@ -233,8 +234,8 @@ async function onSubmit(values: Record<string, unknown>) {
           type="submit"
           variant="primary"
           size="sm"
+          form="add-framework-modal-form"
           :disabled="saving"
-          @click="formRef?.requestSubmit()"
         >
           {{ props.mode === 'edit' ? t('title.update') : t('title.register') }}
         </Button>

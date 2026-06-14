@@ -138,7 +138,7 @@ function onDialogVisible(v: boolean) {
 async function onSubmit(values: Record<string, unknown>) {
   saving.value = true;
   try {
-    const payload = {
+    const { slug: _slug, ...rest } = {
       slug: String(values.slug ?? ''),
       title: String(values.title ?? ''),
       number: String(values.number ?? ''),
@@ -152,8 +152,8 @@ async function onSubmit(values: Record<string, unknown>) {
     };
 
     if (props.mode === 'edit' && props.domain) {
-      const slug = (props.domain.slug as string) ?? payload.slug;
-      const res = await grcRepo.domainUpdate(slug, payload);
+      const slug = (props.domain.slug as string) ?? _slug;
+      const res = await grcRepo.domainUpdate(slug, rest);
       if (res?.result) {
         toast(t('domain.edit-success'), { type: 'success' });
         emit('success');
@@ -162,7 +162,7 @@ async function onSubmit(values: Record<string, unknown>) {
         toast(res?.error?.[0] ?? t('domain.edit-error'), { type: 'error' });
       }
     } else {
-      const res = await grcRepo.domainCreate(payload);
+      const res = await grcRepo.domainCreate({ slug: _slug, ...rest });
       if (res?.result) {
         toast(t('domain.add-success'), { type: 'success' });
         emit('success');
@@ -188,6 +188,7 @@ async function onSubmit(values: Record<string, unknown>) {
   >
     <Form
       :key="formKey"
+      id="add-domain-modal-form"
       ref="formRef"
       :validation-schema="validationSchema"
       :initial-values="initialValues"
@@ -268,8 +269,8 @@ async function onSubmit(values: Record<string, unknown>) {
           type="submit"
           variant="primary"
           size="sm"
+          form="add-domain-modal-form"
           :disabled="saving"
-          @click="formRef?.requestSubmit()"
         >
           {{ props.mode === 'edit' ? t('title.update') : t('title.register') }}
         </Button>

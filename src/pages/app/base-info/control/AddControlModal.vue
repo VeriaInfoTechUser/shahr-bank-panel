@@ -158,7 +158,7 @@ function onDialogVisible(v: boolean) {
 async function onSubmit(values: Record<string, unknown>) {
   saving.value = true;
   try {
-    const payload = {
+    const { slug: _slug, ...rest } = {
       slug: String(values.slug ?? ''),
       title: String(values.title ?? ''),
       number: String(values.number ?? ''),
@@ -173,8 +173,8 @@ async function onSubmit(values: Record<string, unknown>) {
     };
 
     if (props.mode === 'edit' && props.control) {
-      const slug = (props.control.slug as string) ?? payload.slug;
-      const res = await grcRepo.controlUpdate(slug, payload);
+      const slug = (props.control.slug as string) ?? _slug;
+      const res = await grcRepo.controlUpdate(slug, rest);
       if (res?.result) {
         toast(t('control.edit-success'), { type: 'success' });
         emit('success');
@@ -183,7 +183,7 @@ async function onSubmit(values: Record<string, unknown>) {
         toast(res?.error?.[0] ?? t('control.edit-error'), { type: 'error' });
       }
     } else {
-      const res = await grcRepo.controlCreate(payload);
+      const res = await grcRepo.controlCreate({ slug: _slug, ...rest });
       if (res?.result) {
         toast(t('control.add-success'), { type: 'success' });
         emit('success');
@@ -209,6 +209,7 @@ async function onSubmit(values: Record<string, unknown>) {
   >
     <Form
       :key="formKey"
+      id="add-control-modal-form"
       ref="formRef"
       :validation-schema="validationSchema"
       :initial-values="initialValues"
@@ -297,8 +298,8 @@ async function onSubmit(values: Record<string, unknown>) {
           type="submit"
           variant="primary"
           size="sm"
+          form="add-control-modal-form"
           :disabled="saving"
-          @click="formRef?.requestSubmit()"
         >
           {{ props.mode === 'edit' ? t('title.update') : t('title.register') }}
         </Button>

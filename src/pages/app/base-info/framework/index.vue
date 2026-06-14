@@ -11,6 +11,7 @@ import { useGlobalModal } from '@/composables/useGlobalModal';
 import Button from '@/base-components/Button';
 import Lucide from '@/base-components/Lucide';
 import AddFrameworkModal from './AddFrameworkModal.vue';
+import FrameworkBreadcrumbToolbar from './FrameworkBreadcrumbToolbar.vue';
 
 const { t } = useI18n();
 const { setContent: setBreadcrumbSlot } = useBreadcrumbSlot();
@@ -68,10 +69,17 @@ const table = useDataTable({
   listCacheStaleTime: 0,
 });
 
+function onExportFrameworks() {
+  table.exportCSV();
+}
+
 onMounted(() => {
   table.invalidateListCache();
   table.fetch();
-  setBreadcrumbSlot(null);
+  setBreadcrumbSlot(FrameworkBreadcrumbToolbar, {
+    onAdd: onAddFramework,
+    onExport: onExportFrameworks,
+  });
 });
 
 function onEditFramework(row: Record<string, unknown>) {
@@ -119,16 +127,6 @@ function onModalSuccess() {
 
 <template>
   <div class="grid grid-cols-12 gap-2 p-2">
-    <div class="col-span-12 flex justify-end mb-2">
-      <Button
-        type="button"
-        variant="primary"
-        @click="onAddFramework"
-      >
-        <Lucide icon="Plus" class="h-4 w-4 mr-1" />
-        {{ t('framework.add') }}
-      </Button>
-    </div>
     <div class="col-span-12">
       <BaseTable
         :table="table"

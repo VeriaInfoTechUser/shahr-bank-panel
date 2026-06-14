@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, watch, onMounted } from 'vue';
-import { Form } from 'vee-validate';
+import { Form, useForm } from 'vee-validate';
 import * as yup from 'yup';
 import { useI18n } from 'vue-i18n';
 import { toast } from 'vue3-toastify';
@@ -36,6 +36,9 @@ const saving = ref(false);
 const formKey = ref(0);
 const frameworks = ref<GrcEntity[]>([]);
 const domains = ref<GrcEntity[]>([]);
+const selectedFrameworkSlug = ref('');
+
+const { setFieldValue } = useForm();
 
 const frameworkOptions = computed<Option[]>(() =>
   frameworks.value.map((fw) => ({
@@ -45,7 +48,7 @@ const frameworkOptions = computed<Option[]>(() =>
 );
 
 const domainOptions = computed<Option[]>(() => {
-  const fwSlug = initialValues.value.frameworkSlug;
+  const fwSlug = selectedFrameworkSlug.value;
   const filtered = fwSlug ? domains.value.filter((d) => d.frameworkSlug === fwSlug) : domains.value;
   return filtered.map((d) => ({
     value: d.slug,
@@ -141,6 +144,7 @@ watch(
       };
     }
     formKey.value += 1;
+    selectedFrameworkSlug.value = initialValues.value.frameworkSlug;
   },
   { immediate: true }
 );
@@ -153,6 +157,11 @@ function close() {
 function onDialogVisible(v: boolean) {
   emit('update:show', v);
   if (!v) emit('close');
+}
+
+function onFrameworkChange(value: unknown) {
+  selectedFrameworkSlug.value = String(value ?? '');
+  setFieldValue('domainSlug', '');
 }
 
 async function onSubmit(values: Record<string, unknown>) {
@@ -238,6 +247,7 @@ async function onSubmit(values: Record<string, unknown>) {
           :placeholder="t('control.select-framework')"
           :required="true"
           :filter="true"
+          @change="onFrameworkChange"
         />
         <BaseSelect
           name="domainSlug"

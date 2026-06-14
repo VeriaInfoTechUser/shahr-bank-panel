@@ -11,6 +11,7 @@ import { useGlobalModal } from '@/composables/useGlobalModal';
 import Button from '@/base-components/Button';
 import Lucide from '@/base-components/Lucide';
 import AddDomainModal from './AddDomainModal.vue';
+import DomainBreadcrumbToolbar from './DomainBreadcrumbToolbar.vue';
 
 const { t } = useI18n();
 const { setContent: setBreadcrumbSlot } = useBreadcrumbSlot();
@@ -62,10 +63,17 @@ const table = useDataTable({
   listCacheStaleTime: 0,
 });
 
+function onExportDomains() {
+  table.exportCSV();
+}
+
 onMounted(() => {
   table.invalidateListCache();
   table.fetch();
-  setBreadcrumbSlot(null);
+  setBreadcrumbSlot(DomainBreadcrumbToolbar, {
+    onAdd: onAddDomain,
+    onExport: onExportDomains,
+  });
 });
 
 function onEditDomain(row: Record<string, unknown>) {
@@ -113,16 +121,6 @@ function onModalSuccess() {
 
 <template>
   <div class="grid grid-cols-12 gap-2 p-2">
-    <div class="col-span-12 flex justify-end mb-2">
-      <Button
-        type="button"
-        variant="primary"
-        @click="onAddDomain"
-      >
-        <Lucide icon="Plus" class="h-4 w-4 mr-1" />
-        {{ t('domain.add') }}
-      </Button>
-    </div>
     <div class="col-span-12">
       <BaseTable
         :table="table"

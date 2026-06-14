@@ -1,5 +1,6 @@
 // export const base_url = 'https://esg-core.veriainfotech.com/';
 export const base_url = 'http://localhost:8085/';
+export const grc_base_url = 'http://localhost:3000/api/v1';
 
 export const setting = {
   wallet: {

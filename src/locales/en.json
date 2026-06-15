@@ -1,5 +1,6 @@
 {
   "title": {
+    "framework": "Framework",
     "billing": "Billing",
     "creator": "Creator",
     "sale-price": "Sale price",

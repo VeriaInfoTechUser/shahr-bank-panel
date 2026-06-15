@@ -30,22 +30,16 @@ const table = useDataTable({
   fetchFn: fetchPlans,
   columns: [
     createColumn({
-      key: 'slug',
-      label: t('title.id'),
-      sortable: false,
-      bodyCell: (row) => row.slug ?? '—',
-    }),
-    createColumn({
       key: 'title',
       label: t('title.title'),
       sortable: false,
       bodyCell: (row) => row.title ?? '—',
     }),
     createColumn({
-      key: 'summary',
-      label: t('title.summary'),
+      key: 'frameworkTitle',
+      label: t('title.framework'),
       sortable: false,
-      bodyCell: (row) => row.summary,
+      bodyCell: (row) => row.frameworkTitle,
     }),
   ],
   selectable: false,

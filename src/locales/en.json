@@ -228,7 +228,8 @@
     "error": "An error occurred",
     "last-updated": "Last Updated",
     "chart-component": "Chart Type",
-    "unanswered": "Unanswered"
+    "unanswered": "Unanswered",
+    "cancel": "Cancel"
   },
   "login-history": {
     "title": "Login History",

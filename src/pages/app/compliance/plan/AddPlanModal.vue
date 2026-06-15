@@ -456,21 +456,25 @@ async function onCreatePlan() {
           </div>
 
           <template v-else>
-            <div class="flex items-center justify-between">
+            <div class="flex items-center justify-between rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 dark:border-darkmode-600 dark:bg-darkmode-700">
+              <label class="flex cursor-pointer items-center gap-2.5">
+                <input
+                  type="checkbox"
+                  class="h-4 w-4 rounded border-slate-300 text-primary focus:ring-primary"
+                  :checked="selectedControlSlugs.length === controlsList.length && controlsList.length > 0"
+                  :indeterminate="selectedControlSlugs.length > 0 && selectedControlSlugs.length < controlsList.length"
+                  @change="toggleAllControls"
+                />
+                <span class="text-xs font-medium text-slate-600 dark:text-slate-300">
+                  {{ selectedControlSlugs.length === controlsList.length
+                    ? t('plan.wizard-controls-deselect-all')
+                    : t('plan.wizard-controls-select-all')
+                  }}
+                </span>
+              </label>
               <span class="text-xs text-slate-500 dark:text-slate-400">
                 {{ t('plan.wizard-controls-selected', { count: selectedControlSlugs.length, total: controlsList.length }) }}
               </span>
-              <button
-                type="button"
-                class="text-xs font-medium text-primary hover:underline"
-                @click="toggleAllControls"
-              >
-                {{
-                  selectedControlSlugs.length === controlsList.length
-                    ? t('plan.wizard-controls-deselect-all')
-                    : t('plan.wizard-controls-select-all')
-                }}
-              </button>
             </div>
 
             <div class="max-h-[50vh] space-y-2 overflow-y-auto pr-1">

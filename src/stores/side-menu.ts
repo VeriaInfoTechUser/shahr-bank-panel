@@ -97,6 +97,11 @@ export const useSideMenuStore = defineStore("sideMenu", {
                         pageName: "app-compliance-plan",
                         title: "menu.plan",
                     },
+                    {
+                        icon: "ListChecks",
+                        pageName: "app-compliance-task",
+                        title: "menu.compliance-task",
+                    },
                 ],
             },
             {

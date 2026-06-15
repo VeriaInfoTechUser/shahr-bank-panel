@@ -597,6 +597,7 @@
     "compliance": "تطبیق",
     "risk": "ریسک",
     "compliance-operations": "عملیات تطبیق",
+    "compliance-task": "وظیفه",
     "compliance-doing-task": "تکلیف در حال اجرا",
     "risk-operations": "عملیات ریسک",
     "risk-doing-task": "ریسک در حال اجرا",
@@ -2096,6 +2097,14 @@
     "wizard-frameworks-load-error": "خطا در بارگذاری فریمورک‌ها",
     "wizard-domains-load-error": "خطا در بارگذاری دامنه‌ها",
     "wizard-controls-load-error": "خطا در بارگذاری کنترل‌ها"
+  },
+  "compliance-task": {
+    "toolbar-export": "خروجی",
+    "toolbar-filter": "فیلتر",
+    "toolbar-clear-filters": "پاک کردن فیلترها",
+    "filter-panel-title": "فیلتر وظایف",
+    "filter-field-title": "عنوان",
+    "filter-badge-remove-aria": "حذف فیلتر {label}"
   },
   "domain": {
     "add": "افزودن دامنه",

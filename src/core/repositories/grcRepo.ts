@@ -100,10 +100,10 @@ export interface PlanTaskAssignment {
   controlSlug: string;
   controlTitle: string;
   controlSummary: string | null;
-  controlFrameworkSlug: string | null;
-  controlFrameworkTitle: string | null;
-  controlDomainSlug: string | null;
-  controlDomainTitle: string | null;
+  frameworkSlug: string | null;
+  frameworkTitle: string | null;
+  domainSlug: string | null;
+  domainTitle: string | null;
   assigneeId: string;
   deadline: string;
 }
@@ -208,5 +208,10 @@ export const grcRepo = {
 
   planDelete(slug: string): Promise<GrcApiResponse<null>> {
     return grcHttpRequest({ method: 'DELETE', url: `/compliance/plans/${slug}` });
+  },
+
+  // Compliance Tasks
+  complianceTaskList(params?: GrcListParams): Promise<GrcApiResponse<GrcPaginatedResponse>> {
+    return grcHttpRequest({ method: 'GET', url: '/compliance/tasks', params });
   },
 };

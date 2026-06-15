@@ -415,6 +415,7 @@
     "compliance": "الامتثال",
     "risk": "المخاطر",
     "compliance-operations": "عمليات الامتثال",
+    "compliance-task": "المهمة",
     "compliance-doing-task": "مهمة قيد الإنجاز",
     "risk-operations": "عمليات المخاطر",
     "risk-doing-task": "مخاطر قيد التنفيذ",
@@ -1413,6 +1414,14 @@
     "wizard-frameworks-load-error": "فشل تحميل الأطر",
     "wizard-domains-load-error": "فشل تحميل المجالات",
     "wizard-controls-load-error": "فشل تحميل الضوابط"
+  },
+  "compliance-task": {
+    "toolbar-export": "تصدير",
+    "toolbar-filter": "تصفية",
+    "toolbar-clear-filters": "مسح عوامل التصفية",
+    "filter-panel-title": "تصفية المهام",
+    "filter-field-title": "العنوان",
+    "filter-badge-remove-aria": "إزالة تصفية {label}"
   },
   "domain": {
     "add": "إضافة مجال",

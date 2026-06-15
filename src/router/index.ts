@@ -25,6 +25,7 @@ import ComplianceDashboard from "@/pages/app/compliance/dashboard/index.vue";
 import CompliancePerformanceReport from "@/pages/app/compliance/performance-report/index.vue";
 import ComplianceReport from "@/pages/app/compliance/report/index.vue";
 import CompliancePlan from "@/pages/app/compliance/plan/index.vue";
+import ComplianceTask from "@/pages/app/compliance/task/index.vue";
 import ComplianceOperations from "@/pages/app/compliance/operations/index.vue";
 import ComplianceDoingTask from "@/pages/app/compliance/doing-task/index.vue";
 import RiskDashboard from "@/pages/app/risk/dashboard/index.vue";
@@ -237,6 +238,12 @@ const routes = [
                                 name: "app-compliance-plan",
                                 component: CompliancePlan,
                                 meta: { breadcrumbLabel: 'menu.plan' },
+                            },
+                            {
+                                path: "task",
+                                name: "app-compliance-task",
+                                component: ComplianceTask,
+                                meta: { breadcrumbLabel: 'menu.compliance-task' },
                             },
                         ],
                     },

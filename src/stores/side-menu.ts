@@ -92,6 +92,11 @@ export const useSideMenuStore = defineStore("sideMenu", {
                         pageName: "app-compliance-report",
                         title: "menu.report",
                     },
+                    {
+                        icon: "ClipboardList",
+                        pageName: "app-compliance-plan",
+                        title: "menu.plan",
+                    },
                 ],
             },
             {

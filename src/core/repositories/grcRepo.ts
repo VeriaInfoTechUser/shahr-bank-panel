@@ -96,6 +96,8 @@ export interface GrcCreateControl {
 export type GrcUpdateFramework = Partial<GrcCreateFramework>;
 export type GrcUpdateDomain = Partial<GrcCreateDomain>;
 export type GrcUpdateControl = Partial<GrcCreateControl>;
+export type GrcCreatePlan = Partial<GrcCreateFramework>;
+export type GrcUpdatePlan = Partial<GrcCreatePlan>;
 
 export const grcRepo = {
   // Frameworks
@@ -159,5 +161,26 @@ export const grcRepo = {
 
   controlDelete(slug: string): Promise<GrcApiResponse<null>> {
     return grcHttpRequest({ method: 'DELETE', url: `/grc/controls/${slug}` });
+  },
+
+  // Plans
+  planList(params?: GrcListParams): Promise<GrcApiResponse<GrcPaginatedResponse>> {
+    return grcHttpRequest({ method: 'GET', url: '/compliance/plans', params });
+  },
+
+  planGet(slug: string): Promise<GrcApiResponse<GrcEntity>> {
+    return grcHttpRequest({ method: 'GET', url: `/compliance/plans/${slug}` });
+  },
+
+  planCreate(data: GrcCreatePlan): Promise<GrcApiResponse<GrcEntity>> {
+    return grcHttpRequest({ method: 'POST', url: '/compliance/plans', data });
+  },
+
+  planUpdate(slug: string, data: GrcUpdatePlan): Promise<GrcApiResponse<GrcEntity>> {
+    return grcHttpRequest({ method: 'PUT', url: `/compliance/plans/${slug}`, data });
+  },
+
+  planDelete(slug: string): Promise<GrcApiResponse<null>> {
+    return grcHttpRequest({ method: 'DELETE', url: `/compliance/plans/${slug}` });
   },
 };

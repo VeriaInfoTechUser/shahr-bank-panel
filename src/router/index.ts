@@ -24,6 +24,7 @@ import SettingsLawType from "@/pages/app/settings/law-type/index.vue";
 import ComplianceDashboard from "@/pages/app/compliance/dashboard/index.vue";
 import CompliancePerformanceReport from "@/pages/app/compliance/performance-report/index.vue";
 import ComplianceReport from "@/pages/app/compliance/report/index.vue";
+import CompliancePlan from "@/pages/app/compliance/plan/index.vue";
 import ComplianceOperations from "@/pages/app/compliance/operations/index.vue";
 import ComplianceDoingTask from "@/pages/app/compliance/doing-task/index.vue";
 import RiskDashboard from "@/pages/app/risk/dashboard/index.vue";
@@ -230,6 +231,12 @@ const routes = [
                                 name: "app-compliance-report",
                                 component: ComplianceReport,
                                 meta: { breadcrumbLabel: 'menu.report' },
+                            },
+                            {
+                                path: "plan",
+                                name: "app-compliance-plan",
+                                component: CompliancePlan,
+                                meta: { breadcrumbLabel: 'menu.plan' },
                             },
                         ],
                     },

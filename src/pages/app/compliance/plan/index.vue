@@ -18,8 +18,6 @@ const { setContent: setBreadcrumbSlot } = useBreadcrumbSlot();
 const { openModal } = useGlobalModal();
 
 const showAddModal = ref(false);
-const showEditModal = ref(false);
-const selectedPlan = ref<Record<string, unknown> | null>(null);
 
 const fetchPlans: FetchFn = async ({ page, limit, filters }) => {
   const res = await grcRepo.planList({ page, limit, ...(filters ?? {}) });
@@ -70,11 +68,6 @@ onMounted(() => {
     table,
   });
 });
-
-function onEditPlan(row: Record<string, unknown>) {
-  selectedPlan.value = row;
-  showEditModal.value = true;
-}
 
 function onDeletePlan(row: Record<string, unknown>) {
   openModal({
@@ -130,17 +123,6 @@ function onModalSuccess() {
           <div class="flex items-center justify-center gap-3">
             <Button
               type="button"
-              variant="outline-secondary"
-              size="sm"
-              class="!h-7 !w-7 !px-0 !py-0"
-              :aria-label="t('title.update')"
-              :title="t('title.update')"
-              @click.stop="onEditPlan(row)"
-            >
-              <Lucide icon="Pencil" class="!h-3.5 !w-3.5" />
-            </Button>
-            <Button
-              type="button"
               variant="outline-danger"
               size="sm"
               class="!h-7 !w-7 !px-0 !py-0"
@@ -157,17 +139,7 @@ function onModalSuccess() {
 
     <AddPlanModal
       :show="showAddModal"
-      mode="add"
       @update:show="showAddModal = $event"
-      @success="onModalSuccess"
-    />
-
-    <AddPlanModal
-      v-if="selectedPlan"
-      :show="showEditModal"
-      mode="edit"
-      :plan="selectedPlan"
-      @update:show="showEditModal = $event"
       @success="onModalSuccess"
     />
   </div>

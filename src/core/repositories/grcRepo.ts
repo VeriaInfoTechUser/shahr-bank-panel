@@ -96,8 +96,22 @@ export interface GrcCreateControl {
 export type GrcUpdateFramework = Partial<GrcCreateFramework>;
 export type GrcUpdateDomain = Partial<GrcCreateDomain>;
 export type GrcUpdateControl = Partial<GrcCreateControl>;
-export type GrcCreatePlan = Partial<GrcCreateFramework>;
-export type GrcUpdatePlan = Partial<GrcCreatePlan>;
+export interface PlanControlAssignment {
+  controlSlug: string;
+  assigneeId: string;
+  deadline: string;
+}
+
+export interface GrcCreatePlan {
+  title: string;
+  deadline: string;
+  ownerId: string;
+  frameworkSlug: string;
+  domainSlug?: string;
+  controls: PlanControlAssignment[];
+}
+
+export type GrcUpdatePlan = Partial<GrcCreateFramework>;
 
 export const grcRepo = {
   // Frameworks
@@ -173,6 +187,10 @@ export const grcRepo = {
   },
 
   planCreate(data: GrcCreatePlan): Promise<GrcApiResponse<GrcEntity>> {
+    return grcHttpRequest({ method: 'POST', url: '/compliance/plans', data });
+  },
+
+  planCreateWithControls(data: GrcCreatePlan): Promise<GrcApiResponse<GrcEntity>> {
     return grcHttpRequest({ method: 'POST', url: '/compliance/plans', data });
   },
 

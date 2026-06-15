@@ -20,23 +20,12 @@ const fetchTasks: FetchFn = async ({ page, limit, filters }) => {
 const table = useDataTable({
   fetchFn: fetchTasks,
   columns: [
-    createColumn({
-      key: 'slug',
-      label: t('title.id'),
-      sortable: false,
-      bodyCell: (row) => row.slug ?? '—',
-    }),
+
     createColumn({
       key: 'title',
       label: t('title.title'),
       sortable: false,
       bodyCell: (row) => row.title ?? '—',
-    }),
-    createColumn({
-      key: 'summary',
-      label: t('title.summary'),
-      sortable: false,
-      bodyCell: (row) => row.summary ?? '—',
     }),
   ],
   selectable: false,

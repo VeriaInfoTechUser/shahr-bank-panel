@@ -96,8 +96,14 @@ export interface GrcCreateControl {
 export type GrcUpdateFramework = Partial<GrcCreateFramework>;
 export type GrcUpdateDomain = Partial<GrcCreateDomain>;
 export type GrcUpdateControl = Partial<GrcCreateControl>;
-export interface PlanControlAssignment {
+export interface PlanTaskAssignment {
   controlSlug: string;
+  controlTitle: string;
+  controlSummary: string | null;
+  controlFrameworkSlug: string | null;
+  controlFrameworkTitle: string | null;
+  controlDomainSlug: string | null;
+  controlDomainTitle: string | null;
   assigneeId: string;
   deadline: string;
 }
@@ -107,8 +113,10 @@ export interface GrcCreatePlan {
   deadline: string;
   ownerId: string;
   frameworkSlug: string;
+  frameworkTitle?: string;
   domainSlug?: string;
-  controls: PlanControlAssignment[];
+  domainTitle?: string;
+  tasks: PlanTaskAssignment[];
 }
 
 export type GrcUpdatePlan = Partial<GrcCreateFramework>;

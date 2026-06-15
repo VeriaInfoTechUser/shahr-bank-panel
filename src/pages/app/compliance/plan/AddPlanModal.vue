@@ -10,7 +10,7 @@ import BaseSelect from '@/core/ui/base/BaseSelect.vue';
 import BaseDatePicker from '@/core/ui/base/BaseDatePicker.vue';
 import Button from '@/base-components/Button';
 import Lucide from '@/base-components/Lucide';
-import { grcRepo, type GrcEntity, type GrcCreatePlan, type PlanControlAssignment } from '@/core/repositories/grcRepo';
+import { grcRepo, type GrcEntity, type GrcCreatePlan, type PlanTaskAssignment } from '@/core/repositories/grcRepo';
 import { ermRepo } from '@/core/repositories/ermRepo';
 
 interface MemberOption {
@@ -291,19 +291,43 @@ function updateAssignmentDeadline(slug: string, deadline: string) {
 async function onCreatePlan() {
   saving.value = true;
   try {
-    const controls: PlanControlAssignment[] = controlAssignments.value.map((a) => ({
-      controlSlug: a.controlSlug,
-      assigneeId: a.assigneeId,
-      deadline: a.deadline,
-    }));
+    const tasks: PlanTaskAssignment[] = controlAssignments.value.map((a) => {
+      const ctrl = controlsList.value.find((c) => c.slug === a.controlSlug);
+      const ctrlFramework = frameworkOptions.value.find(
+        (f) => f.value === ctrl?.frameworkSlug
+      );
+      const ctrlDomain = domainOptions.value.find(
+        (d) => d.value === ctrl?.domainSlug
+      );
+      return {
+        controlSlug: a.controlSlug,
+        controlTitle: a.controlTitle,
+        controlSummary: ctrl?.summary ?? null,
+        controlFrameworkSlug: ctrl?.frameworkSlug ?? null,
+        controlFrameworkTitle: ctrlFramework?.label ?? null,
+        controlDomainSlug: ctrl?.domainSlug ?? null,
+        controlDomainTitle: ctrlDomain?.label ?? null,
+        assigneeId: a.assigneeId,
+        deadline: a.deadline,
+      };
+    });
+
+    const selectedFramework = frameworkOptions.value.find(
+      (f) => f.value === step1Values.value.framework_slug
+    );
+    const selectedDomain = domainOptions.value.find(
+      (d) => d.value === step1Values.value.domain_slug
+    );
 
     const payload: GrcCreatePlan = {
       title: step1Values.value.title,
       deadline: step1Values.value.deadline,
       ownerId: step1Values.value.owner_id,
       frameworkSlug: step1Values.value.framework_slug,
+      frameworkTitle: selectedFramework?.label,
       domainSlug: step1Values.value.domain_slug || undefined,
-      controls,
+      domainTitle: selectedDomain?.label,
+      tasks,
     };
 
     const res = await grcRepo.planCreateWithControls(payload);

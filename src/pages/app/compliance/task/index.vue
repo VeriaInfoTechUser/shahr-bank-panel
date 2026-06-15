@@ -88,11 +88,7 @@ function taskStatusBadgeClass(row: Record<string, unknown>): string {
 }
 
 function assignedUserCell(row: Record<string, unknown>): string {
-  return getUserLabel(row.assignedId ?? row.assigned_id);
-}
-
-function ownerUserCell(row: Record<string, unknown>): string {
-  return getUserLabel(row.ownerId ?? row.owner_id ?? row.createdBy);
+  return getUserLabel(row.assigneeId ?? row.assignee_Id);
 }
 
 function openStatusModal(row: Record<string, unknown>) {
@@ -117,6 +113,12 @@ const table = useDataTable({
   fetchFn: fetchTasks,
   columns: [
     createColumn({
+      key: 'assignedUser',
+      label: t('compliance-task.col-assigned'),
+      sortable: false,
+      bodyCell: assignedUserCell,
+    }),
+    createColumn({
       key: 'title',
       label: t('title.title'),
       sortable: false,
@@ -134,18 +136,7 @@ const table = useDataTable({
       sortable: false,
       slot: true,
     }),
-    createColumn({
-      key: 'assignedUser',
-      label: t('compliance-task.col-assigned'),
-      sortable: false,
-      bodyCell: assignedUserCell,
-    }),
-    createColumn({
-      key: 'ownerUser',
-      label: t('compliance-task.col-owner'),
-      sortable: false,
-      bodyCell: ownerUserCell,
-    }),
+
   ],
   selectable: false,
   exportEnabled: true,

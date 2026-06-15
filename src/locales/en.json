@@ -1886,7 +1886,21 @@
     "toolbar-clear-filters": "Clear filters",
     "filter-panel-title": "Filter tasks",
     "filter-field-title": "Title",
-    "filter-badge-remove-aria": "Remove {label} filter"
+    "filter-badge-remove-aria": "Remove {label} filter",
+    "col-answer": "Answer",
+    "col-task-status": "Task Status",
+    "col-assigned": "Assigned To",
+    "col-owner": "Owner",
+    "col-actions": "Actions",
+    "action-set-answer": "Set Answer",
+    "status-not-started": "Not Started",
+    "status-open": "Open",
+    "status-in-progress": "In Progress",
+    "status-completed": "Completed",
+    "status-approved": "Approved",
+    "status-rejected": "Rejected",
+    "status-unknown": "Unknown",
+    "users-load-error": "Could not load users"
   },
   "domain": {
     "add": "Add Domain",

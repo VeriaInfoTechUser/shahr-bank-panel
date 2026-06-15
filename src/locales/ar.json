@@ -1421,7 +1421,21 @@
     "toolbar-clear-filters": "مسح عوامل التصفية",
     "filter-panel-title": "تصفية المهام",
     "filter-field-title": "العنوان",
-    "filter-badge-remove-aria": "إزالة تصفية {label}"
+    "filter-badge-remove-aria": "إزالة تصفية {label}",
+    "col-answer": "الإجابة",
+    "col-task-status": "حالة المهمة",
+    "col-assigned": "مسؤول التنفيذ",
+    "col-owner": "المالك",
+    "col-actions": "الإجراءات",
+    "action-set-answer": "تحديد الإجابة",
+    "status-not-started": "لم يبدأ",
+    "status-open": "مفتوح",
+    "status-in-progress": "قيد التنفيذ",
+    "status-completed": "مكتمل",
+    "status-approved": "معتمد",
+    "status-rejected": "مرفوض",
+    "status-unknown": "غير معروف",
+    "users-load-error": "فشل تحميل المستخدمين"
   },
   "domain": {
     "add": "إضافة مجال",

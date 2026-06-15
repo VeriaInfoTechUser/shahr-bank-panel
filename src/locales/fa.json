@@ -2104,7 +2104,21 @@
     "toolbar-clear-filters": "پاک کردن فیلترها",
     "filter-panel-title": "فیلتر وظایف",
     "filter-field-title": "عنوان",
-    "filter-badge-remove-aria": "حذف فیلتر {label}"
+    "filter-badge-remove-aria": "حذف فیلتر {label}",
+    "col-answer": "پاسخ",
+    "col-task-status": "وضعیت وظیفه",
+    "col-assigned": "مسئول اجرا",
+    "col-owner": "مالک",
+    "col-actions": "عملیات",
+    "action-set-answer": "ثبت",
+    "status-not-started": "شروع نشده",
+    "status-open": "باز",
+    "status-in-progress": "در حال اجرا",
+    "status-completed": "تکمیل شده",
+    "status-approved": "تأیید شده",
+    "status-rejected": "رد شده",
+    "status-unknown": "ناشناخته",
+    "users-load-error": "خطا در بارگذاری کاربران"
   },
   "domain": {
     "add": "افزودن دامنه",

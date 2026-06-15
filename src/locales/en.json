@@ -1900,7 +1900,18 @@
     "status-approved": "Approved",
     "status-rejected": "Rejected",
     "status-unknown": "Unknown",
-    "users-load-error": "Could not load users"
+    "users-load-error": "Could not load users",
+    "answer-section-title": "Submit Answer",
+    "answer-control-description": "Control Description",
+    "answer-options-label": "Select your answer",
+    "answer-score-label": "Score",
+    "answer-no-options": "No answer options defined for this task.",
+    "answer-note-label": "Notes",
+    "answer-note-placeholder": "Enter your notes or comments...",
+    "answer-submit": "Submit Answer",
+    "answer-submit-success": "Answer submitted successfully",
+    "answer-submit-error": "Could not submit answer",
+    "answer-validation-required": "Please select an answer"
   },
   "domain": {
     "add": "Add Domain",

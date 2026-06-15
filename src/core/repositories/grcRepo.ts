@@ -214,4 +214,8 @@ export const grcRepo = {
   complianceTaskList(params?: GrcListParams): Promise<GrcApiResponse<GrcPaginatedResponse>> {
     return grcHttpRequest({ method: 'GET', url: '/compliance/tasks', params });
   },
+
+  complianceTaskUpdate(slug: string, data: Record<string, unknown>): Promise<GrcApiResponse<GrcEntity>> {
+    return grcHttpRequest({ method: 'PUT', url: `/compliance/tasks/${slug}`, data });
+  },
 };

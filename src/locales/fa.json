@@ -2110,7 +2110,7 @@
     "col-assigned": "مسئول اجرا",
     "col-owner": "مالک",
     "col-actions": "عملیات",
-    "action-set-answer": "ثبت",
+    "action-set-answer": "ثبت پاسخ",
     "status-not-started": "شروع نشده",
     "status-open": "باز",
     "status-in-progress": "در حال اجرا",
@@ -2118,7 +2118,18 @@
     "status-approved": "تأیید شده",
     "status-rejected": "رد شده",
     "status-unknown": "ناشناخته",
-    "users-load-error": "خطا در بارگذاری کاربران"
+    "users-load-error": "خطا در بارگذاری کاربران",
+    "answer-section-title": "ارسال پاسخ",
+    "answer-control-description": "توضیحات کنترل",
+    "answer-options-label": "پاسخ خود را انتخاب کنید",
+    "answer-score-label": "امتیاز",
+    "answer-no-options": "گزینه پاسخی برای این وظیفه تعریف نشده است.",
+    "answer-note-label": "یادداشت‌ها",
+    "answer-note-placeholder": "یادداشت‌ها یا نظرات خود را وارد کنید...",
+    "answer-submit": "ارسال پاسخ",
+    "answer-submit-success": "پاسخ با موفقیت ارسال شد",
+    "answer-submit-error": "خطا در ارسال پاسخ",
+    "answer-validation-required": "لطفاً یک پاسخ انتخاب کنید"
   },
   "domain": {
     "add": "افزودن دامنه",

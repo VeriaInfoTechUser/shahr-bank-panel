@@ -7,9 +7,8 @@ import BaseTable from '@core/ui/base/BaseTable.vue';
 import { grcRepo } from '@/core/repositories/grcRepo';
 import { ermRepo } from '@/core/repositories/ermRepo';
 import { useBreadcrumbSlot } from '@/composables/useBreadcrumb';
-import { useGlobalModal } from '@/composables/useGlobalModal';
 import { complianceOperationsStatusBadgeClass } from '@/composables/complianceOperationsStatusBadge';
-import ComplianceOperationsStatusModal from '@/pages/app/compliance/operations/ComplianceOperationsStatusModal.vue';
+import ComplianceTaskAnswerModal from './ComplianceTaskAnswerModal.vue';
 import Button from '@/base-components/Button';
 import Lucide from '@/base-components/Lucide';
 import ComplianceTaskBreadcrumbToolbar from './ComplianceTaskBreadcrumbToolbar.vue';
@@ -21,10 +20,11 @@ interface UserOption {
 
 const { t } = useI18n();
 const { setContent: setBreadcrumbSlot } = useBreadcrumbSlot();
-const { openModal } = useGlobalModal();
 
 const userOptions = ref<UserOption[]>([]);
 const usersLoading = ref(true);
+const showAnswerModal = ref(false);
+const selectedTask = ref<Record<string, unknown> | null>(null);
 
 const STATUS_I18N: Record<string, string> = {
   not_started: 'compliance-task.status-not-started',
@@ -88,18 +88,16 @@ function taskStatusBadgeClass(row: Record<string, unknown>): string {
 }
 
 function assignedUserCell(row: Record<string, unknown>): string {
-  return getUserLabel(row.assigneeId ?? row.assignee_Id);
+  return getUserLabel(row.assigneeId ?? row.assignee_id);
 }
 
-function openStatusModal(row: Record<string, unknown>) {
-  openModal({
-    component: ComplianceOperationsStatusModal,
-    props: { row },
-    onSuccess: () => {
-      table.invalidateListCache();
-      void table.fetch();
-    },
-  });
+function ownerUserCell(row: Record<string, unknown>): string {
+  return getUserLabel(row.ownerId ?? row.owner_id ?? row.createdBy);
+}
+
+function openAnswerModal(row: Record<string, unknown>) {
+  selectedTask.value = row;
+  showAnswerModal.value = true;
 }
 
 const fetchTasks: FetchFn = async ({ page, limit, filters }) => {
@@ -119,10 +117,10 @@ const table = useDataTable({
       bodyCell: assignedUserCell,
     }),
     createColumn({
-      key: 'title',
-      label: t('title.title'),
+      key: 'ownerUser',
+      label: t('compliance-task.col-owner'),
       sortable: false,
-      bodyCell: (row) => row.title ?? '—',
+      bodyCell: ownerUserCell,
     }),
     createColumn({
       key: 'answer',
@@ -147,6 +145,11 @@ const table = useDataTable({
 
 function onExportTasks() {
   table.exportCSV();
+}
+
+function onAnswerSuccess() {
+  table.invalidateListCache();
+  void table.fetch();
 }
 
 onMounted(async () => {
@@ -208,7 +211,7 @@ onMounted(async () => {
               class="!h-7 !px-2 !py-0 text-[11px]"
               :aria-label="t('compliance-task.action-set-answer')"
               :title="t('compliance-task.action-set-answer')"
-              @click.stop="openStatusModal(row)"
+              @click.stop="openAnswerModal(row)"
             >
               <Lucide icon="ClipboardCheck" class="mr-1 !h-3 !w-3" />
               {{ t('compliance-task.action-set-answer') }}
@@ -217,5 +220,13 @@ onMounted(async () => {
         </template>
       </BaseTable>
     </div>
+
+    <ComplianceTaskAnswerModal
+      v-if="selectedTask"
+      :show="showAnswerModal"
+      :task="selectedTask"
+      @update:show="showAnswerModal = $event"
+      @success="onAnswerSuccess"
+    />
   </div>
 </template>

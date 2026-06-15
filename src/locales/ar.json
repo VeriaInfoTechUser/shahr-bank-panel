@@ -1435,7 +1435,18 @@
     "status-approved": "معتمد",
     "status-rejected": "مرفوض",
     "status-unknown": "غير معروف",
-    "users-load-error": "فشل تحميل المستخدمين"
+    "users-load-error": "فشل تحميل المستخدمين",
+    "answer-section-title": "تقديم الإجابة",
+    "answer-control-description": "وصف الضابط",
+    "answer-options-label": "اختر إجابتك",
+    "answer-score-label": "الدرجة",
+    "answer-no-options": "لا توجد خيارات إجابة محددة لهذه المهمة.",
+    "answer-note-label": "ملاحظات",
+    "answer-note-placeholder": "أدخل ملاحظاتك أو تعليقاتك...",
+    "answer-submit": "تقديم الإجابة",
+    "answer-submit-success": "تم تقديم الإجابة بنجاح",
+    "answer-submit-error": "فشل تقديم الإجابة",
+    "answer-validation-required": "يرجى اختيار إجابة"
   },
   "domain": {
     "add": "إضافة مجال",

@@ -117,12 +117,6 @@ const table = useDataTable({
       bodyCell: assignedUserCell,
     }),
     createColumn({
-      key: 'ownerUser',
-      label: t('compliance-task.col-owner'),
-      sortable: false,
-      bodyCell: ownerUserCell,
-    }),
-    createColumn({
       key: 'answer',
       label: t('compliance-task.col-answer'),
       sortable: false,
@@ -208,7 +202,7 @@ onMounted(async () => {
               type="button"
               variant="outline-primary"
               size="sm"
-              class="!h-7 !px-2 !py-0 text-[11px]"
+              class="!h-7 !px-2 !py-0 text-[11px] w-24"
               :aria-label="t('compliance-task.action-set-answer')"
               :title="t('compliance-task.action-set-answer')"
               @click.stop="openAnswerModal(row)"

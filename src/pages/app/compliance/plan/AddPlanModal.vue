@@ -43,7 +43,8 @@ const emit = defineEmits<{
   (e: 'success'): void;
 }>();
 
-const { t } = useI18n();
+const { t, locale } = useI18n();
+const isRtl = computed(() => ['fa', 'ar'].includes(String(locale.value).slice(0, 2)));
 const currentStep = ref(1);
 const saving = ref(false);
 
@@ -591,22 +592,22 @@ async function onCreatePlan() {
         </div>
         <div class="flex flex-wrap gap-2">
           <Button
-            v-if="currentStep > 1"
-            type="button"
-            variant="outline-secondary"
-            size="sm"
-            @click="goBack"
-          >
-            <Lucide icon="ArrowLeft" class="mr-1 h-3.5 w-3.5" />
-            {{ t('button.back') }}
-          </Button>
-          <Button
             type="button"
             variant="outline-secondary"
             size="sm"
             @click="close"
           >
             {{ t('general.cancel') }}
+          </Button>
+          <Button
+            v-if="currentStep > 1"
+            type="button"
+            variant="outline-secondary"
+            size="sm"
+            @click="goBack"
+          >
+            <Lucide :icon="isRtl ? 'ArrowRight' : 'ArrowLeft'" class="me-1 h-3.5 w-3.5" />
+            {{ t('button.back') }}
           </Button>
           <Button
             v-if="currentStep === 1"
@@ -616,7 +617,7 @@ async function onCreatePlan() {
             form="plan-wizard-step1"
           >
             {{ t('plan.wizard-next') }}
-            <Lucide icon="ArrowRight" class="ml-1 h-3.5 w-3.5" />
+            <Lucide :icon="isRtl ? 'ArrowLeft' : 'ArrowRight'" class="ms-1 h-3.5 w-3.5" />
           </Button>
           <Button
             v-else-if="currentStep === 2"
@@ -627,7 +628,7 @@ async function onCreatePlan() {
             @click="goToStep3"
           >
             {{ t('plan.wizard-next') }}
-            <Lucide icon="ArrowRight" class="ml-1 h-3.5 w-3.5" />
+            <Lucide :icon="isRtl ? 'ArrowLeft' : 'ArrowRight'" class="ms-1 h-3.5 w-3.5" />
           </Button>
           <Button
             v-else
@@ -637,8 +638,8 @@ async function onCreatePlan() {
             :disabled="saving"
             @click="onCreatePlan"
           >
-            <Lucide v-if="saving" icon="Loader2" class="mr-1 h-3.5 w-3.5 animate-spin" />
-            <Lucide v-else icon="Check" class="mr-1 h-3.5 w-3.5" />
+            <Lucide v-if="saving" icon="Loader2" class="me-1 h-3.5 w-3.5 animate-spin" />
+            <Lucide v-else icon="Check" class="me-1 h-3.5 w-3.5" />
             {{ t('plan.wizard-create') }}
           </Button>
         </div>

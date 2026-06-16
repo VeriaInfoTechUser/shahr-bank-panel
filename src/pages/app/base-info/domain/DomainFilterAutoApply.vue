@@ -34,7 +34,7 @@ watchDebounced(
 
 watch(
   () => ({
-    frameworkSlug: values.value.frameworkSlug,
+    frameworkSlug: Array.isArray(values.value.frameworkSlug) ? [...values.value.frameworkSlug] : values.value.frameworkSlug,
   }),
   () => emitIfReady(),
   { deep: true }

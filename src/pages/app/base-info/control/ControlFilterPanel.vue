@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import type { Ref } from 'vue';
 import { computed, ref, onMounted, toValue, watch } from 'vue';
-import { Form } from 'vee-validate';
+import { Form, useFormValues } from 'vee-validate';
 import { useI18n } from 'vue-i18n';
 import BaseInput from '@/core/ui/base/BaseInput.vue';
-import BaseSelect from '@/core/ui/base/BaseSelect.vue';
+import BaseMultiSelect from '@/core/ui/base/BaseMultiSelect.vue';
 import { grcRepo, type GrcEntity } from '@/core/repositories/grcRepo';
 import ControlFilterAutoApply from './ControlFilterAutoApply.vue';
 
@@ -31,16 +31,15 @@ const { t } = useI18n();
 const formKey = ref(0);
 const formId = 'control-filter-form';
 const frameworkOptions = ref<{ value: string; label: string }[]>([]);
-const domainOptions = ref<{ value: string; label: string }[]>([]);
 const allDomains = ref<GrcEntity[]>([]);
-const selectedFrameworkSlug = ref('');
+const selectedFrameworkSlugs = ref<string[]>([]);
 
 function apiFiltersToFormValues(f: Record<string, unknown> | undefined | null) {
   const x = f ?? {};
   return {
     title: String(x.title ?? ''),
-    frameworkSlug: String(x.frameworkSlug ?? ''),
-    domainSlug: String(x.domainSlug ?? ''),
+    frameworkSlug: Array.isArray(x.frameworkSlug) ? (x.frameworkSlug as unknown[]).map(String) : [],
+    domainSlug: Array.isArray(x.domainSlug) ? (x.domainSlug as unknown[]).map(String) : [],
   };
 }
 
@@ -49,9 +48,9 @@ const formInitialValues = computed(() =>
 );
 
 const filteredDomainOptions = computed(() => {
-  const fwSlug = selectedFrameworkSlug.value;
-  const filtered = fwSlug
-    ? allDomains.value.filter((d) => d.frameworkSlug === fwSlug)
+  const fwSlugs = selectedFrameworkSlugs.value;
+  const filtered = fwSlugs.length > 0
+    ? allDomains.value.filter((d) => fwSlugs.includes(d.frameworkSlug))
     : allDomains.value;
   return filtered.map((d) => ({
     value: d.slug,
@@ -89,7 +88,7 @@ watch(
   (_v, prev) => {
     if (prev === undefined) return;
     formKey.value += 1;
-    selectedFrameworkSlug.value = '';
+    selectedFrameworkSlugs.value = [];
   }
 );
 
@@ -97,10 +96,10 @@ function buildPayload(values: Record<string, unknown>): Record<string, unknown> 
   const o: Record<string, unknown> = {};
   const title = String(values.title ?? '').trim();
   if (title) o.title = title;
-  const frameworkSlug = String(values.frameworkSlug ?? '').trim();
-  if (frameworkSlug) o.frameworkSlug = frameworkSlug;
-  const domainSlug = String(values.domainSlug ?? '').trim();
-  if (domainSlug) o.domainSlug = domainSlug;
+  const frameworkSlug = values.frameworkSlug as string[] | undefined;
+  if (frameworkSlug?.length) o.frameworkSlug = frameworkSlug;
+  const domainSlug = values.domainSlug as string[] | undefined;
+  if (domainSlug?.length) o.domainSlug = domainSlug;
   return o;
 }
 
@@ -112,8 +111,19 @@ function onAutoApply(payload: Record<string, unknown>) {
   }
 }
 
+const formValues = useFormValues();
+
 function onFrameworkFilterChange(value: unknown) {
-  selectedFrameworkSlug.value = String(value ?? '');
+  const newSlugs = Array.isArray(value) ? (value as string[]) : [];
+  selectedFrameworkSlugs.value = newSlugs;
+  const validDomainValues = filteredDomainOptions.value.map((d) => d.value);
+  const currentDomainSlug = formValues.value.domainSlug as string[] | undefined;
+  if (currentDomainSlug?.length) {
+    const cleaned = currentDomainSlug.filter((d) => validDomainValues.includes(d));
+    if (cleaned.length !== currentDomainSlug.length) {
+      formValues.setFieldValue('domainSlug', cleaned);
+    }
+  }
 }
 </script>
 
@@ -130,28 +140,26 @@ function onFrameworkFilterChange(value: unknown) {
         :build-payload="buildPayload"
         @apply="onAutoApply"
       />
-      <div class="grid grid-cols-1 gap-3 md:grid-cols-3">
+      <div class="grid grid-cols-1 gap-3">
         <BaseInput
           name="title"
           compact-label
           :label="t('control.filter-field-title')"
         />
-        <BaseSelect
+        <BaseMultiSelect
           name="frameworkSlug"
           compact-label
           :label="t('control.filter-field-framework')"
           :options="frameworkOptions"
           placeholder=""
-          :filter="true"
           @change="onFrameworkFilterChange"
         />
-        <BaseSelect
+        <BaseMultiSelect
           name="domainSlug"
           compact-label
           :label="t('control.filter-field-domain')"
           :options="filteredDomainOptions"
           placeholder=""
-          :filter="true"
         />
       </div>
     </Form>

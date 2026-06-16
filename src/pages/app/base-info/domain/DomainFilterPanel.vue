@@ -4,7 +4,7 @@ import { computed, ref, onMounted, toValue, watch } from 'vue';
 import { Form } from 'vee-validate';
 import { useI18n } from 'vue-i18n';
 import BaseInput from '@/core/ui/base/BaseInput.vue';
-import BaseSelect from '@/core/ui/base/BaseSelect.vue';
+import BaseMultiSelect from '@/core/ui/base/BaseMultiSelect.vue';
 import { grcRepo, type GrcEntity } from '@/core/repositories/grcRepo';
 import DomainFilterAutoApply from './DomainFilterAutoApply.vue';
 
@@ -36,7 +36,7 @@ function apiFiltersToFormValues(f: Record<string, unknown> | undefined | null) {
   const x = f ?? {};
   return {
     title: String(x.title ?? ''),
-    frameworkSlug: String(x.frameworkSlug ?? ''),
+    frameworkSlug: Array.isArray(x.frameworkSlug) ? (x.frameworkSlug as unknown[]).map(String) : [],
   };
 }
 
@@ -74,8 +74,8 @@ function buildPayload(values: Record<string, unknown>): Record<string, unknown> 
   const o: Record<string, unknown> = {};
   const title = String(values.title ?? '').trim();
   if (title) o.title = title;
-  const frameworkSlug = String(values.frameworkSlug ?? '').trim();
-  if (frameworkSlug) o.frameworkSlug = frameworkSlug;
+  const frameworkSlug = values.frameworkSlug as string[] | undefined;
+  if (frameworkSlug?.length) o.frameworkSlug = frameworkSlug;
   return o;
 }
 
@@ -101,19 +101,18 @@ function onAutoApply(payload: Record<string, unknown>) {
         :build-payload="buildPayload"
         @apply="onAutoApply"
       />
-      <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
+      <div class="grid grid-cols-1 gap-3">
         <BaseInput
           name="title"
           compact-label
           :label="t('domain.filter-field-title')"
         />
-        <BaseSelect
+        <BaseMultiSelect
           name="frameworkSlug"
           compact-label
           :label="t('domain.filter-field-framework')"
           :options="frameworkOptions"
           placeholder=""
-          :filter="true"
         />
       </div>
     </Form>

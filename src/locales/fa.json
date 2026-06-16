@@ -1,6 +1,8 @@
 {
   "title": {
     "framework": "فریمورک",
+    "domain": "دامنه",
+    "owner": "مالک",
     "billing": "صورتحساب",
     "creator": "ایجاد کننده",
     "sale-price": "قیمت فروش",
@@ -2072,6 +2074,8 @@
     "toolbar-clear-filters": "پاک کردن فیلترها",
     "filter-panel-title": "فیلتر طرح‌ها",
     "filter-field-title": "عنوان",
+    "filter-field-framework": "فریمورک",
+    "filter-field-domain": "دامنه",
     "filter-badge-remove-aria": "حذف فیلتر {label}",
     "wizard-title": "افزودن طرح جدید",
     "wizard-step-info": "اطلاعات طرح",

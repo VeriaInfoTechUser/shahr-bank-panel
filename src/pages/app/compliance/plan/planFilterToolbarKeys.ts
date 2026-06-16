@@ -1,9 +1,11 @@
-export const PLAN_FILTER_PARAM_ORDER = ['title'] as const;
+export const PLAN_FILTER_PARAM_ORDER = ['title', 'frameworkSlug', 'domainSlug'] as const;
 
 export type PlanFilterParamKey = (typeof PLAN_FILTER_PARAM_ORDER)[number];
 
 export const PLAN_FILTER_PARAM_LABEL_KEYS: Record<PlanFilterParamKey, string> = {
   title: 'plan.filter-field-title',
+  frameworkSlug: 'plan.filter-field-framework',
+  domainSlug: 'plan.filter-field-domain',
 };
 
 export function isPlanFilterValueSet(value: unknown): boolean {

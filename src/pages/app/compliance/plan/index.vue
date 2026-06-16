@@ -1,23 +1,39 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n';
-import { toast } from 'vue3-toastify';
 import { onMounted, ref } from 'vue';
 import { useDataTable, createColumn, type FetchFn } from '@core';
 import BaseTable from '@core/ui/base/BaseTable.vue';
-import BaseConfirmModal from '@core/ui/base/BaseConfirmModal.vue';
 import { grcRepo } from '@/core/repositories/grcRepo';
+import { ermRepo } from '@/core/repositories/ermRepo';
 import { useBreadcrumbSlot } from '@/composables/useBreadcrumb';
-import { useGlobalModal } from '@/composables/useGlobalModal';
-import Button from '@/base-components/Button';
-import Lucide from '@/base-components/Lucide';
 import AddPlanModal from './AddPlanModal.vue';
 import PlanBreadcrumbToolbar from './PlanBreadcrumbToolbar.vue';
 
 const { t } = useI18n();
 const { setContent: setBreadcrumbSlot } = useBreadcrumbSlot();
-const { openModal } = useGlobalModal();
 
 const showAddModal = ref(false);
+
+const memberMap = ref<Record<string, string>>({});
+
+async function loadMembers() {
+  try {
+    const res = await ermRepo.memberList({ page: 1, limit: 500 });
+    const list = (res?.data?.list ?? []) as Record<string, unknown>[];
+    const map: Record<string, string> = {};
+    for (const m of list) {
+      const id = m.id ?? m.user_id;
+      if (id == null) continue;
+      const label =
+        [m.name, m.full_name, m.email, m.mobile]
+          .find((x) => typeof x === 'string' && String(x).trim()) ?? String(id);
+      map[String(id)] = String(label).trim();
+    }
+    memberMap.value = map;
+  } catch {
+    // silent
+  }
+}
 
 const fetchPlans: FetchFn = async ({ page, limit, filters }) => {
   const res = await grcRepo.planList({ page, limit, ...(filters ?? {}) });
@@ -39,7 +55,25 @@ const table = useDataTable({
       key: 'frameworkTitle',
       label: t('title.framework'),
       sortable: false,
-      bodyCell: (row) => row.frameworkTitle,
+      bodyCell: (row) => {
+        const val = row.frameworkTitle;
+        return Array.isArray(val) ? val.join(', ') : (val ?? '—');
+      },
+    }),
+    createColumn({
+      key: 'domainTitle',
+      label: t('title.domain'),
+      sortable: false,
+      bodyCell: (row) => {
+        const val = row.domainTitle;
+        return Array.isArray(val) ? val.join(', ') : (val ?? '—');
+      },
+    }),
+    createColumn({
+      key: 'ownerId',
+      label: t('title.owner'),
+      sortable: false,
+      bodyCell: (row) => memberMap.value[String(row.ownerId)] ?? row.ownerId ?? '—',
     }),
   ],
   selectable: false,
@@ -54,6 +88,7 @@ function onExportPlans() {
 }
 
 onMounted(() => {
+  loadMembers();
   table.invalidateListCache();
   table.fetch();
   setBreadcrumbSlot(PlanBreadcrumbToolbar, {
@@ -62,34 +97,6 @@ onMounted(() => {
     table,
   });
 });
-
-function onDeletePlan(row: Record<string, unknown>) {
-  openModal({
-    component: BaseConfirmModal,
-    props: {
-      titleKey: 'plan.delete-confirm-title',
-      messageKey: 'plan.delete-confirm-message',
-      confirmVariant: 'danger' as const,
-      onConfirmAction: async () => {
-        const slug = row.slug;
-        if (!slug) {
-          toast(t('plan.delete-error'), { type: 'error' });
-          throw new Error('missing slug');
-        }
-        const res = await grcRepo.planDelete(slug as string);
-        if (!res?.result) {
-          const msg = res?.error?.[0] ?? t('plan.delete-error');
-          toast(msg, { type: 'error' });
-          throw new Error(msg);
-        }
-      },
-    },
-    onSuccess: () => {
-      table.invalidateListCache();
-      void table.fetch();
-    },
-  });
-}
 
 function onAddPlan() {
   showAddModal.value = true;
@@ -109,26 +116,8 @@ function onModalSuccess() {
         :selectable="false"
         :export-enabled="table.exportEnabled"
         :empty-message="t('general.no-data')"
-        :actions="true"
-        :actions-header="t('task.settings')"
         :show-search="false"
-      >
-        <template #actions="{ row }">
-          <div class="flex items-center justify-center gap-3">
-            <Button
-              type="button"
-              variant="outline-danger"
-              size="sm"
-              class="!h-7 !w-7 !px-0 !py-0"
-              :aria-label="t('task.delete')"
-              :title="t('task.delete')"
-              @click.stop="onDeletePlan(row)"
-            >
-              <Lucide icon="Trash2" class="!h-3.5 !w-3.5" />
-            </Button>
-          </div>
-        </template>
-      </BaseTable>
+      />
     </div>
 
     <AddPlanModal

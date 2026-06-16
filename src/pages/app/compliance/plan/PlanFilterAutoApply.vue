@@ -31,6 +31,15 @@ watchDebounced(
   () => emitIfReady(),
   { debounce: 450 }
 );
+
+watch(
+  () => ({
+    frameworkSlug: Array.isArray(values.value.frameworkSlug) ? [...values.value.frameworkSlug] : values.value.frameworkSlug,
+    domainSlug: Array.isArray(values.value.domainSlug) ? [...values.value.domainSlug] : values.value.domainSlug,
+  }),
+  () => emitIfReady(),
+  { deep: true }
+);
 </script>
 
 <template>

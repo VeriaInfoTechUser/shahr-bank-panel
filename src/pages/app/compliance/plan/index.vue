@@ -1,15 +1,19 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n';
 import { onMounted, ref } from 'vue';
+import { useRouter } from 'vue-router';
 import { useDataTable, createColumn, type FetchFn } from '@core';
 import BaseTable from '@core/ui/base/BaseTable.vue';
 import { grcRepo } from '@/core/repositories/grcRepo';
 import { ermRepo } from '@/core/repositories/ermRepo';
 import { useBreadcrumbSlot } from '@/composables/useBreadcrumb';
+import Button from '@/base-components/Button';
+import Lucide from '@/base-components/Lucide';
 import AddPlanModal from './AddPlanModal.vue';
 import PlanBreadcrumbToolbar from './PlanBreadcrumbToolbar.vue';
 
 const { t } = useI18n();
+const router = useRouter();
 const { setContent: setBreadcrumbSlot } = useBreadcrumbSlot();
 
 const showAddModal = ref(false);
@@ -47,13 +51,19 @@ const table = useDataTable({
   columns: [
     createColumn({
       key: 'title',
-      label: t('title.title'),
+      label: t('plan.col-title'),
       sortable: false,
       bodyCell: (row) => row.title ?? '—',
     }),
     createColumn({
+      key: 'deadline',
+      label: t('plan.col-deadline'),
+      sortable: false,
+      bodyCell: (row) => row.deadline ?? '—',
+    }),
+    createColumn({
       key: 'frameworkTitle',
-      label: t('title.framework'),
+      label: t('plan.col-framework'),
       sortable: false,
       bodyCell: (row) => {
         const val = row.frameworkTitle;
@@ -62,7 +72,7 @@ const table = useDataTable({
     }),
     createColumn({
       key: 'domainTitle',
-      label: t('title.domain'),
+      label: t('plan.col-domain'),
       sortable: false,
       bodyCell: (row) => {
         const val = row.domainTitle;
@@ -71,7 +81,7 @@ const table = useDataTable({
     }),
     createColumn({
       key: 'ownerId',
-      label: t('title.owner'),
+      label: t('plan.col-owner'),
       sortable: false,
       bodyCell: (row) => memberMap.value[String(row.ownerId)] ?? row.ownerId ?? '—',
     }),
@@ -85,6 +95,10 @@ const table = useDataTable({
 
 function onExportPlans() {
   table.exportCSV();
+}
+
+function goToTasks(planSlug: string) {
+  router.push({ name: 'app-compliance-task', query: { planSlug } });
 }
 
 onMounted(() => {
@@ -116,8 +130,27 @@ function onModalSuccess() {
         :selectable="false"
         :export-enabled="table.exportEnabled"
         :empty-message="t('general.no-data')"
+        :actions="true"
+        :actions-header="t('plan.col-actions')"
         :show-search="false"
-      />
+      >
+        <template #actions="{ row }">
+          <div class="flex items-center justify-center">
+            <Button
+              type="button"
+              variant="outline-primary"
+              size="sm"
+              class="!h-7 !px-2 !py-0 text-[11px]"
+              :aria-label="t('plan.action-show-tasks')"
+              :title="t('plan.action-show-tasks')"
+              @click.stop="goToTasks(row.slug)"
+            >
+              <Lucide icon="ListChecks" class="mr-1 !h-3 !w-3" />
+              {{ t('plan.action-show-tasks') }}
+            </Button>
+          </div>
+        </template>
+      </BaseTable>
     </div>
 
     <AddPlanModal

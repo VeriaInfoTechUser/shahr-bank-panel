@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
+import { useRoute } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { toast } from 'vue3-toastify';
 import { useDataTable, createColumn, type FetchFn } from '@core';
@@ -19,6 +20,7 @@ interface UserOption {
 }
 
 const { t } = useI18n();
+const route = useRoute();
 const { setContent: setBreadcrumbSlot } = useBreadcrumbSlot();
 
 const userOptions = ref<UserOption[]>([]);
@@ -107,6 +109,14 @@ const fetchTasks: FetchFn = async ({ page, limit, filters }) => {
   return { list: Array.isArray(list) ? list : [], count };
 };
 
+const initialPlanFilter = (() => {
+  const planSlug = route.query.planSlug;
+  if (planSlug && typeof planSlug === 'string') {
+    return { planSlug: [planSlug] };
+  }
+  return {};
+})();
+
 const table = useDataTable({
   fetchFn: fetchTasks,
   columns: [
@@ -164,7 +174,11 @@ onMounted(async () => {
   }
 
   table.invalidateListCache();
-  table.fetch();
+  if (Object.keys(initialPlanFilter).length > 0) {
+    table.replaceFilters(initialPlanFilter);
+  } else {
+    table.fetch();
+  }
   setBreadcrumbSlot(ComplianceTaskBreadcrumbToolbar, {
     onExport: onExportTasks,
     table,

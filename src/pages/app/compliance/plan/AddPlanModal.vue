@@ -7,6 +7,7 @@ import { toast } from 'vue3-toastify';
 import BaseModal from '@/core/ui/base/BaseModal.vue';
 import BaseInput from '@/core/ui/base/BaseInput.vue';
 import BaseSelect from '@/core/ui/base/BaseSelect.vue';
+import BaseMultiSelect from '@/core/ui/base/BaseMultiSelect.vue';
 import BaseDatePicker from '@/core/ui/base/BaseDatePicker.vue';
 import Button from '@/base-components/Button';
 import Lucide from '@/base-components/Lucide';
@@ -63,12 +64,14 @@ const selectedControlSlugs = ref<string[]>([]);
 
 const controlAssignments = ref<ControlAssignment[]>([]);
 
+const allDomains = ref<GrcEntity[]>([]);
+
 const step1Values = ref({
   title: '',
   deadline: '',
   owner_id: '',
-  framework_slug: '',
-  domain_slug: '',
+  framework_slugs: [] as string[],
+  domain_slugs: [] as string[],
 });
 
 const step1FormKey = ref(0);
@@ -78,8 +81,8 @@ const step1Schema = computed(() =>
     title: yup.string().trim().required(t('validation.required')),
     deadline: yup.string().trim().required(t('validation.required')),
     owner_id: yup.string().trim().required(t('validation.required')),
-    framework_slug: yup.string().trim().required(t('validation.required')),
-    domain_slug: yup.string().trim().optional(),
+    framework_slugs: yup.array().of(yup.string()).min(1, t('validation.required')).required(t('validation.required')),
+    domain_slugs: yup.array().of(yup.string()).optional(),
   })
 );
 
@@ -91,8 +94,10 @@ const STEPS = [
   { key: 3, labelKey: 'plan.wizard-step-assign' },
 ] as const;
 
-const selectedFrameworkLabel = computed(() =>
-  frameworkOptions.value.find((f) => f.value === step1Values.value.framework_slug)?.label ?? ''
+const selectedFrameworkLabels = computed(() =>
+  frameworkOptions.value
+    .filter((f) => step1Values.value.framework_slugs.includes(f.value))
+    .map((f) => f.label)
 );
 
 const selectedOwnerLabel = computed(() =>
@@ -106,14 +111,15 @@ function resetWizard() {
     title: '',
     deadline: '',
     owner_id: '',
-    framework_slug: '',
-    domain_slug: '',
+    framework_slugs: [],
+    domain_slugs: [],
   };
   step1FormKey.value = 0;
   selectedControlSlugs.value = [];
   controlAssignments.value = [];
   controlsList.value = [];
   domainOptions.value = [];
+  allDomains.value = [];
 }
 
 watch(
@@ -122,6 +128,7 @@ watch(
     if (!visible) return;
     resetWizard();
     loadFrameworks();
+    loadDomains();
     loadMembers();
   }
 );
@@ -164,24 +171,29 @@ async function loadFrameworks() {
   }
 }
 
-async function loadDomains(frameworkSlug: string) {
-  if (!frameworkSlug) {
-    domainOptions.value = [];
-    return;
-  }
+async function loadDomains() {
   domainsLoading.value = true;
   try {
-    const res = await grcRepo.domainList({ page: 1, limit: 500, frameworkSlug });
+    const res = await grcRepo.domainList({ page: 1, limit: 500 });
     const list = res?.data?.list ?? [];
-    domainOptions.value = (Array.isArray(list) ? list : []).map((d: GrcEntity) => ({
-      value: d.slug,
-      label: d.title ?? d.slug,
-    }));
+    allDomains.value = Array.isArray(list) ? list : [];
+    updateDomainOptions();
   } catch {
     toast(t('plan.wizard-domains-load-error'), { type: 'error' });
   } finally {
     domainsLoading.value = false;
   }
+}
+
+function updateDomainOptions() {
+  const fwSlugs = step1Values.value.framework_slugs;
+  const filtered = fwSlugs.length > 0
+    ? allDomains.value.filter((d) => fwSlugs.includes(d.frameworkSlug))
+    : allDomains.value;
+  domainOptions.value = filtered.map((d: GrcEntity) => ({
+    value: d.slug,
+    label: d.title ?? d.slug,
+  }));
 }
 
 async function loadControls() {
@@ -190,10 +202,16 @@ async function loadControls() {
     const params: Record<string, unknown> = {
       page: 1,
       limit: 1000,
-      frameworkSlug: step1Values.value.framework_slug,
     };
-    if (step1Values.value.domain_slug) {
-      params.domainSlug = step1Values.value.domain_slug;
+    if (step1Values.value.framework_slugs.length === 1) {
+      params.frameworkSlug = step1Values.value.framework_slugs[0];
+    } else if (step1Values.value.framework_slugs.length > 1) {
+      params.frameworkSlug = step1Values.value.framework_slugs;
+    }
+    if (step1Values.value.domain_slugs.length === 1) {
+      params.domainSlug = step1Values.value.domain_slugs[0];
+    } else if (step1Values.value.domain_slugs.length > 1) {
+      params.domainSlug = step1Values.value.domain_slugs;
     }
     const res = await grcRepo.controlList(params);
     const list = res?.data?.list ?? [];
@@ -211,13 +229,12 @@ async function loadControls() {
   }
 }
 
-function onFrameworkChange(slug: string) {
-  step1Values.value.framework_slug = slug;
-  step1Values.value.domain_slug = '';
-  domainOptions.value = [];
-  if (slug) {
-    loadDomains(slug);
-  }
+function onFrameworkChange(slugs: unknown) {
+  const newSlugs = Array.isArray(slugs) ? (slugs as string[]) : [];
+  step1Values.value.framework_slugs = newSlugs;
+  updateDomainOptions();
+  const validDomainSlugs = new Set(domainOptions.value.map((d) => d.value));
+  step1Values.value.domain_slugs = step1Values.value.domain_slugs.filter((d) => validDomainSlugs.has(d));
 }
 
 function close() {
@@ -235,8 +252,8 @@ function onStep1Submit(values: Record<string, unknown>) {
     title: String(values.title ?? ''),
     deadline: String(values.deadline ?? ''),
     owner_id: String(values.owner_id ?? ''),
-    framework_slug: String(values.framework_slug ?? ''),
-    domain_slug: String(values.domain_slug ?? ''),
+    framework_slugs: Array.isArray(values.framework_slugs) ? (values.framework_slugs as string[]) : [],
+    domain_slugs: Array.isArray(values.domain_slugs) ? (values.domain_slugs as string[]) : [],
   };
   currentStep.value = 2;
   loadControls();
@@ -312,21 +329,31 @@ async function onCreatePlan() {
       };
     });
 
-    const selectedFramework = frameworkOptions.value.find(
-      (f) => f.value === step1Values.value.framework_slug
-    );
-    const selectedDomain = domainOptions.value.find(
-      (d) => d.value === step1Values.value.domain_slug
-    );
+    const selectedFrameworks = frameworkOptions.value
+      .filter((f) => step1Values.value.framework_slugs.includes(f.value));
+    const selectedDomains = domainOptions.value
+      .filter((d) => step1Values.value.domain_slugs.includes(d.value));
 
     const payload: GrcCreatePlan = {
       title: step1Values.value.title,
       deadline: step1Values.value.deadline,
       ownerId: step1Values.value.owner_id,
-      frameworkSlug: step1Values.value.framework_slug,
-      frameworkTitle: selectedFramework?.label,
-      domainSlug: step1Values.value.domain_slug || undefined,
-      domainTitle: selectedDomain?.label,
+      frameworkSlug: step1Values.value.framework_slugs.length === 1
+        ? step1Values.value.framework_slugs[0]
+        : step1Values.value.framework_slugs,
+      frameworkTitle: selectedFrameworks.length === 1
+        ? selectedFrameworks[0].label
+        : selectedFrameworks.map((f) => f.label),
+      domainSlug: step1Values.value.domain_slugs.length === 1
+        ? step1Values.value.domain_slugs[0]
+        : step1Values.value.domain_slugs.length > 1
+          ? step1Values.value.domain_slugs
+          : undefined,
+      domainTitle: selectedDomains.length === 1
+        ? selectedDomains[0].label
+        : selectedDomains.length > 1
+          ? selectedDomains.map((d) => d.label)
+          : undefined,
       tasks,
     };
 
@@ -436,24 +463,22 @@ async function onCreatePlan() {
             :filter="true"
             :disabled="membersLoading"
           />
-          <BaseSelect
-            name="framework_slug"
+          <BaseMultiSelect
+            name="framework_slugs"
             :label="t('plan.wizard-field-framework')"
             :options="frameworkOptions"
             :placeholder="t('rule.form-select-placeholder')"
             :required="true"
-            :filter="true"
             :disabled="frameworksLoading"
             @change="onFrameworkChange"
           />
         </div>
 
-        <BaseSelect
-          name="domain_slug"
+        <BaseMultiSelect
+          name="domain_slugs"
           :label="t('plan.wizard-field-domain')"
           :options="domainOptions"
           :placeholder="t('plan.wizard-field-domain-placeholder')"
-          :filter="true"
           :disabled="domainsLoading || domainOptions.length === 0"
         />
       </Form>
@@ -605,7 +630,7 @@ async function onCreatePlan() {
       <div class="flex w-full flex-wrap items-center justify-between gap-2">
         <div class="text-xs text-slate-400 dark:text-slate-500">
           <template v-if="currentStep === 1">
-            {{ selectedFrameworkLabel }}
+            {{ selectedFrameworkLabels.join(', ') }}
           </template>
           <template v-else-if="currentStep === 2">
             {{ t('plan.wizard-controls-selected', { count: selectedControlSlugs.length, total: controlsList.length }) }}

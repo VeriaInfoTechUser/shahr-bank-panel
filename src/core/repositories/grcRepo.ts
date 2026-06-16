@@ -112,10 +112,10 @@ export interface GrcCreatePlan {
   title: string;
   deadline: string;
   ownerId: string;
-  frameworkSlug: string;
-  frameworkTitle?: string;
-  domainSlug?: string;
-  domainTitle?: string;
+  frameworkSlug: string | string[];
+  frameworkTitle?: string | string[];
+  domainSlug?: string | string[];
+  domainTitle?: string | string[];
   tasks: PlanTaskAssignment[];
 }
 

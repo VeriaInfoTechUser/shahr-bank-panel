@@ -24,7 +24,9 @@ interface ControlItem {
   title: string;
   summary: string | null;
   frameworkSlug: string | null;
+  frameworkTitle: string | null;
   domainSlug: string | null;
+  domainTitle: string | null;
 }
 
 interface ControlAssignment {
@@ -220,7 +222,9 @@ async function loadControls() {
       title: c.title ?? c.slug,
       summary: c.summary,
       frameworkSlug: c.frameworkSlug,
+      frameworkTitle: frameworkOptions.value.find((f) => f.value === c.frameworkSlug)?.label ?? null,
       domainSlug: c.domainSlug,
+      domainTitle: allDomains.value.find((d) => d.slug === c.domainSlug)?.title ?? null,
     }));
   } catch {
     toast(t('plan.wizard-controls-load-error'), { type: 'error' });
@@ -555,8 +559,8 @@ async function onCreatePlan() {
                     {{ ctrl.summary }}
                   </div>
                   <div class="mt-1 flex flex-wrap gap-2 text-[10px] text-slate-400 dark:text-slate-500">
-                    <span v-if="ctrl.frameworkSlug">{{ ctrl.frameworkSlug }}</span>
-                    <span v-if="ctrl.domainSlug">{{ ctrl.domainSlug }}</span>
+                    <span v-if="ctrl.frameworkTitle">{{ ctrl.frameworkTitle }}</span>
+                    <span v-if="ctrl.domainTitle">{{ ctrl.domainTitle }}</span>
                   </div>
                 </div>
               </label>

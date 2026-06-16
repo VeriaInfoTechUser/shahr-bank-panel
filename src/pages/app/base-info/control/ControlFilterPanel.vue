@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import type { Ref } from 'vue';
 import { computed, ref, onMounted, toValue, watch } from 'vue';
-import { Form, useFormValues } from 'vee-validate';
+import { Form } from 'vee-validate';
 import { useI18n } from 'vue-i18n';
 import BaseInput from '@/core/ui/base/BaseInput.vue';
 import BaseMultiSelect from '@/core/ui/base/BaseMultiSelect.vue';
 import { grcRepo, type GrcEntity } from '@/core/repositories/grcRepo';
 import ControlFilterAutoApply from './ControlFilterAutoApply.vue';
+import ControlDomainCleanup from './ControlDomainCleanup.vue';
 
 const props = withDefaults(
   defineProps<{
@@ -111,19 +112,9 @@ function onAutoApply(payload: Record<string, unknown>) {
   }
 }
 
-const formValues = useFormValues();
-
 function onFrameworkFilterChange(value: unknown) {
   const newSlugs = Array.isArray(value) ? (value as string[]) : [];
   selectedFrameworkSlugs.value = newSlugs;
-  const validDomainValues = filteredDomainOptions.value.map((d) => d.value);
-  const currentDomainSlug = formValues.value.domainSlug as string[] | undefined;
-  if (currentDomainSlug?.length) {
-    const cleaned = currentDomainSlug.filter((d) => validDomainValues.includes(d));
-    if (cleaned.length !== currentDomainSlug.length) {
-      formValues.setFieldValue('domainSlug', cleaned);
-    }
-  }
 }
 </script>
 
@@ -139,6 +130,9 @@ function onFrameworkFilterChange(value: unknown) {
       <ControlFilterAutoApply
         :build-payload="buildPayload"
         @apply="onAutoApply"
+      />
+      <ControlDomainCleanup
+        :valid-domain-values="filteredDomainOptions.map((d) => d.value)"
       />
       <div class="grid grid-cols-1 gap-3">
         <BaseInput

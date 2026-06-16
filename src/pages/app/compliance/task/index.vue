@@ -111,6 +111,12 @@ const table = useDataTable({
   fetchFn: fetchTasks,
   columns: [
     createColumn({
+      key: 'title',
+      label: t('compliance-task.col-title'),
+      sortable: false,
+      bodyCell: (row) => row.title ?? '—',
+    }),
+    createColumn({
       key: 'assignedUser',
       label: t('compliance-task.col-assigned'),
       sortable: false,

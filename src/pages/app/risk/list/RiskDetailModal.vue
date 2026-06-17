@@ -12,7 +12,7 @@ import { useGlobalModal } from '@/composables/useGlobalModal';
 import { ermRepo } from '@/core/repositories/ermRepo';
 import { useRisk, type Risk, type RiskTask } from './useRisk';
 import { useRiskCategories } from './useRiskCategories';
-import { useRiskTransition, type RiskStatus } from './useRiskTransition';
+import { useRiskTransition, type RiskState } from './useRiskTransition';
 import RegistrationSection from './sections/RegistrationSection.vue';
 import AnalysisSection from './sections/AnalysisSection.vue';
 import ResponseSection from './sections/ResponseSection.vue';

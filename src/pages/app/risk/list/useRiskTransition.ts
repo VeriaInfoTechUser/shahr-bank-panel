@@ -1,4 +1,4 @@
-export type RiskStatus =
+export type RiskState =
   | 'draft'
   | 'registered'
   | 'analysis'
@@ -8,13 +8,13 @@ export type RiskStatus =
   | 'archived';
 
 export interface TransitionAction {
-  to: RiskStatus;
+  to: RiskState;
   labelKey: string;
   variant: 'primary' | 'danger' | 'warning' | 'outline-secondary';
   needsConfirm: boolean;
 }
 
-const TRANSITIONS: Record<RiskStatus, TransitionAction[]> = {
+const TRANSITIONS: Record<RiskState, TransitionAction[]> = {
   draft: [
     { to: 'registered', labelKey: 'risk.action.submit-review', variant: 'primary', needsConfirm: true },
   ],
@@ -43,11 +43,11 @@ const TRANSITIONS: Record<RiskStatus, TransitionAction[]> = {
 
 export function useRiskTransition() {
   function getTransitions(status: string): TransitionAction[] {
-    return TRANSITIONS[status as RiskStatus] ?? [];
+    return TRANSITIONS[status as RiskState] ?? [];
   }
 
   function getSectionsForStatus(status: string) {
-    switch (status as RiskStatus) {
+    switch (status as RiskState) {
       case 'draft':
         return { registration: 'editable', analysis: 'hidden', response: 'hidden', monitoring: 'hidden', tasks: 'hidden' };
       case 'registered':

@@ -2124,7 +2124,10 @@
     "field-monitoring-description-placeholder": "Enter monitoring description",
     "action": {
       "save": "Save",
-      "save-draft": "Save Draft"
+      "save-draft": "Save Draft",
+      "submit-review": "Submit for Review",
+      "start-analysis": "Start Analysis",
+      "archive": "Archive"
     },
     "field-risk-type": "Risk Type",
     "field-category": "Category",

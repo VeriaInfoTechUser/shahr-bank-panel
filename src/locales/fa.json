@@ -2288,7 +2288,10 @@
     "field-monitoring-description-placeholder": "توضیحات پایش را وارد کنید",
     "action": {
       "save": "ذخیره",
-      "save-draft": "ذخیره پیش‌نویس"
+      "save-draft": "ذخیره پیش‌نویس",
+      "submit-review": "ارسال برای بررسی",
+      "start-analysis": "شروع تحلیل",
+      "archive": "بایگانی"
     },
     "field-risk-type": "نوع ریسک",
     "field-category": "دسته‌بندی",

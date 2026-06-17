@@ -125,7 +125,6 @@ async function onSubmit(values: Record<string, unknown>) {
       subCategorySlug: subCatSlug,
       subCategoryTitle: getSubCategoryTitle(catSlug, subCatSlug),
       ownerId: String(values.ownerId ?? ''),
-      status: 'draft',
     };
     await createRisk(data);
     toast(t('risk.create-success'), { type: 'success' });

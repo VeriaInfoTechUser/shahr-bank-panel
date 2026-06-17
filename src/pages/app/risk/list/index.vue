@@ -22,7 +22,7 @@ const fetchRisks: FetchFn = async ({ page, limit, filters }) => {
   const params: Record<string, unknown> = { page, limit };
   if (filters) {
     if (filters.search) params.search = filters.search;
-    if (filters.status) params.status = filters.status;
+    if (filters.status) params.state = filters.status;
     if (filters.type) params.type = filters.type;
     if (filters.level) params.level = filters.level;
     if (filters.categoryId) params.categoryId = filters.categoryId;
@@ -45,9 +45,9 @@ function riskLevelBadgeClass(level: string | null): string {
   }
 }
 
-function statusBadgeClass(status: string): string {
+function statusBadgeClass(state: string): string {
   const base = 'inline-flex items-center justify-center rounded-md px-2 py-0.5 text-[9px] font-semibold leading-snug shadow-sm';
-  switch (status) {
+  switch (state) {
     case 'draft': return `${base} bg-slate-100 text-slate-700 border border-slate-200`;
     case 'registered': return `${base} bg-blue-100 text-blue-800 border border-blue-200`;
     case 'analysis': return `${base} bg-violet-100 text-violet-800 border border-violet-200`;
@@ -109,11 +109,11 @@ const table = useDataTable({
       },
     }),
     createColumn({
-      key: 'status',
+      key: 'state',
       label: t('risk.col-status'),
       sortable: false,
       slot: true,
-      bodyCell: (row) => (row.status as string) ?? '—',
+      bodyCell: (row) => (row.state as string) ?? '—',
     }),
     createColumn({
       key: 'createdAt',
@@ -202,9 +202,9 @@ function onModalSuccess() {
           </span>
         </template>
 
-        <template #cell-status="{ row }">
-          <span :class="statusBadgeClass(row.status)">
-            {{ t(`risk.status-${row.status}`) }}
+        <template #cell-state="{ row }">
+          <span :class="statusBadgeClass(row.state)">
+            {{ t(`risk.status-${row.state}`) }}
           </span>
         </template>
 

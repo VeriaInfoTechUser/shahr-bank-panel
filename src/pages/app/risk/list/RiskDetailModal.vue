@@ -129,7 +129,7 @@ async function loadRisk(id: string) {
   const data = await fetchRisk(id);
   if (!data) return;
   risk.value = data;
-  currentStatus.value = data.status ?? 'draft';
+  currentStatus.value = data.state ?? 'draft';
   selectedCategorySlug.value = data.categorySlug ?? '';
   tasks.value = data.tasks ?? [];
   residualScore.value = data.residualScore ?? null;

@@ -56,26 +56,7 @@ async function loadMembers() {
 }
 
 const fetchRisks: FetchFn = async ({ page, limit, filters }) => {
-  const params: Record<string, unknown> = { page, limit };
-  if (filters) {
-    if (filters.search) params.search = filters.search;
-    if (filters.status) {
-      params.state = Array.isArray(filters.status) ? filters.status.join(',') : filters.status;
-    }
-    if (filters.type) {
-      params.type = Array.isArray(filters.type) ? filters.type.join(',') : filters.type;
-    }
-    if (filters.level) {
-      params.level = Array.isArray(filters.level) ? filters.level.join(',') : filters.level;
-    }
-    if (filters.categoryId) {
-      params.categoryId = Array.isArray(filters.categoryId) ? filters.categoryId.join(',') : filters.categoryId;
-    }
-    if (filters.subCategoryId) {
-      params.subCategoryId = Array.isArray(filters.subCategoryId) ? filters.subCategoryId.join(',') : filters.subCategoryId;
-    }
-  }
-  const res = await grcRepo.riskList(params);
+  const res = await grcRepo.riskList({ page, limit, ...(filters ?? {}) });
   const list = res?.data?.list ?? [];
   const count = res?.data?.paginator?.count ?? 0;
   return { list: Array.isArray(list) ? list : [], count };

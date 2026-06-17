@@ -261,7 +261,7 @@ watch(slug, () => {
         <div class="rounded-2xl border border-slate-200/90 bg-white p-5 shadow-sm dark:border-darkmode-600 dark:bg-darkmode-800">
           <div class="flex flex-wrap items-center gap-3">
             <span :class="statusBadgeClass">{{ t(`risk.status-${risk.state}`) }}</span>
-            <span :class="riskLevelBadgeClass">{{ risk.riskLevel ? t(`risk.level-${risk.riskLevel}`) : '—' }}</span>
+            <span :class="riskLevelBadgeClass" v-if="risk.riskLevel">{{ risk.riskLevel ? t(`risk.level-${risk.riskLevel}`) : '—' }}</span>
             <span :class="riskTypeBadgeClass">{{ t(`risk.type-${risk.riskType}`) }}</span>
             <span class="text-xs text-slate-400">{{ risk.createdAt }}</span>
           </div>

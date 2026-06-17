@@ -59,12 +59,12 @@ const filteredSubCategoryOptions = computed(() => {
 function apiFiltersToFormValues(f: Record<string, unknown> | undefined | null) {
   const x = f ?? {};
   return {
-    search: String(x.search ?? ''),
-    categoryId: Array.isArray(x.categoryId) ? (x.categoryId as unknown[]).map(String) : [],
-    subCategoryId: Array.isArray(x.subCategoryId) ? (x.subCategoryId as unknown[]).map(String) : [],
-    type: Array.isArray(x.type) ? (x.type as unknown[]).map(String) : [],
-    level: Array.isArray(x.level) ? (x.level as unknown[]).map(String) : [],
-    status: Array.isArray(x.status) ? (x.status as unknown[]).map(String) : [],
+    title: String(x.title ?? ''),
+    categorySlug: Array.isArray(x.categorySlug) ? (x.categorySlug as unknown[]).map(String) : [],
+    subCategorySlug: Array.isArray(x.subCategorySlug) ? (x.subCategorySlug as unknown[]).map(String) : [],
+    riskType: Array.isArray(x.riskType) ? (x.riskType as unknown[]).map(String) : [],
+    riskLevel: Array.isArray(x.riskLevel) ? (x.riskLevel as unknown[]).map(String) : [],
+    state: Array.isArray(x.state) ? (x.state as unknown[]).map(String) : [],
   };
 }
 
@@ -74,18 +74,18 @@ const formInitialValues = computed(() =>
 
 function buildPayload(values: Record<string, unknown>): Record<string, unknown> {
   const o: Record<string, unknown> = {};
-  const search = String(values.search ?? '').trim();
-  if (search) o.search = search;
-  const categoryId = values.categoryId as string[] | undefined;
-  if (categoryId?.length) o.categoryId = categoryId;
-  const subCategoryId = values.subCategoryId as string[] | undefined;
-  if (subCategoryId?.length) o.subCategoryId = subCategoryId;
-  const type = values.type as string[] | undefined;
-  if (type?.length) o.type = type;
-  const level = values.level as string[] | undefined;
-  if (level?.length) o.level = level;
-  const status = values.status as string[] | undefined;
-  if (status?.length) o.status = status;
+  const title = String(values.title ?? '').trim();
+  if (title) o.title = title;
+  const categorySlug = values.categorySlug as string[] | undefined;
+  if (categorySlug?.length) o.categorySlug = categorySlug;
+  const subCategorySlug = values.subCategorySlug as string[] | undefined;
+  if (subCategorySlug?.length) o.subCategorySlug = subCategorySlug;
+  const riskType = values.riskType as string[] | undefined;
+  if (riskType?.length) o.riskType = riskType;
+  const riskLevel = values.riskLevel as string[] | undefined;
+  if (riskLevel?.length) o.riskLevel = riskLevel;
+  const state = values.state as string[] | undefined;
+  if (state?.length) o.state = state;
   return o;
 }
 
@@ -107,7 +107,7 @@ const AutoApply = {
 
     // Debounced for text input
     watchDebounced(
-      () => String(values.value?.search ?? ''),
+      () => String(values.value?.title ?? ''),
       () => emitPayload(),
       { debounce: 450 }
     );
@@ -115,11 +115,11 @@ const AutoApply = {
     // Immediate for selects
     watch(
       () => ({
-        categoryId: Array.isArray(values.value?.categoryId) ? [...(values.value.categoryId as string[])] : [],
-        subCategoryId: Array.isArray(values.value?.subCategoryId) ? [...(values.value.subCategoryId as string[])] : [],
-        type: Array.isArray(values.value?.type) ? [...(values.value.type as string[])] : [],
-        level: Array.isArray(values.value?.level) ? [...(values.value.level as string[])] : [],
-        status: Array.isArray(values.value?.status) ? [...(values.value.status as string[])] : [],
+        categorySlug: Array.isArray(values.value?.categorySlug) ? [...(values.value.categorySlug as string[])] : [],
+        subCategorySlug: Array.isArray(values.value?.subCategorySlug) ? [...(values.value.subCategorySlug as string[])] : [],
+        riskType: Array.isArray(values.value?.riskType) ? [...(values.value.riskType as string[])] : [],
+        riskLevel: Array.isArray(values.value?.riskLevel) ? [...(values.value.riskLevel as string[])] : [],
+        state: Array.isArray(values.value?.state) ? [...(values.value.state as string[])] : [],
       }),
       () => emitPayload(),
       { deep: true }
@@ -160,13 +160,13 @@ fetchTree();
     >
       <AutoApply />
       <BaseInput
-        name="search"
+        name="title"
         compact-label
         :label="t('risk.filter-search')"
         :placeholder="t('risk.filter-search-placeholder')"
       />
       <BaseMultiSelect
-        name="categoryId"
+        name="categorySlug"
         compact-label
         :label="t('risk.field-category')"
         :options="categoryOptions"
@@ -175,28 +175,28 @@ fetchTree();
       />
       <BaseMultiSelect
         v-if="selectedCategorySlugs.length > 0"
-        name="subCategoryId"
+        name="subCategorySlug"
         compact-label
         :label="t('risk.field-sub-category')"
         :options="filteredSubCategoryOptions"
         placeholder=""
       />
       <BaseMultiSelect
-        name="type"
+        name="riskType"
         compact-label
         :label="t('risk.field-risk-type')"
         :options="riskTypeOptions"
         placeholder=""
       />
       <BaseMultiSelect
-        name="level"
+        name="riskLevel"
         compact-label
         :label="t('risk.field-risk-level')"
         :options="riskLevelOptions"
         placeholder=""
       />
       <BaseMultiSelect
-        name="status"
+        name="state"
         compact-label
         :label="t('risk.field-status')"
         :options="statusOptions"

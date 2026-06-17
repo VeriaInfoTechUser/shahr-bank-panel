@@ -9,6 +9,7 @@ import { useGlobalModal } from '@/composables/useGlobalModal';
 import BaseConfirmModal from '@/core/ui/base/BaseConfirmModal.vue';
 import { useRisk, type Risk } from '../list/useRisk';
 import { useRiskTransition } from '../list/useRiskTransition';
+import { ermRepo } from '@/core/repositories/ermRepo';
 import RiskDetailModal from '../list/RiskDetailModal.vue';
 
 const { t } = useI18n();
@@ -21,6 +22,36 @@ const { getTransitions } = useRiskTransition();
 const risk = ref<Risk | null>(null);
 const activeTab = ref<'overview' | 'details' | 'controls' | 'tasks' | 'history'>('overview');
 const showEditModal = ref(false);
+const memberOptions = ref<{ value: string; label: string }[]>([]);
+
+function mapMembers(list: Record<string, unknown>[]) {
+  return list
+    .map((m) => {
+      const id = m.id ?? m.user_id;
+      if (id == null) return null;
+      const label =
+        [m.name, m.full_name, m.email, m.mobile]
+          .find((x) => typeof x === 'string' && String(x).trim()) ?? String(id);
+      return { value: String(id), label: String(label).trim() };
+    })
+    .filter((x): x is { value: string; label: string } => x != null);
+}
+
+function getOwnerName(ownerId: unknown): string {
+  if (!ownerId) return '—';
+  const member = memberOptions.value.find((m) => m.value === String(ownerId));
+  return member?.label ?? String(ownerId);
+}
+
+async function loadMembers() {
+  try {
+    const res = await ermRepo.memberList({ page: 1, limit: 500 });
+    const list = res?.data?.list ?? [];
+    memberOptions.value = mapMembers(Array.isArray(list) ? list : []);
+  } catch {
+    memberOptions.value = [];
+  }
+}
 
 const slug = computed(() => route.params.slug as string);
 
@@ -165,6 +196,7 @@ function handleTransition(to: string) {
 }
 
 onMounted(() => {
+  loadMembers();
   loadRisk();
 });
 
@@ -185,7 +217,7 @@ watch(slug, () => {
             :title="t('button.back')"
             @click="goBack"
           >
-            <Lucide icon="ArrowLeft" class="h-4 w-4" />
+            <Lucide icon="ArrowLeft" class="h-4 w-4 rtl:rotate-180" />
           </button>
           <h1 class="text-lg font-semibold text-slate-800 dark:text-slate-200">
             {{ risk?.title ?? t('risk.detail-title') }}
@@ -237,12 +269,12 @@ watch(slug, () => {
       </div>
 
       <div class="col-span-12">
-        <div class="flex flex-wrap gap-1 rounded-xl border border-slate-200/90 bg-white p-1 shadow-sm dark:border-darkmode-600 dark:bg-darkmode-800">
+        <div class="flex gap-1 rounded-xl border border-slate-200/90 bg-white p-1 shadow-sm dark:border-darkmode-600 dark:bg-darkmode-800">
           <button
             v-for="tab in tabItems"
             :key="tab.key"
             type="button"
-            class="flex items-center gap-1.5 rounded-lg px-3.5 py-2 text-xs font-medium transition"
+            class="flex flex-1 items-center justify-center gap-1.5 rounded-lg px-3.5 py-2 text-xs font-medium transition"
             :class="activeTab === tab.key
               ? 'bg-primary text-white shadow-sm'
               : 'text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-darkmode-700'"
@@ -297,7 +329,7 @@ watch(slug, () => {
                 </div>
                 <div class="flex items-start justify-between">
                   <span class="text-xs text-slate-500 dark:text-slate-400">{{ t('risk.field-owner') }}</span>
-                  <span class="text-xs font-medium text-slate-700 dark:text-slate-200">{{ risk.ownerId ?? '—' }}</span>
+                  <span class="text-xs font-medium text-slate-700 dark:text-slate-200">{{ getOwnerName(risk.ownerId) }}</span>
                 </div>
               </div>
             </div>
@@ -379,7 +411,7 @@ watch(slug, () => {
                 </div>
                 <div>
                   <div class="mb-1 text-xs font-medium text-slate-500 dark:text-slate-400">{{ t('risk.field-owner') }}</div>
-                  <div class="text-sm text-slate-700 dark:text-slate-200">{{ risk.ownerId ?? '—' }}</div>
+                  <div class="text-sm text-slate-700 dark:text-slate-200">{{ getOwnerName(risk.ownerId) }}</div>
                 </div>
               </div>
             </div>
@@ -489,7 +521,7 @@ watch(slug, () => {
                 <div class="flex flex-wrap items-center gap-2">
                   <span class="text-xs font-medium text-slate-700 dark:text-slate-200">
                     {{ entry.fromState ? t(`risk.status-${entry.fromState}`) : '—' }}
-                    <Lucide icon="ArrowRight" class="mx-1 inline !h-3 !w-3 text-slate-400" />
+                    <Lucide icon="ArrowRight" class="mx-1 inline !h-3 !w-3 text-slate-400 rtl:rotate-180" />
                     {{ entry.toState ? t(`risk.status-${entry.toState}`) : '—' }}
                   </span>
                   <span v-if="entry.timestamp" class="text-[10px] text-slate-400">{{ String(entry.timestamp) }}</span>

@@ -23,7 +23,7 @@ const { t } = useI18n();
       :title="t('risk.back-to-list')"
       @click="props.onBack?.()"
     >
-      <Lucide icon="ArrowLeft" class="h-4 w-4" />
+      <Lucide icon="ArrowLeft" class="h-4 w-4 rtl:rotate-180" />
     </button>
     <button
       type="button"

@@ -6,6 +6,7 @@ import { useDataTable, createColumn, type FetchFn } from '@core';
 import BaseTable from '@core/ui/base/BaseTable.vue';
 import BaseConfirmModal from '@/core/ui/base/BaseConfirmModal.vue';
 import { grcRepo } from '@/core/repositories/grcRepo';
+import { ermRepo } from '@/core/repositories/ermRepo';
 import { useBreadcrumbSlot } from '@/composables/useBreadcrumb';
 import { useGlobalModal } from '@/composables/useGlobalModal';
 import Button from '@/base-components/Button';
@@ -14,19 +15,45 @@ import { toast } from 'vue3-toastify';
 import RiskListBreadcrumbToolbar from './RiskListBreadcrumbToolbar.vue';
 import CreateRiskModal from './CreateRiskModal.vue';
 import RiskDetailModal from './RiskDetailModal.vue';
-import { useRiskTransition } from './useRiskTransition';
-import { useRisk } from './useRisk';
 
 const { t } = useI18n();
 const router = useRouter();
 const { setContent: setBreadcrumbSlot } = useBreadcrumbSlot();
 const { openModal } = useGlobalModal();
-const { getTransitions } = useRiskTransition();
-const { transitionRisk } = useRisk();
 
 const showCreateModal = ref(false);
 const showDetailModal = ref(false);
 const selectedRiskId = ref<string | null>(null);
+const memberOptions = ref<{ value: string; label: string }[]>([]);
+
+function mapMembers(list: Record<string, unknown>[]) {
+  return list
+    .map((m) => {
+      const id = m.id ?? m.user_id;
+      if (id == null) return null;
+      const label =
+        [m.name, m.full_name, m.email, m.mobile]
+          .find((x) => typeof x === 'string' && String(x).trim()) ?? String(id);
+      return { value: String(id), label: String(label).trim() };
+    })
+    .filter((x): x is { value: string; label: string } => x != null);
+}
+
+function getOwnerName(ownerId: unknown): string {
+  if (!ownerId) return '—';
+  const member = memberOptions.value.find((m) => m.value === String(ownerId));
+  return member?.label ?? String(ownerId);
+}
+
+async function loadMembers() {
+  try {
+    const res = await ermRepo.memberList({ page: 1, limit: 500 });
+    const list = res?.data?.list ?? [];
+    memberOptions.value = mapMembers(Array.isArray(list) ? list : []);
+  } catch {
+    memberOptions.value = [];
+  }
+}
 
 const fetchRisks: FetchFn = async ({ page, limit, filters }) => {
   const params: Record<string, unknown> = { page, limit };
@@ -138,7 +165,7 @@ const table = useDataTable({
       key: 'ownerId',
       label: t('risk.col-owner'),
       sortable: false,
-      bodyCell: (row) => (row.ownerId as string) ?? '—',
+      bodyCell: (row) => getOwnerName(row.ownerId),
     }),
     createColumn({
       key: 'createdAt',
@@ -155,6 +182,7 @@ const table = useDataTable({
 });
 
 onMounted(() => {
+  loadMembers();
   table.invalidateListCache();
   table.fetch();
   setBreadcrumbSlot(RiskListBreadcrumbToolbar, {
@@ -208,33 +236,6 @@ function onDeleteRisk(row: Record<string, unknown>) {
   });
 }
 
-function handleQuickTransition(row: Record<string, unknown>, to: string) {
-  const slug = row.slug as string;
-  if (!slug) return;
-  openModal({
-    component: BaseConfirmModal,
-    props: {
-      title: t('risk.transition-confirm-title'),
-      message: t('risk.transition-confirm-message', { status: t(`risk.status-${to}`) }),
-      confirmVariant: to === 'archived' ? 'danger' as const : 'primary' as const,
-      onConfirmAction: async () => {
-        const res = await transitionRisk(slug, to);
-        if (!res) throw new Error(t('risk.transition-error'));
-      },
-    },
-    onSuccess: () => {
-      toast(t('risk.transition-success'), { type: 'success' });
-      table.invalidateListCache();
-      void table.fetch();
-    },
-  });
-}
-
-function getQuickTransitions(state: string) {
-  const transitions = getTransitions(state);
-  return transitions.slice(0, 1);
-}
-
 function onModalSuccess() {
   table.invalidateListCache();
   void table.fetch();
@@ -250,7 +251,7 @@ function onModalSuccess() {
         :export-enabled="table.exportEnabled"
         :empty-message="t('general.no-data')"
         :actions="true"
-        :actions-header="t('general.actions')"
+        :actions-header="''"
         :show-search="false"
       >
         <template #cell-state="{ row }">
@@ -294,19 +295,6 @@ function onModalSuccess() {
               @click.stop="onEditRisk(row)"
             >
               <Lucide icon="Pencil" class="!h-3.5 !w-3.5" />
-            </Button>
-            <Button
-              v-for="tr in getQuickTransitions(row.state)"
-              :key="tr.to"
-              type="button"
-              :variant="tr.variant === 'primary' ? 'outline-primary' : tr.variant === 'danger' ? 'outline-danger' : 'outline-secondary'"
-              size="sm"
-              class="!h-7 !px-1.5 !py-0 text-[10px]"
-              :aria-label="t(tr.labelKey)"
-              :title="t(tr.labelKey)"
-              @click.stop="handleQuickTransition(row, tr.to)"
-            >
-              <Lucide icon="ArrowRight" class="!h-3 !w-3" />
             </Button>
             <Button
               type="button"

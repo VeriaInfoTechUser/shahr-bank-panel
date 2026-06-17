@@ -117,6 +117,14 @@ watch(
       </div>
     </div>
     <BaseInput
+      name="analysis_description"
+      :label="t('risk.field-analysis-description')"
+      type="textarea"
+      :rows="3"
+      :disabled="disabled"
+      :placeholder="t('risk.field-analysis-description-placeholder')"
+    />
+    <BaseInput
       name="note"
       :label="t('risk.field-note')"
       type="textarea"

@@ -2,6 +2,7 @@
 import { computed, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useForm } from 'vee-validate';
+import BaseInput from '@/core/ui/base/BaseInput.vue';
 import BaseSelect from '@/core/ui/base/BaseSelect.vue';
 import { useRiskTransition } from '../useRiskTransition';
 import type { RiskTask } from '../useRisk';
@@ -118,6 +119,15 @@ watch(
         </div>
       </div>
     </div>
+
+    <BaseInput
+      name="monitoring_description"
+      :label="t('risk.field-monitoring-description')"
+      type="textarea"
+      :rows="3"
+      :disabled="disabled"
+      :placeholder="t('risk.field-monitoring-description-placeholder')"
+    />
 
     <div v-if="props.tasks.length > 0" class="space-y-2">
       <label class="label min-h-0 py-1">

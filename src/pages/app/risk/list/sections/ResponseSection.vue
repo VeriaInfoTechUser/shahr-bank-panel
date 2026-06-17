@@ -102,6 +102,15 @@ function taskStatusBadgeClass(status: string): string {
       />
     </div>
 
+    <BaseInput
+      name="response_description"
+      :label="t('risk.field-response-description')"
+      type="textarea"
+      :rows="3"
+      :disabled="disabled"
+      :placeholder="t('risk.field-response-description-placeholder')"
+    />
+
     <div v-if="mode === 'editable'" class="space-y-2">
       <label class="label min-h-0 py-1">
         <span class="label-text text-sm font-normal leading-snug">{{ t('risk.field-tasks') }}</span>

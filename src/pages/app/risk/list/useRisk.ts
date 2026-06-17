@@ -17,7 +17,10 @@ export interface Risk {
   id: string;
   slug: string;
   title: string;
-  description: string;
+  draft_description: string;
+  analysis_description: string;
+  response_description: string;
+  monitoring_description: string;
   riskType: 'threat' | 'opportunity';
   categorySlug: string;
   subCategorySlug: string;

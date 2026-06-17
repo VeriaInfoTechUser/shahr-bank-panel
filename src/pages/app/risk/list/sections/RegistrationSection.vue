@@ -74,12 +74,12 @@ function onCategoryChange(value: unknown) {
     </div>
 
     <BaseInput
-        name="description"
-        :label="t('risk.field-description')"
+        name="draft_description"
+        :label="t('risk.field-draft-description')"
         type="textarea"
         :rows="3"
         :disabled="disabled"
-        :placeholder="t('risk.field-description-placeholder')"
+        :placeholder="t('risk.field-draft-description-placeholder')"
     />
   </div>
 </template>

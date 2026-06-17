@@ -151,19 +151,22 @@ async function loadRisk(id: string) {
 function populateForm(r: Risk) {
   const vals: Record<string, unknown> = {
     title: r.title ?? '',
-    description: r.description ?? '',
+    draft_description: r.draft_description ?? '',
     riskType: r.riskType ?? '',
     categorySlug: r.categorySlug ?? '',
     subCategorySlug: r.subCategorySlug ?? '',
     owner: r.owner ?? '',
+    analysis_description: r.analysis_description ?? '',
     impact: r.impact ?? '',
     likelihood: r.likelihood ?? '',
     inherentScore: r.inherentScore != null ? String(r.inherentScore) : '',
     riskLevel: r.riskLevel ?? '',
     note: r.note ?? '',
     treatmentStrategy: r.treatmentStrategy ?? '',
+    response_description: r.response_description ?? '',
     framework: r.framework?.[0] ?? '',
     control: r.control?.[0] ?? '',
+    monitoring_description: r.monitoring_description ?? '',
     residualImpact: r.residualImpact ?? '',
     residualLikelihood: r.residualLikelihood ?? '',
   };
@@ -200,13 +203,14 @@ async function handleSave(values: Record<string, unknown>) {
     if (status === 'draft' || status === 'analysis') {
       data = {
         title: values.title,
-        description: values.description,
+        draft_description: values.draft_description,
         riskType: values.riskType,
         categorySlug: values.categorySlug,
         subCategorySlug: values.subCategorySlug,
         owner: values.owner,
       };
       if (status === 'analysis') {
+        data.analysis_description = values.analysis_description || '';
         data.impact = values.impact ? Number(values.impact) : null;
         data.likelihood = values.likelihood ? Number(values.likelihood) : null;
         data.inherentScore = values.inherentScore ? Number(values.inherentScore) : null;
@@ -216,6 +220,7 @@ async function handleSave(values: Record<string, unknown>) {
     } else if (status === 'response') {
       data = {
         treatmentStrategy: values.treatmentStrategy,
+        response_description: values.response_description || '',
         framework: values.framework ? [values.framework] : [],
         control: values.control ? [values.control] : [],
       };
@@ -224,6 +229,7 @@ async function handleSave(values: Record<string, unknown>) {
       }
     } else if (status === 'monitoring') {
       data = {
+        monitoring_description: values.monitoring_description || '',
         residualImpact: values.residualImpact ? Number(values.residualImpact) : null,
         residualLikelihood: values.residualLikelihood ? Number(values.residualLikelihood) : null,
         residualScore: residualScore.value,

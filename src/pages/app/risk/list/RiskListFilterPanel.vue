@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import type { Ref } from 'vue';
-import { computed, ref, watch } from 'vue';
+import { computed, nextTick, onMounted, ref, toValue, watch } from 'vue';
+import { Form, useFormValues } from 'vee-validate';
+import { watchDebounced } from '@vueuse/core';
 import { useI18n } from 'vue-i18n';
-import BaseSelect from '@/core/ui/base/BaseSelect.vue';
-import Button from '@/base-components/Button';
+import BaseInput from '@/core/ui/base/BaseInput.vue';
+import BaseMultiSelect from '@/core/ui/base/BaseMultiSelect.vue';
 import { useRiskCategories } from './useRiskCategories';
 
 const props = defineProps<{
@@ -18,21 +20,16 @@ const props = defineProps<{
 const { t } = useI18n();
 const { categoryOptions, subCategoryOptions, fetchTree } = useRiskCategories();
 
-const search = ref('');
-const categorySlug = ref('');
-const subCategorySlug = ref('');
-const riskType = ref('');
-const riskLevel = ref('');
-const status = ref('');
+const formKey = ref(0);
+const formId = 'risk-filter-form';
+const selectedCategorySlugs = ref<string[]>([]);
 
 const riskTypeOptions = computed(() => [
-  { value: '', label: t('risk.filter-all') },
   { value: 'threat', label: t('risk.type-threat') },
   { value: 'opportunity', label: t('risk.type-opportunity') },
 ]);
 
 const riskLevelOptions = computed(() => [
-  { value: '', label: t('risk.filter-all') },
   { value: 'low', label: t('risk.level-low') },
   { value: 'medium', label: t('risk.level-medium') },
   { value: 'high', label: t('risk.level-high') },
@@ -40,7 +37,6 @@ const riskLevelOptions = computed(() => [
 ]);
 
 const statusOptions = computed(() => [
-  { value: '', label: t('risk.status-all') },
   { value: 'draft', label: t('risk.status-draft') },
   { value: 'registered', label: t('risk.status-registered') },
   { value: 'analysis', label: t('risk.status-analysis') },
@@ -50,113 +46,162 @@ const statusOptions = computed(() => [
   { value: 'archived', label: t('risk.status-archived') },
 ]);
 
-const subCatOptions = computed(() =>
-  categorySlug.value ? subCategoryOptions(categorySlug.value) : []
+const filteredSubCategoryOptions = computed(() => {
+  const slugs = selectedCategorySlugs.value;
+  if (slugs.length === 0) return [];
+  const all: { value: string; label: string }[] = [];
+  for (const slug of slugs) {
+    all.push(...subCategoryOptions(slug));
+  }
+  return all;
+});
+
+function apiFiltersToFormValues(f: Record<string, unknown> | undefined | null) {
+  const x = f ?? {};
+  return {
+    search: String(x.search ?? ''),
+    categoryId: Array.isArray(x.categoryId) ? (x.categoryId as unknown[]).map(String) : [],
+    subCategoryId: Array.isArray(x.subCategoryId) ? (x.subCategoryId as unknown[]).map(String) : [],
+    type: Array.isArray(x.type) ? (x.type as unknown[]).map(String) : [],
+    level: Array.isArray(x.level) ? (x.level as unknown[]).map(String) : [],
+    status: Array.isArray(x.status) ? (x.status as unknown[]).map(String) : [],
+  };
+}
+
+const formInitialValues = computed(() =>
+  apiFiltersToFormValues(toValue(props.table.filters) ?? {})
 );
 
-watch(categorySlug, () => {
-  subCategorySlug.value = '';
-});
+function buildPayload(values: Record<string, unknown>): Record<string, unknown> {
+  const o: Record<string, unknown> = {};
+  const search = String(values.search ?? '').trim();
+  if (search) o.search = search;
+  const categoryId = values.categoryId as string[] | undefined;
+  if (categoryId?.length) o.categoryId = categoryId;
+  const subCategoryId = values.subCategoryId as string[] | undefined;
+  if (subCategoryId?.length) o.subCategoryId = subCategoryId;
+  const type = values.type as string[] | undefined;
+  if (type?.length) o.type = type;
+  const level = values.level as string[] | undefined;
+  if (level?.length) o.level = level;
+  const status = values.status as string[] | undefined;
+  if (status?.length) o.status = status;
+  return o;
+}
+
+// --- Auto-apply logic ---
+const AutoApply = {
+  setup() {
+    const values = useFormValues();
+    const ready = ref(false);
+
+    onMounted(() => {
+      void nextTick(() => { ready.value = true; });
+    });
+
+    function emitPayload() {
+      if (!ready.value) return;
+      const payload = buildPayload(values.value as Record<string, unknown>);
+      props.table.replaceFilters(payload);
+    }
+
+    // Debounced for text input
+    watchDebounced(
+      () => String(values.value?.search ?? ''),
+      () => emitPayload(),
+      { debounce: 450 }
+    );
+
+    // Immediate for selects
+    watch(
+      () => ({
+        categoryId: Array.isArray(values.value?.categoryId) ? [...(values.value.categoryId as string[])] : [],
+        subCategoryId: Array.isArray(values.value?.subCategoryId) ? [...(values.value.subCategoryId as string[])] : [],
+        type: Array.isArray(values.value?.type) ? [...(values.value.type as string[])] : [],
+        level: Array.isArray(values.value?.level) ? [...(values.value.level as string[])] : [],
+        status: Array.isArray(values.value?.status) ? [...(values.value.status as string[])] : [],
+      }),
+      () => emitPayload(),
+      { deep: true }
+    );
+
+    return () => null;
+  },
+};
+
+function onCategoryFilterChange(value: unknown) {
+  const newSlugs = Array.isArray(value) ? (value as string[]) : [];
+  selectedCategorySlugs.value = newSlugs;
+}
 
 watch(
   () => props.toolbarClearTick,
-  () => {
-    search.value = '';
-    categorySlug.value = '';
-    subCategorySlug.value = '';
-    riskType.value = '';
-    riskLevel.value = '';
-    status.value = '';
+  (_v, prev) => {
+    if (prev === undefined) return;
+    formKey.value += 1;
+    selectedCategorySlugs.value = [];
   }
 );
 
 fetchTree();
-
-function applyFilters() {
-  const filters: Record<string, unknown> = {};
-  if (search.value.trim()) filters.search = search.value.trim();
-  if (categorySlug.value) filters.categoryId = categorySlug.value;
-  if (subCategorySlug.value) filters.subCategoryId = subCategorySlug.value;
-  if (riskType.value) filters.type = riskType.value;
-  if (riskLevel.value) filters.level = riskLevel.value;
-  if (status.value) filters.status = status.value;
-  props.table.replaceFilters(filters);
-}
-
-function clearFilters() {
-  search.value = '';
-  categorySlug.value = '';
-  subCategorySlug.value = '';
-  riskType.value = '';
-  riskLevel.value = '';
-  status.value = '';
-  props.table.clearFilters();
-}
 </script>
 
 <template>
-  <div class="space-y-3">
-    <h3 class="text-sm font-medium text-slate-700 dark:text-slate-200">
+  <div>
+    <h3 class="mb-3 text-sm font-medium text-slate-700 dark:text-slate-200">
       {{ t('risk.filter-panel-title') }}
     </h3>
-    <div class="space-y-3">
-      <div class="form-control w-full">
-        <label class="label min-h-0 py-1">
-          <span class="label-text text-[0.6125rem] font-normal leading-snug">{{ t('risk.filter-search') }}</span>
-        </label>
-        <input
-          v-model="search"
-          type="text"
-          class="input input-bordered w-full !h-8 !min-h-0 py-1.5 px-2.5 text-xs font-light leading-snug placeholder:text-slate-400"
-          :placeholder="t('risk.filter-search-placeholder')"
-        />
-      </div>
-      <BaseSelect
-        name="filterCategory"
+    <Form
+      :id="formId"
+      :key="formKey"
+      class="space-y-3"
+      :initial-values="formInitialValues"
+      as="div"
+    >
+      <AutoApply />
+      <BaseInput
+        name="search"
+        compact-label
+        :label="t('risk.filter-search')"
+        :placeholder="t('risk.filter-search-placeholder')"
+      />
+      <BaseMultiSelect
+        name="categoryId"
+        compact-label
         :label="t('risk.field-category')"
-        :options="[{ value: '', label: t('risk.filter-all') }, ...categoryOptions]"
-        :compact-label="true"
-        :filter="true"
-        @change="categorySlug = String($event ?? '')"
+        :options="categoryOptions"
+        placeholder=""
+        @change="onCategoryFilterChange"
       />
-      <BaseSelect
-        v-if="categorySlug"
-        name="filterSubCategory"
+      <BaseMultiSelect
+        v-if="selectedCategorySlugs.length > 0"
+        name="subCategoryId"
+        compact-label
         :label="t('risk.field-sub-category')"
-        :options="[{ value: '', label: t('risk.filter-all') }, ...subCatOptions]"
-        :compact-label="true"
-        :filter="true"
-        @change="subCategorySlug = String($event ?? '')"
+        :options="filteredSubCategoryOptions"
+        placeholder=""
       />
-      <BaseSelect
-        name="filterRiskType"
+      <BaseMultiSelect
+        name="type"
+        compact-label
         :label="t('risk.field-risk-type')"
         :options="riskTypeOptions"
-        :compact-label="true"
-        @change="riskType = String($event ?? '')"
+        placeholder=""
       />
-      <BaseSelect
-        name="filterRiskLevel"
+      <BaseMultiSelect
+        name="level"
+        compact-label
         :label="t('risk.field-risk-level')"
         :options="riskLevelOptions"
-        :compact-label="true"
-        @change="riskLevel = String($event ?? '')"
+        placeholder=""
       />
-      <BaseSelect
-        name="filterStatus"
+      <BaseMultiSelect
+        name="status"
+        compact-label
         :label="t('risk.field-status')"
         :options="statusOptions"
-        :compact-label="true"
-        @change="status = String($event ?? '')"
+        placeholder=""
       />
-    </div>
-    <div class="flex justify-end gap-2 pt-2">
-      <Button type="button" variant="outline-secondary" size="sm" @click="clearFilters">
-        {{ t('risk.filter-clear') }}
-      </Button>
-      <Button type="button" variant="primary" size="sm" @click="applyFilters">
-        {{ t('risk.filter-apply') }}
-      </Button>
-    </div>
+    </Form>
   </div>
 </template>

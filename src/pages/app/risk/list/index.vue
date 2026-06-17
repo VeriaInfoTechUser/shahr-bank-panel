@@ -148,7 +148,7 @@ function onExportRisks() {
 }
 
 function onRowClick(row: Record<string, unknown>) {
-  const id = row.id ?? row.slug;
+  const id = row.slug  
   if (id) {
     selectedRiskId.value = String(id);
     showDetailModal.value = true;
@@ -156,7 +156,7 @@ function onRowClick(row: Record<string, unknown>) {
 }
 
 function onEditRisk(row: Record<string, unknown>) {
-  const id = row.id ?? row.slug;
+  const id = row.slug;
   if (id) {
     selectedRiskId.value = String(id);
     showDetailModal.value = true;
@@ -164,7 +164,7 @@ function onEditRisk(row: Record<string, unknown>) {
 }
 
 function onTransitionRisk(row: Record<string, unknown>) {
-  const id = row.id ?? row.slug;
+  const id = row.slug;
   if (id) {
     selectedRiskId.value = String(id);
     showDetailModal.value = true;

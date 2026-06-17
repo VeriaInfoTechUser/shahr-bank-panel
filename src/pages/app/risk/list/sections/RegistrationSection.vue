@@ -8,6 +8,7 @@ const props = defineProps<{
   mode: 'editable' | 'readonly';
   categoryOptions: { value: string; label: string }[];
   subCategoryOptions: { value: string; label: string }[];
+  memberOptions: { value: string; label: string }[];
 }>();
 
 const emit = defineEmits<{
@@ -70,17 +71,12 @@ function onCategoryChange(value: unknown) {
         :disabled="disabled"
         :filter="true"
       />
-      <BaseInput
-        name="source"
-        :label="t('risk.field-source')"
-        :disabled="disabled"
-        :placeholder="t('risk.field-source-placeholder')"
-      />
-      <BaseInput
+      <BaseSelect
         name="owner"
         :label="t('risk.field-owner')"
+        :options="memberOptions"
         :disabled="disabled"
-        :placeholder="t('risk.field-owner-placeholder')"
+        :filter="true"
       />
     </div>
   </div>

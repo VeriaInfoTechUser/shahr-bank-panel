@@ -23,7 +23,6 @@ export interface Risk {
   subCategorySlug: string;
   categoryTitle?: string;
   subCategoryTitle?: string;
-  source: string;
   owner: string;
   status: string;
   impact: number | null;

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue';
+import { computed, ref, watch, onMounted } from 'vue';
 import { Form, useForm } from 'vee-validate';
 import * as yup from 'yup';
 import { useI18n } from 'vue-i18n';
@@ -10,6 +10,7 @@ import BaseSelect from '@/core/ui/base/BaseSelect.vue';
 import Button from '@/base-components/Button';
 import { useRisk } from './useRisk';
 import { useRiskCategories } from './useRiskCategories';
+import { ermRepo } from '@/core/repositories/ermRepo';
 import RegistrationSection from './sections/RegistrationSection.vue';
 
 const props = defineProps<{
@@ -28,6 +29,7 @@ const { categoryOptions, subCategoryOptions, fetchTree } = useRiskCategories();
 const saving = ref(false);
 const formKey = ref(0);
 const selectedCategorySlug = ref('');
+const memberOptions = ref<{ value: string; label: string }[]>([]);
 
 const { setFieldValue } = useForm();
 
@@ -37,7 +39,6 @@ const initialValues = ref({
   riskType: '',
   categorySlug: '',
   subCategorySlug: '',
-  source: '',
   owner: '',
 });
 
@@ -48,10 +49,22 @@ const validationSchema = computed(() =>
     riskType: yup.string().trim().required(t('validation.required')),
     categorySlug: yup.string().trim().required(t('validation.required')),
     subCategorySlug: yup.string().trim().required(t('validation.required')),
-    source: yup.string().trim().optional(),
     owner: yup.string().trim().optional(),
   })
 );
+
+function mapMembers(list: Record<string, unknown>[]) {
+  return list
+    .map((m) => {
+      const id = m.id ?? m.user_id;
+      if (id == null) return null;
+      const label =
+        [m.name, m.full_name, m.email, m.mobile]
+          .find((x) => typeof x === 'string' && String(x).trim()) ?? String(id);
+      return { value: String(id), label: String(label).trim() };
+    })
+    .filter((x): x is { value: string; label: string } => x != null);
+}
 
 watch(
   () => props.show,
@@ -63,7 +76,6 @@ watch(
         riskType: '',
         categorySlug: '',
         subCategorySlug: '',
-        source: '',
         owner: '',
       };
       selectedCategorySlug.value = '';
@@ -73,7 +85,16 @@ watch(
   { immediate: true }
 );
 
-fetchTree();
+onMounted(async () => {
+  fetchTree();
+  try {
+    const res = await ermRepo.memberList({ page: 1, limit: 500 });
+    const list = res?.data?.list ?? [];
+    memberOptions.value = mapMembers(Array.isArray(list) ? list : []);
+  } catch {
+    memberOptions.value = [];
+  }
+});
 
 function close() {
   emit('update:show', false);
@@ -99,7 +120,6 @@ async function onSubmit(values: Record<string, unknown>) {
       riskType: String(values.riskType ?? ''),
       categorySlug: String(values.categorySlug ?? ''),
       subCategorySlug: String(values.subCategorySlug ?? ''),
-      source: String(values.source ?? ''),
       owner: String(values.owner ?? ''),
       status: 'draft',
     };
@@ -135,6 +155,7 @@ async function onSubmit(values: Record<string, unknown>) {
         mode="editable"
         :category-options="categoryOptions"
         :sub-category-options="subCategoryOptions(selectedCategorySlug)"
+        :member-options="memberOptions"
         @category-change="onCategoryChange"
       />
     </Form>

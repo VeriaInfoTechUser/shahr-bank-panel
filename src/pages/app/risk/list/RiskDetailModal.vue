@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, watch, nextTick } from 'vue';
+import { computed, ref, watch, nextTick, onMounted } from 'vue';
 import { Form, useForm } from 'vee-validate';
 import * as yup from 'yup';
 import { useI18n } from 'vue-i18n';
@@ -9,6 +9,7 @@ import BaseConfirmModal from '@/core/ui/base/BaseConfirmModal.vue';
 import Button from '@/base-components/Button';
 import Lucide from '@/base-components/Lucide';
 import { useGlobalModal } from '@/composables/useGlobalModal';
+import { ermRepo } from '@/core/repositories/ermRepo';
 import { useRisk, type Risk, type RiskTask } from './useRisk';
 import { useRiskCategories } from './useRiskCategories';
 import { useRiskTransition, type RiskStatus } from './useRiskTransition';
@@ -49,6 +50,7 @@ const selectedCategorySlug = ref('');
 const tasks = ref<RiskTask[]>([]);
 const residualScore = ref<number | null>(null);
 const residualLevel = ref<string | null>(null);
+const memberOptions = ref<{ value: string; label: string }[]>([]);
 
 const { setFieldValue, resetForm } = useForm();
 
@@ -89,16 +91,39 @@ const isReadonlySection = (section: string) => sections.value[section as keyof t
 const isVisibleSection = (section: string) => sections.value[section as keyof typeof sections.value] !== 'hidden';
 const isEditableSection = (section: string) => sections.value[section as keyof typeof sections.value] === 'editable';
 
+function mapMembers(list: Record<string, unknown>[]) {
+  return list
+    .map((m) => {
+      const id = m.id ?? m.user_id;
+      if (id == null) return null;
+      const label =
+        [m.name, m.full_name, m.email, m.mobile]
+          .find((x) => typeof x === 'string' && String(x).trim()) ?? String(id);
+      return { value: String(id), label: String(label).trim() };
+    })
+    .filter((x): x is { value: string; label: string } => x != null);
+}
+
 watch(
   () => [props.show, props.riskId],
   async ([show, id]) => {
     if (show && id) {
-      await fetchTree();
+      await Promise.all([fetchTree(), loadMembers()]);
       await loadRisk(id);
     }
   },
   { immediate: true }
 );
+
+async function loadMembers() {
+  try {
+    const res = await ermRepo.memberList({ page: 1, limit: 500 });
+    const list = res?.data?.list ?? [];
+    memberOptions.value = mapMembers(Array.isArray(list) ? list : []);
+  } catch {
+    memberOptions.value = [];
+  }
+}
 
 async function loadRisk(id: string) {
   const data = await fetchRisk(id);
@@ -130,7 +155,6 @@ function populateForm(r: Risk) {
     riskType: r.riskType ?? '',
     categorySlug: r.categorySlug ?? '',
     subCategorySlug: r.subCategorySlug ?? '',
-    source: r.source ?? '',
     owner: r.owner ?? '',
     impact: r.impact ?? '',
     likelihood: r.likelihood ?? '',
@@ -180,7 +204,6 @@ async function handleSave(values: Record<string, unknown>) {
         riskType: values.riskType,
         categorySlug: values.categorySlug,
         subCategorySlug: values.subCategorySlug,
-        source: values.source,
         owner: values.owner,
       };
       if (status === 'analysis') {
@@ -311,6 +334,7 @@ function onTasksUpdate(updated: RiskTask[]) {
               :mode="isEditableSection('registration') ? 'editable' : 'readonly'"
               :category-options="categoryOptions"
               :sub-category-options="subCategoryOptions(selectedCategorySlug)"
+              :member-options="memberOptions"
               @category-change="onCategoryChange"
             />
           </div>

@@ -38,23 +38,8 @@ function onCategoryChange(value: unknown) {
       :disabled="disabled"
       :placeholder="t('risk.field-title-placeholder')"
     />
-    <BaseInput
-      name="description"
-      :label="t('risk.field-description')"
-      type="textarea"
-      :rows="3"
-      :disabled="disabled"
-      :placeholder="t('risk.field-description-placeholder')"
-    />
     <div class="grid grid-cols-1 gap-3 md:grid-cols-2 md:gap-x-4 md:gap-y-3">
-      <BaseSelect
-        name="riskType"
-        :label="t('risk.field-risk-type')"
-        :options="riskTypeOptions"
-        :required="true"
-        :disabled="disabled"
-      />
-      <BaseSelect
+     <BaseSelect
         name="categorySlug"
         :label="t('risk.field-category')"
         :options="categoryOptions"
@@ -78,6 +63,23 @@ function onCategoryChange(value: unknown) {
         :disabled="disabled"
         :filter="true"
       />
+      <BaseSelect
+        name="riskType"
+        :label="t('risk.field-risk-type')"
+        :options="riskTypeOptions"
+        :required="true"
+        :disabled="disabled"
+    />
+
     </div>
+
+    <BaseInput
+        name="description"
+        :label="t('risk.field-description')"
+        type="textarea"
+        :rows="3"
+        :disabled="disabled"
+        :placeholder="t('risk.field-description-placeholder')"
+    />
   </div>
 </template>

@@ -23,6 +23,15 @@ export function useRiskCategories() {
     return parent.children.map((c) => ({ value: c.slug, label: c.title }));
   }
 
+  function getCategoryTitle(slug: string): string {
+    return tree.value.find((c) => c.slug === slug)?.title ?? '';
+  }
+
+  function getSubCategoryTitle(parentSlug: string, childSlug: string): string {
+    const parent = tree.value.find((c) => c.slug === parentSlug);
+    return parent?.children?.find((c) => c.slug === childSlug)?.title ?? '';
+  }
+
   const filterCategoryOptions = computed(() =>
     flatList.value.map((c) => ({ value: c.slug, label: c.title }))
   );
@@ -59,6 +68,8 @@ export function useRiskCategories() {
     categoryOptions,
     subCategoryOptions,
     filterCategoryOptions,
+    getCategoryTitle,
+    getSubCategoryTitle,
     fetchTree,
     fetchList,
   };

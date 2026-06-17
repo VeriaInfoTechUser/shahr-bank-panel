@@ -38,7 +38,7 @@ const {
   transitionRisk,
   updateTasks,
 } = useRisk();
-const { categoryOptions, subCategoryOptions, fetchTree } = useRiskCategories();
+const { categoryOptions, subCategoryOptions, getCategoryTitle, getSubCategoryTitle, fetchTree } = useRiskCategories();
 const { getTransitions, getSectionsForStatus, calculateScore, calculateRiskLevel } = useRiskTransition();
 
 const formKey = ref(0);
@@ -155,7 +155,7 @@ function populateForm(r: Risk) {
     riskType: r.riskType ?? '',
     categorySlug: r.categorySlug ?? '',
     subCategorySlug: r.subCategorySlug ?? '',
-    owner: r.owner ?? '',
+    ownerId: r.ownerId ?? '',
     analysis_description: r.analysis_description ?? '',
     impact: r.impact ?? '',
     likelihood: r.likelihood ?? '',
@@ -201,13 +201,17 @@ async function handleSave(values: Record<string, unknown>) {
     let data: Record<string, unknown>;
 
     if (status === 'draft' || status === 'analysis') {
+      const catSlug = String(values.categorySlug ?? '');
+      const subCatSlug = String(values.subCategorySlug ?? '');
       data = {
         title: values.title,
         draft_description: values.draft_description,
         riskType: values.riskType,
-        categorySlug: values.categorySlug,
-        subCategorySlug: values.subCategorySlug,
-        owner: values.owner,
+        categorySlug: catSlug,
+        categoryTitle: getCategoryTitle(catSlug),
+        subCategorySlug: subCatSlug,
+        subCategoryTitle: getSubCategoryTitle(catSlug, subCatSlug),
+        ownerId: values.ownerId,
       };
       if (status === 'analysis') {
         data.analysis_description = values.analysis_description || '';

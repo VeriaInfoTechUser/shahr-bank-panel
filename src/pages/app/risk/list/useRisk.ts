@@ -26,7 +26,7 @@ export interface Risk {
   subCategorySlug: string;
   categoryTitle?: string;
   subCategoryTitle?: string;
-  owner: string;
+  ownerId: string;
   status: string;
   impact: number | null;
   likelihood: number | null;

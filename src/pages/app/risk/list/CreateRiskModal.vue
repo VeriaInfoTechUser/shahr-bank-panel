@@ -25,7 +25,7 @@ const emit = defineEmits<{
 
 const { t } = useI18n();
 const { loading, createRisk } = useRisk();
-const { categoryOptions, subCategoryOptions, fetchTree } = useRiskCategories();
+const { categoryOptions, subCategoryOptions, getCategoryTitle, getSubCategoryTitle, fetchTree } = useRiskCategories();
 const saving = ref(false);
 const formKey = ref(0);
 const selectedCategorySlug = ref('');
@@ -39,7 +39,7 @@ const initialValues = ref({
   riskType: '',
   categorySlug: '',
   subCategorySlug: '',
-  owner: '',
+  ownerId: '',
 });
 
 const validationSchema = computed(() =>
@@ -49,7 +49,7 @@ const validationSchema = computed(() =>
     riskType: yup.string().trim().required(t('validation.required')),
     categorySlug: yup.string().trim().required(t('validation.required')),
     subCategorySlug: yup.string().trim().required(t('validation.required')),
-    owner: yup.string().trim().optional(),
+    ownerId: yup.string().trim().optional(),
   })
 );
 
@@ -76,7 +76,7 @@ watch(
         riskType: '',
         categorySlug: '',
         subCategorySlug: '',
-        owner: '',
+        ownerId: '',
       };
       selectedCategorySlug.value = '';
       formKey.value += 1;
@@ -114,13 +114,17 @@ function onCategoryChange(value: unknown) {
 async function onSubmit(values: Record<string, unknown>) {
   saving.value = true;
   try {
+    const catSlug = String(values.categorySlug ?? '');
+    const subCatSlug = String(values.subCategorySlug ?? '');
     const data = {
       title: String(values.title ?? ''),
       draft_description: String(values.draft_description ?? ''),
       riskType: String(values.riskType ?? ''),
-      categorySlug: String(values.categorySlug ?? ''),
-      subCategorySlug: String(values.subCategorySlug ?? ''),
-      owner: String(values.owner ?? ''),
+      categorySlug: catSlug,
+      categoryTitle: getCategoryTitle(catSlug),
+      subCategorySlug: subCatSlug,
+      subCategoryTitle: getSubCategoryTitle(catSlug, subCatSlug),
+      ownerId: String(values.ownerId ?? ''),
       status: 'draft',
     };
     await createRisk(data);

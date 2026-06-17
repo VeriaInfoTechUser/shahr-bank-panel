@@ -57,7 +57,7 @@ function onCategoryChange(value: unknown) {
         :filter="true"
       />
       <BaseSelect
-        name="owner"
+        name="ownerId"
         :label="t('risk.field-owner')"
         :options="memberOptions"
         :disabled="disabled"

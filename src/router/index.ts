@@ -33,6 +33,7 @@ import RiskPerformanceReport from "@/pages/app/risk/performance-report/index.vue
 import RiskReport from "@/pages/app/risk/report/index.vue";
 import RiskOperations from "@/pages/app/risk/operations/index.vue";
 import RiskDoingTask from "@/pages/app/risk/doing-task/index.vue";
+import RiskList from "@/pages/app/risk/list/index.vue";
 import EsgDashboard from "@/pages/app/esg/dashboard/index.vue";
 import EsgGovernance from "@/pages/app/esg/governance/index.vue";
 import EsgSocial from "@/pages/app/esg/social/index.vue";
@@ -290,6 +291,12 @@ const routes = [
                                 name: "app-risk-report",
                                 component: RiskReport,
                                 meta: { breadcrumbLabel: 'menu.report' },
+                            },
+                            {
+                                path: "list",
+                                name: "app-risk-list",
+                                component: RiskList,
+                                meta: { breadcrumbLabel: 'menu.risk-list' },
                             },
                         ],
                     },

@@ -218,4 +218,33 @@ export const grcRepo = {
   complianceTaskUpdate(slug: string, data: Record<string, unknown>): Promise<GrcApiResponse<GrcEntity>> {
     return grcHttpRequest({ method: 'PUT', url: `/compliance/tasks/${slug}`, data });
   },
+
+  // Risks
+  riskList(params?: Record<string, unknown>): Promise<GrcApiResponse<GrcPaginatedResponse>> {
+    return grcHttpRequest({ method: 'GET', url: '/risks', params });
+  },
+
+  riskGet(id: string): Promise<GrcApiResponse<Record<string, unknown>>> {
+    return grcHttpRequest({ method: 'GET', url: `/risks/${id}` });
+  },
+
+  riskCreate(data: Record<string, unknown>): Promise<GrcApiResponse<Record<string, unknown>>> {
+    return grcHttpRequest({ method: 'POST', url: '/risks', data });
+  },
+
+  riskUpdate(id: string, data: Record<string, unknown>): Promise<GrcApiResponse<Record<string, unknown>>> {
+    return grcHttpRequest({ method: 'PATCH', url: `/risks/${id}`, data });
+  },
+
+  riskTransition(id: string, to: string): Promise<GrcApiResponse<Record<string, unknown>>> {
+    return grcHttpRequest({ method: 'PATCH', url: `/risks/${id}/transition`, data: { to } });
+  },
+
+  riskTasksUpdate(id: string, tasks: Record<string, unknown>[]): Promise<GrcApiResponse<Record<string, unknown>>> {
+    return grcHttpRequest({ method: 'PATCH', url: `/risks/${id}/tasks`, data: { tasks } });
+  },
+
+  riskCategories(params?: Record<string, unknown>): Promise<GrcApiResponse<Record<string, unknown>[]>> {
+    return grcHttpRequest({ method: 'GET', url: '/risk-categories', params });
+  },
 };

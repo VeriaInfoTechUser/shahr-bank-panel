@@ -619,7 +619,8 @@
     "sign-out": "خروج",
     "login": "ورود",
     "sign-in": "ورود",
-    "risk-list": "فهرست ریسک"
+    "risk-list": "فهرست ریسک",
+    "risk-detail": "جزئیات ریسک"
   },
   "settings-page": {
     "add-member": "افزودن رابط",
@@ -2365,7 +2366,33 @@
     "error.controls-required": "حداقل یک کنترل الزامی است",
     "error.tasks-required": "حداقل یک تسک الزامی است",
     "error.monitoring-description-required": "توضیحات پایش الزامی است",
-    "error.invalid-transition": "این تغییر وضعیت مجاز نیست"
+    "error.invalid-transition": "این تغییر وضعیت مجاز نیست",
+    "col-impact": "تأثیر",
+    "col-likelihood": "احتمال",
+    "col-owner": "مالک",
+    "col-deadline": "مهلت",
+    "action-view-detail": "مشاهده جزئیات",
+    "action-edit": "ویرایش ریسک",
+    "delete-confirm-title": "حذف ریسک",
+    "delete-confirm-message": "آیا از حذف \"{title}\" اطمینان دارید؟",
+    "delete-success": "ریسک با موفقیت حذف شد.",
+    "delete-error": "خطا در حذف ریسک.",
+    "not-found": "ریسک یافت نشد.",
+    "back-to-list": "بازگشت به لیست",
+    "tab-overview": "نمای کلی",
+    "tab-details": "جزئیات",
+    "tab-controls": "کنترل‌ها",
+    "tab-tasks": "تسک‌ها",
+    "tab-history": "تاریخچه",
+    "detail-inherent-risk": "ریسک ذاتی",
+    "detail-residual-risk": "ریسک باقیمانده",
+    "detail-tasks-progress": "پیشرفت تسک‌ها",
+    "detail-summary": "خلاصه",
+    "no-controls": "کنترلی لینک نشده است.",
+    "no-tasks": "تسکی لینک نشده است.",
+    "no-history": "تغییر وضعیتی ثبت نشده است.",
+    "load-error": "خطا در بارگذاری جزئیات ریسک.",
+    "history-empty": "هنوز تغییر وضعیتی ثبت نشده است."
   },
   "task": {
     "status": {

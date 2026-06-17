@@ -44,6 +44,7 @@ export interface Risk {
   residualLikelihood: number | null;
   residualScore: number | null;
   residualLevel: string | null;
+  stateHistory: Record<string, unknown>[];
   createdAt: string;
   updatedAt: string;
   [key: string]: unknown;

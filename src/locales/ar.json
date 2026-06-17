@@ -437,7 +437,8 @@
     "sign-out": "تسجيل الخروج",
     "login": "تسجيل الدخول",
     "sign-in": "تسجيل الدخول",
-    "risk-list": "قائمة المخاطر"
+    "risk-list": "قائمة المخاطر",
+    "risk-detail": "تفاصيل المخاطر"
   },
   "settings-page": {
     "add-member": "إضافة جهة مرتبطة",
@@ -1663,7 +1664,33 @@
     "error.controls-required": "مطلوب ضابط واحد على الأقل",
     "error.tasks-required": "مطلوب مهمة واحدة على الأقل",
     "error.monitoring-description-required": "وصف المراقبة مطلوب",
-    "error.invalid-transition": "هذا التحويل غير مسموح به"
+    "error.invalid-transition": "هذا التحويل غير مسموح به",
+    "col-impact": "التأثير",
+    "col-likelihood": "الاحتمالية",
+    "col-owner": "المالك",
+    "col-deadline": "الموعد النهائي",
+    "action-view-detail": "عرض التفاصيل",
+    "action-edit": "تعديل المخاطر",
+    "delete-confirm-title": "حذف المخاطر",
+    "delete-confirm-message": "هل أنت متأكد من حذف \"{title}\"؟",
+    "delete-success": "تم حذف المخاطر بنجاح.",
+    "delete-error": "فشل في حذف المخاطر.",
+    "not-found": "لم يتم العثور على المخاطر.",
+    "back-to-list": "العودة إلى القائمة",
+    "tab-overview": "نظرة عامة",
+    "tab-details": "التفاصيل",
+    "tab-controls": "الضوابط",
+    "tab-tasks": "المهام",
+    "tab-history": "التاريخ",
+    "detail-inherent-risk": "المخاطر الفطرية",
+    "detail-residual-risk": "المخاطر المتبقية",
+    "detail-tasks-progress": "تقدم المهام",
+    "detail-summary": "ملخص",
+    "no-controls": "لا توجد ضوابط مرتبطة.",
+    "no-tasks": "لا توجد مهام مرتبطة.",
+    "no-history": "لا توجد تحولات حالة مسجلة.",
+    "load-error": "فشل في تحميل تفاصيل المخاطر.",
+    "history-empty": "لم يتم تسجيل أي تحولات حالة بعد."
   },
   "task": {
     "status": {

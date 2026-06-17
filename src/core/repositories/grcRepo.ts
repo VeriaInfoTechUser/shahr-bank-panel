@@ -236,6 +236,10 @@ export const grcRepo = {
     return grcHttpRequest({ method: 'PATCH', url: `/grc/risks/${slug}`, data });
   },
 
+  riskDelete(slug: string): Promise<GrcApiResponse<null>> {
+    return grcHttpRequest({ method: 'DELETE', url: `/grc/risks/${slug}` });
+  },
+
   riskAction(slug: string, state: string, data?: Record<string, unknown>): Promise<GrcApiResponse<Record<string, unknown>>> {
     return grcHttpRequest({ method: 'POST', url: `/grc/risks/${slug}/${state}`, data: data ?? {} });
   },

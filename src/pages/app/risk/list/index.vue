@@ -1,18 +1,28 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n';
 import { onMounted, ref } from 'vue';
+import { useRouter } from 'vue-router';
 import { useDataTable, createColumn, type FetchFn } from '@core';
 import BaseTable from '@core/ui/base/BaseTable.vue';
+import BaseConfirmModal from '@/core/ui/base/BaseConfirmModal.vue';
 import { grcRepo } from '@/core/repositories/grcRepo';
 import { useBreadcrumbSlot } from '@/composables/useBreadcrumb';
+import { useGlobalModal } from '@/composables/useGlobalModal';
 import Button from '@/base-components/Button';
 import Lucide from '@/base-components/Lucide';
+import { toast } from 'vue3-toastify';
 import RiskListBreadcrumbToolbar from './RiskListBreadcrumbToolbar.vue';
 import CreateRiskModal from './CreateRiskModal.vue';
 import RiskDetailModal from './RiskDetailModal.vue';
+import { useRiskTransition } from './useRiskTransition';
+import { useRisk } from './useRisk';
 
 const { t } = useI18n();
+const router = useRouter();
 const { setContent: setBreadcrumbSlot } = useBreadcrumbSlot();
+const { openModal } = useGlobalModal();
+const { getTransitions } = useRiskTransition();
+const { transitionRisk } = useRisk();
 
 const showCreateModal = ref(false);
 const showDetailModal = ref(false);
@@ -76,6 +86,38 @@ const table = useDataTable({
       bodyCell: (row) => (row.title as string) ?? '—',
     }),
     createColumn({
+      key: 'state',
+      label: t('risk.col-status'),
+      sortable: false,
+      slot: true,
+      bodyCell: (row) => (row.state as string) ?? '—',
+    }),
+    createColumn({
+      key: 'riskLevel',
+      label: t('risk.col-level'),
+      sortable: false,
+      slot: true,
+      bodyCell: (row) => (row.riskLevel as string) ?? '—',
+    }),
+    createColumn({
+      key: 'impactFactor',
+      label: t('risk.col-impact'),
+      sortable: false,
+      bodyCell: (row) => {
+        const v = row.impactFactor;
+        return v != null ? String(v) : '—';
+      },
+    }),
+    createColumn({
+      key: 'likelihood',
+      label: t('risk.col-likelihood'),
+      sortable: false,
+      bodyCell: (row) => {
+        const v = row.likelihood;
+        return v != null ? String(v) : '—';
+      },
+    }),
+    createColumn({
       key: 'category',
       label: t('risk.col-category'),
       sortable: false,
@@ -93,27 +135,10 @@ const table = useDataTable({
       bodyCell: (row) => (row.riskType as string) ?? '—',
     }),
     createColumn({
-      key: 'riskLevel',
-      label: t('risk.col-level'),
+      key: 'ownerId',
+      label: t('risk.col-owner'),
       sortable: false,
-      slot: true,
-      bodyCell: (row) => (row.riskLevel as string) ?? '—',
-    }),
-    createColumn({
-      key: 'inherentScore',
-      label: t('risk.col-inherent-score'),
-      sortable: false,
-      bodyCell: (row) => {
-        const s = row.inherentScore;
-        return s != null ? String(s) : '—';
-      },
-    }),
-    createColumn({
-      key: 'state',
-      label: t('risk.col-status'),
-      sortable: false,
-      slot: true,
-      bodyCell: (row) => (row.state as string) ?? '—',
+      bodyCell: (row) => (row.ownerId as string) ?? '—',
     }),
     createColumn({
       key: 'createdAt',
@@ -147,11 +172,10 @@ function onExportRisks() {
   table.exportCSV();
 }
 
-function onRowClick(row: Record<string, unknown>) {
-  const id = row.slug  
-  if (id) {
-    selectedRiskId.value = String(id);
-    showDetailModal.value = true;
+function onViewDetail(row: Record<string, unknown>) {
+  const slug = row.slug as string;
+  if (slug) {
+    router.push({ name: 'app-risk-detail', params: { slug } });
   }
 }
 
@@ -163,12 +187,52 @@ function onEditRisk(row: Record<string, unknown>) {
   }
 }
 
-function onTransitionRisk(row: Record<string, unknown>) {
-  const id = row.slug;
-  if (id) {
-    selectedRiskId.value = String(id);
-    showDetailModal.value = true;
-  }
+function onDeleteRisk(row: Record<string, unknown>) {
+  const slug = row.slug as string;
+  if (!slug) return;
+  openModal({
+    component: BaseConfirmModal,
+    props: {
+      title: t('risk.delete-confirm-title'),
+      message: t('risk.delete-confirm-message', { title: String(row.title ?? '') }),
+      confirmVariant: 'danger' as const,
+      onConfirmAction: async () => {
+        await grcRepo.riskDelete(slug);
+      },
+    },
+    onSuccess: () => {
+      toast(t('risk.delete-success'), { type: 'success' });
+      table.invalidateListCache();
+      void table.fetch();
+    },
+  });
+}
+
+function handleQuickTransition(row: Record<string, unknown>, to: string) {
+  const slug = row.slug as string;
+  if (!slug) return;
+  openModal({
+    component: BaseConfirmModal,
+    props: {
+      title: t('risk.transition-confirm-title'),
+      message: t('risk.transition-confirm-message', { status: t(`risk.status-${to}`) }),
+      confirmVariant: to === 'archived' ? 'danger' as const : 'primary' as const,
+      onConfirmAction: async () => {
+        const res = await transitionRisk(slug, to);
+        if (!res) throw new Error(t('risk.transition-error'));
+      },
+    },
+    onSuccess: () => {
+      toast(t('risk.transition-success'), { type: 'success' });
+      table.invalidateListCache();
+      void table.fetch();
+    },
+  });
+}
+
+function getQuickTransitions(state: string) {
+  const transitions = getTransitions(state);
+  return transitions.slice(0, 1);
 }
 
 function onModalSuccess() {
@@ -188,11 +252,10 @@ function onModalSuccess() {
         :actions="true"
         :actions-header="t('general.actions')"
         :show-search="false"
-        @row-click="onRowClick"
       >
-        <template #cell-riskType="{ row }">
-          <span :class="riskTypeBadgeClass(row.riskType)">
-            {{ t(`risk.type-${row.riskType}`) }}
+        <template #cell-state="{ row }">
+          <span :class="statusBadgeClass(row.state)">
+            {{ t(`risk.status-${row.state}`) }}
           </span>
         </template>
 
@@ -202,14 +265,25 @@ function onModalSuccess() {
           </span>
         </template>
 
-        <template #cell-state="{ row }">
-          <span :class="statusBadgeClass(row.state)">
-            {{ t(`risk.status-${row.state}`) }}
+        <template #cell-riskType="{ row }">
+          <span :class="riskTypeBadgeClass(row.riskType)">
+            {{ t(`risk.type-${row.riskType}`) }}
           </span>
         </template>
 
         <template #actions="{ row }">
-          <div class="flex items-center justify-center gap-3">
+          <div class="flex items-center justify-center gap-1.5">
+            <Button
+              type="button"
+              variant="outline-primary"
+              size="sm"
+              class="!h-7 !w-7 !px-0 !py-0"
+              :aria-label="t('risk.action-view-detail')"
+              :title="t('risk.action-view-detail')"
+              @click.stop="onViewDetail(row)"
+            >
+              <Lucide icon="Eye" class="!h-3.5 !w-3.5" />
+            </Button>
             <Button
               type="button"
               variant="outline-secondary"
@@ -222,15 +296,28 @@ function onModalSuccess() {
               <Lucide icon="Pencil" class="!h-3.5 !w-3.5" />
             </Button>
             <Button
+              v-for="tr in getQuickTransitions(row.state)"
+              :key="tr.to"
               type="button"
-              variant="outline-primary"
+              :variant="tr.variant === 'primary' ? 'outline-primary' : tr.variant === 'danger' ? 'outline-danger' : 'outline-secondary'"
+              size="sm"
+              class="!h-7 !px-1.5 !py-0 text-[10px]"
+              :aria-label="t(tr.labelKey)"
+              :title="t(tr.labelKey)"
+              @click.stop="handleQuickTransition(row, tr.to)"
+            >
+              <Lucide icon="ArrowRight" class="!h-3 !w-3" />
+            </Button>
+            <Button
+              type="button"
+              variant="outline-danger"
               size="sm"
               class="!h-7 !w-7 !px-0 !py-0"
-              :aria-label="t('risk.action-transition')"
-              :title="t('risk.action-transition')"
-              @click.stop="onTransitionRisk(row)"
+              :aria-label="t('general.delete')"
+              :title="t('general.delete')"
+              @click.stop="onDeleteRisk(row)"
             >
-              <Lucide icon="ArrowRight" class="!h-3.5 !w-3.5" />
+              <Lucide icon="Trash2" class="!h-3.5 !w-3.5" />
             </Button>
           </div>
         </template>

@@ -597,7 +597,8 @@
     "sign-out": "Sing out",
     "login": "Login",
     "sign-in": "Sign in",
-    "risk-list": "Risk List"
+    "risk-list": "Risk List",
+    "risk-detail": "Risk Detail"
   },
   "settings-page": {
     "add-member": "Add member",
@@ -2201,7 +2202,33 @@
     "error.controls-required": "At least one control is required",
     "error.tasks-required": "At least one task is required",
     "error.monitoring-description-required": "Monitoring description is required",
-    "error.invalid-transition": "This state transition is not allowed"
+    "error.invalid-transition": "This state transition is not allowed",
+    "col-impact": "Impact",
+    "col-likelihood": "Likelihood",
+    "col-owner": "Owner",
+    "col-deadline": "Deadline",
+    "action-view-detail": "View Details",
+    "action-edit": "Edit Risk",
+    "delete-confirm-title": "Delete Risk",
+    "delete-confirm-message": "Are you sure you want to delete \"{title}\"?",
+    "delete-success": "Risk deleted successfully.",
+    "delete-error": "Failed to delete risk.",
+    "not-found": "Risk not found.",
+    "back-to-list": "Back to List",
+    "tab-overview": "Overview",
+    "tab-details": "Details",
+    "tab-controls": "Controls",
+    "tab-tasks": "Tasks",
+    "tab-history": "History",
+    "detail-inherent-risk": "Inherent Risk",
+    "detail-residual-risk": "Residual Risk",
+    "detail-tasks-progress": "Tasks Progress",
+    "detail-summary": "Summary",
+    "no-controls": "No controls linked.",
+    "no-tasks": "No tasks linked.",
+    "no-history": "No state transitions recorded.",
+    "load-error": "Failed to load risk details.",
+    "history-empty": "No state transitions recorded yet."
   },
   "task": {
     "status": {

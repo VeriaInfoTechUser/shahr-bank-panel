@@ -10,7 +10,7 @@ export interface RiskCategory {
 export interface RiskTask {
   id?: string;
   title: string;
-  status: 'todo' | 'in-progress' | 'done';
+  state: 'open' | 'in_progress' | 'done';
 }
 
 export interface Risk {

@@ -2185,5 +2185,24 @@
     "action-back-response": "Back to Response",
     "action-close-risk": "Close Risk",
     "action-reopen": "Reopen"
+  },
+  "task": {
+    "status": {
+      "open": "Open",
+      "open.desc": "Task has been created and is waiting to be started",
+      "in_progress": "In Progress",
+      "in_progress.desc": "Task is actively being worked on",
+      "pending_review": "Pending Review",
+      "pending_review.desc": "Task is completed and awaiting review",
+      "approved": "Approved",
+      "approved.desc": "Task has been reviewed and approved",
+      "rejected": "Rejected",
+      "rejected.desc": "Task has been reviewed and rejected",
+      "done": "Done",
+      "done.desc": "Task is fully completed",
+      "cancelled": "Cancelled",
+      "cancelled.desc": "Task has been cancelled",
+      "unknown": "Unknown"
+    }
   }
 }

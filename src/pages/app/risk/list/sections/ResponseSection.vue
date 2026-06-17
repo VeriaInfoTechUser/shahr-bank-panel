@@ -40,16 +40,16 @@ const strategyOptions = computed(() =>
   props.riskType === 'opportunity' ? opportunityStrategyOptions.value : threatStrategyOptions.value
 );
 
-const taskStatusOptions = computed(() => [
-  { value: 'todo', label: t('risk.task-todo') },
-  { value: 'in-progress', label: t('risk.task-in-progress') },
-  { value: 'done', label: t('risk.task-done') },
+const taskStateOptions = computed(() => [
+  { value: 'open', label: t('task.status.open') },
+  { value: 'in_progress', label: t('task.status.in_progress') },
+  { value: 'done', label: t('task.status.done') },
 ]);
 
 function addTask() {
   const title = newTaskTitle.value.trim();
   if (!title) return;
-  const updated = [...props.tasks, { title, status: 'todo' as const }];
+  const updated = [...props.tasks, { title, state: 'open' as const }];
   emit('update:tasks', updated);
   newTaskTitle.value = '';
 }
@@ -59,19 +59,19 @@ function removeTask(index: number) {
   emit('update:tasks', updated);
 }
 
-function toggleTaskStatus(index: number) {
+function toggleTaskState(index: number) {
   const current = props.tasks[index];
   if (!current) return;
-  const next = current.status === 'todo' ? 'in-progress' : current.status === 'in-progress' ? 'done' : 'todo';
-  const updated = props.tasks.map((t, i) => i === index ? { ...t, status: next as RiskTask['status'] } : t);
+  const next = current.state === 'open' ? 'in_progress' : current.state === 'in_progress' ? 'done' : 'open';
+  const updated = props.tasks.map((t, i) => i === index ? { ...t, state: next as RiskTask['state'] } : t);
   emit('update:tasks', updated);
 }
 
-function taskStatusBadgeClass(status: string): string {
+function taskStateBadgeClass(state: string): string {
   const base = 'inline-flex items-center justify-center rounded-md px-2 py-0.5 text-[9px] font-semibold leading-snug shadow-sm cursor-pointer select-none';
-  switch (status) {
-    case 'todo': return `${base} bg-orange-100 text-orange-800 border border-orange-200`;
-    case 'in-progress': return `${base} bg-violet-100 text-violet-800 border border-violet-200`;
+  switch (state) {
+    case 'open': return `${base} bg-orange-100 text-orange-800 border border-orange-200`;
+    case 'in_progress': return `${base} bg-violet-100 text-violet-800 border border-violet-200`;
     case 'done': return `${base} bg-sky-100 text-sky-800 border border-sky-200`;
     default: return `${base} bg-slate-100 text-slate-600 border border-slate-200`;
   }
@@ -141,8 +141,8 @@ function taskStatusBadgeClass(status: string): string {
           class="flex items-center gap-2 rounded-md border border-slate-200 bg-white px-3 py-1.5 text-xs dark:border-darkmode-600 dark:bg-darkmode-800"
         >
           <span class="flex-1 text-slate-700 dark:text-slate-200">{{ task.title }}</span>
-          <span :class="taskStatusBadgeClass(task.status)" @click="toggleTaskStatus(index)">
-            {{ t(`risk.task-${task.status}`) }}
+          <span :class="taskStateBadgeClass(task.state)" @click="toggleTaskState(index)">
+            {{ t(`task.status.${task.state}`) }}
           </span>
           <button
             type="button"

@@ -65,7 +65,7 @@ const levelBadgeClass = computed(() => {
   }
 });
 
-const completedTasks = computed(() => props.tasks.filter((t) => t.status === 'done').length);
+const completedTasks = computed(() => props.tasks.filter((t) => t.state === 'done').length);
 const totalTasks = computed(() => props.tasks.length);
 const progressPercent = computed(() => {
   if (totalTasks.value === 0) return 0;
@@ -143,12 +143,12 @@ watch(
           <span
             class="inline-flex items-center justify-center rounded-md px-2 py-0.5 text-[9px] font-semibold leading-snug shadow-sm"
             :class="{
-              'bg-orange-100 text-orange-800 border border-orange-200': task.status === 'todo',
-              'bg-violet-100 text-violet-800 border border-violet-200': task.status === 'in-progress',
-              'bg-sky-100 text-sky-800 border border-sky-200': task.status === 'done',
+              'bg-orange-100 text-orange-800 border border-orange-200': task.state === 'open',
+              'bg-violet-100 text-violet-800 border border-violet-200': task.state === 'in_progress',
+              'bg-sky-100 text-sky-800 border border-sky-200': task.state === 'done',
             }"
           >
-            {{ t(`risk.task-${task.status}`) }}
+            {{ t(`task.status.${task.state}`) }}
           </span>
         </div>
       </div>

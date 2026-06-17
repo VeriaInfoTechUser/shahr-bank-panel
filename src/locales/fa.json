@@ -2349,5 +2349,24 @@
     "action-back-response": "بازگشت به پاسخ",
     "action-close-risk": "بستن ریسک",
     "action-reopen": "بازگشایی"
+  },
+  "task": {
+    "status": {
+      "open": "باز",
+      "open.desc": "تسک ایجاد شده و در انتظار شروع است",
+      "in_progress": "در حال انجام",
+      "in_progress.desc": "تسک در حال انجام است",
+      "pending_review": "در انتظار بررسی",
+      "pending_review.desc": "تسک تکمیل شده و در انتظار بررسی است",
+      "approved": "تأیید شده",
+      "approved.desc": "تسک بررسی و تأیید شده است",
+      "rejected": "رد شده",
+      "rejected.desc": "تسک بررسی و رد شده است",
+      "done": "انجام شده",
+      "done.desc": "تسک کاملاً تکمیل شده است",
+      "cancelled": "لغو شده",
+      "cancelled.desc": "تسک لغو شده است",
+      "unknown": "نامشخص"
+    }
   }
 }

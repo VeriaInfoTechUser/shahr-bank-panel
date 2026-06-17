@@ -1647,5 +1647,24 @@
     "action-back-response": "العودة للاستجابة",
     "action-close-risk": "إغلاق المخاطرة",
     "action-reopen": "إعادة فتح"
+  },
+  "task": {
+    "status": {
+      "open": "مفتوح",
+      "open.desc": "تم إنشاء المهمة وهي في انتظار البدء",
+      "in_progress": "قيد التنفيذ",
+      "in_progress.desc": "المهمة قيد العمل عليها",
+      "pending_review": "في انتظار المراجعة",
+      "pending_review.desc": "تم إكمال المهمة وهي في انتظار المراجعة",
+      "approved": "معتمد",
+      "approved.desc": "تمت مراجعة المهمة واعتمادها",
+      "rejected": "مرفوض",
+      "rejected.desc": "تمت مراجعة المهمة ورفضها",
+      "done": "تم",
+      "done.desc": "تم إكمال المهمة بالكامل",
+      "cancelled": "ملغى",
+      "cancelled.desc": "تم إلغاء المهمة",
+      "unknown": "غير معروف"
+    }
   }
 }

@@ -2395,7 +2395,8 @@
     "no-tasks": "تسکی لینک نشده است.",
     "no-history": "تغییر وضعیتی ثبت نشده است.",
     "load-error": "خطا در بارگذاری جزئیات ریسک.",
-    "history-empty": "هنوز تغییر وضعیتی ثبت نشده است."
+    "history-empty": "هنوز تغییر وضعیتی ثبت نشده است.",
+    "filter-badge-remove-aria": "حذف فیلتر {label}"
   },
   "task": {
     "status": {

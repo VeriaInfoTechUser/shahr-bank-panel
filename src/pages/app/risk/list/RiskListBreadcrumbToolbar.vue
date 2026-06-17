@@ -5,6 +5,11 @@ import { useElementBounding, onClickOutside, useEventListener } from '@vueuse/co
 import { useI18n } from 'vue-i18n';
 import Lucide from '@/base-components/Lucide';
 import RiskListFilterPanel from './RiskListFilterPanel.vue';
+import {
+  RISK_FILTER_PARAM_LABEL_KEYS,
+  getActiveRiskFilterKeys,
+  type RiskFilterParamKey,
+} from './riskFilterToolbarKeys';
 
 const props = defineProps<{
   onAdd?: () => void;
@@ -23,8 +28,19 @@ const filterToolbarClearTick = ref(0);
 
 const hasActiveFilters = computed(() => Object.keys(toValue(props.table.filters) ?? {}).length > 0);
 
+const activeFilterKeys = computed((): RiskFilterParamKey[] =>
+  getActiveRiskFilterKeys(toValue(props.table.filters) ?? {})
+);
+
 function clearFiltersFromToolbar() {
   props.table.clearFilters();
+  filterToolbarClearTick.value += 1;
+}
+
+function removeFilterParam(key: RiskFilterParamKey) {
+  const f = { ...(toValue(props.table.filters) ?? {}) };
+  delete f[key];
+  props.table.replaceFilters(f);
   filterToolbarClearTick.value += 1;
 }
 
@@ -147,6 +163,39 @@ useEventListener(document, 'keydown', (e: KeyboardEvent) => {
         >
           <span class="truncate">{{ t('risk.toolbar-clear-filters') }}</span>
         </button>
+      </div>
+      <div
+        v-if="activeFilterKeys.length > 0"
+        class="mx-1.5 flex min-w-0 flex-wrap items-center gap-2 sm:mx-2"
+      >
+        <div
+          class="h-8 w-1 shrink-0 self-center rounded-full bg-slate-500 dark:bg-slate-400"
+          aria-hidden="true"
+        />
+        <div class="flex min-w-0 flex-wrap items-center gap-1">
+          <span
+            v-for="key in activeFilterKeys"
+            :key="key"
+            class="inline-flex max-w-[11rem] items-center gap-0.5 rounded-full border border-slate-200 bg-slate-50 py-0.5 pl-2 pr-0.5 text-[11px] font-medium text-slate-700 shadow-sm dark:border-darkmode-600 dark:bg-darkmode-700/80 dark:text-slate-200"
+          >
+            <span class="min-w-0 truncate" :title="t(RISK_FILTER_PARAM_LABEL_KEYS[key])">{{
+              t(RISK_FILTER_PARAM_LABEL_KEYS[key])
+            }}</span>
+            <button
+              type="button"
+              class="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-slate-500 transition hover:bg-slate-200 hover:text-slate-900 dark:hover:bg-darkmode-600 dark:hover:text-slate-100"
+              :aria-label="
+                t('risk.filter-badge-remove-aria', { label: t(RISK_FILTER_PARAM_LABEL_KEYS[key]) })
+              "
+              :title="
+                t('risk.filter-badge-remove-aria', { label: t(RISK_FILTER_PARAM_LABEL_KEYS[key]) })
+              "
+              @click.stop="removeFilterParam(key)"
+            >
+              <Lucide icon="X" class="!h-3 !w-3" />
+            </button>
+          </span>
+        </div>
       </div>
     </div>
 

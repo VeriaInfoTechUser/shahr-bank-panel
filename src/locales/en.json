@@ -2231,7 +2231,8 @@
     "no-tasks": "No tasks linked.",
     "no-history": "No state transitions recorded.",
     "load-error": "Failed to load risk details.",
-    "history-empty": "No state transitions recorded yet."
+    "history-empty": "No state transitions recorded yet.",
+    "filter-badge-remove-aria": "Remove {label} filter"
   },
   "task": {
     "status": {

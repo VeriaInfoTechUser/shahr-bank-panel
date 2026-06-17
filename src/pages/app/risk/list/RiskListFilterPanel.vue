@@ -4,7 +4,7 @@ import { computed, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import BaseSelect from '@/core/ui/base/BaseSelect.vue';
 import Button from '@/base-components/Button';
-import { useRisk } from './useRisk';
+import { useRiskCategories } from './useRiskCategories';
 
 const props = defineProps<{
   table: {
@@ -16,7 +16,7 @@ const props = defineProps<{
 }>();
 
 const { t } = useI18n();
-const { categoryOptions, subCategoryOptions, fetchCategories } = useRisk();
+const { categoryOptions, subCategoryOptions, fetchTree } = useRiskCategories();
 
 const search = ref('');
 const categorySlug = ref('');
@@ -70,7 +70,7 @@ watch(
   }
 );
 
-fetchCategories();
+fetchTree();
 
 function applyFilters() {
   const filters: Record<string, unknown> = {};

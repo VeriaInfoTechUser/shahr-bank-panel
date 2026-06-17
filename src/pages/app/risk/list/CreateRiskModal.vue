@@ -9,6 +9,7 @@ import BaseInput from '@/core/ui/base/BaseInput.vue';
 import BaseSelect from '@/core/ui/base/BaseSelect.vue';
 import Button from '@/base-components/Button';
 import { useRisk } from './useRisk';
+import { useRiskCategories } from './useRiskCategories';
 import RegistrationSection from './sections/RegistrationSection.vue';
 
 const props = defineProps<{
@@ -22,7 +23,8 @@ const emit = defineEmits<{
 }>();
 
 const { t } = useI18n();
-const { loading, categoryOptions, subCategoryOptions, fetchCategories, createRisk } = useRisk();
+const { loading, createRisk } = useRisk();
+const { categoryOptions, subCategoryOptions, fetchTree } = useRiskCategories();
 const saving = ref(false);
 const formKey = ref(0);
 const selectedCategorySlug = ref('');
@@ -71,7 +73,7 @@ watch(
   { immediate: true }
 );
 
-fetchCategories();
+fetchTree();
 
 function close() {
   emit('update:show', false);

@@ -10,6 +10,7 @@ import Button from '@/base-components/Button';
 import Lucide from '@/base-components/Lucide';
 import { useGlobalModal } from '@/composables/useGlobalModal';
 import { useRisk, type Risk, type RiskTask } from './useRisk';
+import { useRiskCategories } from './useRiskCategories';
 import { useRiskTransition, type RiskStatus } from './useRiskTransition';
 import RegistrationSection from './sections/RegistrationSection.vue';
 import AnalysisSection from './sections/AnalysisSection.vue';
@@ -31,14 +32,12 @@ const { t } = useI18n();
 const { openModal } = useGlobalModal();
 const {
   loading: apiLoading,
-  categoryOptions,
-  subCategoryOptions,
-  fetchCategories,
   fetchRisk,
   updateRisk,
   transitionRisk,
   updateTasks,
 } = useRisk();
+const { categoryOptions, subCategoryOptions, fetchTree } = useRiskCategories();
 const { getTransitions, getSectionsForStatus, calculateScore, calculateRiskLevel } = useRiskTransition();
 
 const formKey = ref(0);
@@ -94,6 +93,7 @@ watch(
   () => [props.show, props.riskId],
   async ([show, id]) => {
     if (show && id) {
+      await fetchTree();
       await loadRisk(id);
     }
   },

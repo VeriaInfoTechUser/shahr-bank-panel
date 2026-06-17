@@ -221,30 +221,30 @@ export const grcRepo = {
 
   // Risks
   riskList(params?: Record<string, unknown>): Promise<GrcApiResponse<GrcPaginatedResponse>> {
-    return grcHttpRequest({ method: 'GET', url: '/risks', params });
+    return grcHttpRequest({ method: 'GET', url: '/grc/risks', params });
   },
 
-  riskGet(id: string): Promise<GrcApiResponse<Record<string, unknown>>> {
-    return grcHttpRequest({ method: 'GET', url: `/risks/${id}` });
+  riskGet(slug: string): Promise<GrcApiResponse<Record<string, unknown>>> {
+    return grcHttpRequest({ method: 'GET', url: `/grc/risks/${slug}` });
   },
 
   riskCreate(data: Record<string, unknown>): Promise<GrcApiResponse<Record<string, unknown>>> {
-    return grcHttpRequest({ method: 'POST', url: '/risks', data });
+    return grcHttpRequest({ method: 'POST', url: '/grc/risks', data });
   },
 
-  riskUpdate(id: string, data: Record<string, unknown>): Promise<GrcApiResponse<Record<string, unknown>>> {
-    return grcHttpRequest({ method: 'PATCH', url: `/risks/${id}`, data });
+  riskUpdate(slug: string, data: Record<string, unknown>): Promise<GrcApiResponse<Record<string, unknown>>> {
+    return grcHttpRequest({ method: 'PATCH', url: `/grc/risks/${slug}`, data });
   },
 
-  riskTransition(id: string, to: string): Promise<GrcApiResponse<Record<string, unknown>>> {
-    return grcHttpRequest({ method: 'PATCH', url: `/risks/${id}/transition`, data: { to } });
+  riskTasksUpdate(slug: string, tasks: Record<string, unknown>[]): Promise<GrcApiResponse<Record<string, unknown>>> {
+    return grcHttpRequest({ method: 'PATCH', url: `/grc/risks/${slug}/tasks`, data: { tasks } });
   },
 
-  riskTasksUpdate(id: string, tasks: Record<string, unknown>[]): Promise<GrcApiResponse<Record<string, unknown>>> {
-    return grcHttpRequest({ method: 'PATCH', url: `/risks/${id}/tasks`, data: { tasks } });
+  riskCategoriesTree(): Promise<GrcApiResponse<Record<string, unknown>[]>> {
+    return grcHttpRequest({ method: 'GET', url: '/grc/risks/categories/tree' });
   },
 
-  riskCategories(params?: Record<string, unknown>): Promise<GrcApiResponse<Record<string, unknown>[]>> {
-    return grcHttpRequest({ method: 'GET', url: '/risk-categories', params });
+  riskCategoriesList(params?: Record<string, unknown>): Promise<GrcApiResponse<Record<string, unknown>[]>> {
+    return grcHttpRequest({ method: 'GET', url: '/grc/risks/categories/list', params });
   },
 };

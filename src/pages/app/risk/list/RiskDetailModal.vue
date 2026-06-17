@@ -39,7 +39,7 @@ const {
   updateTasks,
 } = useRisk();
 const { categoryOptions, subCategoryOptions, getCategoryTitle, getSubCategoryTitle, fetchTree } = useRiskCategories();
-const { getTransitions, getSectionsForStatus, calculateScore, calculateRiskLevel } = useRiskTransition();
+const { getTransitions, getSectionsForStatus, isTransitionDisabled, parseTransitionErrors, calculateScore, calculateRiskLevel } = useRiskTransition();
 
 const formKey = ref(0);
 const saving = ref(false);
@@ -152,16 +152,19 @@ function populateForm(r: Risk) {
   const vals: Record<string, unknown> = {
     title: r.title ?? '',
     draft_description: r.draft_description ?? '',
+    register_description: r.register_description ?? '',
     riskType: r.riskType ?? '',
     categorySlug: r.categorySlug ?? '',
     subCategorySlug: r.subCategorySlug ?? '',
     ownerId: r.ownerId ?? '',
     analysis_description: r.analysis_description ?? '',
+    impactFactor: r.impactFactor ?? '',
     impact: r.impact ?? '',
     likelihood: r.likelihood ?? '',
     inherentScore: r.inherentScore != null ? String(r.inherentScore) : '',
     riskLevel: r.riskLevel ?? '',
     note: r.note ?? '',
+    strategy: r.strategy ?? '',
     treatmentStrategy: r.treatmentStrategy ?? '',
     response_description: r.response_description ?? '',
     framework: r.framework?.[0] ?? '',
@@ -206,6 +209,7 @@ async function handleSave(values: Record<string, unknown>) {
       data = {
         title: values.title,
         draft_description: values.draft_description,
+        register_description: values.register_description,
         riskType: values.riskType,
         categorySlug: catSlug,
         categoryTitle: getCategoryTitle(catSlug),
@@ -215,6 +219,7 @@ async function handleSave(values: Record<string, unknown>) {
       };
       if (status === 'analysis') {
         data.analysis_description = values.analysis_description || '';
+        data.impactFactor = values.impactFactor ? Number(values.impactFactor) : null;
         data.impact = values.impact ? Number(values.impact) : null;
         data.likelihood = values.likelihood ? Number(values.likelihood) : null;
         data.inherentScore = values.inherentScore ? Number(values.inherentScore) : null;
@@ -223,6 +228,7 @@ async function handleSave(values: Record<string, unknown>) {
       }
     } else if (status === 'response') {
       data = {
+        strategy: values.strategy,
         treatmentStrategy: values.treatmentStrategy,
         response_description: values.response_description || '',
         framework: values.framework ? [values.framework] : [],
@@ -264,8 +270,18 @@ function handleTransition(to: string) {
       message: t('risk.transition-confirm-message', { status: t(`risk.status-${to}`) }),
       confirmVariant: to === 'archived' ? 'danger' as const : 'primary' as const,
       onConfirmAction: async () => {
-        const res = await transitionRisk(risk.value!.slug, to);
-        if (!res) throw new Error(t('risk.transition-error'));
+        try {
+          const res = await transitionRisk(risk.value!.slug, to);
+          if (!res) throw new Error(t('risk.transition-error'));
+        } catch (err: unknown) {
+          if (err instanceof Error) {
+            const parsed = parseTransitionErrors([err.message]);
+            if (parsed.length > 0 && parsed[0] !== err.message) {
+              throw new Error(t(parsed[0]));
+            }
+          }
+          throw err;
+        }
       },
     },
     onSuccess: async () => {
@@ -294,6 +310,31 @@ function onResidualLevelUpdate(level: string) {
 
 function onTasksUpdate(updated: RiskTask[]) {
   tasks.value = updated;
+}
+
+const showRegisterDescription = computed(() =>
+  ['registered', 'analysis', 'response', 'monitoring', 'closed', 'archived'].includes(currentStatus.value)
+);
+
+function isTransitionButtonDisabled(to: string, formValues: Record<string, unknown>): boolean {
+  return isTransitionDisabled(to, formValues, tasks.value);
+}
+
+function getFormValues(): Record<string, unknown> {
+  return {
+    title: risk.value?.title ?? '',
+    draft_description: risk.value?.draft_description ?? '',
+    register_description: risk.value?.register_description ?? '',
+    riskType: risk.value?.riskType ?? '',
+    categorySlug: risk.value?.categorySlug ?? '',
+    categoryTitle: risk.value?.categoryTitle ?? '',
+    subCategorySlug: risk.value?.subCategorySlug ?? '',
+    subCategoryTitle: risk.value?.subCategoryTitle ?? '',
+    impactFactor: risk.value?.impactFactor ?? '',
+    strategy: risk.value?.strategy ?? '',
+    control: risk.value?.control?.[0] ?? '',
+    monitoring_description: risk.value?.monitoring_description ?? '',
+  };
 }
 </script>
 
@@ -345,6 +386,7 @@ function onTasksUpdate(updated: RiskTask[]) {
               :category-options="categoryOptions"
               :sub-category-options="subCategoryOptions(selectedCategorySlug)"
               :member-options="memberOptions"
+              :show-register-description="showRegisterDescription"
               @category-change="onCategoryChange"
             />
           </div>
@@ -363,6 +405,7 @@ function onTasksUpdate(updated: RiskTask[]) {
             <AnalysisSection
               :mode="isEditableSection('analysis') ? 'editable' : 'readonly'"
               :risk-type="risk.riskType"
+              :impact-factor="risk.impactFactor"
               :impact="risk.impact"
               :likelihood="risk.likelihood"
               :inherent-score="risk.inherentScore"
@@ -426,7 +469,7 @@ function onTasksUpdate(updated: RiskTask[]) {
             type="button"
             :variant="tr.variant"
             size="sm"
-            :disabled="saving"
+            :disabled="saving || isTransitionButtonDisabled(tr.to, getFormValues())"
             @click="handleTransition(tr.to)"
           >
             {{ t(tr.labelKey) }}

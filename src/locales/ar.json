@@ -1646,7 +1646,24 @@
     "action-send-monitoring": "إرسال للمراقبة",
     "action-back-response": "العودة للاستجابة",
     "action-close-risk": "إغلاق المخاطرة",
-    "action-reopen": "إعادة فتح"
+    "action-reopen": "إعادة فتح",
+    "field-register-description": "وصف التسجيل",
+    "field-register-description-placeholder": "أدخل وصف التسجيل",
+    "field-impact-factor": "عامل التأثير",
+    "error.title-required": "عنوان المخاطرة مطلوب",
+    "error.draft-description-required": "وصف المسودة مطلوب",
+    "error.risktype-required": "نوع المخاطرة مطلوب",
+    "error.categoryslug-required": "الفئة مطلوبة",
+    "error.categorytitle-required": "عنوان الفئة مطلوب",
+    "error.subcategoryslug-required": "الفئة الفرعية مطلوبة",
+    "error.subcategorytitle-required": "عنوان الفئة الفرعية مطلوب",
+    "error.register-description-required": "وصف التسجيل مطلوب",
+    "error.impactfactor-required": "عامل التأثير مطلوب",
+    "error.strategy-required": "استراتيجية المعالجة مطلوبة",
+    "error.controls-required": "مطلوب ضابط واحد على الأقل",
+    "error.tasks-required": "مطلوب مهمة واحدة على الأقل",
+    "error.monitoring-description-required": "وصف المراقبة مطلوب",
+    "error.invalid-transition": "هذا التحويل غير مسموح به"
   },
   "task": {
     "status": {

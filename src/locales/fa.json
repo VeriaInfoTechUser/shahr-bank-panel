@@ -2348,7 +2348,24 @@
     "action-send-monitoring": "ارسال به پایش",
     "action-back-response": "بازگشت به پاسخ",
     "action-close-risk": "بستن ریسک",
-    "action-reopen": "بازگشایی"
+    "action-reopen": "بازگشایی",
+    "field-register-description": "توضیحات ثبت",
+    "field-register-description-placeholder": "توضیحات ثبت را وارد کنید",
+    "field-impact-factor": "عامل تاثیر",
+    "error.title-required": "عنوان ریسک الزامی است",
+    "error.draft-description-required": "توضیحات پیش‌نویس الزامی است",
+    "error.risktype-required": "نوع ریسک الزامی است",
+    "error.categoryslug-required": "دسته‌بندی الزامی است",
+    "error.categorytitle-required": "عنوان دسته‌بندی الزامی است",
+    "error.subcategoryslug-required": "زیردسته‌بندی الزامی است",
+    "error.subcategorytitle-required": "عنوان زیردسته‌بندی الزامی است",
+    "error.register-description-required": "توضیحات ثبت الزامی است",
+    "error.impactfactor-required": "عامل تاثیر الزامی است",
+    "error.strategy-required": "استراتژی درمان الزامی است",
+    "error.controls-required": "حداقل یک کنترل الزامی است",
+    "error.tasks-required": "حداقل یک تسک الزامی است",
+    "error.monitoring-description-required": "توضیحات پایش الزامی است",
+    "error.invalid-transition": "این تغییر وضعیت مجاز نیست"
   },
   "task": {
     "status": {

@@ -9,6 +9,7 @@ import { useRiskTransition } from '../useRiskTransition';
 const props = defineProps<{
   mode: 'editable' | 'readonly';
   riskType: string;
+  impactFactor: number | null;
   impact: number | null;
   likelihood: number | null;
   inherentScore: number | null;
@@ -83,8 +84,8 @@ watch(
   <div class="space-y-3">
     <div class="grid grid-cols-1 gap-3 md:grid-cols-2 md:gap-x-4 md:gap-y-3">
       <BaseSelect
-        name="impact"
-        :label="t('risk.field-impact')"
+        name="impactFactor"
+        :label="t('risk.field-impact-factor')"
         :options="impactOptions"
         :required="true"
         :disabled="disabled"

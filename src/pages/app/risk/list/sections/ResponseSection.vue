@@ -82,7 +82,7 @@ function taskStateBadgeClass(state: string): string {
   <div class="space-y-3">
     <div class="grid grid-cols-1 gap-3 md:grid-cols-2 md:gap-x-4 md:gap-y-3">
       <BaseSelect
-        name="treatmentStrategy"
+        name="strategy"
         :label="t('risk.field-treatment-strategy')"
         :options="strategyOptions"
         :required="true"

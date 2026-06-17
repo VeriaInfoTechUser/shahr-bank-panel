@@ -28,7 +28,6 @@ const TRANSITIONS: Record<RiskState, TransitionAction[]> = {
   ],
   response: [
     { to: 'monitoring', labelKey: 'risk.action.send-monitoring', variant: 'primary', needsConfirm: true },
-    { to: 'analysis', labelKey: 'risk.action.back-analysis', variant: 'outline-secondary', needsConfirm: true },
   ],
   monitoring: [
     { to: 'closed', labelKey: 'risk.action.close-risk', variant: 'primary', needsConfirm: true },
@@ -41,9 +40,87 @@ const TRANSITIONS: Record<RiskState, TransitionAction[]> = {
   archived: [],
 };
 
+export interface TransitionRequirements {
+  requiredFields: string[];
+  requiredSectionFields: Record<string, string[]>;
+}
+
+const TRANSITION_REQUIREMENTS: Record<string, TransitionRequirements> = {
+  registered: {
+    requiredFields: ['title', 'draft_description', 'riskType', 'categorySlug', 'categoryTitle', 'subCategorySlug', 'subCategoryTitle'],
+    requiredSectionFields: { registration: ['title', 'draft_description', 'riskType', 'categorySlug', 'subCategorySlug'] },
+  },
+  analysis: {
+    requiredFields: ['title', 'draft_description', 'riskType', 'categorySlug', 'categoryTitle', 'subCategorySlug', 'subCategoryTitle', 'register_description'],
+    requiredSectionFields: { registration: ['title', 'draft_description', 'riskType', 'categorySlug', 'subCategorySlug', 'register_description'] },
+  },
+  response: {
+    requiredFields: ['impactFactor'],
+    requiredSectionFields: { analysis: ['impactFactor'] },
+  },
+  monitoring: {
+    requiredFields: ['strategy'],
+    requiredSectionFields: { response: ['strategy'] },
+  },
+  closed: {
+    requiredFields: ['monitoring_description'],
+    requiredSectionFields: { monitoring: ['monitoring_description'] },
+  },
+  archived: {
+    requiredFields: [],
+    requiredSectionFields: {},
+  },
+};
+
+const ERROR_KEY_MESSAGES: Record<string, string> = {
+  'RISK_TRANSITION.REGISTERED.TITLE_REQUIRED': 'risk.error.title-required',
+  'RISK_TRANSITION.REGISTERED.DRAFT_DESCRIPTION_REQUIRED': 'risk.error.draft-description-required',
+  'RISK_TRANSITION.REGISTERED.RISKTYPE_REQUIRED': 'risk.error.risktype-required',
+  'RISK_TRANSITION.REGISTERED.CATEGORYSLUG_REQUIRED': 'risk.error.categoryslug-required',
+  'RISK_TRANSITION.REGISTERED.CATEGORYTITLE_REQUIRED': 'risk.error.categorytitle-required',
+  'RISK_TRANSITION.REGISTERED.SUBCATEGORYSLUG_REQUIRED': 'risk.error.subcategoryslug-required',
+  'RISK_TRANSITION.REGISTERED.SUBCATEGORYTITLE_REQUIRED': 'risk.error.subcategorytitle-required',
+  'RISK_TRANSITION.ANALYSIS.REGISTER_DESCRIPTION_REQUIRED': 'risk.error.register-description-required',
+  'RISK_TRANSITION.ANALYSIS.IMPACTFACTOR_REQUIRED': 'risk.error.impactfactor-required',
+  'RISK_TRANSITION.RESPONSE.STRATEGY_REQUIRED': 'risk.error.strategy-required',
+  'RISK_TRANSITION.RESPONSE.CONTROLS_AT_LEAST_ONE_REQUIRED': 'risk.error.controls-required',
+  'RISK_TRANSITION.RESPONSE.TASKS_REQUIRED': 'risk.error.tasks-required',
+  'RISK_TRANSITION.MONITORING.TASKS_REQUIRED': 'risk.error.tasks-required',
+  'RISK_TRANSITION.CLOSED.MONITORING_DESCRIPTION_REQUIRED': 'risk.error.monitoring-description-required',
+};
+
 export function useRiskTransition() {
   function getTransitions(status: string): TransitionAction[] {
     return TRANSITIONS[status as RiskState] ?? [];
+  }
+
+  function getTransitionRequirements(to: string): TransitionRequirements {
+    return TRANSITION_REQUIREMENTS[to] ?? { requiredFields: [], requiredSectionFields: {} };
+  }
+
+  function isTransitionDisabled(to: string, formValues: Record<string, unknown>, tasks: { state: string }[]): boolean {
+    const req = getTransitionRequirements(to);
+    for (const field of req.requiredFields) {
+      if (field === 'categoryTitle' || field === 'subCategoryTitle') continue;
+      const val = formValues[field];
+      if (val == null || String(val).trim() === '') return true;
+    }
+    if (to === 'monitoring') {
+      const control = formValues.control;
+      const hasControl = control != null && String(control).trim() !== '';
+      const hasTask = tasks.length > 0;
+      if (!hasControl || !hasTask) return true;
+    }
+    return false;
+  }
+
+  function parseTransitionErrors(errors: string[]): string[] {
+    return errors.map((key) => {
+      const mapped = ERROR_KEY_MESSAGES[key];
+      if (mapped) return mapped;
+      if (key.startsWith('RISK_TRANSITION.INVALID.')) return 'risk.error.invalid-transition';
+      return key;
+    });
   }
 
   function getSectionsForStatus(status: string) {
@@ -51,7 +128,7 @@ export function useRiskTransition() {
       case 'draft':
         return { registration: 'editable', analysis: 'hidden', response: 'hidden', monitoring: 'hidden', tasks: 'hidden' };
       case 'registered':
-        return { registration: 'readonly', analysis: 'hidden', response: 'hidden', monitoring: 'hidden', tasks: 'hidden' };
+        return { registration: 'editable', analysis: 'hidden', response: 'hidden', monitoring: 'hidden', tasks: 'hidden' };
       case 'analysis':
         return { registration: 'editable', analysis: 'editable', response: 'hidden', monitoring: 'hidden', tasks: 'hidden' };
       case 'response':
@@ -82,6 +159,9 @@ export function useRiskTransition() {
 
   return {
     getTransitions,
+    getTransitionRequirements,
+    isTransitionDisabled,
+    parseTransitionErrors,
     getSectionsForStatus,
     calculateRiskLevel,
     calculateScore,

@@ -9,6 +9,7 @@ const props = defineProps<{
   categoryOptions: { value: string; label: string }[];
   subCategoryOptions: { value: string; label: string }[];
   memberOptions: { value: string; label: string }[];
+  showRegisterDescription?: boolean;
 }>();
 
 const emit = defineEmits<{
@@ -80,6 +81,15 @@ function onCategoryChange(value: unknown) {
         :rows="3"
         :disabled="disabled"
         :placeholder="t('risk.field-draft-description-placeholder')"
+    />
+    <BaseInput
+        v-if="showRegisterDescription"
+        name="register_description"
+        :label="t('risk.field-register-description')"
+        type="textarea"
+        :rows="3"
+        :disabled="disabled"
+        :placeholder="t('risk.field-register-description-placeholder')"
     />
   </div>
 </template>

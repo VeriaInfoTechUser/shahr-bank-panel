@@ -2184,7 +2184,24 @@
     "action-send-monitoring": "Send to Monitoring",
     "action-back-response": "Back to Response",
     "action-close-risk": "Close Risk",
-    "action-reopen": "Reopen"
+    "action-reopen": "Reopen",
+    "field-register-description": "Register Description",
+    "field-register-description-placeholder": "Enter register description",
+    "field-impact-factor": "Impact Factor",
+    "error.title-required": "Risk title is required",
+    "error.draft-description-required": "Draft description is required",
+    "error.risktype-required": "Risk type is required",
+    "error.categoryslug-required": "Category is required",
+    "error.categorytitle-required": "Category title is required",
+    "error.subcategoryslug-required": "Sub-category is required",
+    "error.subcategorytitle-required": "Sub-category title is required",
+    "error.register-description-required": "Register description is required",
+    "error.impactfactor-required": "Impact factor is required",
+    "error.strategy-required": "Treatment strategy is required",
+    "error.controls-required": "At least one control is required",
+    "error.tasks-required": "At least one task is required",
+    "error.monitoring-description-required": "Monitoring description is required",
+    "error.invalid-transition": "This state transition is not allowed"
   },
   "task": {
     "status": {

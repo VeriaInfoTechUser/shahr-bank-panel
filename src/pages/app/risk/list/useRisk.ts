@@ -18,6 +18,7 @@ export interface Risk {
   slug: string;
   title: string;
   draft_description: string;
+  register_description: string;
   analysis_description: string;
   response_description: string;
   monitoring_description: string;
@@ -28,11 +29,13 @@ export interface Risk {
   subCategoryTitle?: string;
   ownerId: string;
   status: string;
+  impactFactor: number | null;
   impact: number | null;
   likelihood: number | null;
   inherentScore: number | null;
   riskLevel: string | null;
   note: string;
+  strategy: string;
   treatmentStrategy: string;
   framework: string[];
   control: string[];

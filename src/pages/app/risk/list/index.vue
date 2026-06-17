@@ -93,7 +93,7 @@ function riskLevelBadgeClass(level: string | null): string {
 }
 
 function statusBadgeClass(state: string): string {
-  const base = 'inline-flex items-center justify-center rounded-md px-2 py-0.5 text-[9px] font-semibold leading-snug shadow-sm';
+  const base = 'inline-flex items-center justify-center rounded-md px-2 py-0.5 text-[9px] font-semibold leading-snug shadow-sm w-16';
   switch (state) {
     case 'draft': return `${base} bg-slate-100 text-slate-700 border border-slate-200`;
     case 'registered': return `${base} bg-blue-100 text-blue-800 border border-blue-200`;

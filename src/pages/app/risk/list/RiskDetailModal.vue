@@ -260,7 +260,7 @@ function handleTransition(to: string) {
       message: t('risk.transition-confirm-message', { status: t(`risk.status-${to}`) }),
       confirmVariant: to === 'archived' ? 'danger' as const : 'primary' as const,
       onConfirmAction: async () => {
-        const res = await transitionRisk(risk.value!.id, to);
+        const res = await transitionRisk(risk.value!.slug, to);
         if (!res) throw new Error(t('risk.transition-error'));
       },
     },

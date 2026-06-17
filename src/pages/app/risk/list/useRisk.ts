@@ -84,8 +84,15 @@ export function useRisk() {
     }
   }
 
-  async function transitionRisk(slug: string, to: string): Promise<Record<string, unknown> | null> {
-    return updateRisk(slug, { status: to });
+  async function transitionRisk(slug: string, to: string, body?: Record<string, unknown>): Promise<Record<string, unknown> | null> {
+    loading.value = true;
+    try {
+      const res = await grcRepo.riskAction(slug, to, body);
+      if (res?.result) return res.data as Record<string, unknown>;
+      throw new Error(res?.error?.[0] ?? 'Failed to transition risk');
+    } finally {
+      loading.value = false;
+    }
   }
 
   async function updateTasks(slug: string, tasks: RiskTask[]): Promise<Record<string, unknown> | null> {

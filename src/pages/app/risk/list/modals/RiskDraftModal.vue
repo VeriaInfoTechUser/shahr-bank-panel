@@ -42,7 +42,6 @@ const formRef = ref<InstanceType<typeof Form>>();
 
 const validationSchema = computed(() => yup.object({
   title: yup.string().trim().required(t('validation.required')),
-  draftDescription: yup.string().trim().required(t('validation.required')),
   riskType: yup.string().trim().required(t('validation.required')),
   categorySlug: yup.string().trim().required(t('validation.required')),
   subCategorySlug: yup.string().trim().required(t('validation.required')),

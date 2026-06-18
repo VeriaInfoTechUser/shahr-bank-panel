@@ -90,9 +90,7 @@ const controlOptions = ref<{ value: string; label: string }[]>([]);
 const selectedFrameworkSlug = ref('');
 const selectedDomainSlug = ref('');
 
-const validationSchema = computed(() => yup.object({
-  strategy: yup.string().required(t('validation.required')),
-}));
+const validationSchema = computed(() => yup.object({}));
 
 const statusBadgeClass = computed(() => 'inline-flex items-center justify-center rounded-md px-2 py-0.5 text-[10px] font-semibold leading-snug shadow-sm bg-orange-100 text-orange-800 border border-orange-200');
 
@@ -297,35 +295,66 @@ function removeTask(index: number) {
 
 function handleTransitionToMonitoring() {
   if (!risk.value) return;
-  openModal({
-    component: BaseConfirmModal,
-    props: {
-      title: t('risk.transition-confirm-title'),
-      message: t('risk.transition-confirm-message', { status: t('risk.status-monitoring') }),
-      confirmVariant: 'primary' as const,
-      onConfirmAction: async () => {
-        transitioning.value = true;
-        try {
-          const res = await transitionRisk(risk.value!.slug, 'monitoring');
-          if (!res) throw new Error(t('risk.transition-error'));
-        } catch (err: unknown) {
-          if (err instanceof Error) {
-            const parsed = parseTransitionErrors([err.message]);
-            if (parsed.length > 0 && parsed[0] !== err.message) {
-              throw new Error(t(parsed[0]));
+  formRef.value?.validate().then(({ valid }) => {
+    if (!valid) return;
+    const values = formRef.value?.getValues();
+    
+    const frameworkSlug = String(values?.frameworkSlug ?? '');
+    const domainSlug = String(values?.domainSlug ?? '');
+    const controlSlug = String(values?.controlSlug ?? '');
+    
+    if (!frameworkSlug || !domainSlug || !controlSlug) {
+      toast(t('risk.error-framework-domain-control-required'), { type: 'error' });
+      return;
+    }
+    
+    const frameworkTitle = frameworkOptions.value.find((f) => f.value === frameworkSlug)?.label ?? '';
+    const domainTitle = domainOptions.value.find((d) => d.value === domainSlug)?.label ?? '';
+    const controlTitle = controlOptions.value.find((c) => c.value === controlSlug)?.label ?? '';
+    
+    const payload = {
+      strategy: values?.strategy,
+      treatmentStrategy: values?.strategy,
+      responseDescription: values?.responseDescription || '',
+      frameworkSlug,
+      frameworkTitle,
+      domainSlug,
+      domainTitle,
+      controlSlug,
+      controlTitle,
+      tasks: tasks.value,
+    };
+    
+    openModal({
+      component: BaseConfirmModal,
+      props: {
+        title: t('risk.transition-confirm-title'),
+        message: t('risk.transition-confirm-message', { status: t('risk.status-monitoring') }),
+        confirmVariant: 'primary' as const,
+        onConfirmAction: async () => {
+          transitioning.value = true;
+          try {
+            const res = await transitionRisk(risk.value!.slug, 'monitoring', payload);
+            if (!res) throw new Error(t('risk.transition-error'));
+          } catch (err: unknown) {
+            if (err instanceof Error) {
+              const parsed = parseTransitionErrors([err.message]);
+              if (parsed.length > 0 && parsed[0] !== err.message) {
+                throw new Error(t(parsed[0]));
+              }
             }
+            throw err;
+          } finally {
+            transitioning.value = false;
           }
-          throw err;
-        } finally {
-          transitioning.value = false;
-        }
+        },
       },
-    },
-    onSuccess: async () => {
-      toast(t('risk.transition-success'), { type: 'success' });
-      close();
-      emit('success');
-    },
+      onSuccess: async () => {
+        toast(t('risk.transition-success'), { type: 'success' });
+        close();
+        emit('success');
+      },
+    });
   });
 }
 

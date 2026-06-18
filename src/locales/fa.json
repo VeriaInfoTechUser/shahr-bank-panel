@@ -2240,6 +2240,7 @@
     "save-error": "خطا در ذخیره ریسک.",
     "transition-success": "وضعیت با موفقیت تغییر کرد.",
     "transition-error": "خطا در تغییر وضعیت.",
+    "error-framework-domain-control-required": "فریمورک، دامنه و کنترل الزامی هستند.",
     "transition-confirm-title": "تأیید تغییر وضعیت",
     "transition-confirm-message": "آیا از تغییر وضعیت به {status} اطمینان دارید؟",
     "warning-title": "هشدار",

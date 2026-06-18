@@ -2076,6 +2076,7 @@
     "save-error": "Failed to save risk.",
     "transition-success": "Status changed successfully.",
     "transition-error": "Failed to change status.",
+    "error-framework-domain-control-required": "Framework, domain and control are required.",
     "transition-confirm-title": "Confirm Status Change",
     "transition-confirm-message": "Are you sure you want to change the status to {status}?",
     "warning-title": "Warning",

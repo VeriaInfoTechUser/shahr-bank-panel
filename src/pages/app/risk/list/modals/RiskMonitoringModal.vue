@@ -302,164 +302,42 @@ function handleCloseRisk() {
         class="space-y-3"
         @submit="handleSave"
       >
-        <div class="rounded-lg border border-slate-200 dark:border-darkmode-600">
-          <button
-            type="button"
-            class="flex w-full items-center justify-between px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-darkmode-700"
-            @click="toggleAccordion('registration')"
-          >
-            <span>{{ t('risk.section-registration') }}</span>
-            <Lucide :icon="accordionOpen.registration ? 'ChevronUp' : 'ChevronDown'" class="!h-4 !w-4 text-slate-400" />
-          </button>
-          <div v-if="accordionOpen.registration" class="border-t border-slate-200 px-4 py-3 dark:border-darkmode-600">
-            <div class="space-y-3">
-              <BaseInput name="title" :label="t('risk.field-title')" :disabled="true" />
-              <div class="grid grid-cols-1 gap-3 md:grid-cols-2 md:gap-x-4 md:gap-y-3">
-                <BaseSelect name="categorySlug" :label="t('risk.field-category')" :options="categoryOptions" :disabled="true" :filter="true" />
-                <BaseSelect name="subCategorySlug" :label="t('risk.field-sub-category')" :options="subCategoryOptions(selectedCategorySlug)" :disabled="true" :filter="true" />
-                <BaseSelect name="ownerId" :label="t('risk.field-owner')" :options="memberOptions" :disabled="true" :filter="true" />
-                <BaseSelect name="riskType" :label="t('risk.field-risk-type')" :options="riskTypeOptions" :disabled="true" />
-              </div>
-              <BaseInput name="registerDescription" :label="t('risk.field-register-description')" type="textarea" :rows="3" :disabled="true" />
-            </div>
-          </div>
-        </div>
 
-        <div class="rounded-lg border border-slate-200 dark:border-darkmode-600">
-          <button
-            type="button"
-            class="flex w-full items-center justify-between px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-darkmode-700"
-            @click="toggleAccordion('analysis')"
-          >
-            <span>{{ t('risk.section-analysis') }}</span>
-            <Lucide :icon="accordionOpen.analysis ? 'ChevronUp' : 'ChevronDown'" class="!h-4 !w-4 text-slate-400" />
-          </button>
-          <div v-if="accordionOpen.analysis" class="border-t border-slate-200 px-4 py-3 dark:border-darkmode-600">
-            <div class="space-y-3">
-              <div class="grid grid-cols-1 gap-3 md:grid-cols-2 md:gap-x-4 md:gap-y-3">
-                <BaseSelect name="impactFactor" :label="t('risk.field-impact-factor')" :options="impactOptions" :disabled="true" />
-                <BaseSelect name="likelihood" :label="t('risk.field-likelihood')" :options="likelihoodOptions" :disabled="true" />
-              </div>
-              <div class="grid grid-cols-1 gap-3 md:grid-cols-2 md:gap-x-4 md:gap-y-3">
-                <BaseInput name="vulnerability" :label="t('risk.field-vulnerability')" :disabled="true" />
-                <BaseInput name="threat" :label="t('risk.field-threat')" :disabled="true" />
-              </div>
-            </div>
+        <div class="space-y-3">
+          <div class="grid grid-cols-1 gap-3 md:grid-cols-2 md:gap-x-4 md:gap-y-3">
+            <BaseSelect name="residualImpact" :label="t('risk.field-residual-impact')" :options="impactOptions" />
+            <BaseSelect name="residualLikelihood" :label="t('risk.field-residual-likelihood')" :options="likelihoodOptions" />
           </div>
-        </div>
-
-        <div class="rounded-lg border border-slate-200 dark:border-darkmode-600">
-          <button
-            type="button"
-            class="flex w-full items-center justify-between px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-darkmode-700"
-            @click="toggleAccordion('response')"
-          >
-            <span>{{ t('risk.section-response') }}</span>
-            <Lucide :icon="accordionOpen.response ? 'ChevronUp' : 'ChevronDown'" class="!h-4 !w-4 text-slate-400" />
-          </button>
-          <div v-if="accordionOpen.response" class="border-t border-slate-200 px-4 py-3 dark:border-darkmode-600">
-            <div class="space-y-3">
-              <div class="grid grid-cols-1 gap-3 md:grid-cols-2 md:gap-x-4 md:gap-y-3">
-                <BaseSelect name="strategy" :label="t('risk.field-treatment-strategy')" :options="strategyOptions" :disabled="true" />
-                <BaseInput name="framework" :label="t('risk.field-framework')" :disabled="true" />
-                <BaseInput name="control" :label="t('risk.field-control')" :disabled="true" />
-              </div>
-              <BaseInput name="responseDescription" :label="t('risk.field-response-description')" type="textarea" :rows="3" :disabled="true" />
-              <div v-if="tasks.length > 0" class="space-y-2">
-                <label class="label min-h-0 py-1">
-                  <span class="label-text text-sm font-normal leading-snug">{{ t('risk.field-tasks') }}</span>
-                </label>
-                <div class="space-y-1">
-                  <div
-                    v-for="(task, index) in tasks"
-                    :key="index"
-                    class="flex items-center gap-2 rounded-md border border-slate-200 bg-white px-3 py-1.5 text-xs dark:border-darkmode-600 dark:bg-darkmode-800"
-                  >
-                    <span class="flex-1 text-slate-700 dark:text-slate-200">{{ task.title }}</span>
-                    <span
-                      class="inline-flex items-center justify-center rounded-md px-2 py-0.5 text-[9px] font-semibold leading-snug shadow-sm"
-                      :class="{
+          <BaseInput name="monitoringDescription" :label="t('risk.field-monitoring-description')" type="textarea" :rows="3" :placeholder="t('risk.field-monitoring-description-placeholder')" />
+          <div v-if="tasks.length > 0" class="space-y-2">
+            <label class="label min-h-0 py-1">
+              <span class="label-text text-sm font-normal leading-snug">{{ t('risk.field-tasks') }}</span>
+            </label>
+            <div class="space-y-1">
+              <div
+                  v-for="(task, index) in tasks"
+                  :key="index"
+                  class="flex items-center gap-2 rounded-md border border-slate-200 bg-white px-3 py-1.5 text-xs dark:border-darkmode-600 dark:bg-darkmode-800"
+              >
+                <span class="flex-1 text-slate-700 dark:text-slate-200">{{ task }}</span>
+                <span
+                    class="inline-flex items-center justify-center rounded-md px-2 py-0.5 text-[9px] font-semibold leading-snug shadow-sm"
+                    :class="{
                         'bg-orange-100 text-orange-800 border border-orange-200': task.state === 'open',
                         'bg-violet-100 text-violet-800 border border-violet-200': task.state === 'in_progress',
                         'bg-sky-100 text-sky-800 border border-sky-200': task.state === 'done',
                       }"
-                    >
-                      {{ t(`task.status.${task.state}`) }}
+                >
                     </span>
-                  </div>
-                </div>
               </div>
             </div>
-          </div>
-        </div>
-
-        <div class="rounded-lg border border-slate-200 dark:border-darkmode-600">
-          <button
-            type="button"
-            class="flex w-full items-center justify-between px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-darkmode-700"
-            @click="toggleAccordion('monitoring')"
-          >
-            <span>{{ t('risk.section-monitoring') }}</span>
-            <Lucide :icon="accordionOpen.monitoring ? 'ChevronUp' : 'ChevronDown'" class="!h-4 !w-4 text-slate-400" />
-          </button>
-          <div v-if="accordionOpen.monitoring" class="border-t border-slate-200 px-4 py-3 dark:border-darkmode-600">
-            <div class="space-y-3">
-              <div class="grid grid-cols-1 gap-3 md:grid-cols-2 md:gap-x-4 md:gap-y-3">
-                <BaseSelect name="residualImpact" :label="t('risk.field-residual-impact')" :options="impactOptions" />
-                <BaseSelect name="residualLikelihood" :label="t('risk.field-residual-likelihood')" :options="likelihoodOptions" />
+            <div class="flex items-center gap-3">
+              <div class="flex-1 h-2 rounded-full bg-slate-200 dark:bg-darkmode-600">
+                <div class="h-full rounded-full bg-primary transition-all" :style="{ width: `${progressPercent}%` }" />
               </div>
-              <div class="grid grid-cols-1 gap-3 md:grid-cols-2 md:gap-x-4 md:gap-y-3">
-                <div class="form-control w-full">
-                  <label class="label min-h-0 py-1">
-                    <span class="label-text text-sm font-normal leading-snug">{{ t('risk.field-residual-score') }}</span>
-                  </label>
-                  <div class="flex h-8 items-center rounded-lg border border-slate-200 bg-slate-50 px-2.5 text-xs text-slate-700 dark:border-darkmode-600 dark:bg-darkmode-800 dark:text-slate-200">
-                    {{ scoreDisplay }}
-                  </div>
-                </div>
-                <div class="form-control w-full">
-                  <label class="label min-h-0 py-1">
-                    <span class="label-text text-sm font-normal leading-snug">{{ t('risk.field-residual-level') }}</span>
-                  </label>
-                  <div class="flex h-8 items-center">
-                    <span v-if="residualLevel" :class="levelBadgeClass">{{ levelLabel }}</span>
-                    <span v-else class="text-xs text-slate-400">—</span>
-                  </div>
-                </div>
-              </div>
-              <BaseInput name="monitoringDescription" :label="t('risk.field-monitoring-description')" type="textarea" :rows="3" :placeholder="t('risk.field-monitoring-description-placeholder')" />
-              <div v-if="tasks.length > 0" class="space-y-2">
-                <label class="label min-h-0 py-1">
-                  <span class="label-text text-sm font-normal leading-snug">{{ t('risk.field-tasks') }}</span>
-                </label>
-                <div class="space-y-1">
-                  <div
-                    v-for="(task, index) in tasks"
-                    :key="index"
-                    class="flex items-center gap-2 rounded-md border border-slate-200 bg-white px-3 py-1.5 text-xs dark:border-darkmode-600 dark:bg-darkmode-800"
-                  >
-                    <span class="flex-1 text-slate-700 dark:text-slate-200">{{ task.title }}</span>
-                    <span
-                      class="inline-flex items-center justify-center rounded-md px-2 py-0.5 text-[9px] font-semibold leading-snug shadow-sm"
-                      :class="{
-                        'bg-orange-100 text-orange-800 border border-orange-200': task.state === 'open',
-                        'bg-violet-100 text-violet-800 border border-violet-200': task.state === 'in_progress',
-                        'bg-sky-100 text-sky-800 border border-sky-200': task.state === 'done',
-                      }"
-                    >
-                      {{ t(`task.status.${task.state}`) }}
-                    </span>
-                  </div>
-                </div>
-                <div class="flex items-center gap-3">
-                  <div class="flex-1 h-2 rounded-full bg-slate-200 dark:bg-darkmode-600">
-                    <div class="h-full rounded-full bg-primary transition-all" :style="{ width: `${progressPercent}%` }" />
-                  </div>
-                  <span class="text-xs text-slate-500">
+              <span class="text-xs text-slate-500">
                     {{ completedTasks }} / {{ totalTasks }}
                   </span>
-                </div>
-              </div>
             </div>
           </div>
         </div>

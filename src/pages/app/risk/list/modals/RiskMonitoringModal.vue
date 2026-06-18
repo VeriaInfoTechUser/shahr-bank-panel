@@ -45,6 +45,7 @@ const residualLevel = ref<string | null>(null);
 const memberOptions = ref<{ value: string; label: string }[]>([]);
 const initialValues = ref<Record<string, unknown>>({});
 const accordionOpen = ref({ registration: false, analysis: false, response: false, monitoring: true });
+const formRef = ref<InstanceType<typeof Form>>();
 
 const validationSchema = computed(() => yup.object({}));
 
@@ -191,6 +192,10 @@ function handleCloseRisk() {
     },
   });
 }
+
+function submitForm() {
+  formRef.value?.submit();
+}
 </script>
 
 <template>
@@ -212,6 +217,7 @@ function handleCloseRisk() {
       </div>
 
       <Form
+        ref="formRef"
         :key="formKey"
         :validation-schema="validationSchema"
         :initial-values="initialValues"
@@ -302,21 +308,19 @@ function handleCloseRisk() {
             />
           </div>
         </div>
-
-        <div class="flex justify-end gap-2 pt-4 border-t border-slate-200 dark:border-darkmode-600">
-          <Button
-            type="submit"
-            variant="secondary"
-            size="sm"
-            :disabled="saving"
-          >
-            {{ t('risk.action.save-residual') }}
-          </Button>
-        </div>
       </Form>
     </div>
     <template #footer>
       <div class="flex justify-end gap-2">
+        <Button
+          type="button"
+          variant="outline-secondary"
+          size="sm"
+          :disabled="saving"
+          @click="submitForm"
+        >
+          {{ t('title.update') }}
+        </Button>
         <Button
           type="button"
           variant="outline-secondary"

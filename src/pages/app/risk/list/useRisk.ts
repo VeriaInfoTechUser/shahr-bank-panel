@@ -110,6 +110,17 @@ export function useRisk() {
     }
   }
 
+  async function deleteRisk(slug: string): Promise<boolean> {
+    loading.value = true;
+    try {
+      const res = await grcRepo.riskDelete(slug);
+      if (res?.result) return true;
+      throw new Error(res?.error?.[0] ?? 'Failed to delete risk');
+    } finally {
+      loading.value = false;
+    }
+  }
+
   return {
     loading,
     fetchRisk,
@@ -117,5 +128,6 @@ export function useRisk() {
     updateRisk,
     transitionRisk,
     updateTasks,
+    deleteRisk,
   };
 }

@@ -1,23 +1,22 @@
 <script setup lang="ts">
-import { computed, ref, watch, nextTick, onMounted } from 'vue';
-import { Form, useForm } from 'vee-validate';
-import * as yup from 'yup';
+import { computed, ref, watch, nextTick } from 'vue';
+import { useForm } from 'vee-validate';
 import { useI18n } from 'vue-i18n';
 import { toast } from 'vue3-toastify';
 import BaseModal from '@/core/ui/base/BaseModal.vue';
 import BaseConfirmModal from '@/core/ui/base/BaseConfirmModal.vue';
 import BaseWarningModal from '@/core/ui/base/BaseWarningModal.vue';
 import Button from '@/base-components/Button';
-import Lucide from '@/base-components/Lucide';
 import { useGlobalModal } from '@/composables/useGlobalModal';
 import { ermRepo } from '@/core/repositories/ermRepo';
 import { useRisk, type Risk, type RiskTask } from './useRisk';
 import { useRiskCategories } from './useRiskCategories';
-import { useRiskTransition, type RiskState } from './useRiskTransition';
-import RegistrationSection from './sections/RegistrationSection.vue';
-import AnalysisSection from './sections/AnalysisSection.vue';
-import ResponseSection from './sections/ResponseSection.vue';
-import MonitoringSection from './sections/MonitoringSection.vue';
+import { useRiskTransition } from './useRiskTransition';
+import DraftForm from './forms/DraftForm.vue';
+import RegisteredForm from './forms/RegisteredForm.vue';
+import AnalysisForm from './forms/AnalysisForm.vue';
+import ResponseForm from './forms/ResponseForm.vue';
+import MonitoringForm from './forms/MonitoringForm.vue';
 
 const props = defineProps<{
   show: boolean;
@@ -38,13 +37,15 @@ const {
   updateRisk,
   transitionRisk,
   updateTasks,
+  deleteRisk,
 } = useRisk();
 const { categoryOptions, subCategoryOptions, getCategoryTitle, getSubCategoryTitle, fetchTree } = useRiskCategories();
-const { getTransitions, getSectionsForStatus, isTransitionDisabled, parseTransitionErrors, calculateScore, calculateRiskLevel } = useRiskTransition();
+const { parseTransitionErrors } = useRiskTransition();
 
 const formKey = ref(0);
 const saving = ref(false);
 const registering = ref(false);
+const transitioning = ref(false);
 const savingTasks = ref(false);
 const risk = ref<Risk | null>(null);
 const currentStatus = ref<string>('');
@@ -55,21 +56,12 @@ const residualLevel = ref<string | null>(null);
 const memberOptions = ref<{ value: string; label: string }[]>([]);
 const initialValues = ref<Record<string, unknown>>({});
 
-const { setFieldValue, setFieldError, resetForm, validate, values: formValues } = useForm();
+const { values: formValues } = useForm();
 
-const sections = computed(() => getSectionsForStatus(currentStatus.value));
-const transitions = computed(() => getTransitions(currentStatus.value));
-
-const validationSchema = computed(() => yup.object({
-  title: currentStatus.value === 'draft' || currentStatus.value === 'analysis' ? yup.string().trim().required(t('validation.required')) : yup.string().optional(),
-  riskType: currentStatus.value === 'draft' || currentStatus.value === 'analysis' ? yup.string().trim().required(t('validation.required')) : yup.string().optional(),
-  categorySlug: currentStatus.value === 'draft' || currentStatus.value === 'analysis' ? yup.string().trim().required(t('validation.required')) : yup.string().optional(),
-  subCategorySlug: currentStatus.value === 'draft' || currentStatus.value === 'analysis' ? yup.string().trim().required(t('validation.required')) : yup.string().optional(),
-  ownerId: currentStatus.value === 'draft' || currentStatus.value === 'registered' ? yup.string().trim().required(t('validation.required')) : yup.string().optional(),
-  impact: currentStatus.value === 'analysis' ? yup.string().required(t('validation.required')) : yup.string().optional(),
-  likelihood: currentStatus.value === 'analysis' ? yup.string().required(t('validation.required')) : yup.string().optional(),
-  treatmentStrategy: currentStatus.value === 'response' ? yup.string().required(t('validation.required')) : yup.string().optional(),
-}));
+const modalSize = computed(() => {
+  if (currentStatus.value === 'draft' || currentStatus.value === 'registered') return 'md';
+  return 'lg';
+});
 
 const statusBadgeClass = computed(() => {
   const base = 'inline-flex items-center justify-center rounded-md px-2 py-0.5 text-[10px] font-semibold leading-snug shadow-sm';
@@ -92,18 +84,6 @@ const riskTypeBadgeClass = computed(() => {
   if (rt === 'opportunity') return `${base} bg-green-50 text-green-700 border border-green-200`;
   return `${base} bg-slate-100 text-slate-600 border border-slate-200`;
 });
-
-const accordionOpen = ref({
-  registration: false,
-  analysis: false,
-  response: false,
-  monitoring: false,
-  tasks: false,
-});
-
-const isReadonlySection = (section: string) => sections.value[section as keyof typeof sections.value] === 'readonly';
-const isVisibleSection = (section: string) => sections.value[section as keyof typeof sections.value] !== 'hidden';
-const isEditableSection = (section: string) => sections.value[section as keyof typeof sections.value] === 'editable';
 
 function mapMembers(list: Record<string, unknown>[]) {
   return list
@@ -149,21 +129,13 @@ async function loadRisk(id: string) {
   residualScore.value = data.residualScore ?? null;
   residualLevel.value = data.residualLevel ?? null;
 
-  accordionOpen.value = {
-    registration: currentStatus.value === 'draft' || currentStatus.value === 'analysis',
-    analysis: currentStatus.value === 'analysis',
-    response: currentStatus.value === 'response',
-    monitoring: currentStatus.value === 'monitoring',
-    tasks: currentStatus.value === 'response' || currentStatus.value === 'monitoring',
-  };
-
   await nextTick();
   populateForm(data);
   formKey.value += 1;
 }
 
 function populateForm(r: Risk) {
-  const vals: Record<string, unknown> = {
+  initialValues.value = {
     title: r.title ?? '',
     draftDescription: r.draftDescription ?? '',
     registerDescription: r.registerDescription ?? '',
@@ -187,8 +159,6 @@ function populateForm(r: Risk) {
     residualImpact: r.residualImpact ?? '',
     residualLikelihood: r.residualLikelihood ?? '',
   };
-  initialValues.value = vals;
-  resetForm({ values: vals });
 }
 
 function close() {
@@ -203,12 +173,6 @@ function onDialogVisible(v: boolean) {
 
 function onCategoryChange(value: unknown) {
   selectedCategorySlug.value = String(value ?? '');
-  setFieldValue('subCategorySlug', '');
-}
-
-function toggleAccordion(section: string) {
-  accordionOpen.value[section as keyof typeof accordionOpen.value] =
-    !accordionOpen.value[section as keyof typeof accordionOpen.value];
 }
 
 async function handleSave(values: Record<string, unknown>) {
@@ -276,37 +240,6 @@ async function handleSave(values: Record<string, unknown>) {
   }
 }
 
-function handleTransition(to: string) {
-  if (!risk.value) return;
-  openModal({
-    component: BaseConfirmModal,
-    props: {
-      title: t('risk.transition-confirm-title'),
-      message: t('risk.transition-confirm-message', { status: t(`risk.status-${to}`) }),
-      confirmVariant: to === 'archived' ? 'danger' as const : 'primary' as const,
-      onConfirmAction: async () => {
-        try {
-          const res = await transitionRisk(risk.value!.slug, to);
-          if (!res) throw new Error(t('risk.transition-error'));
-        } catch (err: unknown) {
-          if (err instanceof Error) {
-            const parsed = parseTransitionErrors([err.message]);
-            if (parsed.length > 0 && parsed[0] !== err.message) {
-              throw new Error(t(parsed[0]));
-            }
-          }
-          throw err;
-        }
-      },
-    },
-    onSuccess: async () => {
-      toast(t('risk.transition-success'), { type: 'success' });
-      if (risk.value) await loadRisk(risk.value.slug);
-      emit('success');
-    },
-  });
-}
-
 function handleRegister() {
   if (!risk.value) return;
   if (!formValues.draftDescription?.trim()) {
@@ -328,7 +261,7 @@ function handleRegister() {
       onConfirmAction: async () => {
         registering.value = true;
         try {
-          const res = await transitionRisk(risk.value!.slug, 'registered');
+          const res = await transitionRisk(risk.value!.slug, 'registered', { draftDescription: formValues.draftDescription });
           if (!res) throw new Error(t('risk.transition-error'));
         } catch (err: unknown) {
           if (err instanceof Error) {
@@ -363,8 +296,6 @@ async function handleStartAnalysis() {
     });
     return;
   }
-  const { valid } = await validate();
-  if (!valid) return;
   openModal({
     component: BaseConfirmModal,
     props: {
@@ -374,7 +305,7 @@ async function handleStartAnalysis() {
       onConfirmAction: async () => {
         registering.value = true;
         try {
-          const res = await transitionRisk(risk.value!.slug, 'analysis');
+          const res = await transitionRisk(risk.value!.slug, 'analysis', { registerDescription: formValues.registerDescription });
           if (!res) throw new Error(t('risk.transition-error'));
         } catch (err: unknown) {
           if (err instanceof Error) {
@@ -397,12 +328,8 @@ async function handleStartAnalysis() {
   });
 }
 
-function onAnalysisScoreUpdate(score: number | null) {
-  setFieldValue('inherentScore', score != null ? String(score) : '');
-}
-
-function onAnalysisLevelUpdate(level: string) {
-  setFieldValue('riskLevel', level);
+function onTasksUpdate(updated: RiskTask[]) {
+  tasks.value = updated;
 }
 
 function onResidualScoreUpdate(score: number | null) {
@@ -413,33 +340,58 @@ function onResidualLevelUpdate(level: string) {
   residualLevel.value = level;
 }
 
-function onTasksUpdate(updated: RiskTask[]) {
-  tasks.value = updated;
+function handleDelete() {
+  if (!risk.value) return;
+  openModal({
+    component: BaseConfirmModal,
+    props: {
+      title: t('risk.delete-confirm-title'),
+      message: t('risk.delete-confirm-message'),
+      confirmVariant: 'danger' as const,
+      onConfirmAction: async () => {
+        await deleteRisk(risk.value!.slug);
+      },
+    },
+    onSuccess: () => {
+      toast(t('risk.delete-success'), { type: 'success' });
+      emit('success');
+      close();
+    },
+  });
 }
 
-const showRegisterDescription = computed(() =>
-  ['registered', 'analysis', 'response', 'monitoring', 'closed', 'archived'].includes(currentStatus.value)
-);
-
-function isTransitionButtonDisabled(to: string, formValues: Record<string, unknown>): boolean {
-  return isTransitionDisabled(to, formValues, tasks.value);
-}
-
-function getFormValues(): Record<string, unknown> {
-  return {
-    title: risk.value?.title ?? '',
-    draftDescription: risk.value?.draftDescription ?? '',
-    registerDescription: risk.value?.registerDescription ?? '',
-    riskType: risk.value?.riskType ?? '',
-    categorySlug: risk.value?.categorySlug ?? '',
-    categoryTitle: risk.value?.categoryTitle ?? '',
-    subCategorySlug: risk.value?.subCategorySlug ?? '',
-    subCategoryTitle: risk.value?.subCategoryTitle ?? '',
-    impactFactor: risk.value?.impactFactor ?? '',
-    strategy: risk.value?.strategy ?? '',
-    control: risk.value?.control?.[0] ?? '',
-    monitoringDescription: risk.value?.monitoringDescription ?? '',
-  };
+function handleTransition(to: string) {
+  if (!risk.value) return;
+  openModal({
+    component: BaseConfirmModal,
+    props: {
+      title: t('risk.transition-confirm-title'),
+      message: t('risk.transition-confirm-message', { status: t(`risk.status-${to}`) }),
+      confirmVariant: 'primary' as const,
+      onConfirmAction: async () => {
+        transitioning.value = true;
+        try {
+          const res = await transitionRisk(risk.value!.slug, to);
+          if (!res) throw new Error(t('risk.transition-error'));
+        } catch (err: unknown) {
+          if (err instanceof Error) {
+            const parsed = parseTransitionErrors([err.message]);
+            if (parsed.length > 0 && parsed[0] !== err.message) {
+              throw new Error(t(parsed[0]));
+            }
+          }
+          throw err;
+        } finally {
+          transitioning.value = false;
+        }
+      },
+    },
+    onSuccess: async () => {
+      toast(t('risk.transition-success'), { type: 'success' });
+      if (risk.value) await loadRisk(risk.value.slug);
+      emit('success');
+    },
+  });
 }
 </script>
 
@@ -447,7 +399,7 @@ function getFormValues(): Record<string, unknown> {
   <BaseModal
     :visible="show"
     :title="risk?.title ?? t('risk.detail-title')"
-    :size="currentStatus === 'draft' || currentStatus === 'registered' ? 'md' : 'lg'"
+    :size="modalSize"
     :closable="true"
     @update:visible="onDialogVisible"
   >
@@ -461,156 +413,100 @@ function getFormValues(): Record<string, unknown> {
         <span class="text-xs text-slate-400">{{ risk.createdAt }}</span>
       </div>
 
-      <Form
-        :key="formKey"
-        id="risk-detail-form"
-        :validation-schema="validationSchema"
+      <DraftForm
+        v-if="currentStatus === 'draft'"
+        :form-key="formKey"
         :initial-values="initialValues"
-        class="space-y-3"
+        :category-options="categoryOptions"
+        :sub-category-options="subCategoryOptions(selectedCategorySlug)"
+        :member-options="memberOptions"
+        :selected-category-slug="selectedCategorySlug"
+        :saving="saving"
+        :registering="registering"
         @submit="handleSave"
-      >
-        <div v-if="currentStatus === 'draft' || currentStatus === 'registered'">
-          <RegistrationSection
-            mode="editable"
-            :category-options="categoryOptions"
-            :sub-category-options="subCategoryOptions(selectedCategorySlug)"
-            :member-options="memberOptions"
-            :show-draft-description="currentStatus === 'draft'"
-            :show-register-description="currentStatus === 'registered'"
-            @category-change="onCategoryChange"
-          />
-        </div>
-        <template v-else>
-        <div v-if="isVisibleSection('registration')" class="rounded-lg border border-slate-200 dark:border-darkmode-600">
-          <button
-            type="button"
-            class="flex w-full items-center justify-between px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-darkmode-700"
-            @click="toggleAccordion('registration')"
-          >
-            <span>{{ t('risk.section-registration') }}</span>
-            <Lucide :icon="accordionOpen.registration ? 'ChevronUp' : 'ChevronDown'" class="!h-4 !w-4 text-slate-400" />
-          </button>
-          <div v-if="accordionOpen.registration" class="border-t border-slate-200 px-4 py-3 dark:border-darkmode-600">
-            <RegistrationSection
-              :mode="isEditableSection('registration') ? 'editable' : 'readonly'"
-              :category-options="categoryOptions"
-              :sub-category-options="subCategoryOptions(selectedCategorySlug)"
-              :member-options="memberOptions"
-              :show-draft-description="false"
-              :show-register-description="showRegisterDescription"
-              @category-change="onCategoryChange"
-            />
-          </div>
-        </div>
+        @category-change="onCategoryChange"
+        @register="handleRegister"
+        @delete="handleDelete"
+      />
 
-        <div v-if="isVisibleSection('analysis')" class="rounded-lg border border-slate-200 dark:border-darkmode-600">
-          <button
-            type="button"
-            class="flex w-full items-center justify-between px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-darkmode-700"
-            @click="toggleAccordion('analysis')"
-          >
-            <span>{{ t('risk.section-analysis') }}</span>
-            <Lucide :icon="accordionOpen.analysis ? 'ChevronUp' : 'ChevronDown'" class="!h-4 !w-4 text-slate-400" />
-          </button>
-          <div v-if="accordionOpen.analysis" class="border-t border-slate-200 px-4 py-3 dark:border-darkmode-600">
-            <AnalysisSection
-              :mode="isEditableSection('analysis') ? 'editable' : 'readonly'"
-              :risk-type="risk.riskType"
-              :impact-factor="risk.impactFactor"
-              :impact="risk.impact"
-              :likelihood="risk.likelihood"
-              :inherent-score="risk.inherentScore"
-              :risk-level="risk.riskLevel"
-              @update:score="onAnalysisScoreUpdate"
-              @update:level="onAnalysisLevelUpdate"
-            />
-          </div>
-        </div>
+      <RegisteredForm
+        v-else-if="currentStatus === 'registered'"
+        :form-key="formKey"
+        :initial-values="initialValues"
+        :category-options="categoryOptions"
+        :sub-category-options="subCategoryOptions(selectedCategorySlug)"
+        :member-options="memberOptions"
+        :selected-category-slug="selectedCategorySlug"
+        :saving="saving"
+        :registering="registering"
+        @submit="handleSave"
+        @category-change="onCategoryChange"
+        @start-analysis="handleStartAnalysis"
+      />
 
-        <div v-if="isVisibleSection('response')" class="rounded-lg border border-slate-200 dark:border-darkmode-600">
-          <button
-            type="button"
-            class="flex w-full items-center justify-between px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-darkmode-700"
-            @click="toggleAccordion('response')"
-          >
-            <span>{{ t('risk.section-response') }}</span>
-            <Lucide :icon="accordionOpen.response ? 'ChevronUp' : 'ChevronDown'" class="!h-4 !w-4 text-slate-400" />
-          </button>
-          <div v-if="accordionOpen.response" class="border-t border-slate-200 px-4 py-3 dark:border-darkmode-600">
-            <ResponseSection
-              :mode="isEditableSection('response') ? 'editable' : 'readonly'"
-              :risk-type="risk.riskType"
-              :tasks="tasks"
-              :saving-tasks="savingTasks"
-              @update:tasks="onTasksUpdate"
-            />
-          </div>
-        </div>
+      <AnalysisForm
+        v-else-if="currentStatus === 'analysis'"
+        :form-key="formKey"
+        :initial-values="initialValues"
+        :risk="risk"
+        :category-options="categoryOptions"
+        :sub-category-options="subCategoryOptions(selectedCategorySlug)"
+        :member-options="memberOptions"
+        :selected-category-slug="selectedCategorySlug"
+        :saving="saving"
+        :transitioning="transitioning"
+        @submit="handleSave"
+        @category-change="onCategoryChange"
+        @transition="handleTransition"
+      />
 
-        <div v-if="isVisibleSection('monitoring')" class="rounded-lg border border-slate-200 dark:border-darkmode-600">
-          <button
-            type="button"
-            class="flex w-full items-center justify-between px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-darkmode-700"
-            @click="toggleAccordion('monitoring')"
-          >
-            <span>{{ t('risk.section-monitoring') }}</span>
-            <Lucide :icon="accordionOpen.monitoring ? 'ChevronUp' : 'ChevronDown'" class="!h-4 !w-4 text-slate-400" />
-          </button>
-          <div v-if="accordionOpen.monitoring" class="border-t border-slate-200 px-4 py-3 dark:border-darkmode-600">
-            <MonitoringSection
-              :mode="isEditableSection('monitoring') ? 'editable' : 'readonly'"
-              :residual-impact="risk.residualImpact"
-              :residual-likelihood="risk.residualLikelihood"
-              :residual-score="residualScore"
-              :residual-level="residualLevel"
-              :tasks="tasks"
-              @update:residual-score="onResidualScoreUpdate"
-              @update:residual-level="onResidualLevelUpdate"
-            />
-          </div>
-        </div>
-        </template>
-      </Form>
+      <ResponseForm
+        v-else-if="currentStatus === 'response'"
+        :form-key="formKey"
+        :initial-values="initialValues"
+        :risk="risk"
+        :category-options="categoryOptions"
+        :sub-category-options="subCategoryOptions(selectedCategorySlug)"
+        :member-options="memberOptions"
+        :selected-category-slug="selectedCategorySlug"
+        :tasks="tasks"
+        :saving-tasks="savingTasks"
+        :saving="saving"
+        :transitioning="transitioning"
+        @submit="handleSave"
+        @update:tasks="onTasksUpdate"
+        @transition="handleTransition"
+      />
+
+      <MonitoringForm
+        v-else-if="currentStatus === 'monitoring'"
+        :form-key="formKey"
+        :initial-values="initialValues"
+        :risk="risk"
+        :category-options="categoryOptions"
+        :sub-category-options="subCategoryOptions(selectedCategorySlug)"
+        :member-options="memberOptions"
+        :selected-category-slug="selectedCategorySlug"
+        :tasks="tasks"
+        :residual-score="residualScore"
+        :residual-level="residualLevel"
+        :saving="saving"
+        :transitioning="transitioning"
+        @submit="handleSave"
+        @update:residual-score="onResidualScoreUpdate"
+        @update:residual-level="onResidualLevelUpdate"
+        @transition="handleTransition"
+      />
     </div>
     <template #footer>
-      <div class="flex justify-end gap-2">
+      <div class="flex justify-end">
         <Button
           type="button"
           variant="outline-secondary"
           size="sm"
           @click="close"
         >
-          {{ t('general.cancel') }}
-        </Button>
-        <Button
-          v-if="isEditableSection('registration') || isEditableSection('analysis') || isEditableSection('response') || isEditableSection('monitoring')"
-          type="submit"
-          variant="secondary"
-          size="sm"
-          form="risk-detail-form"
-          :disabled="saving"
-        >
-          {{ currentStatus === 'analysis' ? t('risk.action.save-analysis') : currentStatus === 'response' ? t('risk.action.save-response') : currentStatus === 'monitoring' ? t('risk.action.save-residual') : t('title.update') }}
-        </Button>
-        <Button
-          v-if="currentStatus === 'draft'"
-          type="button"
-          variant="primary"
-          size="sm"
-          :disabled="saving || registering"
-          @click="handleRegister"
-        >
-          {{ t('risk.action-register') }}
-        </Button>
-        <Button
-          v-if="currentStatus === 'registered'"
-          type="button"
-          variant="primary"
-          size="sm"
-          :disabled="saving || registering"
-          @click="handleStartAnalysis"
-        >
-          {{ t('risk.action-start-analysis') }}
+          {{ t('general.close') }}
         </Button>
       </div>
     </template>

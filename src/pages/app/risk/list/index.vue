@@ -288,6 +288,7 @@ function onModalSuccess() {
               <Lucide icon="Pencil" class="!h-3.5 !w-3.5" />
             </Button>
             <Button
+              v-if="row.state === 'draft'"
               type="button"
               variant="outline-danger"
               size="sm"

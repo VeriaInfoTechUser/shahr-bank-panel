@@ -294,104 +294,46 @@ function handleTransitionToMonitoring() {
         class="space-y-3"
         @submit="handleSave"
       >
-        <div class="rounded-lg border border-slate-200 dark:border-darkmode-600">
-          <button
-            type="button"
-            class="flex w-full items-center justify-between px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-darkmode-700"
-            @click="toggleAccordion('registration')"
-          >
-            <span>{{ t('risk.section-registration') }}</span>
-            <Lucide :icon="accordionOpen.registration ? 'ChevronUp' : 'ChevronDown'" class="!h-4 !w-4 text-slate-400" />
-          </button>
-          <div v-if="accordionOpen.registration" class="border-t border-slate-200 px-4 py-3 dark:border-darkmode-600">
-            <div class="space-y-3">
-              <BaseInput name="title" :label="t('risk.field-title')" :disabled="true" />
-              <div class="grid grid-cols-1 gap-3 md:grid-cols-2 md:gap-x-4 md:gap-y-3">
-                <BaseSelect name="categorySlug" :label="t('risk.field-category')" :options="categoryOptions" :disabled="true" :filter="true" />
-                <BaseSelect name="subCategorySlug" :label="t('risk.field-sub-category')" :options="subCategoryOptions(selectedCategorySlug)" :disabled="true" :filter="true" />
-                <BaseSelect name="ownerId" :label="t('risk.field-owner')" :options="memberOptions" :disabled="true" :filter="true" />
-                <BaseSelect name="riskType" :label="t('risk.field-risk-type')" :options="riskTypeOptions" :disabled="true" />
-              </div>
-              <BaseInput name="registerDescription" :label="t('risk.field-register-description')" type="textarea" :rows="3" :disabled="true" />
+          <div class="space-y-3">
+            <div class="grid grid-cols-1 gap-3 md:grid-cols-2 md:gap-x-4 md:gap-y-3">
+              <BaseSelect name="strategy" :label="t('risk.field-treatment-strategy')" :options="strategyOptions" :required="true" />
+              <BaseInput name="framework" :label="t('risk.field-framework')" :placeholder="t('risk.field-framework-placeholder')" />
+              <BaseInput name="control" :label="t('risk.field-control')" :placeholder="t('risk.field-control-placeholder')" />
             </div>
-          </div>
-        </div>
-
-        <div class="rounded-lg border border-slate-200 dark:border-darkmode-600">
-          <button
-            type="button"
-            class="flex w-full items-center justify-between px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-darkmode-700"
-            @click="toggleAccordion('analysis')"
-          >
-            <span>{{ t('risk.section-analysis') }}</span>
-            <Lucide :icon="accordionOpen.analysis ? 'ChevronUp' : 'ChevronDown'" class="!h-4 !w-4 text-slate-400" />
-          </button>
-          <div v-if="accordionOpen.analysis" class="border-t border-slate-200 px-4 py-3 dark:border-darkmode-600">
-            <div class="space-y-3">
-              <div class="grid grid-cols-1 gap-3 md:grid-cols-2 md:gap-x-4 md:gap-y-3">
-                <BaseSelect name="impactFactor" :label="t('risk.field-impact-factor')" :options="impactOptions" :disabled="true" />
-                <BaseSelect name="likelihood" :label="t('risk.field-likelihood')" :options="likelihoodOptions" :disabled="true" />
-              </div>
-              <div class="grid grid-cols-1 gap-3 md:grid-cols-2 md:gap-x-4 md:gap-y-3">
-                <BaseInput name="vulnerability" :label="t('risk.field-vulnerability')" :disabled="true" />
-                <BaseInput name="threat" :label="t('risk.field-threat')" :disabled="true" />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="rounded-lg border border-slate-200 dark:border-darkmode-600">
-          <button
-            type="button"
-            class="flex w-full items-center justify-between px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-darkmode-700"
-            @click="toggleAccordion('response')"
-          >
-            <span>{{ t('risk.section-response') }}</span>
-            <Lucide :icon="accordionOpen.response ? 'ChevronUp' : 'ChevronDown'" class="!h-4 !w-4 text-slate-400" />
-          </button>
-          <div v-if="accordionOpen.response" class="border-t border-slate-200 px-4 py-3 dark:border-darkmode-600">
-            <div class="space-y-3">
-              <div class="grid grid-cols-1 gap-3 md:grid-cols-2 md:gap-x-4 md:gap-y-3">
-                <BaseSelect name="strategy" :label="t('risk.field-treatment-strategy')" :options="strategyOptions" :required="true" />
-                <BaseInput name="framework" :label="t('risk.field-framework')" :placeholder="t('risk.field-framework-placeholder')" />
-                <BaseInput name="control" :label="t('risk.field-control')" :placeholder="t('risk.field-control-placeholder')" />
-              </div>
-              <BaseInput name="responseDescription" :label="t('risk.field-response-description')" type="textarea" :rows="3" :placeholder="t('risk.field-response-description-placeholder')" />
-              <div class="space-y-2">
-                <label class="label min-h-0 py-1">
-                  <span class="label-text text-sm font-normal leading-snug">{{ t('risk.field-tasks') }}</span>
-                </label>
-                <div class="flex gap-2">
-                  <input
+            <BaseInput name="responseDescription" :label="t('risk.field-response-description')" type="textarea" :rows="3" :placeholder="t('risk.field-response-description-placeholder')" />
+            <div class="space-y-2">
+              <label class="label min-h-0 py-1">
+                <span class="label-text text-sm font-normal leading-snug">{{ t('risk.field-tasks') }}</span>
+              </label>
+              <div class="flex gap-2">
+                <input
                     v-model="newTaskTitle"
                     type="text"
                     class="input input-bordered flex-1 !h-8 !min-h-0 px-2.5 text-xs font-light leading-snug placeholder:text-slate-400"
                     :placeholder="t('risk.task-add-placeholder')"
                     @keydown.enter.prevent="addTask"
-                  />
-                  <Button type="button" variant="primary" size="sm" class="!h-8" :disabled="!newTaskTitle.trim()" @click="addTask">
-                    <Lucide icon="Plus" class="!h-3.5 !w-3.5" />
-                  </Button>
-                </div>
-                <div v-if="tasks.length > 0" class="space-y-1">
-                  <div
+                />
+                <Button type="button" variant="primary" size="sm" class="!h-8" :disabled="!newTaskTitle.trim()" @click="addTask">
+                  <Lucide icon="Plus" class="!h-3.5 !w-3.5" />
+                </Button>
+              </div>
+              <div v-if="tasks.length > 0" class="space-y-1">
+                <div
                     v-for="(task, index) in tasks"
                     :key="index"
                     class="flex items-center gap-2 rounded-md border border-slate-200 bg-white px-3 py-1.5 text-xs dark:border-darkmode-600 dark:bg-darkmode-800"
-                  >
-                    <span class="flex-1 text-slate-700 dark:text-slate-200">{{ task.title }}</span>
-                    <span :class="taskStateBadgeClass(task.state)" @click="toggleTaskState(index)">
+                >
+                  <span class="flex-1 text-slate-700 dark:text-slate-200">{{ task.title }}</span>
+                  <span :class="taskStateBadgeClass(task.state)" @click="toggleTaskState(index)">
                       {{ t(`task.status.${task.state}`) }}
                     </span>
-                    <button type="button" class="text-slate-400 hover:text-red-500 transition" :disabled="savingTasks" @click="removeTask(index)">
-                      <Lucide icon="Trash2" class="!h-3 !w-3" />
-                    </button>
-                  </div>
+                  <button type="button" class="text-slate-400 hover:text-red-500 transition" :disabled="savingTasks" @click="removeTask(index)">
+                    <Lucide icon="Trash2" class="!h-3 !w-3" />
+                  </button>
                 </div>
               </div>
             </div>
           </div>
-        </div>
       </Form>
     </div>
     <template #footer>

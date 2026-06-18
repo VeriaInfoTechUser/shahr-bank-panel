@@ -11,7 +11,6 @@ import Button from '@/base-components/Button';
 import { useRisk } from './useRisk';
 import { useRiskCategories } from './useRiskCategories';
 import { ermRepo } from '@/core/repositories/ermRepo';
-import RegistrationSection from './sections/RegistrationSection.vue';
 
 const props = defineProps<{
   show: boolean;
@@ -32,6 +31,11 @@ const selectedCategorySlug = ref('');
 const memberOptions = ref<{ value: string; label: string }[]>([]);
 
 const { setFieldValue } = useForm();
+
+const riskTypeOptions = computed(() => [
+  { value: 'threat', label: t('risk.type-threat') },
+  { value: 'opportunity', label: t('risk.type-opportunity') },
+]);
 
 const initialValues = ref({
   title: '',
@@ -154,16 +158,50 @@ async function onSubmit(values: Record<string, unknown>) {
       class="space-y-3"
       @submit="onSubmit"
     >
-      <RegistrationSection
-        mode="editable"
-        :category-options="categoryOptions"
-        :sub-category-options="subCategoryOptions(selectedCategorySlug)"
-        :member-options="memberOptions"
-        :show-draft-description="true"
-        :draft-description-label="t('risk.field-create-description')"
-        :draft-description-placeholder="t('risk.field-create-description-placeholder')"
-        @category-change="onCategoryChange"
-      />
+      <div class="space-y-3">
+        <BaseInput
+          name="title"
+          :label="t('risk.field-title')"
+          :required="true"
+          :placeholder="t('risk.field-title-placeholder')"
+        />
+        <div class="grid grid-cols-1 gap-3 md:grid-cols-2 md:gap-x-4 md:gap-y-3">
+          <BaseSelect
+            name="categorySlug"
+            :label="t('risk.field-category')"
+            :options="categoryOptions"
+            :required="true"
+            :filter="true"
+            @change="onCategoryChange"
+          />
+          <BaseSelect
+            name="subCategorySlug"
+            :label="t('risk.field-sub-category')"
+            :options="subCategoryOptions(selectedCategorySlug)"
+            :required="true"
+            :filter="true"
+          />
+          <BaseSelect
+            name="ownerId"
+            :label="t('risk.field-owner')"
+            :options="memberOptions"
+            :filter="true"
+          />
+          <BaseSelect
+            name="riskType"
+            :label="t('risk.field-risk-type')"
+            :options="riskTypeOptions"
+            :required="true"
+          />
+        </div>
+        <BaseInput
+          name="draftDescription"
+          :label="t('risk.field-create-description')"
+          type="textarea"
+          :rows="3"
+          :placeholder="t('risk.field-create-description-placeholder')"
+        />
+      </div>
     </Form>
     <template #footer>
       <div class="flex flex-wrap justify-end gap-2">

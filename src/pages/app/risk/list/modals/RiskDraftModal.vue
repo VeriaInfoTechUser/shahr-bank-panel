@@ -12,7 +12,8 @@ import { ermRepo } from '@/core/repositories/ermRepo';
 import { useRisk, type Risk } from '../useRisk';
 import { useRiskCategories } from '../useRiskCategories';
 import { useRiskTransition } from '../useRiskTransition';
-import RegistrationSection from '../sections/RegistrationSection.vue';
+import BaseInput from '@/core/ui/base/BaseInput.vue';
+import BaseSelect from '@/core/ui/base/BaseSelect.vue';
 
 const props = defineProps<{
   show: boolean;
@@ -47,6 +48,11 @@ const validationSchema = computed(() => yup.object({
   subCategorySlug: yup.string().trim().required(t('validation.required')),
   ownerId: yup.string().trim().required(t('validation.required')),
 }));
+
+const riskTypeOptions = computed(() => [
+  { value: 'threat', label: t('risk.type-threat') },
+  { value: 'opportunity', label: t('risk.type-opportunity') },
+]);
 
 const statusBadgeClass = computed(() => 'inline-flex items-center justify-center rounded-md px-2 py-0.5 text-[10px] font-semibold leading-snug shadow-sm bg-slate-100 text-slate-700 border border-slate-200');
 
@@ -252,14 +258,50 @@ function handleDelete() {
         class="space-y-3"
         @submit="handleSave"
       >
-        <RegistrationSection
-          mode="editable"
-          :category-options="categoryOptions"
-          :sub-category-options="subCategoryOptions(selectedCategorySlug)"
-          :member-options="memberOptions"
-          :show-draft-description="true"
-          @category-change="onCategoryChange"
-        />
+        <div class="space-y-3">
+          <BaseInput
+            name="title"
+            :label="t('risk.field-title')"
+            :required="true"
+            :placeholder="t('risk.field-title-placeholder')"
+          />
+          <div class="grid grid-cols-1 gap-3 md:grid-cols-2 md:gap-x-4 md:gap-y-3">
+            <BaseSelect
+              name="categorySlug"
+              :label="t('risk.field-category')"
+              :options="categoryOptions"
+              :required="true"
+              :filter="true"
+              @change="onCategoryChange"
+            />
+            <BaseSelect
+              name="subCategorySlug"
+              :label="t('risk.field-sub-category')"
+              :options="subCategoryOptions(selectedCategorySlug)"
+              :required="true"
+              :filter="true"
+            />
+            <BaseSelect
+              name="ownerId"
+              :label="t('risk.field-owner')"
+              :options="memberOptions"
+              :filter="true"
+            />
+            <BaseSelect
+              name="riskType"
+              :label="t('risk.field-risk-type')"
+              :options="riskTypeOptions"
+              :required="true"
+            />
+          </div>
+          <BaseInput
+            name="draftDescription"
+            :label="t('risk.field-draft-description')"
+            type="textarea"
+            :rows="3"
+            :placeholder="t('risk.field-draft-description-placeholder')"
+          />
+        </div>
       </Form>
     </div>
     <template #footer>

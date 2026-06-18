@@ -12,7 +12,8 @@ import { ermRepo } from '@/core/repositories/ermRepo';
 import { useRisk, type Risk } from '../useRisk';
 import { useRiskCategories } from '../useRiskCategories';
 import { useRiskTransition } from '../useRiskTransition';
-import RegistrationSection from '../sections/RegistrationSection.vue';
+import BaseInput from '@/core/ui/base/BaseInput.vue';
+import BaseSelect from '@/core/ui/base/BaseSelect.vue';
 
 const props = defineProps<{
   show: boolean;
@@ -47,6 +48,11 @@ const validationSchema = computed(() => yup.object({
   ownerId: yup.string().trim().required(t('validation.required')),
   registerDescription: yup.string().trim().optional(),
 }));
+
+const riskTypeOptions = computed(() => [
+  { value: 'threat', label: t('risk.type-threat') },
+  { value: 'opportunity', label: t('risk.type-opportunity') },
+]);
 
 const statusBadgeClass = computed(() => 'inline-flex items-center justify-center rounded-md px-2 py-0.5 text-[10px] font-semibold leading-snug shadow-sm bg-blue-100 text-blue-800 border border-blue-200');
 
@@ -232,15 +238,50 @@ function handleStartAnalysis() {
         class="space-y-3"
         @submit="handleSave"
       >
-        <RegistrationSection
-          mode="editable"
-          :category-options="categoryOptions"
-          :sub-category-options="subCategoryOptions(selectedCategorySlug)"
-          :member-options="memberOptions"
-          :show-draft-description="false"
-          :show-register-description="true"
-          @category-change="onCategoryChange"
-        />
+        <div class="space-y-3">
+          <BaseInput
+            name="title"
+            :label="t('risk.field-title')"
+            :disabled="true"
+            :placeholder="t('risk.field-title-placeholder')"
+          />
+          <div class="grid grid-cols-1 gap-3 md:grid-cols-2 md:gap-x-4 md:gap-y-3">
+            <BaseSelect
+              name="categorySlug"
+              :label="t('risk.field-category')"
+              :options="categoryOptions"
+              :disabled="true"
+              :filter="true"
+            />
+            <BaseSelect
+              name="subCategorySlug"
+              :label="t('risk.field-sub-category')"
+              :options="subCategoryOptions(selectedCategorySlug)"
+              :disabled="true"
+              :filter="true"
+            />
+            <BaseSelect
+              name="ownerId"
+              :label="t('risk.field-owner')"
+              :options="memberOptions"
+              :required="true"
+              :filter="true"
+            />
+            <BaseSelect
+              name="riskType"
+              :label="t('risk.field-risk-type')"
+              :options="riskTypeOptions"
+              :disabled="true"
+            />
+          </div>
+          <BaseInput
+            name="registerDescription"
+            :label="t('risk.field-register-description')"
+            type="textarea"
+            :rows="3"
+            :placeholder="t('risk.field-register-description-placeholder')"
+          />
+        </div>
       </Form>
     </div>
     <template #footer>

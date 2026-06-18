@@ -34,6 +34,8 @@ export interface Risk {
   likelihood: number | null;
   inherentScore: number | null;
   riskLevel: string | null;
+  vulnerability: string;
+  threat: string;
   note: string;
   strategy: string;
   treatmentStrategy: string;

@@ -7,14 +7,11 @@ import { toast } from 'vue3-toastify';
 import BaseModal from '@/core/ui/base/BaseModal.vue';
 import BaseConfirmModal from '@/core/ui/base/BaseConfirmModal.vue';
 import Button from '@/base-components/Button';
-import Lucide from '@/base-components/Lucide';
 import { useGlobalModal } from '@/composables/useGlobalModal';
-import { ermRepo } from '@/core/repositories/ermRepo';
 import { useRisk, type Risk } from '../useRisk';
-import { useRiskCategories } from '../useRiskCategories';
 import { useRiskTransition } from '../useRiskTransition';
-import RegistrationSection from '../sections/RegistrationSection.vue';
-import AnalysisSection from '../sections/AnalysisSection.vue';
+import BaseInput from '@/core/ui/base/BaseInput.vue';
+import BaseSelect from '@/core/ui/base/BaseSelect.vue';
 
 const props = defineProps<{
   show: boolean;
@@ -29,25 +26,33 @@ const emit = defineEmits<{
 const { t } = useI18n();
 const { openModal } = useGlobalModal();
 const { loading: apiLoading, fetchRisk, updateRisk, transitionRisk } = useRisk();
-const { categoryOptions, subCategoryOptions, getCategoryTitle, getSubCategoryTitle, fetchTree } = useRiskCategories();
-const { parseTransitionErrors } = useRiskTransition();
+const { calculateScore, calculateRiskLevel, parseTransitionErrors } = useRiskTransition();
+
+const impactOptions = computed(() => [
+  { value: 1, label: `1 - ${t('risk.impact-1')}` },
+  { value: 2, label: `2 - ${t('risk.impact-2')}` },
+  { value: 3, label: `3 - ${t('risk.impact-3')}` },
+  { value: 4, label: `4 - ${t('risk.impact-4')}` },
+  { value: 5, label: `5 - ${t('risk.impact-5')}` },
+]);
+
+const likelihoodOptions = computed(() => [
+  { value: 1, label: `1 - ${t('risk.likelihood-1')}` },
+  { value: 2, label: `2 - ${t('risk.likelihood-2')}` },
+  { value: 3, label: `3 - ${t('risk.likelihood-3')}` },
+  { value: 4, label: `4 - ${t('risk.likelihood-4')}` },
+  { value: 5, label: `5 - ${t('risk.likelihood-5')}` },
+]);
 
 const formKey = ref(0);
 const saving = ref(false);
 const transitioning = ref(false);
 const risk = ref<Risk | null>(null);
-const selectedCategorySlug = ref('');
-const memberOptions = ref<{ value: string; label: string }[]>([]);
 const initialValues = ref<Record<string, unknown>>({});
-const accordionOpen = ref({ registration: true, analysis: true });
 const formRef = ref<InstanceType<typeof Form>>();
 
 const validationSchema = computed(() => yup.object({
-  title: yup.string().trim().required(t('validation.required')),
-  riskType: yup.string().trim().required(t('validation.required')),
-  categorySlug: yup.string().trim().required(t('validation.required')),
-  subCategorySlug: yup.string().trim().required(t('validation.required')),
-  impact: yup.string().required(t('validation.required')),
+  impactFactor: yup.string().required(t('validation.required')),
   likelihood: yup.string().required(t('validation.required')),
 }));
 
@@ -61,57 +66,20 @@ const riskTypeBadgeClass = computed(() => {
   return `${base} bg-slate-100 text-slate-600 border border-slate-200`;
 });
 
-function mapMembers(list: Record<string, unknown>[]) {
-  return list
-    .map((m) => {
-      const id = m.id ?? m.user_id;
-      if (id == null) return null;
-      const label =
-        [m.name, m.full_name, m.email, m.mobile]
-          .find((x) => typeof x === 'string' && String(x).trim()) ?? String(id);
-      return { value: String(id), label: String(label).trim() };
-    })
-    .filter((x): x is { value: string; label: string } => x != null);
-}
-
-function toggleAccordion(section: 'registration' | 'analysis') {
-  accordionOpen.value[section] = !accordionOpen.value[section];
-}
-
-function onScoreUpdate(score: number | null) {
-  formRef.value?.setFieldValue('inherentScore', score != null ? String(score) : '');
-}
-
-function onLevelUpdate(level: string) {
-  formRef.value?.setFieldValue('riskLevel', level);
-}
-
 watch(
   () => [props.show, props.riskId],
   async ([show, id]) => {
     if (show && id) {
-      await Promise.all([fetchTree(), loadMembers()]);
       await loadRisk(id);
     }
   },
   { immediate: true }
 );
 
-async function loadMembers() {
-  try {
-    const res = await ermRepo.memberList({ page: 1, limit: 500 });
-    const list = res?.data?.list ?? [];
-    memberOptions.value = mapMembers(Array.isArray(list) ? list : []);
-  } catch {
-    memberOptions.value = [];
-  }
-}
-
 async function loadRisk(id: string) {
   const data = await fetchRisk(id);
   if (!data) return;
   risk.value = data;
-  selectedCategorySlug.value = data.categorySlug ?? '';
 
   await nextTick();
   populateForm(data);
@@ -120,18 +88,13 @@ async function loadRisk(id: string) {
 
 function populateForm(r: Risk) {
   initialValues.value = {
-    title: r.title ?? '',
-    riskType: r.riskType ?? '',
-    categorySlug: r.categorySlug ?? '',
-    subCategorySlug: r.subCategorySlug ?? '',
-    ownerId: r.ownerId ?? '',
-    analysisDescription: r.analysisDescription ?? '',
     impactFactor: r.impactFactor ?? '',
-    impact: r.impact ?? '',
     likelihood: r.likelihood ?? '',
     inherentScore: r.inherentScore != null ? String(r.inherentScore) : '',
     riskLevel: r.riskLevel ?? '',
-    note: r.note ?? '',
+    vulnerability: r.vulnerability ?? '',
+    threat: r.threat ?? '',
+    analysisDescription: r.analysisDescription ?? '',
   };
 }
 
@@ -143,31 +106,18 @@ function onDialogVisible(v: boolean) {
   emit('update:show', v);
 }
 
-function onCategoryChange(value: unknown) {
-  selectedCategorySlug.value = String(value ?? '');
-}
-
 async function handleSave(values: Record<string, unknown>) {
   if (!risk.value) return;
   saving.value = true;
   try {
-    const catSlug = String(values.categorySlug ?? '');
-    const subCatSlug = String(values.subCategorySlug ?? '');
     const data = {
-      title: values.title,
-      riskType: values.riskType,
-      categorySlug: catSlug,
-      categoryTitle: getCategoryTitle(catSlug),
-      subCategorySlug: subCatSlug,
-      subCategoryTitle: getSubCategoryTitle(catSlug, subCatSlug),
-      ownerId: values.ownerId,
-      analysisDescription: values.analysisDescription || '',
       impactFactor: values.impactFactor ? Number(values.impactFactor) : null,
-      impact: values.impact ? Number(values.impact) : null,
       likelihood: values.likelihood ? Number(values.likelihood) : null,
       inherentScore: values.inherentScore ? Number(values.inherentScore) : null,
       riskLevel: values.riskLevel || null,
-      note: values.note || '',
+      vulnerability: values.vulnerability || '',
+      threat: values.threat || '',
+      analysisDescription: values.analysisDescription || '',
     };
 
     await updateRisk(risk.value.slug, data);
@@ -246,64 +196,45 @@ function handleTransitionToResponse() {
         class="space-y-3"
         @submit="handleSave"
       >
-        <div class="rounded-lg border border-slate-200 dark:border-darkmode-600">
-          <button
-            type="button"
-            class="flex w-full items-center justify-between px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-darkmode-700"
-            @click="toggleAccordion('registration')"
-          >
-            <span>{{ t('risk.section-registration') }}</span>
-            <Lucide :icon="accordionOpen.registration ? 'ChevronUp' : 'ChevronDown'" class="!h-4 !w-4 text-slate-400" />
-          </button>
-          <div v-if="accordionOpen.registration" class="border-t border-slate-200 px-4 py-3 dark:border-darkmode-600">
-            <RegistrationSection
-              mode="readonly"
-              :category-options="categoryOptions"
-              :sub-category-options="subCategoryOptions(selectedCategorySlug)"
-              :member-options="memberOptions"
-              :show-draft-description="false"
-              :show-register-description="true"
-              @category-change="onCategoryChange"
+        <div class="space-y-3">
+          <div class="grid grid-cols-1 gap-3 md:grid-cols-2 md:gap-x-4 md:gap-y-3">
+            <BaseSelect
+              name="impactFactor"
+              :label="t('risk.field-impact-factor')"
+              :options="impactOptions"
+              :required="true"
+            />
+            <BaseSelect
+              name="likelihood"
+              :label="t('risk.field-likelihood')"
+              :options="likelihoodOptions"
+              :required="true"
             />
           </div>
-        </div>
-
-        <div class="rounded-lg border border-slate-200 dark:border-darkmode-600">
-          <button
-            type="button"
-            class="flex w-full items-center justify-between px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-darkmode-700"
-            @click="toggleAccordion('analysis')"
-          >
-            <span>{{ t('risk.section-analysis') }}</span>
-            <Lucide :icon="accordionOpen.analysis ? 'ChevronUp' : 'ChevronDown'" class="!h-4 !w-4 text-slate-400" />
-          </button>
-          <div v-if="accordionOpen.analysis" class="border-t border-slate-200 px-4 py-3 dark:border-darkmode-600">
-            <AnalysisSection
-              mode="editable"
-              :risk-type="risk.riskType as string"
-              :impact-factor="risk.impactFactor as number | null"
-              :impact="risk.impact as number | null"
-              :likelihood="risk.likelihood as number | null"
-              :inherent-score="risk.inherentScore as number | null"
-              :risk-level="risk.riskLevel as string | null"
-              @update:score="onScoreUpdate"
-              @update:level="onLevelUpdate"
+          <div class="grid grid-cols-1 gap-3 md:grid-cols-2 md:gap-x-4 md:gap-y-3">
+            <BaseInput
+              name="vulnerability"
+              :label="t('risk.field-vulnerability')"
+              :placeholder="t('risk.field-vulnerability-placeholder')"
+            />
+            <BaseInput
+              name="threat"
+              :label="t('risk.field-threat')"
+              :placeholder="t('risk.field-threat-placeholder')"
             />
           </div>
+          <BaseInput
+            name="analysisDescription"
+            :label="t('risk.field-analysis-description')"
+            type="textarea"
+            :rows="3"
+            :placeholder="t('risk.field-analysis-description-placeholder')"
+          />
         </div>
       </Form>
     </div>
     <template #footer>
       <div class="flex justify-end gap-2">
-        <Button
-          type="submit"
-          variant="outline-secondary"
-          size="sm"
-          form="risk-analysis-modal-form"
-          :disabled="saving"
-        >
-          {{ t('risk.action.save-analysis') }}
-        </Button>
         <Button
           type="button"
           variant="outline-secondary"
@@ -311,6 +242,15 @@ function handleTransitionToResponse() {
           @click="close"
         >
           {{ t('general.close') }}
+        </Button>
+        <Button
+            type="submit"
+            variant="outline-secondary"
+            size="sm"
+            form="risk-analysis-modal-form"
+            :disabled="saving"
+        >
+          {{ t('risk.action.save-analysis') }}
         </Button>
         <Button
           type="button"

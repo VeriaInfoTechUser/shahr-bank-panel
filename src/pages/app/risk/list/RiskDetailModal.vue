@@ -307,6 +307,17 @@ function handleTransition(to: string) {
 
 function handleRegister() {
   if (!risk.value) return;
+  if (!formValues.draftDescription?.trim()) {
+    openModal({
+      component: BaseConfirmModal,
+      props: {
+        title: t('risk.warning-title'),
+        message: t('risk.warning-description-required', { description: t('risk.field-draft-description') }),
+        confirmVariant: 'primary' as const,
+      },
+    });
+    return;
+  }
   openModal({
     component: BaseConfirmModal,
     props: {
@@ -342,7 +353,14 @@ function handleRegister() {
 async function handleStartAnalysis() {
   if (!risk.value) return;
   if (!formValues.registerDescription?.trim()) {
-    setFieldError('registerDescription', t('validation.required'));
+    openModal({
+      component: BaseConfirmModal,
+      props: {
+        title: t('risk.warning-title'),
+        message: t('risk.warning-description-required', { description: t('risk.field-register-description') }),
+        confirmVariant: 'primary' as const,
+      },
+    });
     return;
   }
   const { valid } = await validate();
@@ -457,7 +475,7 @@ function getFormValues(): Record<string, unknown> {
             :category-options="categoryOptions"
             :sub-category-options="subCategoryOptions(selectedCategorySlug)"
             :member-options="memberOptions"
-            :show-draft-description="false"
+            :show-draft-description="currentStatus === 'draft'"
             :show-register-description="currentStatus === 'registered'"
             @category-change="onCategoryChange"
           />

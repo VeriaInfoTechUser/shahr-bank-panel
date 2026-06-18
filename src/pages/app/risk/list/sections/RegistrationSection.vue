@@ -10,6 +10,8 @@ const props = defineProps<{
   subCategoryOptions: { value: string; label: string }[];
   memberOptions: { value: string; label: string }[];
   showDraftDescription?: boolean;
+  draftDescriptionLabel?: string;
+  draftDescriptionPlaceholder?: string;
   showRegisterDescription?: boolean;
 }>();
 
@@ -78,11 +80,11 @@ function onCategoryChange(value: unknown) {
     <BaseInput
         v-if="showDraftDescription"
         name="draftDescription"
-        :label="t('risk.field-draft-description')"
+        :label="draftDescriptionLabel || t('risk.field-draft-description')"
         type="textarea"
         :rows="3"
         :disabled="disabled"
-        :placeholder="t('risk.field-draft-description-placeholder')"
+        :placeholder="draftDescriptionPlaceholder || t('risk.field-draft-description-placeholder')"
     />
     <BaseInput
         v-if="showRegisterDescription"

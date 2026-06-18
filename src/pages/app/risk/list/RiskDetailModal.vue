@@ -6,6 +6,7 @@ import { useI18n } from 'vue-i18n';
 import { toast } from 'vue3-toastify';
 import BaseModal from '@/core/ui/base/BaseModal.vue';
 import BaseConfirmModal from '@/core/ui/base/BaseConfirmModal.vue';
+import BaseWarningModal from '@/core/ui/base/BaseWarningModal.vue';
 import Button from '@/base-components/Button';
 import Lucide from '@/base-components/Lucide';
 import { useGlobalModal } from '@/composables/useGlobalModal';
@@ -64,6 +65,7 @@ const validationSchema = computed(() => yup.object({
   riskType: currentStatus.value === 'draft' || currentStatus.value === 'analysis' ? yup.string().trim().required(t('validation.required')) : yup.string().optional(),
   categorySlug: currentStatus.value === 'draft' || currentStatus.value === 'analysis' ? yup.string().trim().required(t('validation.required')) : yup.string().optional(),
   subCategorySlug: currentStatus.value === 'draft' || currentStatus.value === 'analysis' ? yup.string().trim().required(t('validation.required')) : yup.string().optional(),
+  ownerId: currentStatus.value === 'draft' || currentStatus.value === 'registered' ? yup.string().trim().required(t('validation.required')) : yup.string().optional(),
   impact: currentStatus.value === 'analysis' ? yup.string().required(t('validation.required')) : yup.string().optional(),
   likelihood: currentStatus.value === 'analysis' ? yup.string().required(t('validation.required')) : yup.string().optional(),
   treatmentStrategy: currentStatus.value === 'response' ? yup.string().required(t('validation.required')) : yup.string().optional(),
@@ -309,11 +311,10 @@ function handleRegister() {
   if (!risk.value) return;
   if (!formValues.draftDescription?.trim()) {
     openModal({
-      component: BaseConfirmModal,
+      component: BaseWarningModal,
       props: {
         title: t('risk.warning-title'),
         message: t('risk.warning-description-required', { description: t('risk.field-draft-description') }),
-        confirmVariant: 'primary' as const,
       },
     });
     return;
@@ -354,11 +355,10 @@ async function handleStartAnalysis() {
   if (!risk.value) return;
   if (!formValues.registerDescription?.trim()) {
     openModal({
-      component: BaseConfirmModal,
+      component: BaseWarningModal,
       props: {
         title: t('risk.warning-title'),
         message: t('risk.warning-description-required', { description: t('risk.field-register-description') }),
-        confirmVariant: 'primary' as const,
       },
     });
     return;

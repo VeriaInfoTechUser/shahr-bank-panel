@@ -49,7 +49,7 @@ const validationSchema = computed(() =>
     riskType: yup.string().trim().required(t('validation.required')),
     categorySlug: yup.string().trim().required(t('validation.required')),
     subCategorySlug: yup.string().trim().required(t('validation.required')),
-    ownerId: yup.string().trim().optional(),
+    ownerId: yup.string().trim().required(t('validation.required')),
   })
 );
 

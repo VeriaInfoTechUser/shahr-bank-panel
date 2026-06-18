@@ -107,6 +107,9 @@ function onDialogShow() {
     @hide="onHide"
     @show="onDialogShow"
   >
+    <template v-if="$slots.header" #header>
+      <slot name="header" />
+    </template>
     <!-- PrimeVue بدون [autofocus] در محتوا فوکوس را به دکمهٔ بستن می‌دهد؛ این عنصر فوکوس اولیه را می‌گیرد. -->
     <div :class="contentClass">
       <div

@@ -213,6 +213,7 @@
     "confirm-dialog-title": "Confirm",
     "confirm-dialog-message": "Are you sure you want to continue?",
     "confirm-dialog-confirm": "Confirm",
+    "warning": "Warning",
     "retry": "Retry",
     "close": "Close",
     "delete": "Delete",

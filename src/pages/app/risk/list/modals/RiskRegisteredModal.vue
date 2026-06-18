@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, watch, nextTick } from 'vue';
-import { Form, useFormContext } from 'vee-validate';
+import { Form } from 'vee-validate';
 import * as yup from 'yup';
 import { useI18n } from 'vue-i18n';
 import { toast } from 'vue3-toastify';
@@ -156,10 +156,10 @@ async function handleSave(values: Record<string, unknown>) {
 }
 
 function handleStartAnalysis() {
-  const { validate, values } = useFormContext();
-  validate().then(({ valid }) => {
+  formRef.value?.validate().then(({ valid }) => {
     if (!valid) return;
-    if (!String(values.registerDescription ?? '').trim()) {
+    const values = formRef.value?.getValues();
+    if (!String(values?.registerDescription ?? '').trim()) {
       openModal({
         component: BaseConfirmModal,
         props: {
@@ -178,7 +178,7 @@ function handleStartAnalysis() {
         onConfirmAction: async () => {
           registering.value = true;
           try {
-            const res = await transitionRisk(risk.value!.slug, 'analysis', { registerDescription: values.registerDescription });
+            const res = await transitionRisk(risk.value!.slug, 'analysis', { registerDescription: values?.registerDescription });
             if (!res) throw new Error(t('risk.transition-error'));
           } catch (err: unknown) {
             if (err instanceof Error) {
@@ -202,9 +202,7 @@ function handleStartAnalysis() {
   });
 }
 
-function submitForm() {
-  formRef.value?.submit();
-}
+
 </script>
 
 <template>
@@ -226,6 +224,7 @@ function submitForm() {
       </div>
 
       <Form
+        id="risk-registered-modal-form"
         ref="formRef"
         :key="formKey"
         :validation-schema="validationSchema"
@@ -247,11 +246,11 @@ function submitForm() {
     <template #footer>
       <div class="flex justify-end gap-2">
         <Button
-          type="button"
+          type="submit"
           variant="outline-secondary"
           size="sm"
+          form="risk-registered-modal-form"
           :disabled="saving"
-          @click="submitForm"
         >
           {{ t('title.update') }}
         </Button>

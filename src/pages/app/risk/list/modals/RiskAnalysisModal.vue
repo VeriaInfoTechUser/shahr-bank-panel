@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, watch, nextTick } from 'vue';
-import { Form, useFormContext } from 'vee-validate';
+import { Form } from 'vee-validate';
 import * as yup from 'yup';
 import { useI18n } from 'vue-i18n';
 import { toast } from 'vue3-toastify';
@@ -79,13 +79,11 @@ function toggleAccordion(section: 'registration' | 'analysis') {
 }
 
 function onScoreUpdate(score: number | null) {
-  const { setFieldValue } = useFormContext();
-  setFieldValue('inherentScore', score != null ? String(score) : '');
+  formRef.value?.setFieldValue('inherentScore', score != null ? String(score) : '');
 }
 
 function onLevelUpdate(level: string) {
-  const { setFieldValue } = useFormContext();
-  setFieldValue('riskLevel', level);
+  formRef.value?.setFieldValue('riskLevel', level);
 }
 
 watch(
@@ -218,9 +216,7 @@ function handleTransitionToResponse() {
   });
 }
 
-function submitForm() {
-  formRef.value?.submit();
-}
+
 </script>
 
 <template>
@@ -242,6 +238,7 @@ function submitForm() {
       </div>
 
       <Form
+        id="risk-analysis-modal-form"
         ref="formRef"
         :key="formKey"
         :validation-schema="validationSchema"
@@ -299,11 +296,11 @@ function submitForm() {
     <template #footer>
       <div class="flex justify-end gap-2">
         <Button
-          type="button"
+          type="submit"
           variant="outline-secondary"
           size="sm"
+          form="risk-analysis-modal-form"
           :disabled="saving"
-          @click="submitForm"
         >
           {{ t('risk.action.save-analysis') }}
         </Button>

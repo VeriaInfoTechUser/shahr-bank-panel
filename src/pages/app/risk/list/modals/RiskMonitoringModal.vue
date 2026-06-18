@@ -193,9 +193,7 @@ function handleCloseRisk() {
   });
 }
 
-function submitForm() {
-  formRef.value?.submit();
-}
+
 </script>
 
 <template>
@@ -217,6 +215,7 @@ function submitForm() {
       </div>
 
       <Form
+        id="risk-monitoring-modal-form"
         ref="formRef"
         :key="formKey"
         :validation-schema="validationSchema"
@@ -313,11 +312,11 @@ function submitForm() {
     <template #footer>
       <div class="flex justify-end gap-2">
         <Button
-          type="button"
+          type="submit"
           variant="outline-secondary"
           size="sm"
+          form="risk-monitoring-modal-form"
           :disabled="saving"
-          @click="submitForm"
         >
           {{ t('title.update') }}
         </Button>

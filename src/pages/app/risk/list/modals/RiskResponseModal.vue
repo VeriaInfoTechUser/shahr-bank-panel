@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, watch, nextTick } from 'vue';
-import { Form, useFormContext } from 'vee-validate';
+import { Form } from 'vee-validate';
 import * as yup from 'yup';
 import { useI18n } from 'vue-i18n';
 import { toast } from 'vue3-toastify';
@@ -191,9 +191,7 @@ function handleTransitionToMonitoring() {
   });
 }
 
-function submitForm() {
-  formRef.value?.submit();
-}
+
 </script>
 
 <template>
@@ -215,6 +213,7 @@ function submitForm() {
       </div>
 
       <Form
+        id="risk-response-modal-form"
         ref="formRef"
         :key="formKey"
         :validation-schema="validationSchema"
@@ -289,11 +288,11 @@ function submitForm() {
     <template #footer>
       <div class="flex justify-end gap-2">
         <Button
-          type="button"
+          type="submit"
           variant="outline-secondary"
           size="sm"
+          form="risk-response-modal-form"
           :disabled="saving"
-          @click="submitForm"
         >
           {{ t('risk.action.save-response') }}
         </Button>

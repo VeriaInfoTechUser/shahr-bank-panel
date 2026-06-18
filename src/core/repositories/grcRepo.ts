@@ -259,4 +259,25 @@ export const grcRepo = {
   riskCategoriesList(params?: Record<string, unknown>): Promise<GrcApiResponse<Record<string, unknown>[]>> {
     return grcHttpRequest({ method: 'GET', url: '/grc/risks/categories/list', params });
   },
+
+  // Task Transitions
+  taskStart(slug: string, data: { assigneeId: string; comment?: string; updatedBy?: number }): Promise<GrcApiResponse<Record<string, unknown>>> {
+    return grcHttpRequest({ method: 'POST', url: `/grc/tasks/${slug}/start`, data });
+  },
+
+  taskDone(slug: string, data?: { comment?: string; description?: string; updatedBy?: number }): Promise<GrcApiResponse<Record<string, unknown>>> {
+    return grcHttpRequest({ method: 'POST', url: `/grc/tasks/${slug}/done`, data: data ?? {} });
+  },
+
+  taskApprove(slug: string, data: { answer: string; answerKey?: string; answerDescription?: string; comment?: string; updatedBy?: number }): Promise<GrcApiResponse<Record<string, unknown>>> {
+    return grcHttpRequest({ method: 'POST', url: `/grc/tasks/${slug}/approve`, data });
+  },
+
+  taskReject(slug: string, data: { comment: string; answer?: string; answerDescription?: string; updatedBy?: number }): Promise<GrcApiResponse<Record<string, unknown>>> {
+    return grcHttpRequest({ method: 'POST', url: `/grc/tasks/${slug}/reject`, data });
+  },
+
+  taskReopen(slug: string, data?: { comment?: string; assigneeId?: string; updatedBy?: number }): Promise<GrcApiResponse<Record<string, unknown>>> {
+    return grcHttpRequest({ method: 'POST', url: `/grc/tasks/${slug}/reopen`, data: data ?? {} });
+  },
 };

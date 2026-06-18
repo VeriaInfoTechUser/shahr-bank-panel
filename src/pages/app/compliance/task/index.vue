@@ -10,6 +10,7 @@ import { ermRepo } from '@/core/repositories/ermRepo';
 import { useBreadcrumbSlot } from '@/composables/useBreadcrumb';
 import { complianceOperationsStatusBadgeClass } from '@/composables/complianceOperationsStatusBadge';
 import ComplianceTaskAnswerModal from './ComplianceTaskAnswerModal.vue';
+import TaskTransitionActions from './TaskTransitionActions.vue';
 import Button from '@/base-components/Button';
 import Lucide from '@/base-components/Lucide';
 import ComplianceTaskBreadcrumbToolbar from './ComplianceTaskBreadcrumbToolbar.vue';
@@ -217,7 +218,11 @@ onMounted(async () => {
           </span>
         </template>
         <template #actions="{ row }">
-          <div class="flex items-center justify-center">
+          <div class="flex items-center justify-center gap-2">
+            <TaskTransitionActions
+              :task="row"
+              @success="onAnswerSuccess"
+            />
             <Button
               type="button"
               variant="outline-primary"

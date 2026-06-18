@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue';
-import { Form, useForm } from 'vee-validate';
+import { Form, useFormContext } from 'vee-validate';
 import * as yup from 'yup';
 import { useI18n } from 'vue-i18n';
 import Button from '@/base-components/Button';
@@ -20,11 +20,10 @@ const props = defineProps<{
 const emit = defineEmits<{
   (e: 'submit', values: Record<string, unknown>): void;
   (e: 'categoryChange', value: unknown): void;
-  (e: 'startAnalysis'): void;
+  (e: 'startAnalysis', values: Record<string, unknown>): void;
 }>();
 
 const { t } = useI18n();
-const { validate } = useForm();
 
 const validationSchema = computed(() => yup.object({
   title: yup.string().trim().optional(),
@@ -40,9 +39,10 @@ async function onSubmit(values: Record<string, unknown>) {
 }
 
 async function handleStartAnalysis() {
+  const { validate, values } = useFormContext();
   const { valid } = await validate();
   if (!valid) return;
-  emit('startAnalysis');
+  emit('startAnalysis', values);
 }
 </script>
 

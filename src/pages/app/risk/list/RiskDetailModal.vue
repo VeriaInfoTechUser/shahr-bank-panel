@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { computed, ref, watch, nextTick } from 'vue';
-import { useForm } from 'vee-validate';
 import { useI18n } from 'vue-i18n';
 import { toast } from 'vue3-toastify';
 import BaseModal from '@/core/ui/base/BaseModal.vue';
@@ -55,8 +54,6 @@ const residualScore = ref<number | null>(null);
 const residualLevel = ref<string | null>(null);
 const memberOptions = ref<{ value: string; label: string }[]>([]);
 const initialValues = ref<Record<string, unknown>>({});
-
-const { values: formValues } = useForm();
 
 const modalSize = computed(() => {
   if (currentStatus.value === 'draft' || currentStatus.value === 'registered') return 'md';
@@ -240,9 +237,9 @@ async function handleSave(values: Record<string, unknown>) {
   }
 }
 
-function handleRegister() {
+function handleRegister(values: Record<string, unknown>) {
   if (!risk.value) return;
-  if (!formValues.draftDescription?.trim()) {
+  if (!String(values.draftDescription ?? '').trim()) {
     openModal({
       component: BaseWarningModal,
       props: {
@@ -261,7 +258,7 @@ function handleRegister() {
       onConfirmAction: async () => {
         registering.value = true;
         try {
-          const res = await transitionRisk(risk.value!.slug, 'registered', { draftDescription: formValues.draftDescription });
+          const res = await transitionRisk(risk.value!.slug, 'registered', { draftDescription: values.draftDescription });
           if (!res) throw new Error(t('risk.transition-error'));
         } catch (err: unknown) {
           if (err instanceof Error) {
@@ -284,9 +281,9 @@ function handleRegister() {
   });
 }
 
-async function handleStartAnalysis() {
+async function handleStartAnalysis(values: Record<string, unknown>) {
   if (!risk.value) return;
-  if (!formValues.registerDescription?.trim()) {
+  if (!String(values.registerDescription ?? '').trim()) {
     openModal({
       component: BaseWarningModal,
       props: {
@@ -305,7 +302,7 @@ async function handleStartAnalysis() {
       onConfirmAction: async () => {
         registering.value = true;
         try {
-          const res = await transitionRisk(risk.value!.slug, 'analysis', { registerDescription: formValues.registerDescription });
+          const res = await transitionRisk(risk.value!.slug, 'analysis', { registerDescription: values.registerDescription });
           if (!res) throw new Error(t('risk.transition-error'));
         } catch (err: unknown) {
           if (err instanceof Error) {

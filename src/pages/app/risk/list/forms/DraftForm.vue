@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue';
-import { Form, useForm } from 'vee-validate';
+import { Form, useFormContext } from 'vee-validate';
 import * as yup from 'yup';
 import { useI18n } from 'vue-i18n';
 import Button from '@/base-components/Button';
@@ -20,12 +20,11 @@ const props = defineProps<{
 const emit = defineEmits<{
   (e: 'submit', values: Record<string, unknown>): void;
   (e: 'categoryChange', value: unknown): void;
-  (e: 'register'): void;
+  (e: 'register', values: Record<string, unknown>): void;
   (e: 'delete'): void;
 }>();
 
 const { t } = useI18n();
-const { validate } = useForm();
 
 const validationSchema = computed(() => yup.object({
   title: yup.string().trim().required(t('validation.required')),
@@ -41,9 +40,10 @@ async function onSubmit(values: Record<string, unknown>) {
 }
 
 async function handleRegister() {
+  const { validate, values } = useFormContext();
   const { valid } = await validate();
   if (!valid) return;
-  emit('register');
+  emit('register', values);
 }
 </script>
 

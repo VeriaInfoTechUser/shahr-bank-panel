@@ -1543,6 +1543,7 @@
     "transition-success": "تم تغيير الحالة بنجاح.",
     "transition-error": "فشل في تغيير الحالة.",
     "error-framework-domain-control-required": "الإطار والمجال والضابط مطلوبة.",
+    "error-tasks-required": "مطلوب مهمة واحدة على الأقل.",
     "transition-confirm-title": "تأكيد تغيير الحالة",
     "transition-confirm-message": "هل أنت متأكد من تغيير الحالة إلى {status}؟",
     "warning-title": "تحذير",

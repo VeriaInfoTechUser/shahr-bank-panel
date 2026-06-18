@@ -308,6 +308,11 @@ function handleTransitionToMonitoring() {
       return;
     }
     
+    if (tasks.value.length === 0) {
+      toast(t('risk.error-tasks-required'), { type: 'error' });
+      return;
+    }
+    
     const frameworkTitle = frameworkOptions.value.find((f) => f.value === frameworkSlug)?.label ?? '';
     const domainTitle = domainOptions.value.find((d) => d.value === domainSlug)?.label ?? '';
     const controlTitle = controlOptions.value.find((c) => c.value === controlSlug)?.label ?? '';

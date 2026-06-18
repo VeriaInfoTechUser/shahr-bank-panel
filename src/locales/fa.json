@@ -2241,6 +2241,7 @@
     "transition-success": "وضعیت با موفقیت تغییر کرد.",
     "transition-error": "خطا در تغییر وضعیت.",
     "error-framework-domain-control-required": "فریمورک، دامنه و کنترل الزامی هستند.",
+    "error-tasks-required": "حداقل یک تسک الزامی است.",
     "transition-confirm-title": "تأیید تغییر وضعیت",
     "transition-confirm-message": "آیا از تغییر وضعیت به {status} اطمینان دارید؟",
     "warning-title": "هشدار",

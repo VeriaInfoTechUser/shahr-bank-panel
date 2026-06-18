@@ -183,7 +183,7 @@ function handleRegister() {
         onConfirmAction: async () => {
           registering.value = true;
           try {
-            const res = await transitionRisk(risk.value!.slug, 'registered', { draftDescription: values.draftDescription });
+            const res = await transitionRisk(risk.value!.slug, 'registered', values);
             if (!res) throw new Error(t('risk.transition-error'));
           } catch (err: unknown) {
             if (err instanceof Error) {

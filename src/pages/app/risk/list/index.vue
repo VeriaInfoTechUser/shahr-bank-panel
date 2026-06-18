@@ -307,6 +307,10 @@ function onModalSuccess() {
             >
               <Lucide icon="Trash2" class="!h-3.5 !w-3.5" />
             </Button>
+            <div v-else
+                 class="!h-7 !w-7 !px-0 !py-0">
+
+            </div>
           </div>
         </template>
       </BaseTable>

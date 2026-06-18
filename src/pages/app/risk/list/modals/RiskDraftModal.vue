@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, watch, nextTick } from 'vue';
-import { Form, useFormContext } from 'vee-validate';
+import { Form } from 'vee-validate';
 import * as yup from 'yup';
 import { useI18n } from 'vue-i18n';
 import { toast } from 'vue3-toastify';
@@ -156,10 +156,10 @@ async function handleSave(values: Record<string, unknown>) {
 }
 
 function handleRegister() {
-  const { validate, values } = useFormContext();
-  validate().then(({ valid }) => {
+  formRef.value?.validate().then(({ valid }) => {
     if (!valid) return;
-    if (!String(values.draftDescription ?? '').trim()) {
+    const values = formRef.value?.getValues();
+    if (!String(values?.draftDescription ?? '').trim()) {
       openModal({
         component: BaseConfirmModal,
         props: {
@@ -222,9 +222,7 @@ function handleDelete() {
   });
 }
 
-function submitForm() {
-  formRef.value?.submit();
-}
+
 </script>
 
 <template>
@@ -246,6 +244,7 @@ function submitForm() {
       </div>
 
       <Form
+        id="risk-draft-modal-form"
         ref="formRef"
         :key="formKey"
         :validation-schema="validationSchema"
@@ -276,11 +275,11 @@ function submitForm() {
             {{ t('general.close') }}
           </Button>
           <Button
-              type="button"
+              type="submit"
               variant="outline-secondary"
               size="sm"
+              form="risk-draft-modal-form"
               :disabled="saving"
-              @click="submitForm"
           >
             {{ t('title.update') }}
           </Button>

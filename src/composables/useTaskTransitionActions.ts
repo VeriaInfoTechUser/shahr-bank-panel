@@ -19,19 +19,9 @@ export function useTaskTransitionActions(taskState: () => string | null | undefi
 
     switch (state) {
       case 'todo':
-      case 'open':
-        return [
-          {
-            type: 'start',
-            label: t('task-transition.action-start'),
-            variant: 'primary',
-            icon: 'Play',
-            requiresInput: true,
-            inputType: 'assignee',
-          },
-        ];
+        return [];
 
-      case 'in_progress':
+      case 'in-progress':
         return [
           {
             type: 'done',
@@ -62,7 +52,7 @@ export function useTaskTransitionActions(taskState: () => string | null | undefi
           },
         ];
 
-      case 'rejected':
+      case 'reject':
         return [
           {
             type: 'reopen',
@@ -73,7 +63,7 @@ export function useTaskTransitionActions(taskState: () => string | null | undefi
           },
         ];
 
-      case 'approved':
+      case 'approve':
         return [];
 
       default:
@@ -82,7 +72,7 @@ export function useTaskTransitionActions(taskState: () => string | null | undefi
   });
 
   const hasActions = computed(() => availableActions.value.length > 0);
-  const isTerminal = computed(() => taskState() === 'approved');
+  const isTerminal = computed(() => taskState() === 'approve');
 
   return {
     availableActions,

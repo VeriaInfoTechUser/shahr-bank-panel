@@ -29,22 +29,34 @@ const usersLoading = ref(true);
 const showAnswerModal = ref(false);
 const selectedTask = ref<Record<string, unknown> | null>(null);
 
-const STATUS_I18N: Record<string, string> = {
-  not_started: 'compliance-task.status-not-started',
-  open: 'compliance-task.status-open',
-  in_progress: 'compliance-task.status-in-progress',
-  completed: 'compliance-task.status-completed',
-  approved: 'compliance-task.status-approved',
-  rejected: 'compliance-task.status-rejected',
+const STATE_I18N: Record<string, string> = {
+  todo: 'compliance-task.state-todo',
+  'in-progress': 'compliance-task.state-in-progress',
+  done: 'compliance-task.state-done',
+  approve: 'compliance-task.state-approve',
+  reject: 'compliance-task.state-reject',
 };
 
-const STATUS_BADGE_KEY: Record<string, string> = {
+const STATE_BADGE_KEY: Record<string, string> = {
+  todo: 'todo',
+  'in-progress': 'doing',
+  done: 'done',
+  approve: 'approve',
+  reject: 'reject',
+};
+
+const ANSWER_I18N: Record<string, string> = {
+  not_started: 'compliance-task.answer-not-started',
+  compliant: 'compliance-task.answer-compliant',
+  partially_compliant: 'compliance-task.answer-partially-compliant',
+  non_compliant: 'compliance-task.answer-non-compliant',
+};
+
+const ANSWER_BADGE_KEY: Record<string, string> = {
   not_started: 'todo',
-  open: 'pending-assignment',
-  in_progress: 'doing',
-  completed: 'done',
-  approved: 'approve',
-  rejected: 'reject',
+  compliant: 'approve',
+  partially_compliant: 'doing',
+  non_compliant: 'reject',
 };
 
 function mapUsers(list: Record<string, unknown>[]): UserOption[] {
@@ -69,24 +81,24 @@ function getUserLabel(id: unknown): string {
 function answerLabel(row: Record<string, unknown>): string {
   const raw = String(row.answer ?? '').trim().toLowerCase();
   if (!raw) return '—';
-  return t(STATUS_I18N[raw] ?? 'compliance-task.status-unknown');
+  return t(ANSWER_I18N[raw] ?? 'compliance-task.status-unknown');
 }
 
 function answerBadgeClass(row: Record<string, unknown>): string {
   const raw = String(row.answer ?? '').trim().toLowerCase();
-  const badgeKey = STATUS_BADGE_KEY[raw] ?? 'unknown';
+  const badgeKey = ANSWER_BADGE_KEY[raw] ?? 'unknown';
   return complianceOperationsStatusBadgeClass(badgeKey);
 }
 
-function taskStatusLabel(row: Record<string, unknown>): string {
-  const raw = String(row.taskStatus ?? '').trim().toLowerCase();
+function stateLabel(row: Record<string, unknown>): string {
+  const raw = String(row.state ?? '').trim().toLowerCase();
   if (!raw) return '—';
-  return t(STATUS_I18N[raw] ?? 'compliance-task.status-unknown');
+  return t(STATE_I18N[raw] ?? 'compliance-task.status-unknown');
 }
 
-function taskStatusBadgeClass(row: Record<string, unknown>): string {
-  const raw = String(row.taskStatus ?? '').trim().toLowerCase();
-  const badgeKey = STATUS_BADGE_KEY[raw] ?? 'unknown';
+function stateBadgeClass(row: Record<string, unknown>): string {
+  const raw = String(row.state ?? '').trim().toLowerCase();
+  const badgeKey = STATE_BADGE_KEY[raw] ?? 'unknown';
   return complianceOperationsStatusBadgeClass(badgeKey);
 }
 
@@ -140,8 +152,8 @@ const table = useDataTable({
       slot: true,
     }),
     createColumn({
-      key: 'taskStatus',
-      label: t('compliance-task.col-task-status'),
+      key: 'state',
+      label: t('compliance-task.col-state'),
       sortable: false,
       slot: true,
     }),
@@ -212,9 +224,9 @@ onMounted(async () => {
             {{ answerLabel(row) }}
           </span>
         </template>
-        <template #cell-taskStatus="{ row }">
-          <span :class="taskStatusBadgeClass(row)">
-            {{ taskStatusLabel(row) }}
+        <template #cell-state="{ row }">
+          <span :class="stateBadgeClass(row)">
+            {{ stateLabel(row) }}
           </span>
         </template>
         <template #actions="{ row }">

@@ -243,9 +243,13 @@ function handleCloseRisk() {
   
   // Clear previous errors
   formRef.value?.setFieldError('monitoringDescription', undefined);
+  formRef.value?.setFieldError('residualImpact', undefined);
+  formRef.value?.setFieldError('residualLikelihood', undefined);
   
   const values = formRef.value?.getValues();
   const monitoringDescription = String(values?.monitoringDescription ?? '').trim();
+  const residualImpact = values?.residualImpact;
+  const residualLikelihood = values?.residualLikelihood;
   
   let hasError = false;
   
@@ -253,13 +257,21 @@ function handleCloseRisk() {
     formRef.value?.setFieldError('monitoringDescription', t('validation.required'));
     hasError = true;
   }
+  if (!residualImpact) {
+    formRef.value?.setFieldError('residualImpact', t('validation.required'));
+    hasError = true;
+  }
+  if (!residualLikelihood) {
+    formRef.value?.setFieldError('residualLikelihood', t('validation.required'));
+    hasError = true;
+  }
   
   if (hasError) return;
   
   const payload = {
     monitoringDescription,
-    residualImpact: values?.residualImpact ? Number(values.residualImpact) : null,
-    residualLikelihood: values?.residualLikelihood ? Number(values.residualLikelihood) : null,
+    residualImpact: Number(residualImpact),
+    residualLikelihood: Number(residualLikelihood),
     residualScore: residualScore.value,
     residualLevel: residualLevel.value,
   };
@@ -274,6 +286,76 @@ function handleCloseRisk() {
         transitioning.value = true;
         try {
           const res = await transitionRisk(risk.value!.slug, 'closed', payload);
+          if (!res) throw new Error(t('risk.transition-error'));
+        } catch (err: unknown) {
+          if (err instanceof Error) {
+            const parsed = parseTransitionErrors([err.message]);
+            if (parsed.length > 0 && parsed[0] !== err.message) {
+              throw new Error(t(parsed[0]));
+            }
+          }
+          throw err;
+        } finally {
+          transitioning.value = false;
+        }
+      },
+    },
+    onSuccess: async () => {
+      toast(t('risk.transition-success'), { type: 'success' });
+      close();
+      emit('success');
+    },
+  });
+}
+
+function handleArchiveRisk() {
+  if (!risk.value) return;
+  
+  // Clear previous errors
+  formRef.value?.setFieldError('monitoringDescription', undefined);
+  formRef.value?.setFieldError('residualImpact', undefined);
+  formRef.value?.setFieldError('residualLikelihood', undefined);
+  
+  const values = formRef.value?.getValues();
+  const monitoringDescription = String(values?.monitoringDescription ?? '').trim();
+  const residualImpact = values?.residualImpact;
+  const residualLikelihood = values?.residualLikelihood;
+  
+  let hasError = false;
+  
+  if (!monitoringDescription) {
+    formRef.value?.setFieldError('monitoringDescription', t('validation.required'));
+    hasError = true;
+  }
+  if (!residualImpact) {
+    formRef.value?.setFieldError('residualImpact', t('validation.required'));
+    hasError = true;
+  }
+  if (!residualLikelihood) {
+    formRef.value?.setFieldError('residualLikelihood', t('validation.required'));
+    hasError = true;
+  }
+  
+  if (hasError) return;
+  
+  const payload = {
+    monitoringDescription,
+    residualImpact: Number(residualImpact),
+    residualLikelihood: Number(residualLikelihood),
+    residualScore: residualScore.value,
+    residualLevel: residualLevel.value,
+  };
+  
+  openModal({
+    component: BaseConfirmModal,
+    props: {
+      title: t('risk.transition-confirm-title'),
+      message: t('risk.transition-confirm-message', { status: t('risk.status-archived') }),
+      confirmVariant: 'primary' as const,
+      onConfirmAction: async () => {
+        transitioning.value = true;
+        try {
+          const res = await transitionRisk(risk.value!.slug, 'archived', payload);
           if (!res) throw new Error(t('risk.transition-error'));
         } catch (err: unknown) {
           if (err instanceof Error) {
@@ -387,14 +469,23 @@ function handleCloseRisk() {
       >
         {{ t('title.update') }}
       </Button>
+<!--        <Button-->
+<!--          type="button"-->
+<!--          variant="primary"-->
+<!--          size="sm"-->
+<!--          :disabled="saving || transitioning"-->
+<!--          @click="handleCloseRisk"-->
+<!--        >-->
+<!--          {{ t('risk.action-close-risk') }}-->
+<!--        </Button>-->
         <Button
           type="button"
-          variant="primary"
+          variant="danger"
           size="sm"
           :disabled="saving || transitioning"
-          @click="handleCloseRisk"
+          @click="handleArchiveRisk"
         >
-          {{ t('risk.action-close-risk') }}
+          {{ t('risk.action-archive') }}
         </Button>
       </div>
     </template>

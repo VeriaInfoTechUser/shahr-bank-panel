@@ -43,6 +43,7 @@ const { getTransitions, getSectionsForStatus, isTransitionDisabled, parseTransit
 
 const formKey = ref(0);
 const saving = ref(false);
+const registering = ref(false);
 const savingTasks = ref(false);
 const risk = ref<Risk | null>(null);
 const currentStatus = ref<string>('');
@@ -51,6 +52,7 @@ const tasks = ref<RiskTask[]>([]);
 const residualScore = ref<number | null>(null);
 const residualLevel = ref<string | null>(null);
 const memberOptions = ref<{ value: string; label: string }[]>([]);
+const initialValues = ref<Record<string, unknown>>({});
 
 const { setFieldValue, resetForm } = useForm();
 
@@ -173,6 +175,7 @@ function populateForm(r: Risk) {
     residualImpact: r.residualImpact ?? '',
     residualLikelihood: r.residualLikelihood ?? '',
   };
+  initialValues.value = vals;
   resetForm({ values: vals });
 }
 
@@ -235,7 +238,7 @@ async function handleSave(values: Record<string, unknown>) {
         control: values.control ? [values.control] : [],
       };
       if (tasks.value.length > 0) {
-        await updateTasks(risk.value.id, tasks.value);
+        await updateTasks(risk.value.slug, tasks.value);
       }
     } else if (status === 'monitoring') {
       data = {
@@ -249,9 +252,9 @@ async function handleSave(values: Record<string, unknown>) {
       return;
     }
 
-    await updateRisk(risk.value.id, data);
+    await updateRisk(risk.value.slug, data);
     toast(t('risk.save-success'), { type: 'success' });
-    await loadRisk(risk.value.id);
+    await loadRisk(risk.value.slug);
     emit('success');
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : t('risk.save-error');
@@ -286,7 +289,41 @@ function handleTransition(to: string) {
     },
     onSuccess: async () => {
       toast(t('risk.transition-success'), { type: 'success' });
-      if (risk.value) await loadRisk(risk.value.id);
+      if (risk.value) await loadRisk(risk.value.slug);
+      emit('success');
+    },
+  });
+}
+
+function handleRegister() {
+  if (!risk.value) return;
+  openModal({
+    component: BaseConfirmModal,
+    props: {
+      title: t('risk.transition-confirm-title'),
+      message: t('risk.transition-confirm-message', { status: t('risk.status-registered') }),
+      confirmVariant: 'primary' as const,
+      onConfirmAction: async () => {
+        registering.value = true;
+        try {
+          const res = await transitionRisk(risk.value!.slug, 'registered');
+          if (!res) throw new Error(t('risk.transition-error'));
+        } catch (err: unknown) {
+          if (err instanceof Error) {
+            const parsed = parseTransitionErrors([err.message]);
+            if (parsed.length > 0 && parsed[0] !== err.message) {
+              throw new Error(t(parsed[0]));
+            }
+          }
+          throw err;
+        } finally {
+          registering.value = false;
+        }
+      },
+    },
+    onSuccess: async () => {
+      toast(t('risk.transition-success'), { type: 'success' });
+      if (risk.value) await loadRisk(risk.value.slug);
       emit('success');
     },
   });
@@ -342,7 +379,7 @@ function getFormValues(): Record<string, unknown> {
   <BaseModal
     :visible="show"
     :title="risk?.title ?? t('risk.detail-title')"
-    size="lg"
+    :size="currentStatus === 'draft' ? 'md' : 'lg'"
     :closable="true"
     @update:visible="onDialogVisible"
   >
@@ -368,9 +405,20 @@ function getFormValues(): Record<string, unknown> {
           likelihood: currentStatus === 'analysis' ? yup.string().required(t('validation.required')) : yup.string().optional(),
           treatmentStrategy: currentStatus === 'response' ? yup.string().required(t('validation.required')) : yup.string().optional(),
         })"
+        :initial-values="initialValues"
         class="space-y-3"
         @submit="handleSave"
       >
+        <div v-if="currentStatus === 'draft'">
+          <RegistrationSection
+            mode="editable"
+            :category-options="categoryOptions"
+            :sub-category-options="subCategoryOptions(selectedCategorySlug)"
+            :member-options="memberOptions"
+            @category-change="onCategoryChange"
+          />
+        </div>
+        <template v-else>
         <div v-if="isVisibleSection('registration')" class="rounded-lg border border-slate-200 dark:border-darkmode-600">
           <button
             type="button"
@@ -458,43 +506,39 @@ function getFormValues(): Record<string, unknown> {
             />
           </div>
         </div>
+        </template>
       </Form>
     </div>
     <template #footer>
-      <div class="flex flex-wrap items-center justify-between gap-2">
-        <div class="flex flex-wrap gap-2">
-          <Button
-            v-for="tr in transitions"
-            :key="tr.to"
-            type="button"
-            :variant="tr.variant"
-            size="sm"
-            :disabled="saving || isTransitionButtonDisabled(tr.to, getFormValues())"
-            @click="handleTransition(tr.to)"
-          >
-            {{ t(tr.labelKey) }}
-          </Button>
-        </div>
-        <div class="flex gap-2">
-          <Button
-            type="button"
-            variant="outline-secondary"
-            size="sm"
-            @click="close"
-          >
-            {{ t('general.cancel') }}
-          </Button>
-          <Button
-            v-if="isEditableSection('registration') || isEditableSection('analysis') || isEditableSection('response') || isEditableSection('monitoring')"
-            type="submit"
-            variant="primary"
-            size="sm"
-            form="risk-detail-form"
-            :disabled="saving"
-          >
-            {{ currentStatus === 'analysis' ? t('risk.action.save-analysis') : currentStatus === 'response' ? t('risk.action.save-response') : currentStatus === 'monitoring' ? t('risk.action.save-residual') : t('title.update') }}
-          </Button>
-        </div>
+      <div class="flex justify-end gap-2">
+        <Button
+          type="button"
+          variant="outline-secondary"
+          size="sm"
+          @click="close"
+        >
+          {{ t('general.cancel') }}
+        </Button>
+        <Button
+          v-if="isEditableSection('registration') || isEditableSection('analysis') || isEditableSection('response') || isEditableSection('monitoring')"
+          type="submit"
+          variant="secondary"
+          size="sm"
+          form="risk-detail-form"
+          :disabled="saving"
+        >
+          {{ currentStatus === 'analysis' ? t('risk.action.save-analysis') : currentStatus === 'response' ? t('risk.action.save-response') : currentStatus === 'monitoring' ? t('risk.action.save-residual') : t('title.update') }}
+        </Button>
+        <Button
+          v-if="currentStatus === 'draft'"
+          type="button"
+          variant="primary"
+          size="sm"
+          :disabled="saving || registering"
+          @click="handleRegister"
+        >
+          {{ t('risk.action-register') }}
+        </Button>
       </div>
     </template>
   </BaseModal>

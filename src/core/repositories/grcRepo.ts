@@ -248,6 +248,10 @@ export const grcRepo = {
     return grcHttpRequest({ method: 'PATCH', url: `/grc/risks/${slug}/tasks`, data: { tasks } });
   },
 
+  riskTasksList(slug: string): Promise<GrcApiResponse<Record<string, unknown>[]>> {
+    return grcHttpRequest({ method: 'GET', url: `/grc/risks/${slug}/tasks` });
+  },
+
   riskCategoriesTree(): Promise<GrcApiResponse<Record<string, unknown>[]>> {
     return grcHttpRequest({ method: 'GET', url: '/grc/risks/categories/tree' });
   },

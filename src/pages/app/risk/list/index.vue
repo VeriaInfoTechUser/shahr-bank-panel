@@ -285,6 +285,7 @@ function onModalSuccess() {
               <Lucide icon="Eye" class="!h-3.5 !w-3.5" />
             </Button>
             <Button
+                v-if="row.state !== 'archived'"
               type="button"
               variant="outline-secondary"
               size="sm"
@@ -295,6 +296,10 @@ function onModalSuccess() {
             >
               <Lucide icon="Pencil" class="!h-3.5 !w-3.5" />
             </Button>
+            <div v-else
+                 class="!h-7 !w-7 !px-0 !py-0">
+
+            </div>
             <Button
               v-if="row.state === 'draft'"
               type="button"

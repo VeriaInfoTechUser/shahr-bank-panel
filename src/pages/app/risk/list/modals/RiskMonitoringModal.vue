@@ -9,6 +9,7 @@ import BaseConfirmModal from '@/core/ui/base/BaseConfirmModal.vue';
 import Button from '@/base-components/Button';
 import Lucide from '@/base-components/Lucide';
 import { useGlobalModal } from '@/composables/useGlobalModal';
+import { grcRepo } from '@/core/repositories/grcRepo';
 import { ermRepo } from '@/core/repositories/ermRepo';
 import { useRisk, type Risk, type RiskTask } from '../useRisk';
 import { useRiskCategories } from '../useRiskCategories';
@@ -179,13 +180,24 @@ async function loadRisk(id: string) {
   if (!data) return;
   risk.value = data;
   selectedCategorySlug.value = data.categorySlug ?? '';
-  tasks.value = data.tasks ?? [];
   residualScore.value = data.residualScore ?? null;
   residualLevel.value = data.residualLevel ?? null;
+  
+  await loadTasks(id);
 
   await nextTick();
   populateForm(data);
   formKey.value += 1;
+}
+
+async function loadTasks(riskSlug: string) {
+  try {
+    const res = await grcRepo.riskTasksList(riskSlug);
+    const list = (res?.data as any)?.list ?? [];
+    tasks.value = list;
+  } catch {
+    tasks.value = [];
+  }
 }
 
 function populateForm(r: Risk) {
@@ -425,16 +437,18 @@ function handleArchiveRisk() {
                   :key="index"
                   class="flex items-center gap-2 rounded-md border border-slate-200 bg-white px-3 py-1.5 text-xs dark:border-darkmode-600 dark:bg-darkmode-800"
               >
-                <span class="flex-1 text-slate-700 dark:text-slate-200">{{ task }}</span>
+                <Lucide icon="CheckSquare" class="!h-3.5 !w-3.5 text-slate-400" />
+                <span class="flex-1 text-slate-700 dark:text-slate-200">{{ task.title }}</span>
                 <span
                     class="inline-flex items-center justify-center rounded-md px-2 py-0.5 text-[9px] font-semibold leading-snug shadow-sm"
                     :class="{
-                        'bg-orange-100 text-orange-800 border border-orange-200': task.state === 'open',
+                        'bg-orange-100 text-orange-800 border border-orange-200': task.state === 'todo',
                         'bg-violet-100 text-violet-800 border border-violet-200': task.state === 'in_progress',
                         'bg-sky-100 text-sky-800 border border-sky-200': task.state === 'done',
                       }"
                 >
-                    </span>
+                  {{ t(`task.status.${task.state}`) }}
+                </span>
               </div>
             </div>
             <div class="flex items-center gap-3">

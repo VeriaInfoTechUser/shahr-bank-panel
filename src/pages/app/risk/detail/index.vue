@@ -7,6 +7,7 @@ import Button from '@/base-components/Button';
 import Lucide from '@/base-components/Lucide';
 import { useGlobalModal } from '@/composables/useGlobalModal';
 import BaseConfirmModal from '@/core/ui/base/BaseConfirmModal.vue';
+import { grcRepo } from '@/core/repositories/grcRepo';
 import { useRisk, type Risk } from '../list/useRisk';
 import { useRiskTransition } from '../list/useRiskTransition';
 import { ermRepo } from '@/core/repositories/ermRepo';
@@ -24,6 +25,7 @@ const { loading: apiLoading, fetchRisk, transitionRisk } = useRisk();
 const { getTransitions } = useRiskTransition();
 
 const risk = ref<Risk | null>(null);
+const tasks = ref<Record<string, unknown>[]>([]);
 const activeTab = ref<'overview' | 'details' | 'controls' | 'tasks' | 'history'>('overview');
 const showEditModal = ref(false);
 const memberOptions = ref<{ value: string; label: string }[]>([]);
@@ -161,9 +163,20 @@ async function loadRisk() {
   const data = await fetchRisk(slug.value);
   if (data) {
     risk.value = data;
+    await loadTasks(slug.value);
   } else {
     toast(t('risk.load-error'), { type: 'error' });
     router.push({ name: 'app-risk-list' });
+  }
+}
+
+async function loadTasks(riskSlug: string) {
+  try {
+    const res = await grcRepo.riskTasksList(riskSlug);
+    const list = (res?.data as any)?.list ?? [];
+    tasks.value = list;
+  } catch {
+    tasks.value = [];
   }
 }
 
@@ -474,9 +487,9 @@ watch(slug, () => {
           <div class="border-b border-slate-200 px-5 py-3 dark:border-darkmode-600">
             <h3 class="text-sm font-semibold text-slate-700 dark:text-slate-200">{{ t('risk.tab-tasks') }}</h3>
           </div>
-          <div v-if="risk.tasks?.length" class="divide-y divide-slate-200 dark:divide-darkmode-600">
+          <div v-if="tasks.length" class="divide-y divide-slate-200 dark:divide-darkmode-600">
             <div
-              v-for="(task, idx) in risk.tasks"
+              v-for="(task, idx) in tasks"
               :key="idx"
               class="flex items-center gap-3 px-5 py-3"
             >

@@ -14,7 +14,12 @@ import Lucide from '@/base-components/Lucide';
 import { toast } from 'vue3-toastify';
 import RiskListBreadcrumbToolbar from './RiskListBreadcrumbToolbar.vue';
 import CreateRiskModal from './CreateRiskModal.vue';
-import RiskDetailModal from './RiskDetailModal.vue';
+import RiskDraftModal from './modals/RiskDraftModal.vue';
+import RiskRegisteredModal from './modals/RiskRegisteredModal.vue';
+import RiskAnalysisModal from './modals/RiskAnalysisModal.vue';
+import RiskResponseModal from './modals/RiskResponseModal.vue';
+import RiskMonitoringModal from './modals/RiskMonitoringModal.vue';
+import { useRisk } from './useRisk';
 
 const { t } = useI18n();
 const router = useRouter();
@@ -24,7 +29,9 @@ const { openModal } = useGlobalModal();
 const showCreateModal = ref(false);
 const showDetailModal = ref(false);
 const selectedRiskId = ref<string | null>(null);
+const selectedRiskState = ref<string | null>(null);
 const memberOptions = ref<{ value: string; label: string }[]>([]);
+const { fetchRisk } = useRisk();
 
 function mapMembers(list: Record<string, unknown>[]) {
   return list
@@ -198,10 +205,11 @@ function onViewDetail(row: Record<string, unknown>) {
   }
 }
 
-function onEditRisk(row: Record<string, unknown>) {
+async function onEditRisk(row: Record<string, unknown>) {
   const id = row.slug;
   if (id) {
     selectedRiskId.value = String(id);
+    selectedRiskState.value = String(row.state ?? 'draft');
     showDetailModal.value = true;
   }
 }
@@ -310,8 +318,40 @@ function onModalSuccess() {
       @success="onModalSuccess"
     />
 
-    <RiskDetailModal
-      v-if="selectedRiskId"
+    <RiskDraftModal
+      v-if="selectedRiskState === 'draft' && selectedRiskId"
+      :show="showDetailModal"
+      :risk-id="selectedRiskId"
+      @update:show="showDetailModal = $event"
+      @success="onModalSuccess"
+    />
+
+    <RiskRegisteredModal
+      v-if="selectedRiskState === 'registered' && selectedRiskId"
+      :show="showDetailModal"
+      :risk-id="selectedRiskId"
+      @update:show="showDetailModal = $event"
+      @success="onModalSuccess"
+    />
+
+    <RiskAnalysisModal
+      v-if="selectedRiskState === 'analysis' && selectedRiskId"
+      :show="showDetailModal"
+      :risk-id="selectedRiskId"
+      @update:show="showDetailModal = $event"
+      @success="onModalSuccess"
+    />
+
+    <RiskResponseModal
+      v-if="selectedRiskState === 'response' && selectedRiskId"
+      :show="showDetailModal"
+      :risk-id="selectedRiskId"
+      @update:show="showDetailModal = $event"
+      @success="onModalSuccess"
+    />
+
+    <RiskMonitoringModal
+      v-if="selectedRiskState === 'monitoring' && selectedRiskId"
       :show="showDetailModal"
       :risk-id="selectedRiskId"
       @update:show="showDetailModal = $event"

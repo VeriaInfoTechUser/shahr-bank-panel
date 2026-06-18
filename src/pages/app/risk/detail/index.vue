@@ -375,11 +375,11 @@ watch(slug, () => {
               </div>
               <div>
                 <div class="mb-1 text-xs font-medium text-slate-500 dark:text-slate-400">{{ t('risk.field-draft-description') }}</div>
-                <div class="whitespace-pre-wrap text-sm text-slate-700 dark:text-slate-200">{{ risk.draft_description || '—' }}</div>
+                <div class="whitespace-pre-wrap text-sm text-slate-700 dark:text-slate-200">{{ risk.draftDescription || '—' }}</div>
               </div>
-              <div v-if="risk.register_description">
+              <div v-if="risk.registerDescription">
                 <div class="mb-1 text-xs font-medium text-slate-500 dark:text-slate-400">{{ t('risk.field-register-description') }}</div>
-                <div class="whitespace-pre-wrap text-sm text-slate-700 dark:text-slate-200">{{ risk.register_description }}</div>
+                <div class="whitespace-pre-wrap text-sm text-slate-700 dark:text-slate-200">{{ risk.registerDescription }}</div>
               </div>
               <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
                 <div>
@@ -400,12 +400,12 @@ watch(slug, () => {
             </div>
           </div>
 
-          <div v-if="risk.analysis_description || risk.note" class="rounded-2xl border border-slate-200/90 bg-white p-5 shadow-sm dark:border-darkmode-600 dark:bg-darkmode-800">
+          <div v-if="risk.analysisDescription || risk.note" class="rounded-2xl border border-slate-200/90 bg-white p-5 shadow-sm dark:border-darkmode-600 dark:bg-darkmode-800">
             <h3 class="mb-4 text-sm font-semibold text-slate-700 dark:text-slate-200">{{ t('risk.section-analysis') }}</h3>
             <div class="space-y-3">
-              <div v-if="risk.analysis_description">
+              <div v-if="risk.analysisDescription">
                 <div class="mb-1 text-xs font-medium text-slate-500 dark:text-slate-400">{{ t('risk.field-analysis-description') }}</div>
-                <div class="whitespace-pre-wrap text-sm text-slate-700 dark:text-slate-200">{{ risk.analysis_description }}</div>
+                <div class="whitespace-pre-wrap text-sm text-slate-700 dark:text-slate-200">{{ risk.analysisDescription }}</div>
               </div>
               <div v-if="risk.note">
                 <div class="mb-1 text-xs font-medium text-slate-500 dark:text-slate-400">{{ t('risk.field-note') }}</div>
@@ -414,7 +414,7 @@ watch(slug, () => {
             </div>
           </div>
 
-          <div v-if="risk.response_description || risk.strategy" class="rounded-2xl border border-slate-200/90 bg-white p-5 shadow-sm dark:border-darkmode-600 dark:bg-darkmode-800">
+          <div v-if="risk.responseDescription || risk.strategy" class="rounded-2xl border border-slate-200/90 bg-white p-5 shadow-sm dark:border-darkmode-600 dark:bg-darkmode-800">
             <h3 class="mb-4 text-sm font-semibold text-slate-700 dark:text-slate-200">{{ t('risk.section-response') }}</h3>
             <div class="space-y-3">
               <div v-if="risk.strategy">
@@ -429,19 +429,19 @@ watch(slug, () => {
                 <div class="mb-1 text-xs font-medium text-slate-500 dark:text-slate-400">{{ t('risk.field-control') }}</div>
                 <div class="text-sm text-slate-700 dark:text-slate-200">{{ risk.control.join(', ') }}</div>
               </div>
-              <div v-if="risk.response_description">
+              <div v-if="risk.responseDescription">
                 <div class="mb-1 text-xs font-medium text-slate-500 dark:text-slate-400">{{ t('risk.field-response-description') }}</div>
-                <div class="whitespace-pre-wrap text-sm text-slate-700 dark:text-slate-200">{{ risk.response_description }}</div>
+                <div class="whitespace-pre-wrap text-sm text-slate-700 dark:text-slate-200">{{ risk.responseDescription }}</div>
               </div>
             </div>
           </div>
 
-          <div v-if="risk.monitoring_description" class="rounded-2xl border border-slate-200/90 bg-white p-5 shadow-sm dark:border-darkmode-600 dark:bg-darkmode-800">
+          <div v-if="risk.monitoringDescription" class="rounded-2xl border border-slate-200/90 bg-white p-5 shadow-sm dark:border-darkmode-600 dark:bg-darkmode-800">
             <h3 class="mb-4 text-sm font-semibold text-slate-700 dark:text-slate-200">{{ t('risk.section-monitoring') }}</h3>
             <div class="space-y-3">
               <div>
                 <div class="mb-1 text-xs font-medium text-slate-500 dark:text-slate-400">{{ t('risk.field-monitoring-description') }}</div>
-                <div class="whitespace-pre-wrap text-sm text-slate-700 dark:text-slate-200">{{ risk.monitoring_description }}</div>
+                <div class="whitespace-pre-wrap text-sm text-slate-700 dark:text-slate-200">{{ risk.monitoringDescription }}</div>
               </div>
             </div>
           </div>

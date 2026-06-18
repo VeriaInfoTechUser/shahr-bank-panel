@@ -121,7 +121,7 @@ watch(
     </div>
 
     <BaseInput
-      name="monitoring_description"
+      name="monitoringDescription"
       :label="t('risk.field-monitoring-description')"
       type="textarea"
       :rows="3"

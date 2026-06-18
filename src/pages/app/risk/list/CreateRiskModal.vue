@@ -35,7 +35,7 @@ const { setFieldValue } = useForm();
 
 const initialValues = ref({
   title: '',
-  draft_description: '',
+  draftDescription: '',
   riskType: '',
   categorySlug: '',
   subCategorySlug: '',
@@ -45,7 +45,7 @@ const initialValues = ref({
 const validationSchema = computed(() =>
   yup.object({
     title: yup.string().trim().required(t('validation.required')),
-    draft_description: yup.string().trim().optional(),
+    draftDescription: yup.string().trim().optional(),
     riskType: yup.string().trim().required(t('validation.required')),
     categorySlug: yup.string().trim().required(t('validation.required')),
     subCategorySlug: yup.string().trim().required(t('validation.required')),
@@ -72,7 +72,7 @@ watch(
     if (show) {
       initialValues.value = {
         title: '',
-        draft_description: '',
+        draftDescription: '',
         riskType: '',
         categorySlug: '',
         subCategorySlug: '',
@@ -118,7 +118,7 @@ async function onSubmit(values: Record<string, unknown>) {
     const subCatSlug = String(values.subCategorySlug ?? '');
     const data = {
       title: String(values.title ?? ''),
-      draft_description: String(values.draft_description ?? ''),
+      draftDescription: String(values.draftDescription ?? ''),
       riskType: String(values.riskType ?? ''),
       categorySlug: catSlug,
       categoryTitle: getCategoryTitle(catSlug),

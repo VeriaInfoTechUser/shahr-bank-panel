@@ -77,7 +77,7 @@ function onCategoryChange(value: unknown) {
 
     <BaseInput
         v-if="showDraftDescription"
-        name="draft_description"
+        name="draftDescription"
         :label="t('risk.field-draft-description')"
         type="textarea"
         :rows="3"
@@ -86,7 +86,7 @@ function onCategoryChange(value: unknown) {
     />
     <BaseInput
         v-if="showRegisterDescription"
-        name="register_description"
+        name="registerDescription"
         :label="t('risk.field-register-description')"
         type="textarea"
         :rows="3"

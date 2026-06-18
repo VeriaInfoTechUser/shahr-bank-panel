@@ -59,6 +59,16 @@ const { setFieldValue, setFieldError, resetForm, validate, values: formValues } 
 const sections = computed(() => getSectionsForStatus(currentStatus.value));
 const transitions = computed(() => getTransitions(currentStatus.value));
 
+const validationSchema = computed(() => yup.object({
+  title: currentStatus.value === 'draft' || currentStatus.value === 'analysis' ? yup.string().trim().required(t('validation.required')) : yup.string().optional(),
+  riskType: currentStatus.value === 'draft' || currentStatus.value === 'analysis' ? yup.string().trim().required(t('validation.required')) : yup.string().optional(),
+  categorySlug: currentStatus.value === 'draft' || currentStatus.value === 'analysis' ? yup.string().trim().required(t('validation.required')) : yup.string().optional(),
+  subCategorySlug: currentStatus.value === 'draft' || currentStatus.value === 'analysis' ? yup.string().trim().required(t('validation.required')) : yup.string().optional(),
+  impact: currentStatus.value === 'analysis' ? yup.string().required(t('validation.required')) : yup.string().optional(),
+  likelihood: currentStatus.value === 'analysis' ? yup.string().required(t('validation.required')) : yup.string().optional(),
+  treatmentStrategy: currentStatus.value === 'response' ? yup.string().required(t('validation.required')) : yup.string().optional(),
+}));
+
 const statusBadgeClass = computed(() => {
   const base = 'inline-flex items-center justify-center rounded-md px-2 py-0.5 text-[10px] font-semibold leading-snug shadow-sm';
   switch (currentStatus.value) {
@@ -153,13 +163,13 @@ async function loadRisk(id: string) {
 function populateForm(r: Risk) {
   const vals: Record<string, unknown> = {
     title: r.title ?? '',
-    draft_description: r.draft_description ?? '',
-    register_description: r.register_description ?? '',
+    draftDescription: r.draftDescription ?? '',
+    registerDescription: r.registerDescription ?? '',
     riskType: r.riskType ?? '',
     categorySlug: r.categorySlug ?? '',
     subCategorySlug: r.subCategorySlug ?? '',
     ownerId: r.ownerId ?? '',
-    analysis_description: r.analysis_description ?? '',
+    analysisDescription: r.analysisDescription ?? '',
     impactFactor: r.impactFactor ?? '',
     impact: r.impact ?? '',
     likelihood: r.likelihood ?? '',
@@ -168,10 +178,10 @@ function populateForm(r: Risk) {
     note: r.note ?? '',
     strategy: r.strategy ?? '',
     treatmentStrategy: r.treatmentStrategy ?? '',
-    response_description: r.response_description ?? '',
+    responseDescription: r.responseDescription ?? '',
     framework: r.framework?.[0] ?? '',
     control: r.control?.[0] ?? '',
-    monitoring_description: r.monitoring_description ?? '',
+    monitoringDescription: r.monitoringDescription ?? '',
     residualImpact: r.residualImpact ?? '',
     residualLikelihood: r.residualLikelihood ?? '',
   };
@@ -211,8 +221,8 @@ async function handleSave(values: Record<string, unknown>) {
       const subCatSlug = String(values.subCategorySlug ?? '');
       data = {
         title: values.title,
-        draft_description: values.draft_description,
-        register_description: values.register_description,
+        draftDescription: values.draftDescription,
+        registerDescription: values.registerDescription,
         riskType: values.riskType,
         categorySlug: catSlug,
         categoryTitle: getCategoryTitle(catSlug),
@@ -221,7 +231,7 @@ async function handleSave(values: Record<string, unknown>) {
         ownerId: values.ownerId,
       };
       if (status === 'analysis') {
-        data.analysis_description = values.analysis_description || '';
+        data.analysisDescription = values.analysisDescription || '';
         data.impactFactor = values.impactFactor ? Number(values.impactFactor) : null;
         data.impact = values.impact ? Number(values.impact) : null;
         data.likelihood = values.likelihood ? Number(values.likelihood) : null;
@@ -233,7 +243,7 @@ async function handleSave(values: Record<string, unknown>) {
       data = {
         strategy: values.strategy,
         treatmentStrategy: values.treatmentStrategy,
-        response_description: values.response_description || '',
+        responseDescription: values.responseDescription || '',
         framework: values.framework ? [values.framework] : [],
         control: values.control ? [values.control] : [],
       };
@@ -242,7 +252,7 @@ async function handleSave(values: Record<string, unknown>) {
       }
     } else if (status === 'monitoring') {
       data = {
-        monitoring_description: values.monitoring_description || '',
+        monitoringDescription: values.monitoringDescription || '',
         residualImpact: values.residualImpact ? Number(values.residualImpact) : null,
         residualLikelihood: values.residualLikelihood ? Number(values.residualLikelihood) : null,
         residualScore: residualScore.value,
@@ -331,8 +341,8 @@ function handleRegister() {
 
 async function handleStartAnalysis() {
   if (!risk.value) return;
-  if (!formValues.register_description?.trim()) {
-    setFieldError('register_description', t('validation.required'));
+  if (!formValues.registerDescription?.trim()) {
+    setFieldError('registerDescription', t('validation.required'));
     return;
   }
   const { valid } = await validate();
@@ -400,8 +410,8 @@ function isTransitionButtonDisabled(to: string, formValues: Record<string, unkno
 function getFormValues(): Record<string, unknown> {
   return {
     title: risk.value?.title ?? '',
-    draft_description: risk.value?.draft_description ?? '',
-    register_description: risk.value?.register_description ?? '',
+    draftDescription: risk.value?.draftDescription ?? '',
+    registerDescription: risk.value?.registerDescription ?? '',
     riskType: risk.value?.riskType ?? '',
     categorySlug: risk.value?.categorySlug ?? '',
     categoryTitle: risk.value?.categoryTitle ?? '',
@@ -410,7 +420,7 @@ function getFormValues(): Record<string, unknown> {
     impactFactor: risk.value?.impactFactor ?? '',
     strategy: risk.value?.strategy ?? '',
     control: risk.value?.control?.[0] ?? '',
-    monitoring_description: risk.value?.monitoring_description ?? '',
+    monitoringDescription: risk.value?.monitoringDescription ?? '',
   };
 }
 </script>
@@ -436,15 +446,7 @@ function getFormValues(): Record<string, unknown> {
       <Form
         :key="formKey"
         id="risk-detail-form"
-        :validation-schema="yup.object({
-          title: currentStatus === 'draft' || currentStatus === 'analysis' ? yup.string().trim().required(t('validation.required')) : yup.string().optional(),
-          riskType: currentStatus === 'draft' || currentStatus === 'analysis' ? yup.string().trim().required(t('validation.required')) : yup.string().optional(),
-          categorySlug: currentStatus === 'draft' || currentStatus === 'analysis' ? yup.string().trim().required(t('validation.required')) : yup.string().optional(),
-          subCategorySlug: currentStatus === 'draft' || currentStatus === 'analysis' ? yup.string().trim().required(t('validation.required')) : yup.string().optional(),
-          impact: currentStatus === 'analysis' ? yup.string().required(t('validation.required')) : yup.string().optional(),
-          likelihood: currentStatus === 'analysis' ? yup.string().required(t('validation.required')) : yup.string().optional(),
-          treatmentStrategy: currentStatus === 'response' ? yup.string().required(t('validation.required')) : yup.string().optional(),
-        })"
+        :validation-schema="validationSchema"
         :initial-values="initialValues"
         class="space-y-3"
         @submit="handleSave"
@@ -455,8 +457,8 @@ function getFormValues(): Record<string, unknown> {
             :category-options="categoryOptions"
             :sub-category-options="subCategoryOptions(selectedCategorySlug)"
             :member-options="memberOptions"
-            :show-draft-description="currentStatus === 'draft'"
-            :show-register-description="true"
+            :show-draft-description="false"
+            :show-register-description="currentStatus === 'registered'"
             @category-change="onCategoryChange"
           />
         </div>

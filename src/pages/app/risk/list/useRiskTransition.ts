@@ -47,12 +47,12 @@ export interface TransitionRequirements {
 
 const TRANSITION_REQUIREMENTS: Record<string, TransitionRequirements> = {
   registered: {
-    requiredFields: ['title', 'draft_description', 'riskType', 'categorySlug', 'categoryTitle', 'subCategorySlug', 'subCategoryTitle'],
-    requiredSectionFields: { registration: ['title', 'draft_description', 'riskType', 'categorySlug', 'subCategorySlug'] },
+    requiredFields: ['title', 'draftDescription', 'riskType', 'categorySlug', 'categoryTitle', 'subCategorySlug', 'subCategoryTitle'],
+    requiredSectionFields: { registration: ['title', 'draftDescription', 'riskType', 'categorySlug', 'subCategorySlug'] },
   },
   analysis: {
-    requiredFields: ['title', 'draft_description', 'riskType', 'categorySlug', 'categoryTitle', 'subCategorySlug', 'subCategoryTitle', 'register_description'],
-    requiredSectionFields: { registration: ['title', 'draft_description', 'riskType', 'categorySlug', 'subCategorySlug', 'register_description'] },
+    requiredFields: ['title', 'draftDescription', 'riskType', 'categorySlug', 'categoryTitle', 'subCategorySlug', 'subCategoryTitle', 'registerDescription'],
+    requiredSectionFields: { registration: ['title', 'draftDescription', 'riskType', 'categorySlug', 'subCategorySlug', 'registerDescription'] },
   },
   response: {
     requiredFields: ['impactFactor'],
@@ -63,8 +63,8 @@ const TRANSITION_REQUIREMENTS: Record<string, TransitionRequirements> = {
     requiredSectionFields: { response: ['strategy'] },
   },
   closed: {
-    requiredFields: ['monitoring_description'],
-    requiredSectionFields: { monitoring: ['monitoring_description'] },
+    requiredFields: ['monitoringDescription'],
+    requiredSectionFields: { monitoring: ['monitoringDescription'] },
   },
   archived: {
     requiredFields: [],

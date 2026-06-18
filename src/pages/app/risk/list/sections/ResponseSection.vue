@@ -103,7 +103,7 @@ function taskStateBadgeClass(state: string): string {
     </div>
 
     <BaseInput
-      name="response_description"
+      name="responseDescription"
       :label="t('risk.field-response-description')"
       type="textarea"
       :rows="3"

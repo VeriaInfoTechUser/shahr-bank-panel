@@ -9,6 +9,7 @@ import BaseConfirmModal from '@/core/ui/base/BaseConfirmModal.vue';
 import Button from '@/base-components/Button';
 import Lucide from '@/base-components/Lucide';
 import { useGlobalModal } from '@/composables/useGlobalModal';
+import { grcRepo } from '@/core/repositories/grcRepo';
 import { ermRepo } from '@/core/repositories/ermRepo';
 import { useRisk, type Risk, type RiskTask } from '../useRisk';
 import { useRiskCategories } from '../useRiskCategories';
@@ -70,11 +71,6 @@ const strategyOptions = computed(() =>
   risk.value?.riskType === 'opportunity' ? opportunityStrategyOptions.value : threatStrategyOptions.value
 );
 
-const taskStateOptions = computed(() => [
-  { value: 'open', label: t('task.status.open') },
-  { value: 'in_progress', label: t('task.status.in_progress') },
-  { value: 'done', label: t('task.status.done') },
-]);
 
 const formKey = ref(0);
 const saving = ref(false);
@@ -88,8 +84,14 @@ const initialValues = ref<Record<string, unknown>>({});
 const accordionOpen = ref({ registration: false, analysis: false, response: true });
 const formRef = ref<InstanceType<typeof Form>>();
 
+const frameworkOptions = ref<{ value: string; label: string }[]>([]);
+const domainOptions = ref<{ value: string; label: string }[]>([]);
+const controlOptions = ref<{ value: string; label: string }[]>([]);
+const selectedFrameworkSlug = ref('');
+const selectedDomainSlug = ref('');
+
 const validationSchema = computed(() => yup.object({
-  treatmentStrategy: yup.string().required(t('validation.required')),
+  strategy: yup.string().required(t('validation.required')),
 }));
 
 const statusBadgeClass = computed(() => 'inline-flex items-center justify-center rounded-md px-2 py-0.5 text-[10px] font-semibold leading-snug shadow-sm bg-orange-100 text-orange-800 border border-orange-200');
@@ -123,12 +125,67 @@ watch(
   () => [props.show, props.riskId],
   async ([show, id]) => {
     if (show && id) {
-      await Promise.all([fetchTree(), loadMembers()]);
+      await Promise.all([fetchTree(), loadMembers(), loadFrameworks()]);
       await loadRisk(id);
     }
   },
   { immediate: true }
 );
+
+async function loadFrameworks() {
+  try {
+    const res = await grcRepo.frameworkList({ limit: 100 });
+    const list = res?.data?.list ?? [];
+    frameworkOptions.value = list.map((f) => ({ value: f.slug, label: f.title ?? f.slug }));
+  } catch {
+    frameworkOptions.value = [];
+  }
+}
+
+async function loadDomains(frameworkSlug: string) {
+  if (!frameworkSlug) {
+    domainOptions.value = [];
+    return;
+  }
+  try {
+    const res = await grcRepo.domainList({ frameworkSlug, limit: 100 });
+    const list = res?.data?.list ?? [];
+    domainOptions.value = list.map((d) => ({ value: d.slug, label: d.title ?? d.slug }));
+  } catch {
+    domainOptions.value = [];
+  }
+}
+
+async function loadControls(domainSlug: string) {
+  if (!domainSlug) {
+    controlOptions.value = [];
+    return;
+  }
+  try {
+    const res = await grcRepo.controlList({ domainSlug, limit: 100 });
+    const list = res?.data?.list ?? [];
+    controlOptions.value = list.map((c) => ({ value: c.slug, label: c.title ?? c.slug }));
+  } catch {
+    controlOptions.value = [];
+  }
+}
+
+function onFrameworkChange(value: unknown) {
+  selectedFrameworkSlug.value = String(value ?? '');
+  selectedDomainSlug.value = '';
+  formRef.value?.setFieldValue('domainSlug', '');
+  formRef.value?.setFieldValue('controlSlug', '');
+  domainOptions.value = [];
+  controlOptions.value = [];
+  loadDomains(selectedFrameworkSlug.value);
+}
+
+function onDomainChange(value: unknown) {
+  selectedDomainSlug.value = String(value ?? '');
+  formRef.value?.setFieldValue('controlSlug', '');
+  controlOptions.value = [];
+  loadControls(selectedDomainSlug.value);
+}
 
 async function loadMembers() {
   try {
@@ -145,7 +202,6 @@ async function loadRisk(id: string) {
   if (!data) return;
   risk.value = data;
   selectedCategorySlug.value = data.categorySlug ?? '';
-  tasks.value = data.tasks ?? [];
 
   await nextTick();
   populateForm(data);
@@ -153,17 +209,33 @@ async function loadRisk(id: string) {
 }
 
 function populateForm(r: Risk) {
+  const fwSlug = r.frameworkSlug ?? '';
+  const domainSlug = r.domainSlug ?? '';
+  const ctrlSlug = r.controlSlug ?? '';
+  selectedFrameworkSlug.value = fwSlug;
+  selectedDomainSlug.value = domainSlug;
+  
   initialValues.value = {
-    strategy: r.strategy ?? '',
-    treatmentStrategy: r.treatmentStrategy ?? '',
-    responseDescription: r.responseDescription ?? '',
-    framework: r.framework?.[0] ?? '',
-    control: r.control?.[0] ?? '',
+    strategy: r.strategy ?? r.treatmentStrategy ?? '',
+    frameworkSlug: fwSlug,
+    domainSlug: domainSlug,
+    controlSlug: ctrlSlug,
     impactFactor: r.impactFactor ?? '',
     likelihood: r.likelihood ?? '',
     vulnerability: r.vulnerability ?? '',
     threat: r.threat ?? '',
+    responseDescription: r.responseDescription ?? '',
   };
+
+  tasks.value = r.tasks ?? [];
+
+  if (fwSlug) {
+    loadDomains(fwSlug).then(() => {
+      if (domainSlug) {
+        loadControls(domainSlug);
+      }
+    });
+  }
 }
 
 function close() {
@@ -178,16 +250,26 @@ async function handleSave(values: Record<string, unknown>) {
   if (!risk.value) return;
   saving.value = true;
   try {
+    const frameworkSlug = String(values.frameworkSlug ?? '');
+    const domainSlug = String(values.domainSlug ?? '');
+    const controlSlug = String(values.controlSlug ?? '');
+
+    const frameworkTitle = frameworkOptions.value.find((f) => f.value === frameworkSlug)?.label ?? '';
+    const domainTitle = domainOptions.value.find((d) => d.value === domainSlug)?.label ?? '';
+    const controlTitle = controlOptions.value.find((c) => c.value === controlSlug)?.label ?? '';
+
     const data = {
       strategy: values.strategy,
-      treatmentStrategy: values.treatmentStrategy,
+      treatmentStrategy: values.strategy,
       responseDescription: values.responseDescription || '',
-      framework: values.framework ? [values.framework] : [],
-      control: values.control ? [values.control] : [],
+      frameworkSlug,
+      frameworkTitle,
+      domainSlug,
+      domainTitle,
+      controlSlug,
+      controlTitle,
+      tasks: tasks.value,
     };
-    if (tasks.value.length > 0) {
-      await updateTasks(risk.value.slug, tasks.value);
-    }
     await updateRisk(risk.value.slug, data);
     toast(t('risk.save-success'), { type: 'success' });
     await loadRisk(risk.value.slug);
@@ -205,29 +287,12 @@ const newTaskTitle = ref('');
 function addTask() {
   const title = newTaskTitle.value.trim();
   if (!title) return;
-  tasks.value = [...tasks.value, { title, state: 'open' as const }];
+  tasks.value = [...tasks.value, title];
   newTaskTitle.value = '';
 }
 
 function removeTask(index: number) {
   tasks.value = tasks.value.filter((_, i) => i !== index);
-}
-
-function toggleTaskState(index: number) {
-  const current = tasks.value[index];
-  if (!current) return;
-  const next = current.state === 'open' ? 'in_progress' : current.state === 'in_progress' ? 'done' : 'open';
-  tasks.value = tasks.value.map((t, i) => i === index ? { ...t, state: next as RiskTask['state'] } : t);
-}
-
-function taskStateBadgeClass(state: string): string {
-  const base = 'inline-flex items-center justify-center rounded-md px-2 py-0.5 text-[9px] font-semibold leading-snug shadow-sm cursor-pointer select-none';
-  switch (state) {
-    case 'open': return `${base} bg-orange-100 text-orange-800 border border-orange-200`;
-    case 'in_progress': return `${base} bg-violet-100 text-violet-800 border border-violet-200`;
-    case 'done': return `${base} bg-sky-100 text-sky-800 border border-sky-200`;
-    default: return `${base} bg-slate-100 text-slate-600 border border-slate-200`;
-  }
 }
 
 function handleTransitionToMonitoring() {
@@ -297,10 +362,10 @@ function handleTransitionToMonitoring() {
           <div class="space-y-3">
             <div class="grid grid-cols-1 gap-3 md:grid-cols-2 md:gap-x-4 md:gap-y-3">
               <BaseSelect name="strategy" :label="t('risk.field-treatment-strategy')" :options="strategyOptions" :required="true" />
-              <BaseInput name="framework" :label="t('risk.field-framework')" :placeholder="t('risk.field-framework-placeholder')" />
-              <BaseInput name="control" :label="t('risk.field-control')" :placeholder="t('risk.field-control-placeholder')" />
+              <BaseSelect name="frameworkSlug" :label="t('risk.field-framework')" :options="frameworkOptions" :filter="true" @change="onFrameworkChange" />
+              <BaseSelect name="domainSlug" :label="t('risk.field-domain')" :options="domainOptions" :filter="true" :disabled="!selectedFrameworkSlug" @change="onDomainChange" />
+              <BaseSelect name="controlSlug" :label="t('risk.field-control')" :options="controlOptions" :filter="true" :disabled="!selectedDomainSlug" />
             </div>
-            <BaseInput name="responseDescription" :label="t('risk.field-response-description')" type="textarea" :rows="3" :placeholder="t('risk.field-response-description-placeholder')" />
             <div class="space-y-2">
               <label class="label min-h-0 py-1">
                 <span class="label-text text-sm font-normal leading-snug">{{ t('risk.field-tasks') }}</span>
@@ -323,21 +388,28 @@ function handleTransitionToMonitoring() {
                     :key="index"
                     class="flex items-center gap-2 rounded-md border border-slate-200 bg-white px-3 py-1.5 text-xs dark:border-darkmode-600 dark:bg-darkmode-800"
                 >
-                  <span class="flex-1 text-slate-700 dark:text-slate-200">{{ task.title }}</span>
-                  <span :class="taskStateBadgeClass(task.state)" @click="toggleTaskState(index)">
-                      {{ t(`task.status.${task.state}`) }}
-                    </span>
+                  <span class="flex-1 text-slate-700 dark:text-slate-200">{{ task }}</span>
+
                   <button type="button" class="text-slate-400 hover:text-red-500 transition" :disabled="savingTasks" @click="removeTask(index)">
                     <Lucide icon="Trash2" class="!h-3 !w-3" />
                   </button>
                 </div>
               </div>
             </div>
+            <BaseInput name="responseDescription" :label="t('risk.field-response-description')" type="textarea" :rows="3" :placeholder="t('risk.field-response-description-placeholder')" />
           </div>
       </Form>
     </div>
     <template #footer>
       <div class="flex justify-end gap-2">
+        <Button
+          type="button"
+          variant="outline-secondary"
+          size="sm"
+          @click="close"
+        >
+          {{ t('general.close') }}
+        </Button>
         <Button
           type="submit"
           variant="outline-secondary"
@@ -346,14 +418,6 @@ function handleTransitionToMonitoring() {
           :disabled="saving"
         >
           {{ t('risk.action.save-response') }}
-        </Button>
-        <Button
-          type="button"
-          variant="outline-secondary"
-          size="sm"
-          @click="close"
-        >
-          {{ t('general.close') }}
         </Button>
         <Button
           type="button"

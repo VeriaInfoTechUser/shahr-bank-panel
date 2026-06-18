@@ -39,8 +39,12 @@ export interface Risk {
   note: string;
   strategy: string;
   treatmentStrategy: string;
-  framework: string[];
-  control: string[];
+  frameworkSlug: string;
+  frameworkTitle: string;
+  domainSlug: string;
+  domainTitle: string;
+  controlSlug: string;
+  controlTitle: string;
   tasks: RiskTask[];
   residualImpact: number | null;
   residualLikelihood: number | null;

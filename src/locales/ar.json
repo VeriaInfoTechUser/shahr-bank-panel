@@ -1613,6 +1613,8 @@
     "field-treatment-strategy": "استراتيجية المعالجة",
     "field-framework": "الإطار",
     "field-framework-placeholder": "أدخل الإطار",
+    "field-domain": "المجال",
+    "field-domain-placeholder": "أدخل المجال",
     "field-control": "الضابط",
     "field-control-placeholder": "أدخل الضابط",
     "field-tasks": "المهام",

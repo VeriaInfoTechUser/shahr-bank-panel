@@ -2298,6 +2298,7 @@
     "action": {
       "save": "ذخیره",
       "save-analysis": "ذخیره تحلیل",
+      "save-response": "ذخیره پاسخ",
       "save-draft": "ذخیره پیش‌نویس",
       "submit-review": "ارسال برای بررسی",
       "start-analysis": "شروع تحلیل",
@@ -2319,6 +2320,8 @@
     "field-treatment-strategy": "راهبرد درمان",
     "field-framework": "فریمورک",
     "field-framework-placeholder": "فریمورک را وارد کنید",
+    "field-domain": "دامنه",
+    "field-domain-placeholder": "دامنه را وارد کنید",
     "field-control": "کنترل",
     "field-control-placeholder": "کنترل را وارد کنید",
     "field-tasks": "تسک‌ها",

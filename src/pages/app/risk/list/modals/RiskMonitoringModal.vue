@@ -200,8 +200,9 @@ function populateForm(r: Risk) {
     strategy: r.strategy ?? '',
     treatmentStrategy: r.treatmentStrategy ?? '',
     responseDescription: r.responseDescription ?? '',
-    framework: r.framework?.[0] ?? '',
-    control: r.control?.[0] ?? '',
+    framework: r.frameworkTitle ?? '',
+    domain: r.domainTitle ?? '',
+    control: r.controlTitle ?? '',
   };
 }
 

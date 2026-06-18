@@ -2133,6 +2133,7 @@
     "field-monitoring-description-placeholder": "Enter monitoring description",
     "action": {
       "save-analysis": "Save Analysis",
+      "save-response": "Save Response",
       "save": "Save",
       "save-draft": "Save Draft",
       "submit-review": "Submit for Review",
@@ -2155,6 +2156,8 @@
     "field-treatment-strategy": "Treatment Strategy",
     "field-framework": "Framework",
     "field-framework-placeholder": "Enter framework",
+    "field-domain": "Domain",
+    "field-domain-placeholder": "Enter domain",
     "field-control": "Control",
     "field-control-placeholder": "Enter control",
     "field-tasks": "Tasks",

@@ -244,16 +244,16 @@ watch(slug, () => {
     </div>
 
     <template v-else-if="risk">
-      <div class="col-span-12">
-        <div class="rounded-2xl border border-slate-200/90 bg-white p-5 shadow-sm dark:border-darkmode-600 dark:bg-darkmode-800">
-          <div class="flex flex-wrap items-center gap-3">
-            <span :class="statusBadgeClass">{{ t(`risk.status-${risk.state}`) }}</span>
-            <span :class="riskLevelBadgeClass" v-if="risk.riskLevel">{{ risk.riskLevel ? t(`risk.level-${risk.riskLevel}`) : '—' }}</span>
-            <span :class="riskTypeBadgeClass">{{ t(`risk.type-${risk.riskType}`) }}</span>
-            <span class="text-xs text-slate-400">{{ risk.createdAt }}</span>
-          </div>
-        </div>
-      </div>
+<!--      <div class="col-span-12">-->
+<!--        <div class="rounded-2xl border border-slate-200/90 bg-white p-5 shadow-sm dark:border-darkmode-600 dark:bg-darkmode-800">-->
+<!--          <div class="flex flex-wrap items-center gap-3">-->
+<!--            <span :class="statusBadgeClass">{{ t(`risk.status-${risk.state}`) }}</span>-->
+<!--            <span :class="riskLevelBadgeClass" v-if="risk.riskLevel">{{ risk.riskLevel ? t(`risk.level-${risk.riskLevel}`) : '—' }}</span>-->
+<!--            <span :class="riskTypeBadgeClass">{{ t(`risk.type-${risk.riskType}`) }}</span>-->
+<!--            <span class="text-xs text-slate-400">{{ risk.createdAt }}</span>-->
+<!--          </div>-->
+<!--        </div>-->
+<!--      </div>-->
 
       <div class="col-span-12">
         <div class="flex gap-1 rounded-xl border border-slate-200/90 bg-white p-1 shadow-sm dark:border-darkmode-600 dark:bg-darkmode-800">
@@ -425,13 +425,17 @@ watch(slug, () => {
                 <div class="mb-1 text-xs font-medium text-slate-500 dark:text-slate-400">{{ t('risk.field-treatment-strategy') }}</div>
                 <div class="text-sm text-slate-700 dark:text-slate-200">{{ t(`risk.strategy-${risk.strategy}`) }}</div>
               </div>
-              <div v-if="risk.framework?.length">
+              <div v-if="risk.frameworkTitle">
                 <div class="mb-1 text-xs font-medium text-slate-500 dark:text-slate-400">{{ t('risk.field-framework') }}</div>
-                <div class="text-sm text-slate-700 dark:text-slate-200">{{ risk.framework.join(', ') }}</div>
+                <div class="text-sm text-slate-700 dark:text-slate-200">{{ risk.frameworkTitle }}</div>
               </div>
-              <div v-if="risk.control?.length">
+              <div v-if="risk.domainTitle">
+                <div class="mb-1 text-xs font-medium text-slate-500 dark:text-slate-400">{{ t('risk.field-domain') }}</div>
+                <div class="text-sm text-slate-700 dark:text-slate-200">{{ risk.domainTitle }}</div>
+              </div>
+              <div v-if="risk.controlTitle">
                 <div class="mb-1 text-xs font-medium text-slate-500 dark:text-slate-400">{{ t('risk.field-control') }}</div>
-                <div class="text-sm text-slate-700 dark:text-slate-200">{{ risk.control.join(', ') }}</div>
+                <div class="text-sm text-slate-700 dark:text-slate-200">{{ risk.controlTitle }}</div>
               </div>
               <div v-if="risk.responseDescription">
                 <div class="mb-1 text-xs font-medium text-slate-500 dark:text-slate-400">{{ t('risk.field-response-description') }}</div>
@@ -455,14 +459,10 @@ watch(slug, () => {
           <div class="border-b border-slate-200 px-5 py-3 dark:border-darkmode-600">
             <h3 class="text-sm font-semibold text-slate-700 dark:text-slate-200">{{ t('risk.tab-controls') }}</h3>
           </div>
-          <div v-if="risk.control?.length" class="divide-y divide-slate-200 dark:divide-darkmode-600">
-            <div
-              v-for="(ctrl, idx) in risk.control"
-              :key="idx"
-              class="flex items-center gap-3 px-5 py-3"
-            >
+          <div v-if="risk.controlTitle" class="px-5 py-3">
+            <div class="flex items-center gap-3">
               <Lucide icon="Shield" class="!h-4 !w-4 text-slate-400" />
-              <span class="text-sm text-slate-700 dark:text-slate-200">{{ ctrl }}</span>
+              <span class="text-sm text-slate-700 dark:text-slate-200">{{ risk.controlTitle }}</span>
             </div>
           </div>
           <div v-else class="px-5 py-8 text-center text-sm text-slate-400">
@@ -482,7 +482,6 @@ watch(slug, () => {
             >
               <Lucide icon="CheckSquare" class="!h-4 !w-4 text-slate-400" />
               <span class="flex-1 text-sm text-slate-700 dark:text-slate-200">{{ task.title }}</span>
-              <span :class="taskStateBadgeClass(task.state)">{{ t(`task.status.${task.state}`) }}</span>
             </div>
           </div>
           <div v-else class="px-5 py-8 text-center text-sm text-slate-400">

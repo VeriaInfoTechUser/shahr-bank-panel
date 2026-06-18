@@ -54,7 +54,7 @@ const residualLevel = ref<string | null>(null);
 const memberOptions = ref<{ value: string; label: string }[]>([]);
 const initialValues = ref<Record<string, unknown>>({});
 
-const { setFieldValue, resetForm } = useForm();
+const { setFieldValue, setFieldError, resetForm, validate, values: formValues } = useForm();
 
 const sections = computed(() => getSectionsForStatus(currentStatus.value));
 const transitions = computed(() => getTransitions(currentStatus.value));
@@ -206,7 +206,7 @@ async function handleSave(values: Record<string, unknown>) {
     const status = currentStatus.value;
     let data: Record<string, unknown>;
 
-    if (status === 'draft' || status === 'analysis') {
+    if (status === 'draft' || status === 'registered' || status === 'analysis') {
       const catSlug = String(values.categorySlug ?? '');
       const subCatSlug = String(values.subCategorySlug ?? '');
       data = {
@@ -329,6 +329,46 @@ function handleRegister() {
   });
 }
 
+async function handleStartAnalysis() {
+  if (!risk.value) return;
+  if (!formValues.register_description?.trim()) {
+    setFieldError('register_description', t('validation.required'));
+    return;
+  }
+  const { valid } = await validate();
+  if (!valid) return;
+  openModal({
+    component: BaseConfirmModal,
+    props: {
+      title: t('risk.transition-confirm-title'),
+      message: t('risk.transition-confirm-message', { status: t('risk.status-analysis') }),
+      confirmVariant: 'primary' as const,
+      onConfirmAction: async () => {
+        registering.value = true;
+        try {
+          const res = await transitionRisk(risk.value!.slug, 'analysis');
+          if (!res) throw new Error(t('risk.transition-error'));
+        } catch (err: unknown) {
+          if (err instanceof Error) {
+            const parsed = parseTransitionErrors([err.message]);
+            if (parsed.length > 0 && parsed[0] !== err.message) {
+              throw new Error(t(parsed[0]));
+            }
+          }
+          throw err;
+        } finally {
+          registering.value = false;
+        }
+      },
+    },
+    onSuccess: async () => {
+      toast(t('risk.transition-success'), { type: 'success' });
+      if (risk.value) await loadRisk(risk.value.slug);
+      emit('success');
+    },
+  });
+}
+
 function onAnalysisScoreUpdate(score: number | null) {
   setFieldValue('inherentScore', score != null ? String(score) : '');
 }
@@ -379,7 +419,7 @@ function getFormValues(): Record<string, unknown> {
   <BaseModal
     :visible="show"
     :title="risk?.title ?? t('risk.detail-title')"
-    :size="currentStatus === 'draft' ? 'md' : 'lg'"
+    :size="currentStatus === 'draft' || currentStatus === 'registered' ? 'md' : 'lg'"
     :closable="true"
     @update:visible="onDialogVisible"
   >
@@ -409,12 +449,14 @@ function getFormValues(): Record<string, unknown> {
         class="space-y-3"
         @submit="handleSave"
       >
-        <div v-if="currentStatus === 'draft'">
+        <div v-if="currentStatus === 'draft' || currentStatus === 'registered'">
           <RegistrationSection
             mode="editable"
             :category-options="categoryOptions"
             :sub-category-options="subCategoryOptions(selectedCategorySlug)"
             :member-options="memberOptions"
+            :show-draft-description="currentStatus === 'draft'"
+            :show-register-description="true"
             @category-change="onCategoryChange"
           />
         </div>
@@ -434,6 +476,7 @@ function getFormValues(): Record<string, unknown> {
               :category-options="categoryOptions"
               :sub-category-options="subCategoryOptions(selectedCategorySlug)"
               :member-options="memberOptions"
+              :show-draft-description="false"
               :show-register-description="showRegisterDescription"
               @category-change="onCategoryChange"
             />
@@ -538,6 +581,16 @@ function getFormValues(): Record<string, unknown> {
           @click="handleRegister"
         >
           {{ t('risk.action-register') }}
+        </Button>
+        <Button
+          v-if="currentStatus === 'registered'"
+          type="button"
+          variant="primary"
+          size="sm"
+          :disabled="saving || registering"
+          @click="handleStartAnalysis"
+        >
+          {{ t('risk.action-start-analysis') }}
         </Button>
       </div>
     </template>

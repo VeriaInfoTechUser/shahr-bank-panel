@@ -240,6 +240,30 @@ async function handleSave(values: Record<string, unknown>) {
 
 function handleCloseRisk() {
   if (!risk.value) return;
+  
+  // Clear previous errors
+  formRef.value?.setFieldError('monitoringDescription', undefined);
+  
+  const values = formRef.value?.getValues();
+  const monitoringDescription = String(values?.monitoringDescription ?? '').trim();
+  
+  let hasError = false;
+  
+  if (!monitoringDescription) {
+    formRef.value?.setFieldError('monitoringDescription', t('validation.required'));
+    hasError = true;
+  }
+  
+  if (hasError) return;
+  
+  const payload = {
+    monitoringDescription,
+    residualImpact: values?.residualImpact ? Number(values.residualImpact) : null,
+    residualLikelihood: values?.residualLikelihood ? Number(values.residualLikelihood) : null,
+    residualScore: residualScore.value,
+    residualLevel: residualLevel.value,
+  };
+  
   openModal({
     component: BaseConfirmModal,
     props: {
@@ -249,7 +273,7 @@ function handleCloseRisk() {
       onConfirmAction: async () => {
         transitioning.value = true;
         try {
-          const res = await transitionRisk(risk.value!.slug, 'closed');
+          const res = await transitionRisk(risk.value!.slug, 'closed', payload);
           if (!res) throw new Error(t('risk.transition-error'));
         } catch (err: unknown) {
           if (err instanceof Error) {
@@ -345,15 +369,7 @@ function handleCloseRisk() {
     </div>
     <template #footer>
       <div class="flex justify-end gap-2">
-        <Button
-          type="submit"
-          variant="outline-secondary"
-          size="sm"
-          form="risk-monitoring-modal-form"
-          :disabled="saving"
-        >
-          {{ t('title.update') }}
-        </Button>
+
         <Button
           type="button"
           variant="outline-secondary"
@@ -362,6 +378,15 @@ function handleCloseRisk() {
         >
           {{ t('general.close') }}
         </Button>
+        <Button
+          type="submit"
+          variant="outline-secondary"
+          size="sm"
+          form="risk-monitoring-modal-form"
+          :disabled="saving"
+      >
+        {{ t('title.update') }}
+      </Button>
         <Button
           type="button"
           variant="primary"

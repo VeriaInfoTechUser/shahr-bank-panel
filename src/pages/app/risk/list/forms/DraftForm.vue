@@ -65,27 +65,16 @@ async function handleRegister() {
       @category-change="emit('categoryChange', $event)"
     />
 
-    <div class="flex justify-between pt-4 border-t border-slate-200 dark:border-darkmode-600">
-      <div></div>
-      <div class="flex gap-2">
-        <Button
-          type="submit"
-          variant="secondary"
-          size="sm"
-          :disabled="saving"
-        >
-          {{ t('title.update') }}
-        </Button>
-        <Button
-          type="button"
-          variant="primary"
-          size="sm"
-          :disabled="saving || registering"
-          @click="handleRegister"
-        >
-          {{ t('risk.action-register') }}
-        </Button>
-      </div>
+    <div class="flex justify-end gap-2 pt-4 border-t border-slate-200 dark:border-darkmode-600">
+      <Button
+        type="button"
+        variant="primary"
+        size="sm"
+        :disabled="saving || registering"
+        @click="handleRegister"
+      >
+        {{ t('risk.action-register') }}
+      </Button>
     </div>
   </Form>
 </template>

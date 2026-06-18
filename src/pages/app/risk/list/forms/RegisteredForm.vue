@@ -67,14 +67,6 @@ async function handleStartAnalysis() {
 
     <div class="flex justify-end gap-2 pt-4 border-t border-slate-200 dark:border-darkmode-600">
       <Button
-        type="submit"
-        variant="secondary"
-        size="sm"
-        :disabled="saving"
-      >
-        {{ t('title.update') }}
-      </Button>
-      <Button
         type="button"
         variant="primary"
         size="sm"

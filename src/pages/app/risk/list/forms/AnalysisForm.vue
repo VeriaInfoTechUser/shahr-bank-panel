@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
-import { Form, useForm } from 'vee-validate';
+import { Form, useFormContext } from 'vee-validate';
 import * as yup from 'yup';
 import { useI18n } from 'vue-i18n';
 import Button from '@/base-components/Button';
@@ -27,7 +27,6 @@ const emit = defineEmits<{
 }>();
 
 const { t } = useI18n();
-const { setFieldValue, validate } = useForm();
 
 const accordionOpen = ref({
   registration: true,
@@ -48,10 +47,12 @@ function toggleAccordion(section: 'registration' | 'analysis') {
 }
 
 function onScoreUpdate(score: number | null) {
+  const { setFieldValue } = useFormContext();
   setFieldValue('inherentScore', score != null ? String(score) : '');
 }
 
 function onLevelUpdate(level: string) {
+  const { setFieldValue } = useFormContext();
   setFieldValue('riskLevel', level);
 }
 
@@ -60,6 +61,7 @@ async function onSubmit(values: Record<string, unknown>) {
 }
 
 async function handleTransition(to: string) {
+  const { validate } = useFormContext();
   const { valid } = await validate();
   if (!valid) return;
   emit('transition', to);
@@ -121,14 +123,6 @@ async function handleTransition(to: string) {
     </div>
 
     <div class="flex justify-end gap-2 pt-4 border-t border-slate-200 dark:border-darkmode-600">
-      <Button
-        type="submit"
-        variant="secondary"
-        size="sm"
-        :disabled="saving"
-      >
-        {{ t('risk.action.save-analysis') }}
-      </Button>
       <Button
         type="button"
         variant="primary"

@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, watch, nextTick } from 'vue';
+import { Form, useFormContext } from 'vee-validate';
+import * as yup from 'yup';
 import { useI18n } from 'vue-i18n';
 import { toast } from 'vue3-toastify';
 import BaseModal from '@/core/ui/base/BaseModal.vue';
@@ -10,7 +12,7 @@ import { ermRepo } from '@/core/repositories/ermRepo';
 import { useRisk, type Risk } from '../useRisk';
 import { useRiskCategories } from '../useRiskCategories';
 import { useRiskTransition } from '../useRiskTransition';
-import DraftForm from '../forms/DraftForm.vue';
+import RegistrationSection from '../sections/RegistrationSection.vue';
 
 const props = defineProps<{
   show: boolean;
@@ -24,7 +26,7 @@ const emit = defineEmits<{
 
 const { t } = useI18n();
 const { openModal } = useGlobalModal();
-const { loading: apiLoading, fetchRisk, updateRisk, deleteRisk } = useRisk();
+const { loading: apiLoading, fetchRisk, updateRisk, deleteRisk, transitionRisk } = useRisk();
 const { categoryOptions, subCategoryOptions, getCategoryTitle, getSubCategoryTitle, fetchTree } = useRiskCategories();
 const { parseTransitionErrors } = useRiskTransition();
 
@@ -35,6 +37,15 @@ const risk = ref<Risk | null>(null);
 const selectedCategorySlug = ref('');
 const memberOptions = ref<{ value: string; label: string }[]>([]);
 const initialValues = ref<Record<string, unknown>>({});
+
+const validationSchema = computed(() => yup.object({
+  title: yup.string().trim().required(t('validation.required')),
+  draftDescription: yup.string().trim().required(t('validation.required')),
+  riskType: yup.string().trim().required(t('validation.required')),
+  categorySlug: yup.string().trim().required(t('validation.required')),
+  subCategorySlug: yup.string().trim().required(t('validation.required')),
+  ownerId: yup.string().trim().required(t('validation.required')),
+}));
 
 const statusBadgeClass = computed(() => 'inline-flex items-center justify-center rounded-md px-2 py-0.5 text-[10px] font-semibold leading-snug shadow-sm bg-slate-100 text-slate-700 border border-slate-200');
 
@@ -143,48 +154,50 @@ async function handleSave(values: Record<string, unknown>) {
   }
 }
 
-function handleRegister(values: Record<string, unknown>) {
-  if (!risk.value) return;
-  if (!String(values.draftDescription ?? '').trim()) {
+function handleRegister() {
+  const { validate, values } = useFormContext();
+  validate().then(({ valid }) => {
+    if (!valid) return;
+    if (!String(values.draftDescription ?? '').trim()) {
+      openModal({
+        component: BaseConfirmModal,
+        props: {
+          title: t('risk.warning-title'),
+          message: t('risk.warning-description-required', { description: t('risk.field-draft-description') }),
+        },
+      });
+      return;
+    }
     openModal({
       component: BaseConfirmModal,
       props: {
-        title: t('risk.warning-title'),
-        message: t('risk.warning-description-required', { description: t('risk.field-draft-description') }),
+        title: t('risk.transition-confirm-title'),
+        message: t('risk.transition-confirm-message', { status: t('risk.status-registered') }),
+        confirmVariant: 'primary' as const,
+        onConfirmAction: async () => {
+          registering.value = true;
+          try {
+            const res = await transitionRisk(risk.value!.slug, 'registered', { draftDescription: values.draftDescription });
+            if (!res) throw new Error(t('risk.transition-error'));
+          } catch (err: unknown) {
+            if (err instanceof Error) {
+              const parsed = parseTransitionErrors([err.message]);
+              if (parsed.length > 0 && parsed[0] !== err.message) {
+                throw new Error(t(parsed[0]));
+              }
+            }
+            throw err;
+          } finally {
+            registering.value = false;
+          }
+        },
+      },
+      onSuccess: async () => {
+        toast(t('risk.transition-success'), { type: 'success' });
+        close();
+        emit('success');
       },
     });
-    return;
-  }
-  openModal({
-    component: BaseConfirmModal,
-    props: {
-      title: t('risk.transition-confirm-title'),
-      message: t('risk.transition-confirm-message', { status: t('risk.status-registered') }),
-      confirmVariant: 'primary' as const,
-      onConfirmAction: async () => {
-        registering.value = true;
-        try {
-          const { transitionRisk } = useRisk();
-          const res = await transitionRisk(risk.value!.slug, 'registered', { draftDescription: values.draftDescription });
-          if (!res) throw new Error(t('risk.transition-error'));
-        } catch (err: unknown) {
-          if (err instanceof Error) {
-            const parsed = parseTransitionErrors([err.message]);
-            if (parsed.length > 0 && parsed[0] !== err.message) {
-              throw new Error(t(parsed[0]));
-            }
-          }
-          throw err;
-        } finally {
-          registering.value = false;
-        }
-      },
-    },
-    onSuccess: async () => {
-      toast(t('risk.transition-success'), { type: 'success' });
-      close();
-      emit('success');
-    },
   });
 }
 
@@ -227,20 +240,33 @@ function handleDelete() {
         <span class="text-xs text-slate-400">{{ risk.createdAt }}</span>
       </div>
 
-      <DraftForm
-        :form-key="formKey"
+      <Form
+        :key="formKey"
+        :validation-schema="validationSchema"
         :initial-values="initialValues"
-        :category-options="categoryOptions"
-        :sub-category-options="subCategoryOptions(selectedCategorySlug)"
-        :member-options="memberOptions"
-        :selected-category-slug="selectedCategorySlug"
-        :saving="saving"
-        :registering="registering"
+        class="space-y-3"
         @submit="handleSave"
-        @category-change="onCategoryChange"
-        @register="handleRegister"
-        @delete="handleDelete"
-      />
+      >
+        <RegistrationSection
+          mode="editable"
+          :category-options="categoryOptions"
+          :sub-category-options="subCategoryOptions(selectedCategorySlug)"
+          :member-options="memberOptions"
+          :show-draft-description="true"
+          @category-change="onCategoryChange"
+        />
+
+        <div class="flex justify-end gap-2 pt-4 border-t border-slate-200 dark:border-darkmode-600">
+          <Button
+            type="submit"
+            variant="secondary"
+            size="sm"
+            :disabled="saving"
+          >
+            {{ t('title.update') }}
+          </Button>
+        </div>
+      </Form>
     </div>
     <template #footer>
       <div class="flex items-center justify-between">
@@ -260,6 +286,15 @@ function handleDelete() {
             @click="close"
           >
             {{ t('general.close') }}
+          </Button>
+          <Button
+            type="button"
+            variant="primary"
+            size="sm"
+            :disabled="saving || registering"
+            @click="handleRegister"
+          >
+            {{ t('risk.action-register') }}
           </Button>
         </div>
       </div>

@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, watch, nextTick } from 'vue';
+import { Form, useFormContext } from 'vee-validate';
+import * as yup from 'yup';
 import { useI18n } from 'vue-i18n';
 import { toast } from 'vue3-toastify';
 import BaseModal from '@/core/ui/base/BaseModal.vue';
@@ -10,7 +12,7 @@ import { ermRepo } from '@/core/repositories/ermRepo';
 import { useRisk, type Risk } from '../useRisk';
 import { useRiskCategories } from '../useRiskCategories';
 import { useRiskTransition } from '../useRiskTransition';
-import RegisteredForm from '../forms/RegisteredForm.vue';
+import RegistrationSection from '../sections/RegistrationSection.vue';
 
 const props = defineProps<{
   show: boolean;
@@ -24,7 +26,7 @@ const emit = defineEmits<{
 
 const { t } = useI18n();
 const { openModal } = useGlobalModal();
-const { loading: apiLoading, fetchRisk, updateRisk } = useRisk();
+const { loading: apiLoading, fetchRisk, updateRisk, transitionRisk } = useRisk();
 const { categoryOptions, subCategoryOptions, getCategoryTitle, getSubCategoryTitle, fetchTree } = useRiskCategories();
 const { parseTransitionErrors } = useRiskTransition();
 
@@ -35,6 +37,15 @@ const risk = ref<Risk | null>(null);
 const selectedCategorySlug = ref('');
 const memberOptions = ref<{ value: string; label: string }[]>([]);
 const initialValues = ref<Record<string, unknown>>({});
+
+const validationSchema = computed(() => yup.object({
+  title: yup.string().trim().optional(),
+  riskType: yup.string().trim().optional(),
+  categorySlug: yup.string().trim().optional(),
+  subCategorySlug: yup.string().trim().optional(),
+  ownerId: yup.string().trim().required(t('validation.required')),
+  registerDescription: yup.string().trim().optional(),
+}));
 
 const statusBadgeClass = computed(() => 'inline-flex items-center justify-center rounded-md px-2 py-0.5 text-[10px] font-semibold leading-snug shadow-sm bg-blue-100 text-blue-800 border border-blue-200');
 
@@ -143,48 +154,50 @@ async function handleSave(values: Record<string, unknown>) {
   }
 }
 
-function handleStartAnalysis(values: Record<string, unknown>) {
-  if (!risk.value) return;
-  if (!String(values.registerDescription ?? '').trim()) {
+function handleStartAnalysis() {
+  const { validate, values } = useFormContext();
+  validate().then(({ valid }) => {
+    if (!valid) return;
+    if (!String(values.registerDescription ?? '').trim()) {
+      openModal({
+        component: BaseConfirmModal,
+        props: {
+          title: t('risk.warning-title'),
+          message: t('risk.warning-description-required', { description: t('risk.field-register-description') }),
+        },
+      });
+      return;
+    }
     openModal({
       component: BaseConfirmModal,
       props: {
-        title: t('risk.warning-title'),
-        message: t('risk.warning-description-required', { description: t('risk.field-register-description') }),
+        title: t('risk.transition-confirm-title'),
+        message: t('risk.transition-confirm-message', { status: t('risk.status-analysis') }),
+        confirmVariant: 'primary' as const,
+        onConfirmAction: async () => {
+          registering.value = true;
+          try {
+            const res = await transitionRisk(risk.value!.slug, 'analysis', { registerDescription: values.registerDescription });
+            if (!res) throw new Error(t('risk.transition-error'));
+          } catch (err: unknown) {
+            if (err instanceof Error) {
+              const parsed = parseTransitionErrors([err.message]);
+              if (parsed.length > 0 && parsed[0] !== err.message) {
+                throw new Error(t(parsed[0]));
+              }
+            }
+            throw err;
+          } finally {
+            registering.value = false;
+          }
+        },
+      },
+      onSuccess: async () => {
+        toast(t('risk.transition-success'), { type: 'success' });
+        close();
+        emit('success');
       },
     });
-    return;
-  }
-  openModal({
-    component: BaseConfirmModal,
-    props: {
-      title: t('risk.transition-confirm-title'),
-      message: t('risk.transition-confirm-message', { status: t('risk.status-analysis') }),
-      confirmVariant: 'primary' as const,
-      onConfirmAction: async () => {
-        registering.value = true;
-        try {
-          const { transitionRisk } = useRisk();
-          const res = await transitionRisk(risk.value!.slug, 'analysis', { registerDescription: values.registerDescription });
-          if (!res) throw new Error(t('risk.transition-error'));
-        } catch (err: unknown) {
-          if (err instanceof Error) {
-            const parsed = parseTransitionErrors([err.message]);
-            if (parsed.length > 0 && parsed[0] !== err.message) {
-              throw new Error(t(parsed[0]));
-            }
-          }
-          throw err;
-        } finally {
-          registering.value = false;
-        }
-      },
-    },
-    onSuccess: async () => {
-      toast(t('risk.transition-success'), { type: 'success' });
-      close();
-      emit('success');
-    },
   });
 }
 </script>
@@ -207,19 +220,34 @@ function handleStartAnalysis(values: Record<string, unknown>) {
         <span class="text-xs text-slate-400">{{ risk.createdAt }}</span>
       </div>
 
-      <RegisteredForm
-        :form-key="formKey"
+      <Form
+        :key="formKey"
+        :validation-schema="validationSchema"
         :initial-values="initialValues"
-        :category-options="categoryOptions"
-        :sub-category-options="subCategoryOptions(selectedCategorySlug)"
-        :member-options="memberOptions"
-        :selected-category-slug="selectedCategorySlug"
-        :saving="saving"
-        :registering="registering"
+        class="space-y-3"
         @submit="handleSave"
-        @category-change="onCategoryChange"
-        @start-analysis="handleStartAnalysis"
-      />
+      >
+        <RegistrationSection
+          mode="editable"
+          :category-options="categoryOptions"
+          :sub-category-options="subCategoryOptions(selectedCategorySlug)"
+          :member-options="memberOptions"
+          :show-draft-description="false"
+          :show-register-description="true"
+          @category-change="onCategoryChange"
+        />
+
+        <div class="flex justify-end gap-2 pt-4 border-t border-slate-200 dark:border-darkmode-600">
+          <Button
+            type="submit"
+            variant="secondary"
+            size="sm"
+            :disabled="saving"
+          >
+            {{ t('title.update') }}
+          </Button>
+        </div>
+      </Form>
     </div>
     <template #footer>
       <div class="flex justify-end gap-2">
@@ -230,6 +258,15 @@ function handleStartAnalysis(values: Record<string, unknown>) {
           @click="close"
         >
           {{ t('general.close') }}
+        </Button>
+        <Button
+          type="button"
+          variant="primary"
+          size="sm"
+          :disabled="saving || registering"
+          @click="handleStartAnalysis"
+        >
+          {{ t('risk.action-start-analysis') }}
         </Button>
       </div>
     </template>

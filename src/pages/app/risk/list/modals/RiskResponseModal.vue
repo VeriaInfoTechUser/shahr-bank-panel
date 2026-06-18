@@ -1,16 +1,21 @@
 <script setup lang="ts">
 import { computed, ref, watch, nextTick } from 'vue';
+import { Form, useFormContext } from 'vee-validate';
+import * as yup from 'yup';
 import { useI18n } from 'vue-i18n';
 import { toast } from 'vue3-toastify';
 import BaseModal from '@/core/ui/base/BaseModal.vue';
 import BaseConfirmModal from '@/core/ui/base/BaseConfirmModal.vue';
 import Button from '@/base-components/Button';
+import Lucide from '@/base-components/Lucide';
 import { useGlobalModal } from '@/composables/useGlobalModal';
 import { ermRepo } from '@/core/repositories/ermRepo';
 import { useRisk, type Risk, type RiskTask } from '../useRisk';
 import { useRiskCategories } from '../useRiskCategories';
 import { useRiskTransition } from '../useRiskTransition';
-import ResponseForm from '../forms/ResponseForm.vue';
+import RegistrationSection from '../sections/RegistrationSection.vue';
+import AnalysisSection from '../sections/AnalysisSection.vue';
+import ResponseSection from '../sections/ResponseSection.vue';
 
 const props = defineProps<{
   show: boolean;
@@ -37,6 +42,11 @@ const selectedCategorySlug = ref('');
 const tasks = ref<RiskTask[]>([]);
 const memberOptions = ref<{ value: string; label: string }[]>([]);
 const initialValues = ref<Record<string, unknown>>({});
+const accordionOpen = ref({ registration: false, analysis: false, response: true });
+
+const validationSchema = computed(() => yup.object({
+  treatmentStrategy: yup.string().required(t('validation.required')),
+}));
 
 const statusBadgeClass = computed(() => 'inline-flex items-center justify-center rounded-md px-2 py-0.5 text-[10px] font-semibold leading-snug shadow-sm bg-orange-100 text-orange-800 border border-orange-200');
 
@@ -59,6 +69,10 @@ function mapMembers(list: Record<string, unknown>[]) {
       return { value: String(id), label: String(label).trim() };
     })
     .filter((x): x is { value: string; label: string } => x != null);
+}
+
+function toggleAccordion(section: 'registration' | 'analysis' | 'response') {
+  accordionOpen.value[section] = !accordionOpen.value[section];
 }
 
 watch(
@@ -195,22 +209,87 @@ function handleTransitionToMonitoring() {
         <span class="text-xs text-slate-400">{{ risk.createdAt }}</span>
       </div>
 
-      <ResponseForm
-        :form-key="formKey"
+      <Form
+        :key="formKey"
+        :validation-schema="validationSchema"
         :initial-values="initialValues"
-        :risk="risk"
-        :category-options="categoryOptions"
-        :sub-category-options="subCategoryOptions(selectedCategorySlug)"
-        :member-options="memberOptions"
-        :selected-category-slug="selectedCategorySlug"
-        :tasks="tasks"
-        :saving-tasks="savingTasks"
-        :saving="saving"
-        :transitioning="transitioning"
+        class="space-y-3"
         @submit="handleSave"
-        @update:tasks="onTasksUpdate"
-        @transition="handleTransitionToMonitoring"
-      />
+      >
+        <div class="rounded-lg border border-slate-200 dark:border-darkmode-600">
+          <button
+            type="button"
+            class="flex w-full items-center justify-between px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-darkmode-700"
+            @click="toggleAccordion('registration')"
+          >
+            <span>{{ t('risk.section-registration') }}</span>
+            <Lucide :icon="accordionOpen.registration ? 'ChevronUp' : 'ChevronDown'" class="!h-4 !w-4 text-slate-400" />
+          </button>
+          <div v-if="accordionOpen.registration" class="border-t border-slate-200 px-4 py-3 dark:border-darkmode-600">
+            <RegistrationSection
+              mode="readonly"
+              :category-options="categoryOptions"
+              :sub-category-options="subCategoryOptions(selectedCategorySlug)"
+              :member-options="memberOptions"
+              :show-draft-description="false"
+              :show-register-description="true"
+            />
+          </div>
+        </div>
+
+        <div class="rounded-lg border border-slate-200 dark:border-darkmode-600">
+          <button
+            type="button"
+            class="flex w-full items-center justify-between px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-darkmode-700"
+            @click="toggleAccordion('analysis')"
+          >
+            <span>{{ t('risk.section-analysis') }}</span>
+            <Lucide :icon="accordionOpen.analysis ? 'ChevronUp' : 'ChevronDown'" class="!h-4 !w-4 text-slate-400" />
+          </button>
+          <div v-if="accordionOpen.analysis" class="border-t border-slate-200 px-4 py-3 dark:border-darkmode-600">
+            <AnalysisSection
+              mode="readonly"
+              :risk-type="risk.riskType as string"
+              :impact-factor="risk.impactFactor as number | null"
+              :impact="risk.impact as number | null"
+              :likelihood="risk.likelihood as number | null"
+              :inherent-score="risk.inherentScore as number | null"
+              :risk-level="risk.riskLevel as string | null"
+            />
+          </div>
+        </div>
+
+        <div class="rounded-lg border border-slate-200 dark:border-darkmode-600">
+          <button
+            type="button"
+            class="flex w-full items-center justify-between px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-darkmode-700"
+            @click="toggleAccordion('response')"
+          >
+            <span>{{ t('risk.section-response') }}</span>
+            <Lucide :icon="accordionOpen.response ? 'ChevronUp' : 'ChevronDown'" class="!h-4 !w-4 text-slate-400" />
+          </button>
+          <div v-if="accordionOpen.response" class="border-t border-slate-200 px-4 py-3 dark:border-darkmode-600">
+            <ResponseSection
+              mode="editable"
+              :risk-type="risk.riskType as string"
+              :tasks="tasks"
+              :saving-tasks="savingTasks"
+              @update:tasks="onTasksUpdate"
+            />
+          </div>
+        </div>
+
+        <div class="flex justify-end gap-2 pt-4 border-t border-slate-200 dark:border-darkmode-600">
+          <Button
+            type="submit"
+            variant="secondary"
+            size="sm"
+            :disabled="saving"
+          >
+            {{ t('risk.action.save-response') }}
+          </Button>
+        </div>
+      </Form>
     </div>
     <template #footer>
       <div class="flex justify-end gap-2">

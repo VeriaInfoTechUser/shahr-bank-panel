@@ -10,7 +10,11 @@ import BaseConfirmModal from '@/core/ui/base/BaseConfirmModal.vue';
 import { useRisk, type Risk } from '../list/useRisk';
 import { useRiskTransition } from '../list/useRiskTransition';
 import { ermRepo } from '@/core/repositories/ermRepo';
-import RiskDetailModal from '../list/RiskDetailModal.vue';
+import RiskDraftModal from '../list/modals/RiskDraftModal.vue';
+import RiskRegisteredModal from '../list/modals/RiskRegisteredModal.vue';
+import RiskAnalysisModal from '../list/modals/RiskAnalysisModal.vue';
+import RiskResponseModal from '../list/modals/RiskResponseModal.vue';
+import RiskMonitoringModal from '../list/modals/RiskMonitoringModal.vue';
 
 const { t } = useI18n();
 const route = useRoute();
@@ -521,8 +525,40 @@ watch(slug, () => {
       </div>
     </template>
 
-    <RiskDetailModal
-      v-if="risk"
+    <RiskDraftModal
+      v-if="risk && risk.state === 'draft'"
+      :show="showEditModal"
+      :risk-id="risk.slug"
+      @update:show="showEditModal = $event"
+      @success="onEditSuccess"
+    />
+
+    <RiskRegisteredModal
+      v-if="risk && risk.state === 'registered'"
+      :show="showEditModal"
+      :risk-id="risk.slug"
+      @update:show="showEditModal = $event"
+      @success="onEditSuccess"
+    />
+
+    <RiskAnalysisModal
+      v-if="risk && risk.state === 'analysis'"
+      :show="showEditModal"
+      :risk-id="risk.slug"
+      @update:show="showEditModal = $event"
+      @success="onEditSuccess"
+    />
+
+    <RiskResponseModal
+      v-if="risk && risk.state === 'response'"
+      :show="showEditModal"
+      :risk-id="risk.slug"
+      @update:show="showEditModal = $event"
+      @success="onEditSuccess"
+    />
+
+    <RiskMonitoringModal
+      v-if="risk && risk.state === 'monitoring'"
       :show="showEditModal"
       :risk-id="risk.slug"
       @update:show="showEditModal = $event"

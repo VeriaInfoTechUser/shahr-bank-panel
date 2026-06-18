@@ -41,10 +41,10 @@ const initialValues = ref<Record<string, unknown>>({});
 const formRef = ref<InstanceType<typeof Form>>();
 
 const validationSchema = computed(() => yup.object({
-  title: yup.string().trim().optional(),
-  riskType: yup.string().trim().optional(),
-  categorySlug: yup.string().trim().optional(),
-  subCategorySlug: yup.string().trim().optional(),
+  title: yup.string().trim().required(t('validation.required')),
+  riskType: yup.string().trim().required(t('validation.required')),
+  categorySlug: yup.string().trim().required(t('validation.required')),
+  subCategorySlug: yup.string().trim().required(t('validation.required')),
   ownerId: yup.string().trim().required(t('validation.required')),
   registerDescription: yup.string().trim().optional(),
 }));
@@ -184,7 +184,7 @@ function handleStartAnalysis() {
         onConfirmAction: async () => {
           registering.value = true;
           try {
-            const res = await transitionRisk(risk.value!.slug, 'analysis', { registerDescription: values?.registerDescription });
+            const res = await transitionRisk(risk.value!.slug, 'analysis', values);
             if (!res) throw new Error(t('risk.transition-error'));
           } catch (err: unknown) {
             if (err instanceof Error) {
@@ -242,7 +242,6 @@ function handleStartAnalysis() {
           <BaseInput
             name="title"
             :label="t('risk.field-title')"
-            :disabled="true"
             :placeholder="t('risk.field-title-placeholder')"
           />
           <div class="grid grid-cols-1 gap-3 md:grid-cols-2 md:gap-x-4 md:gap-y-3">
@@ -250,14 +249,13 @@ function handleStartAnalysis() {
               name="categorySlug"
               :label="t('risk.field-category')"
               :options="categoryOptions"
-              :disabled="true"
               :filter="true"
+              @change="onCategoryChange"
             />
             <BaseSelect
               name="subCategorySlug"
               :label="t('risk.field-sub-category')"
               :options="subCategoryOptions(selectedCategorySlug)"
-              :disabled="true"
               :filter="true"
             />
             <BaseSelect
@@ -271,7 +269,6 @@ function handleStartAnalysis() {
               name="riskType"
               :label="t('risk.field-risk-type')"
               :options="riskTypeOptions"
-              :disabled="true"
             />
           </div>
           <BaseInput

@@ -210,15 +210,7 @@ watch(slug, () => {
     <div class="col-span-12">
       <div class="flex flex-wrap items-center justify-between gap-3">
         <div class="flex items-center gap-3">
-          <button
-            type="button"
-            class="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 shadow-sm transition hover:bg-slate-50 hover:text-slate-800 dark:border-darkmode-600 dark:bg-darkmode-800 dark:text-slate-300 dark:hover:bg-darkmode-700"
-            :aria-label="t('button.back')"
-            :title="t('button.back')"
-            @click="goBack"
-          >
-            <Lucide icon="ArrowLeft" class="h-4 w-4 rtl:rotate-180" />
-          </button>
+
           <h1 class="text-lg font-semibold text-slate-800 dark:text-slate-200">
             {{ risk?.title ?? t('risk.detail-title') }}
           </h1>
@@ -233,16 +225,7 @@ watch(slug, () => {
             <Lucide icon="Pencil" class="mr-1.5 !h-3.5 !w-3.5" />
             {{ t('risk.action-edit') }}
           </Button>
-          <Button
-            v-for="tr in transitions"
-            :key="tr.to"
-            type="button"
-            :variant="tr.variant"
-            size="sm"
-            @click="handleTransition(tr.to)"
-          >
-            {{ t(tr.labelKey) }}
-          </Button>
+
         </div>
       </div>
     </div>

@@ -82,6 +82,43 @@ const riskTypeBadgeClass = computed(() => {
   return `${base} bg-slate-100 text-slate-600 border border-slate-200`;
 });
 
+const actionButtonConfig = computed(() => {
+  switch (currentStatus.value) {
+    case 'draft':
+      return { label: 'risk.action-register' };
+    case 'registered':
+      return { label: 'risk.action-start-analysis' };
+    case 'analysis':
+      return { label: 'risk.action-send-response' };
+    case 'response':
+      return { label: 'risk.action-send-monitoring' };
+    case 'monitoring':
+      return { label: 'risk.action-close-risk' };
+    default:
+      return null;
+  }
+});
+
+function executeAction() {
+  switch (currentStatus.value) {
+    case 'draft':
+      handleRegister({ draftDescription: '' });
+      break;
+    case 'registered':
+      handleStartAnalysis({ registerDescription: '' });
+      break;
+    case 'analysis':
+      handleTransition('response');
+      break;
+    case 'response':
+      handleTransition('monitoring');
+      break;
+    case 'monitoring':
+      handleTransition('closed');
+      break;
+  }
+}
+
 function mapMembers(list: Record<string, unknown>[]) {
   return list
     .map((m) => {
@@ -496,15 +533,38 @@ function handleTransition(to: string) {
       />
     </div>
     <template #footer>
-      <div class="flex justify-end">
-        <Button
-          type="button"
-          variant="outline-secondary"
-          size="sm"
-          @click="close"
-        >
-          {{ t('general.close') }}
-        </Button>
+      <div class="flex items-center justify-between">
+        <div>
+          <Button
+            v-if="currentStatus === 'draft'"
+            type="button"
+            variant="danger"
+            size="sm"
+            @click="handleDelete"
+          >
+            {{ t('general.delete') }}
+          </Button>
+        </div>
+        <div class="flex gap-2">
+          <Button
+            type="button"
+            variant="outline-secondary"
+            size="sm"
+            @click="close"
+          >
+            {{ t('general.close') }}
+          </Button>
+          <Button
+            v-if="actionButtonConfig"
+            type="button"
+            variant="primary"
+            size="sm"
+            :disabled="saving || registering || transitioning"
+            @click="executeAction"
+          >
+            {{ t(actionButtonConfig.label) }}
+          </Button>
+        </div>
       </div>
     </template>
   </BaseModal>

@@ -132,13 +132,12 @@ async function handleTransition(to: string) {
 
     <div class="flex justify-end gap-2 pt-4 border-t border-slate-200 dark:border-darkmode-600">
       <Button
-        type="button"
-        variant="primary"
+        type="submit"
+        variant="secondary"
         size="sm"
-        :disabled="saving || transitioning"
-        @click="handleTransition('monitoring')"
+        :disabled="saving"
       >
-        {{ t('risk.action-send-monitoring') }}
+        {{ t('risk.action.save-response') }}
       </Button>
     </div>
   </Form>

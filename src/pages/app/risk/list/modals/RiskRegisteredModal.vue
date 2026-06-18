@@ -284,21 +284,21 @@ function handleStartAnalysis() {
     <template #footer>
       <div class="flex justify-end gap-2">
         <Button
-          type="submit"
-          variant="outline-secondary"
-          size="sm"
-          form="risk-registered-modal-form"
-          :disabled="saving"
-        >
-          {{ t('title.update') }}
-        </Button>
-        <Button
           type="button"
           variant="outline-secondary"
           size="sm"
           @click="close"
         >
           {{ t('general.close') }}
+        </Button>
+        <Button
+            type="submit"
+            variant="outline-secondary"
+            size="sm"
+            form="risk-registered-modal-form"
+            :disabled="saving"
+        >
+          {{ t('title.update') }}
         </Button>
         <Button
           type="button"

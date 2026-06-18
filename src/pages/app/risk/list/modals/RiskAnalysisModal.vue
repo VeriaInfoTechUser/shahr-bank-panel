@@ -8,7 +8,9 @@ import BaseModal from '@/core/ui/base/BaseModal.vue';
 import BaseConfirmModal from '@/core/ui/base/BaseConfirmModal.vue';
 import Button from '@/base-components/Button';
 import { useGlobalModal } from '@/composables/useGlobalModal';
+import { ermRepo } from '@/core/repositories/ermRepo';
 import { useRisk, type Risk } from '../useRisk';
+import { useRiskCategories } from '../useRiskCategories';
 import { useRiskTransition } from '../useRiskTransition';
 import BaseInput from '@/core/ui/base/BaseInput.vue';
 import BaseSelect from '@/core/ui/base/BaseSelect.vue';
@@ -26,6 +28,7 @@ const emit = defineEmits<{
 const { t } = useI18n();
 const { openModal } = useGlobalModal();
 const { loading: apiLoading, fetchRisk, updateRisk, transitionRisk } = useRisk();
+const { categoryOptions, subCategoryOptions, getCategoryTitle, getSubCategoryTitle, fetchTree } = useRiskCategories();
 const { calculateScore, calculateRiskLevel, parseTransitionErrors } = useRiskTransition();
 
 const impactOptions = computed(() => [
@@ -44,14 +47,26 @@ const likelihoodOptions = computed(() => [
   { value: 5, label: `5 - ${t('risk.likelihood-5')}` },
 ]);
 
+const riskTypeOptions = computed(() => [
+  { value: 'threat', label: t('risk.type-threat') },
+  { value: 'opportunity', label: t('risk.type-opportunity') },
+]);
+
 const formKey = ref(0);
 const saving = ref(false);
 const transitioning = ref(false);
 const risk = ref<Risk | null>(null);
+const selectedCategorySlug = ref('');
+const memberOptions = ref<{ value: string; label: string }[]>([]);
 const initialValues = ref<Record<string, unknown>>({});
 const formRef = ref<InstanceType<typeof Form>>();
 
 const validationSchema = computed(() => yup.object({
+  title: yup.string().trim().required(t('validation.required')),
+  riskType: yup.string().trim().required(t('validation.required')),
+  categorySlug: yup.string().trim().required(t('validation.required')),
+  subCategorySlug: yup.string().trim().required(t('validation.required')),
+  ownerId: yup.string().trim().required(t('validation.required')),
   impactFactor: yup.string().required(t('validation.required')),
   likelihood: yup.string().required(t('validation.required')),
 }));
@@ -66,20 +81,45 @@ const riskTypeBadgeClass = computed(() => {
   return `${base} bg-slate-100 text-slate-600 border border-slate-200`;
 });
 
+function mapMembers(list: Record<string, unknown>[]) {
+  return list
+    .map((m) => {
+      const id = m.id ?? m.user_id;
+      if (id == null) return null;
+      const label =
+        [m.name, m.full_name, m.email, m.mobile]
+          .find((x) => typeof x === 'string' && String(x).trim()) ?? String(id);
+      return { value: String(id), label: String(label).trim() };
+    })
+    .filter((x): x is { value: string; label: string } => x != null);
+}
+
 watch(
   () => [props.show, props.riskId],
   async ([show, id]) => {
     if (show && id) {
+      await Promise.all([fetchTree(), loadMembers()]);
       await loadRisk(id);
     }
   },
   { immediate: true }
 );
 
+async function loadMembers() {
+  try {
+    const res = await ermRepo.memberList({ page: 1, limit: 500 });
+    const list = res?.data?.list ?? [];
+    memberOptions.value = mapMembers(Array.isArray(list) ? list : []);
+  } catch {
+    memberOptions.value = [];
+  }
+}
+
 async function loadRisk(id: string) {
   const data = await fetchRisk(id);
   if (!data) return;
   risk.value = data;
+  selectedCategorySlug.value = data.categorySlug ?? '';
 
   await nextTick();
   populateForm(data);
@@ -88,6 +128,11 @@ async function loadRisk(id: string) {
 
 function populateForm(r: Risk) {
   initialValues.value = {
+    title: r.title ?? '',
+    riskType: r.riskType ?? '',
+    categorySlug: r.categorySlug ?? '',
+    subCategorySlug: r.subCategorySlug ?? '',
+    ownerId: r.ownerId ?? '',
     impactFactor: r.impactFactor ?? '',
     likelihood: r.likelihood ?? '',
     inherentScore: r.inherentScore != null ? String(r.inherentScore) : '',
@@ -106,11 +151,24 @@ function onDialogVisible(v: boolean) {
   emit('update:show', v);
 }
 
+function onCategoryChange(value: unknown) {
+  selectedCategorySlug.value = String(value ?? '');
+}
+
 async function handleSave(values: Record<string, unknown>) {
   if (!risk.value) return;
   saving.value = true;
   try {
+    const catSlug = String(values.categorySlug ?? '');
+    const subCatSlug = String(values.subCategorySlug ?? '');
     const data = {
+      title: values.title,
+      riskType: values.riskType,
+      categorySlug: catSlug,
+      categoryTitle: getCategoryTitle(catSlug),
+      subCategorySlug: subCatSlug,
+      subCategoryTitle: getSubCategoryTitle(catSlug, subCatSlug),
+      ownerId: values.ownerId,
       impactFactor: values.impactFactor ? Number(values.impactFactor) : null,
       likelihood: values.likelihood ? Number(values.likelihood) : null,
       inherentScore: values.inherentScore ? Number(values.inherentScore) : null,
@@ -134,35 +192,39 @@ async function handleSave(values: Record<string, unknown>) {
 
 function handleTransitionToResponse() {
   if (!risk.value) return;
-  openModal({
-    component: BaseConfirmModal,
-    props: {
-      title: t('risk.transition-confirm-title'),
-      message: t('risk.transition-confirm-message', { status: t('risk.status-response') }),
-      confirmVariant: 'primary' as const,
-      onConfirmAction: async () => {
-        transitioning.value = true;
-        try {
-          const res = await transitionRisk(risk.value!.slug, 'response');
-          if (!res) throw new Error(t('risk.transition-error'));
-        } catch (err: unknown) {
-          if (err instanceof Error) {
-            const parsed = parseTransitionErrors([err.message]);
-            if (parsed.length > 0 && parsed[0] !== err.message) {
-              throw new Error(t(parsed[0]));
+  formRef.value?.validate().then(({ valid }) => {
+    if (!valid) return;
+    const values = formRef.value?.getValues();
+    openModal({
+      component: BaseConfirmModal,
+      props: {
+        title: t('risk.transition-confirm-title'),
+        message: t('risk.transition-confirm-message', { status: t('risk.status-response') }),
+        confirmVariant: 'primary' as const,
+        onConfirmAction: async () => {
+          transitioning.value = true;
+          try {
+            const res = await transitionRisk(risk.value!.slug, 'response', values);
+            if (!res) throw new Error(t('risk.transition-error'));
+          } catch (err: unknown) {
+            if (err instanceof Error) {
+              const parsed = parseTransitionErrors([err.message]);
+              if (parsed.length > 0 && parsed[0] !== err.message) {
+                throw new Error(t(parsed[0]));
+              }
             }
+            throw err;
+          } finally {
+            transitioning.value = false;
           }
-          throw err;
-        } finally {
-          transitioning.value = false;
-        }
+        },
       },
-    },
-    onSuccess: async () => {
-      toast(t('risk.transition-success'), { type: 'success' });
-      close();
-      emit('success');
-    },
+      onSuccess: async () => {
+        toast(t('risk.transition-success'), { type: 'success' });
+        close();
+        emit('success');
+      },
+    });
   });
 }
 
@@ -197,6 +259,42 @@ function handleTransitionToResponse() {
         @submit="handleSave"
       >
         <div class="space-y-3">
+          <BaseInput
+            name="title"
+            :label="t('risk.field-title')"
+            :required="true"
+            :placeholder="t('risk.field-title-placeholder')"
+          />
+          <div class="grid grid-cols-1 gap-3 md:grid-cols-2 md:gap-x-4 md:gap-y-3">
+            <BaseSelect
+              name="categorySlug"
+              :label="t('risk.field-category')"
+              :options="categoryOptions"
+              :required="true"
+              :filter="true"
+              @change="onCategoryChange"
+            />
+            <BaseSelect
+              name="subCategorySlug"
+              :label="t('risk.field-sub-category')"
+              :options="subCategoryOptions(selectedCategorySlug)"
+              :required="true"
+              :filter="true"
+            />
+            <BaseSelect
+              name="ownerId"
+              :label="t('risk.field-owner')"
+              :options="memberOptions"
+              :required="true"
+              :filter="true"
+            />
+            <BaseSelect
+              name="riskType"
+              :label="t('risk.field-risk-type')"
+              :options="riskTypeOptions"
+              :required="true"
+            />
+          </div>
           <div class="grid grid-cols-1 gap-3 md:grid-cols-2 md:gap-x-4 md:gap-y-3">
             <BaseSelect
               name="impactFactor"

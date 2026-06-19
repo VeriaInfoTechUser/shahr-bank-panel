@@ -216,7 +216,7 @@ export const grcRepo = {
   },
 
   complianceTaskUpdate(slug: string, data: Record<string, unknown>): Promise<GrcApiResponse<GrcEntity>> {
-    return grcHttpRequest({ method: 'PUT', url: `/compliance/tasks/${slug}`, data });
+    return grcHttpRequest({ method: 'PATCH', url: `/compliance/tasks/${slug}`, data });
   },
 
   // Risks

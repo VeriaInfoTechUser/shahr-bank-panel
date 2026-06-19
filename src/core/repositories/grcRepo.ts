@@ -261,7 +261,7 @@ export const grcRepo = {
   },
 
   // Task Transitions
-  taskStart(slug: string, data: { assigneeId: string; comment?: string; updatedBy?: number }): Promise<GrcApiResponse<Record<string, unknown>>> {
+  taskStart(slug: string, data: Record<string, unknown>): Promise<GrcApiResponse<Record<string, unknown>>> {
     return grcHttpRequest({ method: 'POST', url: `/grc/tasks/${slug}/start`, data });
   },
 

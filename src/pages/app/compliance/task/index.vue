@@ -10,7 +10,6 @@ import { ermRepo } from '@/core/repositories/ermRepo';
 import { useBreadcrumbSlot } from '@/composables/useBreadcrumb';
 import { complianceOperationsStatusBadgeClass } from '@/composables/complianceOperationsStatusBadge';
 import ComplianceTaskAnswerModal from './ComplianceTaskAnswerModal.vue';
-import TaskTransitionActions from './TaskTransitionActions.vue';
 import Button from '@/base-components/Button';
 import Lucide from '@/base-components/Lucide';
 import ComplianceTaskBreadcrumbToolbar from './ComplianceTaskBreadcrumbToolbar.vue';
@@ -31,18 +30,18 @@ const selectedTask = ref<Record<string, unknown> | null>(null);
 
 const STATE_I18N: Record<string, string> = {
   todo: 'compliance-task.state-todo',
-  'in-progress': 'compliance-task.state-in-progress',
+  in_progress: 'compliance-task.state-in_progress',
   done: 'compliance-task.state-done',
-  approve: 'compliance-task.state-approve',
-  reject: 'compliance-task.state-reject',
+  approved: 'compliance-task.state-approved',
+  rejected: 'compliance-task.state-rejected',
 };
 
 const STATE_BADGE_KEY: Record<string, string> = {
   todo: 'todo',
-  'in-progress': 'doing',
+  in_progress: 'doing',
   done: 'done',
-  approve: 'approve',
-  reject: 'reject',
+  approved: 'approve',
+  rejected: 'reject',
 };
 
 const ANSWER_I18N: Record<string, string> = {
@@ -216,7 +215,6 @@ onMounted(async () => {
         :export-enabled="table.exportEnabled"
         :empty-message="t('general.no-data')"
         :actions="true"
-        :actions-header="t('compliance-task.col-actions')"
         :show-search="false"
       >
         <template #cell-answer="{ row }">
@@ -231,10 +229,6 @@ onMounted(async () => {
         </template>
         <template #actions="{ row }">
           <div class="flex items-center justify-center gap-2">
-            <TaskTransitionActions
-              :task="row"
-              @success="onAnswerSuccess"
-            />
             <Button
               type="button"
               variant="outline-primary"

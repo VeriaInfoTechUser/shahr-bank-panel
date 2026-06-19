@@ -1432,10 +1432,10 @@
     "col-actions": "الإجراءات",
     "action-set-answer": "تحديد الإجابة",
     "state-todo": "قيد الانتظار",
-    "state-in-progress": "قيد التنفيذ",
+    "state-in_progress": "قيد التنفيذ",
     "state-done": "مكتمل",
-    "state-approve": "معتمد",
-    "state-reject": "مرفوض",
+    "state-approved": "معتمد",
+    "state-rejected": "مرفوض",
     "answer-not-started": "لم يبدأ",
     "answer-compliant": "متوافق",
     "answer-partially-compliant": "متوافق جزئياً",
@@ -1452,7 +1452,8 @@
     "answer-submit": "تقديم الإجابة",
     "answer-submit-success": "تم تقديم الإجابة بنجاح",
     "answer-submit-error": "فشل تقديم الإجابة",
-    "answer-validation-required": "يرجى اختيار إجابة"
+    "answer-validation-required": "يرجى اختيار إجابة",
+    "error-assignee-required": "مسؤول التنفيذ مطلوب"
   },
   "task-transition": {
     "error-no-slug": "لم يتم العثور على معرف المهمة",

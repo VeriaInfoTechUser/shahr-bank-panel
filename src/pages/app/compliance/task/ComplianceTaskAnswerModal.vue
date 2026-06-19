@@ -30,8 +30,6 @@ const emit = defineEmits<{
 
 const { t } = useI18n();
 const saving = ref(false);
-const formKey = ref(0);
-const formId = 'compliance-task-answer-form';
 
 const answerOptions = computed<AnswerOption[]>(() => {
   const raw = props.task?.answerList;
@@ -44,9 +42,19 @@ const taskTitle = computed(() => {
   return String(props.task.title ?? props.task.controlTitle ?? '');
 });
 
+const taskState = computed(() => {
+  if (!props.task) return null;
+  return String(props.task.state ?? '').trim().toLowerCase() || null;
+});
+
+const showStartButton = computed(() => taskState.value === 'todo');
+const showDoneButton = computed(() => taskState.value === 'in_progress');
+const showApproveRejectButtons = computed(() => taskState.value === 'done');
+const showReopenButton = computed(() => taskState.value === 'rejected');
+
 const validationSchema = computed(() =>
   yup.object({
-    answer_key: yup.string().trim().required(t('compliance-task.answer-validation-required')),
+    answer_key: yup.string().trim().optional(),
     answer_note: yup.string().trim().optional(),
   })
 );
@@ -58,7 +66,7 @@ function buildInitialValues(task: Record<string, unknown> | null) {
   };
 }
 
-const { values, setFieldError, resetForm } = useForm({
+const { values, setFieldError, resetForm, handleSubmit } = useForm({
   validationSchema,
   initialValues: buildInitialValues(props.task),
 });
@@ -71,7 +79,6 @@ watch(
   ([show, task]) => {
     if (!show || !task) return;
     resetForm({ values: buildInitialValues(task) });
-    formKey.value += 1;
   },
   { immediate: true }
 );
@@ -91,38 +98,168 @@ function onDialogVisible(v: boolean) {
   if (!v) emit('close');
 }
 
-async function onSubmit(formValues: Record<string, unknown>) {
-  if (!props.task) return;
+function getSlug(): string | null {
+  if (!props.task) return null;
   const slug = String(props.task.slug ?? '');
+  return slug || null;
+}
+
+const onSubmit = handleSubmit(async (formValues) => {
+  const slug = getSlug();
   if (!slug) return;
-
-  const selectedKey = String(formValues.answer_key ?? '');
-  if (!selectedKey) {
-    setFieldError('answer_key', t('compliance-task.answer-validation-required'));
-    return;
-  }
-
-  const selectedOption = answerOptions.value.find((o) => o.key === selectedKey);
 
   saving.value = true;
   try {
-    const payload = {
-      answerKey: selectedKey,
-      answerScore: selectedOption?.score ?? null,
-      answerTitle: selectedOption?.title ?? null,
-      answerDescription: selectedOption?.description ?? null,
-      answerNote: String(formValues.answer_note ?? '').trim(),
-      taskStatus: 'in_progress',
-      answer: selectedKey,
-    };
+    const selectedKey = String(formValues.answer_key ?? '').trim();
+    const selectedOption = selectedKey
+      ? answerOptions.value.find((o) => o.key === selectedKey)
+      : undefined;
 
-    const res = await grcRepo.complianceTaskUpdate(slug, payload);
+    const payload: Record<string, unknown> = {};
+
+    const note = String(formValues.answer_note ?? '').trim();
+    if (note) {
+      payload.comment = note;
+    }
+
+    if (selectedKey) {
+      payload.answerKey = selectedKey;
+      payload.answer = selectedKey;
+      if (selectedOption) {
+        payload.answerScore = selectedOption.score;
+        payload.answerTitle = selectedOption.title;
+        if (selectedOption.description) {
+          payload.answerDescription = selectedOption.description;
+        }
+      }
+    }
+
+    const res = await grcRepo.taskStart(slug, payload);
     if (res?.result) {
-      toast(t('compliance-task.answer-submit-success'), { type: 'success' });
+      toast(t('task-transition.start-success'), { type: 'success' });
       emit('success');
       close();
     } else {
-      toast(res?.error?.[0] ?? t('compliance-task.answer-submit-error'), { type: 'error' });
+      toast(res?.error?.[0] ?? t('task-transition.start-error'), { type: 'error' });
+    }
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : t('general.error');
+    toast(message, { type: 'error' });
+  } finally {
+    saving.value = false;
+  }
+});
+
+async function onDone() {
+  const slug = getSlug();
+  if (!slug) return;
+
+  saving.value = true;
+  try {
+    const res = await grcRepo.taskDone(slug);
+    if (res?.result) {
+      toast(t('task-transition.done-success'), { type: 'success' });
+      emit('success');
+      close();
+    } else {
+      toast(res?.error?.[0] ?? t('task-transition.done-error'), { type: 'error' });
+    }
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : t('general.error');
+    toast(message, { type: 'error' });
+  } finally {
+    saving.value = false;
+  }
+}
+
+async function onApprove() {
+  const slug = getSlug();
+  if (!slug) return;
+
+  saving.value = true;
+  try {
+    const selectedKey = answerKeyValue.value || '';
+    const selectedOption = selectedKey
+      ? answerOptions.value.find((o) => o.key === selectedKey)
+      : undefined;
+
+    const payload: Record<string, unknown> = {};
+
+    const note = values.answer_note?.trim();
+    if (note) {
+      payload.comment = note;
+    }
+
+    if (selectedKey) {
+      payload.answer = selectedKey;
+      payload.answerKey = selectedKey;
+      if (selectedOption) {
+        payload.answerScore = selectedOption.score;
+        payload.answerTitle = selectedOption.title;
+        if (selectedOption.description) {
+          payload.answerDescription = selectedOption.description;
+        }
+      }
+    }
+
+    const res = await grcRepo.taskApprove(slug, payload);
+    if (res?.result) {
+      toast(t('task-transition.approve-success'), { type: 'success' });
+      emit('success');
+      close();
+    } else {
+      toast(res?.error?.[0] ?? t('task-transition.approve-error'), { type: 'error' });
+    }
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : t('general.error');
+    toast(message, { type: 'error' });
+  } finally {
+    saving.value = false;
+  }
+}
+
+async function onReject() {
+  const slug = getSlug();
+  if (!slug) return;
+
+  saving.value = true;
+  try {
+    const payload: Record<string, unknown> = {};
+
+    const note = values.answer_note?.trim();
+    if (note) {
+      payload.comment = note;
+    }
+
+    const res = await grcRepo.taskReject(slug, payload);
+    if (res?.result) {
+      toast(t('task-transition.reject-success'), { type: 'success' });
+      emit('success');
+      close();
+    } else {
+      toast(res?.error?.[0] ?? t('task-transition.reject-error'), { type: 'error' });
+    }
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : t('general.error');
+    toast(message, { type: 'error' });
+  } finally {
+    saving.value = false;
+  }
+}
+
+async function onReopen() {
+  const slug = getSlug();
+  if (!slug) return;
+
+  saving.value = true;
+  try {
+    const res = await grcRepo.taskReopen(slug);
+    if (res?.result) {
+      toast(t('task-transition.reopen-success'), { type: 'success' });
+      emit('success');
+      close();
+    } else {
+      toast(res?.error?.[0] ?? t('task-transition.reopen-error'), { type: 'error' });
     }
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : t('general.error');
@@ -151,14 +288,7 @@ async function onSubmit(formValues: Record<string, unknown>) {
         </p>
       </div>
 
-      <Form
-        :key="formKey"
-        :id="formId"
-        :validation-schema="validationSchema"
-        :initial-values="buildInitialValues(task)"
-        class="space-y-4"
-        @submit="onSubmit"
-      >
+      <div class="space-y-4">
         <div
           v-if="task.controlSummary"
           class="rounded-md border border-slate-200/90 bg-slate-50/80 px-3 py-2.5 dark:border-darkmode-600 dark:bg-darkmode-900/40"
@@ -174,7 +304,6 @@ async function onSubmit(formValues: Record<string, unknown>) {
         <div v-if="answerOptions.length" class="space-y-1.5">
           <span class="text-xs font-medium text-slate-600 dark:text-slate-300">
             {{ t('compliance-task.answer-options-label') }}
-            <span class="text-error">*</span>
           </span>
           <div class="flex flex-col gap-2">
             <label
@@ -229,7 +358,7 @@ async function onSubmit(formValues: Record<string, unknown>) {
           :label="t('compliance-task.answer-note-label')"
           :placeholder="t('compliance-task.answer-note-placeholder')"
         />
-      </Form>
+      </div>
     </template>
 
     <template #footer>
@@ -243,16 +372,68 @@ async function onSubmit(formValues: Record<string, unknown>) {
         >
           {{ t('general.cancel') }}
         </Button>
+
         <Button
-          type="submit"
+          v-if="showStartButton"
+          type="button"
           variant="primary"
           size="sm"
-          :form="formId"
-          :disabled="saving || answerOptions.length === 0"
+          :disabled="saving"
+          @click="onSubmit"
+        >
+           {{ t('button.save') }}
+        </Button>
+
+        <Button
+          v-if="showDoneButton"
+          type="button"
+          variant="success"
+          size="sm"
+          :disabled="saving"
+          @click="onDone"
+        >
+          <Lucide v-if="saving" icon="Loader2" class="mr-1 h-3.5 w-3.5 animate-spin" />
+          <Lucide v-else icon="CheckCircle" class="mr-1 h-3.5 w-3.5" />
+          {{ t('task-transition.action-done') }}
+        </Button>
+
+        <Button
+          v-if="showApproveRejectButtons"
+          type="button"
+          variant="success"
+          size="sm"
+          :disabled="saving"
+          @click="onApprove"
         >
           <Lucide v-if="saving" icon="Loader2" class="mr-1 h-3.5 w-3.5 animate-spin" />
           <Lucide v-else icon="Check" class="mr-1 h-3.5 w-3.5" />
-          {{ t('compliance-task.answer-submit') }}
+          {{ t('task-transition.action-approve') }}
+        </Button>
+
+        <Button
+          v-if="showApproveRejectButtons"
+          type="button"
+          variant="danger"
+          size="sm"
+          :disabled="saving"
+          @click="onReject"
+        >
+          <Lucide v-if="saving" icon="Loader2" class="mr-1 h-3.5 w-3.5 animate-spin" />
+          <Lucide v-else icon="X" class="mr-1 h-3.5 w-3.5" />
+          {{ t('task-transition.action-reject') }}
+        </Button>
+
+        <Button
+          v-if="showReopenButton"
+          type="button"
+          variant="warning"
+          size="sm"
+          :disabled="saving"
+          @click="onReopen"
+        >
+          <Lucide v-if="saving" icon="Loader2" class="mr-1 h-3.5 w-3.5 animate-spin" />
+          <Lucide v-else icon="RotateCcw" class="mr-1 h-3.5 w-3.5" />
+          {{ t('task-transition.action-reopen') }}
         </Button>
       </div>
     </template>

@@ -21,7 +21,7 @@ export function useTaskTransitionActions(taskState: () => string | null | undefi
       case 'todo':
         return [];
 
-      case 'in-progress':
+      case 'in_progress':
         return [
           {
             type: 'done',
@@ -52,7 +52,7 @@ export function useTaskTransitionActions(taskState: () => string | null | undefi
           },
         ];
 
-      case 'reject':
+      case 'rejected':
         return [
           {
             type: 'reopen',
@@ -63,7 +63,7 @@ export function useTaskTransitionActions(taskState: () => string | null | undefi
           },
         ];
 
-      case 'approve':
+      case 'approved':
         return [];
 
       default:
@@ -72,7 +72,7 @@ export function useTaskTransitionActions(taskState: () => string | null | undefi
   });
 
   const hasActions = computed(() => availableActions.value.length > 0);
-  const isTerminal = computed(() => taskState() === 'approve');
+  const isTerminal = computed(() => taskState() === 'approved');
 
   return {
     availableActions,

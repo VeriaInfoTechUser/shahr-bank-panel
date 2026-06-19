@@ -2130,10 +2130,10 @@
     "col-actions": "عملیات",
     "action-set-answer": "ثبت پاسخ",
     "state-todo": "در انتظار اجرا",
-    "state-in-progress": "در حال اجرا",
+    "state-in_progress": "در حال اجرا",
     "state-done": "انجام شده",
-    "state-approve": "تأیید شده",
-    "state-reject": "رد شده",
+    "state-approved": "تأیید شده",
+    "state-rejected": "رد شده",
     "answer-not-started": "شروع نشده",
     "answer-compliant": "رعایت می‌شود",
     "answer-partially-compliant": "تا حدی رعایت می‌شود",
@@ -2150,7 +2150,8 @@
     "answer-submit": "ارسال پاسخ",
     "answer-submit-success": "پاسخ با موفقیت ارسال شد",
     "answer-submit-error": "خطا در ارسال پاسخ",
-    "answer-validation-required": "لطفاً یک پاسخ انتخاب کنید"
+    "answer-validation-required": "لطفاً یک پاسخ انتخاب کنید",
+    "error-assignee-required": "انتخاب مسئول اجرا الزامی است"
   },
   "task-transition": {
     "error-no-slug": "شناسه وظیفه یافت نشد",

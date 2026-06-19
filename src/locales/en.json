@@ -1903,10 +1903,10 @@
     "col-actions": "Actions",
     "action-set-answer": "Set Answer",
     "state-todo": "Todo",
-    "state-in-progress": "In Progress",
+    "state-in_progress": "In Progress",
     "state-done": "Done",
-    "state-approve": "Approved",
-    "state-reject": "Rejected",
+    "state-approved": "Approved",
+    "state-rejected": "Rejected",
     "answer-not-started": "Not Started",
     "answer-compliant": "Compliant",
     "answer-partially-compliant": "Partially Compliant",
@@ -1923,7 +1923,8 @@
     "answer-submit": "Submit Answer",
     "answer-submit-success": "Answer submitted successfully",
     "answer-submit-error": "Could not submit answer",
-    "answer-validation-required": "Please select an answer"
+    "answer-validation-required": "Please select an answer",
+    "error-assignee-required": "Assignee is required"
   },
   "task-transition": {
     "error-no-slug": "Task slug not found",

@@ -218,7 +218,15 @@ onMounted(async () => {
         :show-search="false"
       >
         <template #cell-answer="{ row }">
-          <span :class="answerBadgeClass(row)">
+          <button
+            v-if="row.answer==='not_started'"
+            type="button"
+            disabled
+            class=" w-24 inline-flex items-center justify-center !h-7 !px-3 text-[11px] rounded-md border border-white/20 bg-white/10 backdrop-blur-md shadow-sm text-slate-400 cursor-not-allowed dark:bg-slate-700/20 dark:border-slate-600/30"
+          >
+            -
+          </button>
+          <span v-else :class="answerBadgeClass(row)">
             {{ answerLabel(row) }}
           </span>
         </template>

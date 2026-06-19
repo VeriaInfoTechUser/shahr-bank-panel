@@ -62,7 +62,7 @@ const validationSchema = computed(() =>
 function buildInitialValues(task: Record<string, unknown> | null) {
   return {
     answer_key: String(task?.answerKey ?? ''),
-    comment: '',
+    comment: String(task?.comment ?? ''),
   };
 }
 

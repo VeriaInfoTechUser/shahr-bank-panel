@@ -55,14 +55,14 @@ const showReopenButton = computed(() => taskState.value === 'rejected');
 const validationSchema = computed(() =>
   yup.object({
     answer_key: yup.string().trim().optional(),
-    answer_note: yup.string().trim().optional(),
+    comment: yup.string().trim().optional(),
   })
 );
 
 function buildInitialValues(task: Record<string, unknown> | null) {
   return {
     answer_key: String(task?.answerKey ?? ''),
-    answer_note: '',
+    comment: '',
   };
 }
 
@@ -117,7 +117,7 @@ const onSubmit = handleSubmit(async (formValues) => {
 
     const payload: Record<string, unknown> = {};
 
-    const note = String(formValues.answer_note ?? '').trim();
+    const note = String(formValues.comment ?? '').trim();
     if (note) {
       payload.comment = note;
     }
@@ -185,7 +185,7 @@ async function onApprove() {
 
     const payload: Record<string, unknown> = {};
 
-    const note = values.answer_note?.trim();
+    const note = values.comment?.trim();
     if (note) {
       payload.comment = note;
     }
@@ -226,7 +226,7 @@ async function onReject() {
   try {
     const payload: Record<string, unknown> = {};
 
-    const note = values.answer_note?.trim();
+    const note = values.comment?.trim();
     if (note) {
       payload.comment = note;
     }
@@ -352,7 +352,7 @@ async function onReopen() {
         </div>
 
         <BaseInput
-          name="answer_note"
+          name="comment"
           type="textarea"
           :rows="3"
           :label="t('compliance-task.answer-note-label')"

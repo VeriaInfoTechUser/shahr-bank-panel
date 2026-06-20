@@ -82,16 +82,6 @@ export const useSideMenuStore = defineStore("sideMenu", {
                     //     pageName: "app-compliance-operations",
                     //     title: "menu.compliance-operations",
                     // },
-                    // {
-                    //     icon: "BarChart3",
-                    //     pageName: "app-compliance-performance-report",
-                    //     title: "menu.performance-report",
-                    // },
-                    // {
-                    //     icon: "FileText",
-                    //     pageName: "app-compliance-report",
-                    //     title: "menu.report",
-                    // },
                     {
                         icon: "ClipboardList",
                         pageName: "app-compliance-plan",
@@ -101,6 +91,11 @@ export const useSideMenuStore = defineStore("sideMenu", {
                         icon: "ListChecks",
                         pageName: "app-compliance-task",
                         title: "menu.compliance-operations",
+                    },
+                    {
+                        icon: "FileText",
+                        pageName: "app-compliance-report",
+                        title: "menu.report",
                     },
                 ],
             },
@@ -124,20 +119,15 @@ export const useSideMenuStore = defineStore("sideMenu", {
                         pageName: "app-risk-list",
                         title: "menu.risk-operations",
                     },
-                    // {
-                    //     icon: "BarChart3",
-                    //     pageName: "app-risk-performance-report",
-                    //     title: "menu.performance-report",
-                    // },
-                    // {
-                    //     icon: "FileText",
-                    //     pageName: "app-risk-report",
-                    //     title: "menu.report",
-                    // },
                     {
                         icon: "ArchiveRestore",
                         pageName: "app-risk-archive",
                         title: "menu.risk-archive",
+                    },
+                    {
+                        icon: "FileText",
+                        pageName: "app-risk-report",
+                        title: "menu.report",
                     },
                 ],
             },

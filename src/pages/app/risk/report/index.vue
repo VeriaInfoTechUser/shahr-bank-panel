@@ -9,7 +9,6 @@ const { t } = useI18n();
     <header class="mb-8">
       <div class="flex items-center gap-4">
         <div class="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary shadow-sm">
-          <span class="text-2xl">📄</span>
         </div>
         <div>
           <h1 class="text-2xl font-bold text-slate-900 dark:text-slate-50">

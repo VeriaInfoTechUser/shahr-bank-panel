@@ -124,7 +124,7 @@ export type GrcUpdatePlan = Partial<GrcCreateFramework>;
 export const grcRepo = {
   // Frameworks
   riskDashboard(params?: GrcListParams): Promise<GrcApiResponse<GrcPaginatedResponse>> {
-    return grcHttpRequest({ method: 'GET', url: '/risks/dashboard', params });
+    return grcHttpRequest({ method: 'GET', url: '/grc/risks/dashboard', params });
   },
   // Frameworks
   frameworkList(params?: GrcListParams): Promise<GrcApiResponse<GrcPaginatedResponse>> {

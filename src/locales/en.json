@@ -215,6 +215,7 @@
     "confirm-dialog-confirm": "Confirm",
     "warning": "Warning",
     "retry": "Retry",
+    "refresh": "Refresh",
     "close": "Close",
     "delete": "Delete",
     "delete-confirm-message": "Are you sure you want to delete this item?",
@@ -2113,6 +2114,8 @@
   "risk": {
     "create-title": "New Risk",
     "detail-title": "Risk Detail",
+    "dashboard-load-error": "Failed to load dashboard data.",
+    "dashboard-api-response": "API Response",
     "create-success": "Risk created successfully.",
     "create-error": "Failed to create risk.",
     "save-success": "Risk saved successfully.",

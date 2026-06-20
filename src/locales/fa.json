@@ -236,6 +236,7 @@
     "confirm-dialog-confirm": "تأیید",
     "warning": "هشدار",
     "retry": "تلاش مجدد",
+    "refresh": "بازخوانی",
     "close": "بستن",
     "delete": "حذف",
     "delete-confirm-message": "آیا از حذف این مورد اطمینان دارید؟",
@@ -2284,6 +2285,8 @@
   "risk": {
     "create-title": "ریسک جدید",
     "detail-title": "جزئیات ریسک",
+    "dashboard-load-error": "خطا در بارگذاری اطلاعات داشبورد.",
+    "dashboard-api-response": "پاسخ API",
     "create-success": "ریسک با موفقیت ایجاد شد.",
     "create-error": "خطا در ایجاد ریسک.",
     "save-success": "ریسک با موفقیت ذخیره شد.",

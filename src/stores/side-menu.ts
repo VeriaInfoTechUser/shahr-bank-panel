@@ -109,11 +109,11 @@ export const useSideMenuStore = defineStore("sideMenu", {
                 pageName: "app-risk",
                 title: "menu.risk",
                 subMenu: [
-                    // {
-                    //     icon: "LayoutDashboard",
-                    //     pageName: "app-risk-dashboard",
-                    //     title: "menu.dashboard",
-                    // },
+                    {
+                        icon: "LayoutDashboard",
+                        pageName: "app-risk-dashboard",
+                        title: "menu.dashboard",
+                    },
                     {
                         icon: "Archive",
                         pageName: "app-risk-repository",

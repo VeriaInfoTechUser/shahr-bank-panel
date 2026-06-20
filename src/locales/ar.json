@@ -85,6 +85,7 @@
     "confirm-dialog-confirm": "تأكيد",
     "warning": "تحذير",
     "retry": "إعادة المحاولة",
+    "refresh": "تحديث",
     "close": "إغلاق",
     "delete": "حذف",
     "delete-confirm-message": "هل أنت متأكد من حذف هذا العنصر؟",
@@ -1574,6 +1575,8 @@
   "risk": {
     "create-title": "مخاطرة جديدة",
     "detail-title": "تفاصيل المخاطرة",
+    "dashboard-load-error": "فشل في تحميل بيانات لوحة التحكم.",
+    "dashboard-api-response": "استجابة API",
     "create-success": "تم إنشاء المخاطرة بنجاح.",
     "create-error": "فشل في إنشاء المخاطرة.",
     "save-success": "تم حفظ المخاطرة بنجاح.",

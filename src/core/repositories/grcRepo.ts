@@ -220,6 +220,10 @@ export const grcRepo = {
   },
 
   // Risks
+  riskDashboard(): Promise<GrcApiResponse<Record<string, unknown>>> {
+    return grcHttpRequest({ method: 'GET', url: '/grc/risks/dashboard' });
+  },
+
   riskList(params?: Record<string, unknown>): Promise<GrcApiResponse<GrcPaginatedResponse>> {
     return grcHttpRequest({ method: 'GET', url: '/grc/risks', params });
   },

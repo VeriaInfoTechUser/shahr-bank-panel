@@ -72,26 +72,26 @@ export const useSideMenuStore = defineStore("sideMenu", {
                 pageName: "app-compliance",
                 title: "menu.compliance",
                 subMenu: [
-                    {
-                        icon: "LayoutDashboard",
-                        pageName: "app-compliance-dashboard",
-                        title: "menu.dashboard",
-                    },
-                    {
-                        icon: "ShieldCheck",
-                        pageName: "app-compliance-operations",
-                        title: "menu.compliance-operations",
-                    },
-                    {
-                        icon: "BarChart3",
-                        pageName: "app-compliance-performance-report",
-                        title: "menu.performance-report",
-                    },
-                    {
-                        icon: "FileText",
-                        pageName: "app-compliance-report",
-                        title: "menu.report",
-                    },
+                    // {
+                    //     icon: "LayoutDashboard",
+                    //     pageName: "app-compliance-dashboard",
+                    //     title: "menu.dashboard",
+                    // },
+                    // {
+                    //     icon: "ShieldCheck",
+                    //     pageName: "app-compliance-operations",
+                    //     title: "menu.compliance-operations",
+                    // },
+                    // {
+                    //     icon: "BarChart3",
+                    //     pageName: "app-compliance-performance-report",
+                    //     title: "menu.performance-report",
+                    // },
+                    // {
+                    //     icon: "FileText",
+                    //     pageName: "app-compliance-report",
+                    //     title: "menu.report",
+                    // },
                     {
                         icon: "ClipboardList",
                         pageName: "app-compliance-plan",
@@ -109,26 +109,26 @@ export const useSideMenuStore = defineStore("sideMenu", {
                 pageName: "app-risk",
                 title: "menu.risk",
                 subMenu: [
-                    {
-                        icon: "LayoutDashboard",
-                        pageName: "app-risk-dashboard",
-                        title: "menu.dashboard",
-                    },
-                    {
-                        icon: "AlertTriangle",
-                        pageName: "app-risk-operations",
-                        title: "menu.risk-operations",
-                    },
-                    {
-                        icon: "BarChart3",
-                        pageName: "app-risk-performance-report",
-                        title: "menu.performance-report",
-                    },
-                    {
-                        icon: "FileText",
-                        pageName: "app-risk-report",
-                        title: "menu.report",
-                    },
+                    // {
+                    //     icon: "LayoutDashboard",
+                    //     pageName: "app-risk-dashboard",
+                    //     title: "menu.dashboard",
+                    // },
+                    // {
+                    //     icon: "AlertTriangle",
+                    //     pageName: "app-risk-operations",
+                    //     title: "menu.risk-operations",
+                    // },
+                    // {
+                    //     icon: "BarChart3",
+                    //     pageName: "app-risk-performance-report",
+                    //     title: "menu.performance-report",
+                    // },
+                    // {
+                    //     icon: "FileText",
+                    //     pageName: "app-risk-report",
+                    //     title: "menu.report",
+                    // },
                     {
                         icon: "List",
                         pageName: "app-risk-list",

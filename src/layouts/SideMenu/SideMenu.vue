@@ -78,6 +78,7 @@ watch(
   computed(() => route.path),
   () => {
     delete route.forceActiveMenu;
+    setFormattedMenu(sideMenu.value);
   }
 );
 

@@ -7,7 +7,7 @@ import Lucide from '@/base-components/Lucide/Lucide.vue';
 import Button from '@/base-components/Button';
 import PerformancePieChart from '@/pages/app/compliance/performance-report/PerformancePieChart.vue';
 import DailyPerformanceChart from '@/pages/app/compliance/performance-report/DailyPerformanceChart.vue';
-import RiskDashboardFilterToolbar from '../dashboard/RiskDashboardFilterToolbar.vue';
+// import RiskDashboardFilterToolbar from '../dashboard/RiskDashboardFilterToolbar.vue';
 import { useBreadcrumbSlot } from '@/composables/useBreadcrumb';
 
 const { t } = useI18n();
@@ -196,13 +196,13 @@ onUnmounted(() => {
             </p>
           </div>
         </div>
-        <RiskDashboardFilterToolbar
-          :table="{
-            replaceFilters,
-            clearFilters,
-            filters
-          }"
-        />
+<!--        <RiskDashboardFilterToolbar-->
+<!--          :table="{-->
+<!--            replaceFilters,-->
+<!--            clearFilters,-->
+<!--            filters-->
+<!--          }"-->
+<!--        />-->
       </div>
     </header>
 

@@ -115,16 +115,16 @@ const impactLikelihoodDisplay = computed(() => {
 
 const residualScoreDisplay = computed(() => {
   if (!risk.value) return '—';
-  const imp = risk.value.residualImpact;
-  const lik = risk.value.residualLikelihood;
+  const imp = risk.value.impact;
+  const lik = risk.value.likelihood;
   if (imp == null || lik == null) return '—';
   return String(imp * lik);
 });
 
 const residualLevelDisplay = computed(() => {
   if (!risk.value) return '';
-  const imp = risk.value.residualImpact;
-  const lik = risk.value.residualLikelihood;
+  const imp = risk.value.impact;
+  const lik = risk.value.likelihood;
   if (imp == null || lik == null) return '';
   const score = imp * lik;
   if (score <= 4) return 'low';
@@ -347,16 +347,16 @@ watch(slug, () => {
             </div>
           </div>
 
-          <div v-if="risk.residualImpact != null || risk.residualLikelihood != null" class="rounded-2xl border border-slate-200/90 bg-white p-5 shadow-sm dark:border-darkmode-600 dark:bg-darkmode-800">
+          <div v-if="risk.impact != null || risk.likelihood != null" class="rounded-2xl border border-slate-200/90 bg-white p-5 shadow-sm dark:border-darkmode-600 dark:bg-darkmode-800">
             <h3 class="mb-3 text-sm font-semibold text-slate-700 dark:text-slate-200">{{ t('risk.section-monitoring') }}</h3>
             <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
               <div>
                 <div class="text-xs text-slate-500 dark:text-slate-400">{{ t('risk.field-residual-impact') }}</div>
-                <div class="text-sm font-medium text-slate-700 dark:text-slate-200">{{ risk.residualImpact ?? '—' }}</div>
+                <div class="text-sm font-medium text-slate-700 dark:text-slate-200">{{ risk.impact ?? '—' }}</div>
               </div>
               <div>
                 <div class="text-xs text-slate-500 dark:text-slate-400">{{ t('risk.field-residual-likelihood') }}</div>
-                <div class="text-sm font-medium text-slate-700 dark:text-slate-200">{{ risk.residualLikelihood ?? '—' }}</div>
+                <div class="text-sm font-medium text-slate-700 dark:text-slate-200">{{ risk.likelihood ?? '—' }}</div>
               </div>
               <div>
                 <div class="text-xs text-slate-500 dark:text-slate-400">{{ t('risk.field-residual-score') }}</div>

@@ -157,9 +157,9 @@ watch(
 watch(
   () => initialValues.value,
   () => {
-    const impact = initialValues.value.residualImpact ? Number(initialValues.value.residualImpact) : null;
-    const likelihood = initialValues.value.residualLikelihood ? Number(initialValues.value.residualLikelihood) : null;
-    residualScore.value = calculateScore(impact, likelihood);
+    const imp = initialValues.value.impact ? Number(initialValues.value.impact) : null;
+    const lik = initialValues.value.likelihood ? Number(initialValues.value.likelihood) : null;
+    residualScore.value = calculateScore(imp, lik);
     residualLevel.value = calculateRiskLevel(residualScore.value);
   },
   { deep: true }
@@ -201,8 +201,6 @@ async function loadTasks(riskSlug: string) {
 function populateForm(r: Risk) {
   initialValues.value = {
     monitoringDescription: r.monitoringDescription ?? '',
-    residualImpact: r.residualImpact ?? '',
-    residualLikelihood: r.residualLikelihood ?? '',
     impact: r.impact ?? '',
     likelihood: r.likelihood ?? '',
     vulnerability: r.vulnerability ?? '',
@@ -230,10 +228,8 @@ async function handleSave(values: Record<string, unknown>) {
   try {
     const data = {
       monitoringDescription: values.monitoringDescription || '',
-      residualImpact: values.residualImpact ? Number(values.residualImpact) : null,
-      residualLikelihood: values.residualLikelihood ? Number(values.residualLikelihood) : null,
-      impact: risk.value.impact ?? null,
-      likelihood: risk.value.likelihood ?? null,
+      impact: values.impact ? Number(values.impact) : null,
+      likelihood: values.likelihood ? Number(values.likelihood) : null,
     };
 
     await updateRisk(risk.value.slug, data);
@@ -251,15 +247,14 @@ async function handleSave(values: Record<string, unknown>) {
 function handleCloseRisk() {
   if (!risk.value) return;
   
-  // Clear previous errors
   formRef.value?.setFieldError('monitoringDescription', undefined);
-  formRef.value?.setFieldError('residualImpact', undefined);
-  formRef.value?.setFieldError('residualLikelihood', undefined);
+  formRef.value?.setFieldError('impact', undefined);
+  formRef.value?.setFieldError('likelihood', undefined);
   
   const values = formRef.value?.getValues();
   const monitoringDescription = String(values?.monitoringDescription ?? '').trim();
-  const residualImpact = values?.residualImpact;
-  const residualLikelihood = values?.residualLikelihood;
+  const impact = values?.impact;
+  const likelihood = values?.likelihood;
   
   let hasError = false;
   
@@ -267,12 +262,12 @@ function handleCloseRisk() {
     formRef.value?.setFieldError('monitoringDescription', t('validation.required'));
     hasError = true;
   }
-  if (!residualImpact) {
-    formRef.value?.setFieldError('residualImpact', t('validation.required'));
+  if (!impact) {
+    formRef.value?.setFieldError('impact', t('validation.required'));
     hasError = true;
   }
-  if (!residualLikelihood) {
-    formRef.value?.setFieldError('residualLikelihood', t('validation.required'));
+  if (!likelihood) {
+    formRef.value?.setFieldError('likelihood', t('validation.required'));
     hasError = true;
   }
   
@@ -280,10 +275,8 @@ function handleCloseRisk() {
   
   const payload = {
     monitoringDescription,
-    residualImpact: Number(residualImpact),
-    residualLikelihood: Number(residualLikelihood),
-    impact: risk.value!.impact ?? null,
-    likelihood: risk.value!.likelihood ?? null,
+    impact: Number(impact),
+    likelihood: Number(likelihood),
   };
   
   openModal({
@@ -321,15 +314,14 @@ function handleCloseRisk() {
 function handleArchiveRisk() {
   if (!risk.value) return;
   
-  // Clear previous errors
   formRef.value?.setFieldError('monitoringDescription', undefined);
-  formRef.value?.setFieldError('residualImpact', undefined);
-  formRef.value?.setFieldError('residualLikelihood', undefined);
+  formRef.value?.setFieldError('impact', undefined);
+  formRef.value?.setFieldError('likelihood', undefined);
   
   const values = formRef.value?.getValues();
   const monitoringDescription = String(values?.monitoringDescription ?? '').trim();
-  const residualImpact = values?.residualImpact;
-  const residualLikelihood = values?.residualLikelihood;
+  const impact = values?.impact;
+  const likelihood = values?.likelihood;
   
   let hasError = false;
   
@@ -337,12 +329,12 @@ function handleArchiveRisk() {
     formRef.value?.setFieldError('monitoringDescription', t('validation.required'));
     hasError = true;
   }
-  if (!residualImpact) {
-    formRef.value?.setFieldError('residualImpact', t('validation.required'));
+  if (!impact) {
+    formRef.value?.setFieldError('impact', t('validation.required'));
     hasError = true;
   }
-  if (!residualLikelihood) {
-    formRef.value?.setFieldError('residualLikelihood', t('validation.required'));
+  if (!likelihood) {
+    formRef.value?.setFieldError('likelihood', t('validation.required'));
     hasError = true;
   }
   
@@ -350,10 +342,8 @@ function handleArchiveRisk() {
   
   const payload = {
     monitoringDescription,
-    residualImpact: Number(residualImpact),
-    residualLikelihood: Number(residualLikelihood),
-    impact: risk.value!.impact ?? null,
-    likelihood: risk.value!.likelihood ?? null,
+    impact: Number(impact),
+    likelihood: Number(likelihood),
   };
   
   openModal({
@@ -421,8 +411,8 @@ function handleArchiveRisk() {
 
         <div class="space-y-3">
           <div class="grid grid-cols-1 gap-3 md:grid-cols-2 md:gap-x-4 md:gap-y-3">
-            <BaseSelect name="residualImpact" :label="t('risk.field-residual-impact')" :options="impactOptions" />
-            <BaseSelect name="residualLikelihood" :label="t('risk.field-residual-likelihood')" :options="likelihoodOptions" />
+            <BaseSelect name="impact" :label="t('risk.field-residual-impact')" :options="impactOptions" />
+            <BaseSelect name="likelihood" :label="t('risk.field-residual-likelihood')" :options="likelihoodOptions" />
           </div>
           <BaseInput name="monitoringDescription" :label="t('risk.field-monitoring-description')" type="textarea" :rows="3" :placeholder="t('risk.field-monitoring-description-placeholder')" />
           <div v-if="tasks.length > 0" class="space-y-2">

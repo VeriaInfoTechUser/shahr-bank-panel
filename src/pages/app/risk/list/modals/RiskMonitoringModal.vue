@@ -203,8 +203,8 @@ function populateForm(r: Risk) {
     monitoringDescription: r.monitoringDescription ?? '',
     residualImpact: r.residualImpact ?? '',
     residualLikelihood: r.residualLikelihood ?? '',
-    inherentImpact: r.inherentImpact ?? '',
-    inherentLikelihood: r.inherentLikelihood ?? '',
+    impact: r.impact ?? '',
+    likelihood: r.likelihood ?? '',
     vulnerability: r.vulnerability ?? '',
     threat: r.threat ?? '',
     strategy: r.strategy ?? '',
@@ -232,6 +232,8 @@ async function handleSave(values: Record<string, unknown>) {
       monitoringDescription: values.monitoringDescription || '',
       residualImpact: values.residualImpact ? Number(values.residualImpact) : null,
       residualLikelihood: values.residualLikelihood ? Number(values.residualLikelihood) : null,
+      impact: risk.value.impact ?? null,
+      likelihood: risk.value.likelihood ?? null,
     };
 
     await updateRisk(risk.value.slug, data);
@@ -280,6 +282,8 @@ function handleCloseRisk() {
     monitoringDescription,
     residualImpact: Number(residualImpact),
     residualLikelihood: Number(residualLikelihood),
+    impact: risk.value!.impact ?? null,
+    likelihood: risk.value!.likelihood ?? null,
   };
   
   openModal({
@@ -348,6 +352,8 @@ function handleArchiveRisk() {
     monitoringDescription,
     residualImpact: Number(residualImpact),
     residualLikelihood: Number(residualLikelihood),
+    impact: risk.value!.impact ?? null,
+    likelihood: risk.value!.likelihood ?? null,
   };
   
   openModal({

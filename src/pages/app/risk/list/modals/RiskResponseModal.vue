@@ -218,8 +218,8 @@ function populateForm(r: Risk) {
     frameworkSlug: fwSlug,
     domainSlug: domainSlug,
     controlSlug: ctrlSlug,
-    inherentImpact: r.inherentImpact ?? '',
-    inherentLikelihood: r.inherentLikelihood ?? '',
+    impact: r.impact ?? '',
+    likelihood: r.likelihood ?? '',
     vulnerability: r.vulnerability ?? '',
     threat: r.threat ?? '',
     responseDescription: r.responseDescription ?? '',
@@ -267,6 +267,8 @@ async function handleSave(values: Record<string, unknown>) {
       controlSlug,
       controlTitle,
       tasks: tasks.value,
+      impact: risk.value.impact ?? null,
+      likelihood: risk.value.likelihood ?? null,
     };
     await updateRisk(risk.value.slug, data);
     toast(t('risk.save-success'), { type: 'success' });
@@ -348,6 +350,8 @@ function handleTransitionToMonitoring() {
     controlSlug,
     controlTitle,
     tasks: tasks.value,
+    impact: risk.value!.impact ?? null,
+    likelihood: risk.value!.likelihood ?? null,
   };
   
   openModal({

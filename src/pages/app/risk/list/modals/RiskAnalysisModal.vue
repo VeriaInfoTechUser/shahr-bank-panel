@@ -200,7 +200,11 @@ function handleTransitionToResponse() {
         onConfirmAction: async () => {
           transitioning.value = true;
           try {
-            const res = await transitionRisk(risk.value!.slug, 'response', values);
+            const res = await transitionRisk(risk.value!.slug, 'response', {
+              ...values,
+              impact: values.impact ? Number(values.impact) : null,
+              likelihood: values.likelihood ? Number(values.likelihood) : null,
+            });
             if (!res) throw new Error(t('risk.transition-error'));
           } catch (err: unknown) {
             if (err instanceof Error) {

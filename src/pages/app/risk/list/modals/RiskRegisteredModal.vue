@@ -147,6 +147,8 @@ async function handleSave(values: Record<string, unknown>) {
       subCategorySlug: subCatSlug,
       subCategoryTitle: getSubCategoryTitle(catSlug, subCatSlug),
       ownerId: values.ownerId,
+      impact: risk.value.impact ?? null,
+      likelihood: risk.value.likelihood ?? null,
     };
 
     await updateRisk(risk.value.slug, data);
@@ -184,7 +186,11 @@ function handleStartAnalysis() {
         onConfirmAction: async () => {
           registering.value = true;
           try {
-            const res = await transitionRisk(risk.value!.slug, 'analysis', values);
+            const res = await transitionRisk(risk.value!.slug, 'analysis', {
+              ...values,
+              impact: risk.value!.impact ?? null,
+              likelihood: risk.value!.likelihood ?? null,
+            });
             if (!res) throw new Error(t('risk.transition-error'));
           } catch (err: unknown) {
             if (err instanceof Error) {

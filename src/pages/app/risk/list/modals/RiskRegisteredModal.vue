@@ -41,10 +41,10 @@ const initialValues = ref<Record<string, unknown>>({});
 const formRef = ref<InstanceType<typeof Form>>();
 
 const validationSchema = computed(() => yup.object({
-  title: yup.string().trim().required(t('validation.required')),
-  riskType: yup.string().trim().required(t('validation.required')),
-  categorySlug: yup.string().trim().required(t('validation.required')),
-  subCategorySlug: yup.string().trim().required(t('validation.required')),
+  title: yup.string().trim().optional(),
+  riskType: yup.string().trim().optional(),
+  categorySlug: yup.string().trim().optional(),
+  subCategorySlug: yup.string().trim().optional(),
   ownerId: yup.string().trim().required(t('validation.required')),
   registerDescription: yup.string().trim().optional(),
 }));
@@ -147,8 +147,6 @@ async function handleSave(values: Record<string, unknown>) {
       subCategorySlug: subCatSlug,
       subCategoryTitle: getSubCategoryTitle(catSlug, subCatSlug),
       ownerId: values.ownerId,
-      impact: risk.value.impact ?? null,
-      likelihood: risk.value.likelihood ?? null,
     };
 
     await updateRisk(risk.value.slug, data);
@@ -186,11 +184,7 @@ function handleStartAnalysis() {
         onConfirmAction: async () => {
           registering.value = true;
           try {
-            const res = await transitionRisk(risk.value!.slug, 'analysis', {
-              ...values,
-              impact: risk.value!.impact ?? null,
-              likelihood: risk.value!.likelihood ?? null,
-            });
+            const res = await transitionRisk(risk.value!.slug, 'analysis', { registerDescription: values?.registerDescription });
             if (!res) throw new Error(t('risk.transition-error'));
           } catch (err: unknown) {
             if (err instanceof Error) {
@@ -248,6 +242,7 @@ function handleStartAnalysis() {
           <BaseInput
             name="title"
             :label="t('risk.field-title')"
+            :disabled="true"
             :placeholder="t('risk.field-title-placeholder')"
           />
           <div class="grid grid-cols-1 gap-3 md:grid-cols-2 md:gap-x-4 md:gap-y-3">
@@ -255,13 +250,14 @@ function handleStartAnalysis() {
               name="categorySlug"
               :label="t('risk.field-category')"
               :options="categoryOptions"
+              :disabled="true"
               :filter="true"
-              @change="onCategoryChange"
             />
             <BaseSelect
               name="subCategorySlug"
               :label="t('risk.field-sub-category')"
               :options="subCategoryOptions(selectedCategorySlug)"
+              :disabled="true"
               :filter="true"
             />
             <BaseSelect
@@ -275,6 +271,7 @@ function handleStartAnalysis() {
               name="riskType"
               :label="t('risk.field-risk-type')"
               :options="riskTypeOptions"
+              :disabled="true"
             />
           </div>
           <BaseInput
@@ -290,21 +287,21 @@ function handleStartAnalysis() {
     <template #footer>
       <div class="flex justify-end gap-2">
         <Button
+          type="submit"
+          variant="outline-secondary"
+          size="sm"
+          form="risk-registered-modal-form"
+          :disabled="saving"
+        >
+          {{ t('title.update') }}
+        </Button>
+        <Button
           type="button"
           variant="outline-secondary"
           size="sm"
           @click="close"
         >
           {{ t('general.close') }}
-        </Button>
-        <Button
-            type="submit"
-            variant="outline-secondary"
-            size="sm"
-            form="risk-registered-modal-form"
-            :disabled="saving"
-        >
-          {{ t('title.update') }}
         </Button>
         <Button
           type="button"

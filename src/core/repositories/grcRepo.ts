@@ -126,6 +126,11 @@ export const grcRepo = {
   riskDashboard(params?: GrcListParams): Promise<GrcApiResponse<GrcPaginatedResponse>> {
     return grcHttpRequest({ method: 'GET', url: '/grc/risks/dashboard', params });
   },
+
+  complianceDashboard(params?: GrcListParams): Promise<GrcApiResponse<GrcPaginatedResponse>> {
+    return grcHttpRequest({ method: 'GET', url: '/compliance/dashboard', params });
+  },
+
   // Frameworks
   frameworkList(params?: GrcListParams): Promise<GrcApiResponse<GrcPaginatedResponse>> {
     return grcHttpRequest({ method: 'GET', url: '/grc/frameworks', params });

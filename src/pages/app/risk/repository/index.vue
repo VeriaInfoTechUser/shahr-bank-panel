@@ -107,11 +107,11 @@ const table = useDataTable({
       bodyCell: (row) => (row.state as string) ?? '—',
     }),
     createColumn({
-      key: 'riskLevel',
+      key: 'level',
       label: t('risk.col-level'),
       sortable: false,
       slot: true,
-      bodyCell: (row) => (row.riskLevel as string) ?? '—',
+      bodyCell: (row) => (row.level as string) ?? '—',
     }),
     createColumn({
       key: 'inherentImpact',
@@ -226,9 +226,9 @@ function onModalSuccess() {
           </span>
         </template>
 
-        <template #cell-riskLevel="{ row }">
-          <span :class="riskLevelBadgeClass(row.riskLevel)">
-            {{ row.riskLevel ? t(`risk.level-${row.riskLevel}`) : '—' }}
+        <template #cell-level="{ row }">
+          <span :class="riskLevelBadgeClass(row.level)">
+            {{ row.level ? t(`risk.level-${row.level}`) : '—' }}
           </span>
         </template>
 

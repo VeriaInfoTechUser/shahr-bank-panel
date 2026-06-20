@@ -13,41 +13,63 @@ export interface RiskTask {
   state: 'open' | 'in_progress' | 'done';
 }
 
+export interface StateHistoryEntry {
+  date: string;
+  ownerId: string;
+  toState: string;
+  changelog: Record<string, { to: unknown; from: unknown }>;
+  fromState: string | null;
+  updatedBy: string | null;
+  description: string | null;
+}
+
 export interface Risk {
   id: string;
   slug: string;
+  type: string;
+  source: string;
+  status: number;
+  state: string;
+  parentSlug: string | null;
+  tenantId: string | null;
   title: string;
+  description: string | null;
+  createDescription: string | null;
   draftDescription: string;
   registerDescription: string;
   analysisDescription: string;
   responseDescription: string;
   monitoringDescription: string;
+  deadline: string | null;
+  ownerId: string;
   riskType: 'threat' | 'opportunity';
   categorySlug: string;
+  categoryTitle: string;
   subCategorySlug: string;
-  categoryTitle?: string;
-  subCategoryTitle?: string;
-  ownerId: string;
-  state: string;
+  subCategoryTitle: string;
   inherentImpact: number | null;
   inherentLikelihood: number | null;
   impact: number | null;
   likelihood: number | null;
+  score: number | null;
+  level: string | null;
+  residualImpact: number | null;
+  residualLikelihood: number | null;
+  strategy: string;
   vulnerability: string;
   threat: string;
-  note: string;
-  strategy: string;
   treatmentStrategy: string;
+  controlSlug: string;
+  controlTitle: string;
+  tasks: string[];
   frameworkSlug: string;
   frameworkTitle: string;
   domainSlug: string;
   domainTitle: string;
-  controlSlug: string;
-  controlTitle: string;
-  tasks: RiskTask[];
-  residualImpact: number | null;
-  residualLikelihood: number | null;
-  stateHistory: Record<string, unknown>[];
+  controls: { controlSlug: string; assigneeId: string }[];
+  stateHistory: StateHistoryEntry[];
+  createdBy: string | null;
+  updatedBy: string | null;
   createdAt: string;
   updatedAt: string;
   [key: string]: unknown;

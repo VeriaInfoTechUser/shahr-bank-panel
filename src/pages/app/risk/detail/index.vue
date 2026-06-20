@@ -7,7 +7,6 @@ import Button from '@/base-components/Button';
 import Lucide from '@/base-components/Lucide';
 import { useGlobalModal } from '@/composables/useGlobalModal';
 import BaseConfirmModal from '@/core/ui/base/BaseConfirmModal.vue';
-import { grcRepo } from '@/core/repositories/grcRepo';
 import { useRisk, type Risk } from '../list/useRisk';
 import { useRiskTransition } from '../list/useRiskTransition';
 import { ermRepo } from '@/core/repositories/ermRepo';
@@ -25,7 +24,6 @@ const { loading: apiLoading, fetchRisk, transitionRisk } = useRisk();
 const { getTransitions } = useRiskTransition();
 
 const risk = ref<Risk | null>(null);
-const tasks = ref<Record<string, unknown>[]>([]);
 const activeTab = ref<'overview' | 'details' | 'controls' | 'tasks' | 'history'>('overview');
 const showEditModal = ref(false);
 const memberOptions = ref<{ value: string; label: string }[]>([]);
@@ -83,7 +81,7 @@ const statusBadgeClass = computed(() => {
 
 const riskLevelBadgeClass = computed(() => {
   const base = 'inline-flex items-center justify-center rounded-md px-3 py-1 text-xs font-semibold leading-snug shadow-sm';
-  const level = risk.value?.riskLevel;
+  const level = risk.value?.level;
   switch (level) {
     case 'low': return `${base} bg-green-100 text-green-800 border border-green-200`;
     case 'medium': return `${base} bg-amber-100 text-amber-800 border border-amber-200`;
@@ -103,27 +101,41 @@ const riskTypeBadgeClass = computed(() => {
 
 const scoreDisplay = computed(() => {
   if (!risk.value) return '—';
-  const s = risk.value.inherentScore;
+  const s = risk.value.score;
   return s != null ? String(s) : '—';
 });
 
 const impactLikelihoodDisplay = computed(() => {
   if (!risk.value) return '—';
-  const imp = risk.value.inherentImpact ?? risk.value.impact;
-  const lik = risk.value.inherentLikelihood ?? risk.value.likelihood;
+  const imp = risk.value.impact;
+  const lik = risk.value.likelihood;
   if (imp == null || lik == null) return '—';
   return `${imp} × ${lik}`;
 });
 
 const residualScoreDisplay = computed(() => {
   if (!risk.value) return '—';
-  const s = risk.value.residualScore;
-  return s != null ? String(s) : '—';
+  const imp = risk.value.residualImpact;
+  const lik = risk.value.residualLikelihood;
+  if (imp == null || lik == null) return '—';
+  return String(imp * lik);
+});
+
+const residualLevelDisplay = computed(() => {
+  if (!risk.value) return '';
+  const imp = risk.value.residualImpact;
+  const lik = risk.value.residualLikelihood;
+  if (imp == null || lik == null) return '';
+  const score = imp * lik;
+  if (score <= 4) return 'low';
+  if (score <= 9) return 'medium';
+  if (score <= 16) return 'high';
+  return 'critical';
 });
 
 const residualLevelBadgeClass = computed(() => {
   const base = 'inline-flex items-center justify-center rounded-md px-2 py-0.5 text-[10px] font-semibold leading-snug shadow-sm';
-  const level = risk.value?.residualLevel;
+  const level = residualLevelDisplay.value;
   switch (level) {
     case 'low': return `${base} bg-green-100 text-green-800 border border-green-200`;
     case 'medium': return `${base} bg-amber-100 text-amber-800 border border-amber-200`;
@@ -135,20 +147,8 @@ const residualLevelBadgeClass = computed(() => {
 
 const stateHistory = computed(() => {
   if (!risk.value?.stateHistory) return [];
-  const raw = risk.value.stateHistory;
-  if (Array.isArray(raw)) return raw as Record<string, unknown>[];
-  return [];
+  return risk.value.stateHistory;
 });
-
-const taskStateBadgeClass = (state: string): string => {
-  const base = 'inline-flex items-center justify-center rounded-md px-2 py-0.5 text-[9px] font-semibold leading-snug shadow-sm';
-  switch (state) {
-    case 'open': return `${base} bg-orange-100 text-orange-800 border border-orange-200`;
-    case 'in_progress': return `${base} bg-violet-100 text-violet-800 border border-violet-200`;
-    case 'done': return `${base} bg-emerald-100 text-emerald-800 border border-emerald-200`;
-    default: return `${base} bg-slate-100 text-slate-600 border border-slate-200`;
-  }
-};
 
 const tabItems = computed(() => [
   { key: 'overview', label: t('risk.tab-overview'), icon: 'LayoutDashboard' },
@@ -163,20 +163,9 @@ async function loadRisk() {
   const data = await fetchRisk(slug.value);
   if (data) {
     risk.value = data;
-    await loadTasks(slug.value);
   } else {
     toast(t('risk.load-error'), { type: 'error' });
     router.push({ name: 'app-risk-list' });
-  }
-}
-
-async function loadTasks(riskSlug: string) {
-  try {
-    const res = await grcRepo.riskTasksList(riskSlug);
-    const list = (res?.data as any)?.list ?? [];
-    tasks.value = list;
-  } catch {
-    tasks.value = [];
   }
 }
 
@@ -292,7 +281,7 @@ watch(slug, () => {
             <div class="rounded-2xl border border-slate-200/90 bg-white p-4 shadow-sm dark:border-darkmode-600 dark:bg-darkmode-800">
               <div class="mb-1 text-xs font-medium text-slate-500 dark:text-slate-400">{{ t('risk.field-risk-level') }}</div>
               <span :class="riskLevelBadgeClass" class="!text-sm !px-3 !py-1">
-                {{ risk.riskLevel ? t(`risk.level-${risk.riskLevel}`) : '—' }}
+                {{ risk.level ? t(`risk.level-${risk.level}`) : '—' }}
               </span>
             </div>
             <div class="rounded-2xl border border-slate-200/90 bg-white p-4 shadow-sm dark:border-darkmode-600 dark:bg-darkmode-800">
@@ -338,8 +327,8 @@ watch(slug, () => {
               <h3 class="mb-3 text-sm font-semibold text-slate-700 dark:text-slate-200">{{ t('risk.section-analysis') }}</h3>
               <div class="space-y-2.5">
                 <div class="flex items-start justify-between">
-                  <span class="text-xs text-slate-500 dark:text-slate-400">{{ t('risk.field-impact-factor') }}</span>
-                  <span class="text-xs font-medium text-slate-700 dark:text-slate-200">{{ risk.inherentImpact ?? '—' }}</span>
+                  <span class="text-xs text-slate-500 dark:text-slate-400">{{ t('risk.field-impact') }}</span>
+                  <span class="text-xs font-medium text-slate-700 dark:text-slate-200">{{ risk.impact ?? '—' }}</span>
                 </div>
                 <div class="flex items-start justify-between">
                   <span class="text-xs text-slate-500 dark:text-slate-400">{{ t('risk.field-likelihood') }}</span>
@@ -351,14 +340,14 @@ watch(slug, () => {
                 </div>
                 <div class="flex items-start justify-between">
                   <span class="text-xs text-slate-500 dark:text-slate-400">{{ t('risk.field-risk-level') }}</span>
-                  <span v-if="risk.riskLevel" :class="riskLevelBadgeClass">{{ t(`risk.level-${risk.riskLevel}`) }}</span>
+                  <span v-if="risk.level" :class="riskLevelBadgeClass">{{ t(`risk.level-${risk.level}`) }}</span>
                   <span v-else class="text-xs text-slate-400">—</span>
                 </div>
               </div>
             </div>
           </div>
 
-          <div v-if="risk.residualScore != null || risk.residualLevel" class="rounded-2xl border border-slate-200/90 bg-white p-5 shadow-sm dark:border-darkmode-600 dark:bg-darkmode-800">
+          <div v-if="risk.residualImpact != null || risk.residualLikelihood != null" class="rounded-2xl border border-slate-200/90 bg-white p-5 shadow-sm dark:border-darkmode-600 dark:bg-darkmode-800">
             <h3 class="mb-3 text-sm font-semibold text-slate-700 dark:text-slate-200">{{ t('risk.section-monitoring') }}</h3>
             <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
               <div>
@@ -375,7 +364,7 @@ watch(slug, () => {
               </div>
               <div>
                 <div class="text-xs text-slate-500 dark:text-slate-400">{{ t('risk.field-residual-level') }}</div>
-                <span v-if="risk.residualLevel" :class="residualLevelBadgeClass">{{ t(`risk.level-${risk.residualLevel}`) }}</span>
+                <span v-if="residualLevelDisplay" :class="residualLevelBadgeClass">{{ t(`risk.level-${residualLevelDisplay}`) }}</span>
                 <span v-else class="text-xs text-slate-400">—</span>
               </div>
             </div>
@@ -487,14 +476,14 @@ watch(slug, () => {
           <div class="border-b border-slate-200 px-5 py-3 dark:border-darkmode-600">
             <h3 class="text-sm font-semibold text-slate-700 dark:text-slate-200">{{ t('risk.tab-tasks') }}</h3>
           </div>
-          <div v-if="tasks.length" class="divide-y divide-slate-200 dark:divide-darkmode-600">
+          <div v-if="risk.tasks?.length" class="divide-y divide-slate-200 dark:divide-darkmode-600">
             <div
-              v-for="(task, idx) in tasks"
+              v-for="(task, idx) in risk.tasks"
               :key="idx"
               class="flex items-center gap-3 px-5 py-3"
             >
               <Lucide icon="CheckSquare" class="!h-4 !w-4 text-slate-400" />
-              <span class="flex-1 text-sm text-slate-700 dark:text-slate-200">{{ task.title }}</span>
+              <span class="flex-1 text-sm text-slate-700 dark:text-slate-200">{{ task }}</span>
             </div>
           </div>
           <div v-else class="px-5 py-8 text-center text-sm text-slate-400">
@@ -523,10 +512,9 @@ watch(slug, () => {
                     <Lucide icon="ArrowRight" class="mx-1 inline !h-3 !w-3 text-slate-400 rtl:rotate-180" />
                     {{ entry.toState ? t(`risk.status-${entry.toState}`) : '—' }}
                   </span>
-                  <span v-if="entry.timestamp" class="text-[10px] text-slate-400">{{ String(entry.timestamp) }}</span>
+                  <span v-if="entry.date" class="text-[10px] text-slate-400">{{ new Date(entry.date).toLocaleString() }}</span>
                 </div>
-                <div v-if="entry.comment" class="mt-1 text-xs text-slate-500 dark:text-slate-400">{{ String(entry.comment) }}</div>
-                <div v-if="entry.updatedBy" class="mt-0.5 text-[10px] text-slate-400">{{ String(entry.updatedBy) }}</div>
+                <div v-if="entry.description" class="mt-1 text-xs text-slate-500 dark:text-slate-400">{{ entry.description }}</div>
               </div>
             </div>
           </div>

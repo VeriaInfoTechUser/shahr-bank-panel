@@ -439,16 +439,16 @@ function handleArchiveRisk() {
               >
                 <Lucide icon="CheckSquare" class="!h-3.5 !w-3.5 text-slate-400" />
                 <span class="flex-1 text-slate-700 dark:text-slate-200">{{ task.title }}</span>
-                <span
-                    class="inline-flex items-center justify-center rounded-md px-2 py-0.5 text-[9px] font-semibold leading-snug shadow-sm"
-                    :class="{
-                        'bg-orange-100 text-orange-800 border border-orange-200': task.state === 'todo',
-                        'bg-violet-100 text-violet-800 border border-violet-200': task.state === 'in_progress',
-                        'bg-sky-100 text-sky-800 border border-sky-200': task.state === 'done',
-                      }"
-                >
-                  {{ t(`task.status.${task.state}`) }}
-                </span>
+<!--                <span-->
+<!--                    class="inline-flex items-center justify-center rounded-md px-2 py-0.5 text-[9px] font-semibold leading-snug shadow-sm"-->
+<!--                    :class="{-->
+<!--                        'bg-orange-100 text-orange-800 border border-orange-200': task.state === 'todo',-->
+<!--                        'bg-violet-100 text-violet-800 border border-violet-200': task.state === 'in_progress',-->
+<!--                        'bg-sky-100 text-sky-800 border border-sky-200': task.state === 'done',-->
+<!--                      }"-->
+<!--                >-->
+<!--                  {{ t(`task.status.${task.state}`) }}-->
+<!--                </span>-->
               </div>
             </div>
             <div class="flex items-center gap-3">

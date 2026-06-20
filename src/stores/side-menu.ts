@@ -35,18 +35,18 @@ export const useSideMenuStore = defineStore("sideMenu", {
                 title: "menu.base-info",
                 requiredRole: "grc_admin",
                 subMenu: [
-                    {
-                        icon: "Scale",
-                        pageName: "app-base-info-rules-regulations",
-                        title: "menu.rules-regulations",
-                        requiredRole: "grc_admin",
-                    },
-                    {
-                        icon: "ClipboardCheck",
-                        pageName: "app-base-info-tasks",
-                        title: "menu.tasks",
-                        requiredRole: "grc_admin",
-                    },
+                    // {
+                    //     icon: "Scale",
+                    //     pageName: "app-base-info-rules-regulations",
+                    //     title: "menu.rules-regulations",
+                    //     requiredRole: "grc_admin",
+                    // },
+                    // {
+                    //     icon: "ClipboardCheck",
+                    //     pageName: "app-base-info-tasks",
+                    //     title: "menu.tasks",
+                    //     requiredRole: "grc_admin",
+                    // },
                     {
                         icon: "Layout",
                         pageName: "app-base-info-framework",

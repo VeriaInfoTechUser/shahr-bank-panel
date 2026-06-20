@@ -324,7 +324,6 @@ function onExportTasks() {
           :export-enabled="table.exportEnabled"
           :empty-message="t('general.no-data')"
           :actions="true"
-          :actions-header="t('task.settings')"
           :show-search="false"
       >
         <template #cell-has_clause="{ row }">
@@ -384,8 +383,8 @@ function onExportTasks() {
               variant="outline-danger"
               size="sm"
               class="!h-7 !w-7 !px-0 !py-0"
-              :aria-label="t('task.delete')"
-              :title="t('task.delete')"
+              :aria-label="t('general.delete')"
+              :title="t('general.delete')"
               @click.stop="onDeleteTask(row)"
             >
               <Lucide icon="Trash2" class="!h-3.5 !w-3.5" />

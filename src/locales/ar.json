@@ -419,6 +419,8 @@
     "compliance-task": "المهمة",
     "compliance-doing-task": "مهمة قيد الإنجاز",
     "risk-operations": "عمليات المخاطر",
+    "risk-repository": "مستودع المخاطر",
+    "risk-archive": "أرشيف المخاطر",
     "risk-doing-task": "مخاطر قيد التنفيذ",
     "performance-report": "تقرير الأداء",
     "plan": "الخطة",

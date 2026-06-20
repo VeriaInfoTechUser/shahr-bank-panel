@@ -15,6 +15,7 @@ const props = defineProps<{
     filters: Ref<Record<string, unknown>> | Record<string, unknown>;
   };
   toolbarClearTick: number;
+  hideStateFilter?: boolean;
 }>();
 
 const { t } = useI18n();
@@ -37,13 +38,10 @@ const riskLevelOptions = computed(() => [
 ]);
 
 const statusOptions = computed(() => [
-  { value: 'draft', label: t('risk.status-draft') },
   { value: 'registered', label: t('risk.status-registered') },
   { value: 'analysis', label: t('risk.status-analysis') },
   { value: 'response', label: t('risk.status-response') },
   { value: 'monitoring', label: t('risk.status-monitoring') },
-  { value: 'closed', label: t('risk.status-closed') },
-  { value: 'archived', label: t('risk.status-archived') },
 ]);
 
 const filteredSubCategoryOptions = computed(() => {
@@ -196,6 +194,7 @@ fetchTree();
         placeholder=""
       />
       <BaseMultiSelect
+        v-if="!hideStateFilter"
         name="state"
         compact-label
         :label="t('risk.field-status')"

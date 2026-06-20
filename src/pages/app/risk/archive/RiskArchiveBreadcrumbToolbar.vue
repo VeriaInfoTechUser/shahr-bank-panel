@@ -4,12 +4,12 @@ import { computed, nextTick, onUnmounted, ref, toValue, watch } from 'vue';
 import { useElementBounding, onClickOutside, useEventListener } from '@vueuse/core';
 import { useI18n } from 'vue-i18n';
 import Lucide from '@/base-components/Lucide';
-import RiskListFilterPanel from './RiskListFilterPanel.vue';
+import RiskListFilterPanel from '../list/RiskListFilterPanel.vue';
 import {
   RISK_FILTER_PARAM_LABEL_KEYS,
   getActiveRiskFilterKeys,
   type RiskFilterParamKey,
-} from './riskFilterToolbarKeys';
+} from '../list/riskFilterToolbarKeys';
 
 const props = defineProps<{
   onExport?: () => void;
@@ -209,6 +209,7 @@ useEventListener(document, 'keydown', (e: KeyboardEvent) => {
           <RiskListFilterPanel
             :table="table"
             :toolbar-clear-tick="filterToolbarClearTick"
+            hide-state-filter
           />
         </div>
       </Transition>

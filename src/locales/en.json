@@ -582,6 +582,8 @@
     "compliance-task": "Task",
     "compliance-doing-task": "Task in progress",
     "risk-operations": "Risk operations",
+    "risk-repository": "Risk repository",
+    "risk-archive": "Risk archive",
     "risk-doing-task": "Risk in progress",
     "performance-report": "Performance report",
     "plan": "Plan",

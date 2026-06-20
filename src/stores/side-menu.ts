@@ -35,18 +35,18 @@ export const useSideMenuStore = defineStore("sideMenu", {
                 title: "menu.base-info",
                 requiredRole: "grc_admin",
                 subMenu: [
-                    {
-                        icon: "Scale",
-                        pageName: "app-base-info-rules-regulations",
-                        title: "menu.rules-regulations",
-                        requiredRole: "grc_admin",
-                    },
-                    {
-                        icon: "ClipboardCheck",
-                        pageName: "app-base-info-tasks",
-                        title: "menu.tasks",
-                        requiredRole: "grc_admin",
-                    },
+                    // {
+                    //     icon: "Scale",
+                    //     pageName: "app-base-info-rules-regulations",
+                    //     title: "menu.rules-regulations",
+                    //     requiredRole: "grc_admin",
+                    // },
+                    // {
+                    //     icon: "ClipboardCheck",
+                    //     pageName: "app-base-info-tasks",
+                    //     title: "menu.tasks",
+                    //     requiredRole: "grc_admin",
+                    // },
                     {
                         icon: "Layout",
                         pageName: "app-base-info-framework",
@@ -114,11 +114,16 @@ export const useSideMenuStore = defineStore("sideMenu", {
                     //     pageName: "app-risk-dashboard",
                     //     title: "menu.dashboard",
                     // },
-                    // {
-                    //     icon: "AlertTriangle",
-                    //     pageName: "app-risk-operations",
-                    //     title: "menu.risk-operations",
-                    // },
+                    {
+                        icon: "Archive",
+                        pageName: "app-risk-repository",
+                        title: "menu.risk-repository",
+                    },
+                    {
+                        icon: "List",
+                        pageName: "app-risk-list",
+                        title: "menu.risk-operations",
+                    },
                     // {
                     //     icon: "BarChart3",
                     //     pageName: "app-risk-performance-report",
@@ -130,9 +135,9 @@ export const useSideMenuStore = defineStore("sideMenu", {
                     //     title: "menu.report",
                     // },
                     {
-                        icon: "List",
-                        pageName: "app-risk-list",
-                        title: "menu.risk-operations",
+                        icon: "ArchiveRestore",
+                        pageName: "app-risk-archive",
+                        title: "menu.risk-archive",
                     },
                 ],
             },

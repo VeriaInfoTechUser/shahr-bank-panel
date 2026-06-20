@@ -34,6 +34,8 @@ import RiskReport from "@/pages/app/risk/report/index.vue";
 import RiskOperations from "@/pages/app/risk/operations/index.vue";
 import RiskDoingTask from "@/pages/app/risk/doing-task/index.vue";
 import RiskList from "@/pages/app/risk/list/index.vue";
+import RiskRepository from "@/pages/app/risk/repository/index.vue";
+import RiskArchive from "@/pages/app/risk/archive/index.vue";
 import RiskDetail from "@/pages/app/risk/detail/index.vue";
 import EsgDashboard from "@/pages/app/esg/dashboard/index.vue";
 import EsgGovernance from "@/pages/app/esg/governance/index.vue";
@@ -297,7 +299,19 @@ const routes = [
                                 path: "list",
                                 name: "app-risk-list",
                                 component: RiskList,
-                                meta: { breadcrumbLabel: 'menu.risk-list' },
+                                meta: { breadcrumbLabel: 'menu.risk-operations' },
+                            },
+                            {
+                                path: "repository",
+                                name: "app-risk-repository",
+                                component: RiskRepository,
+                                meta: { breadcrumbLabel: 'menu.risk-repository' },
+                            },
+                            {
+                                path: "archive",
+                                name: "app-risk-archive",
+                                component: RiskArchive,
+                                meta: { breadcrumbLabel: 'menu.risk-archive' },
                             },
                             {
                                 path: "detail/:slug",
@@ -308,7 +322,7 @@ const routes = [
                                     breadcrumbPrefix: [
                                         {
                                             routeName: 'app-risk-list',
-                                            labelKey: 'menu.risk-list',
+                                            labelKey: 'menu.risk-operations',
                                         },
                                     ],
                                 },

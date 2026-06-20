@@ -4,32 +4,18 @@ import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useDataTable, createColumn, type FetchFn } from '@core';
 import BaseTable from '@core/ui/base/BaseTable.vue';
-import BaseConfirmModal from '@/core/ui/base/BaseConfirmModal.vue';
 import { grcRepo } from '@/core/repositories/grcRepo';
 import { ermRepo } from '@/core/repositories/ermRepo';
 import { useBreadcrumbSlot } from '@/composables/useBreadcrumb';
-import { useGlobalModal } from '@/composables/useGlobalModal';
 import Button from '@/base-components/Button';
 import Lucide from '@/base-components/Lucide';
-import { toast } from 'vue3-toastify';
-import RiskListBreadcrumbToolbar from './RiskListBreadcrumbToolbar.vue';
-import RiskDraftModal from './modals/RiskDraftModal.vue';
-import RiskRegisteredModal from './modals/RiskRegisteredModal.vue';
-import RiskAnalysisModal from './modals/RiskAnalysisModal.vue';
-import RiskResponseModal from './modals/RiskResponseModal.vue';
-import RiskMonitoringModal from './modals/RiskMonitoringModal.vue';
-import { useRisk } from './useRisk';
+import RiskArchiveBreadcrumbToolbar from './RiskArchiveBreadcrumbToolbar.vue';
 
 const { t } = useI18n();
 const router = useRouter();
 const { setContent: setBreadcrumbSlot } = useBreadcrumbSlot();
-const { openModal } = useGlobalModal();
 
-const showDetailModal = ref(false);
-const selectedRiskId = ref<string | null>(null);
-const selectedRiskState = ref<string | null>(null);
 const memberOptions = ref<{ value: string; label: string }[]>([]);
-const { fetchRisk } = useRisk();
 
 function mapMembers(list: Record<string, unknown>[]) {
   return list
@@ -60,10 +46,8 @@ async function loadMembers() {
   }
 }
 
-const RISK_OPERATIONS_STATES = ['registered', 'analysis', 'response', 'monitoring'] as const;
-
 const fetchRisks: FetchFn = async ({ page, limit, filters }) => {
-  const res = await grcRepo.riskList({ page, limit, state: [...RISK_OPERATIONS_STATES], ...(filters ?? {}) });
+  const res = await grcRepo.riskList({ page, limit, state: ['archived'], ...(filters ?? {}) });
   const list = res?.data?.list ?? [];
   const count = res?.data?.paginator?.count ?? 0;
   return { list: Array.isArray(list) ? list : [], count };
@@ -175,7 +159,7 @@ const table = useDataTable({
   selectable: false,
   exportEnabled: true,
   pageSize: 10,
-  cacheKey: 'risk-list',
+  cacheKey: 'risk-archive-list',
   listCacheStaleTime: 0,
 });
 
@@ -183,7 +167,7 @@ onMounted(() => {
   loadMembers();
   table.invalidateListCache();
   table.fetch();
-  setBreadcrumbSlot(RiskListBreadcrumbToolbar, {
+  setBreadcrumbSlot(RiskArchiveBreadcrumbToolbar, {
     onExport: onExportRisks,
     table,
   });
@@ -198,41 +182,6 @@ function onViewDetail(row: Record<string, unknown>) {
   if (slug) {
     router.push({ name: 'app-risk-detail', params: { slug } });
   }
-}
-
-async function onEditRisk(row: Record<string, unknown>) {
-  const id = row.slug;
-  if (id) {
-    selectedRiskId.value = String(id);
-    selectedRiskState.value = String(row.state ?? 'draft');
-    showDetailModal.value = true;
-  }
-}
-
-function onDeleteRisk(row: Record<string, unknown>) {
-  const slug = row.slug as string;
-  if (!slug) return;
-  openModal({
-    component: BaseConfirmModal,
-    props: {
-      title: t('risk.delete-confirm-title'),
-      message: t('risk.delete-confirm-message', { title: String(row.title ?? '') }),
-      confirmVariant: 'danger' as const,
-      onConfirmAction: async () => {
-        await grcRepo.riskDelete(slug);
-      },
-    },
-    onSuccess: () => {
-      toast(t('risk.delete-success'), { type: 'success' });
-      table.invalidateListCache();
-      void table.fetch();
-    },
-  });
-}
-
-function onModalSuccess() {
-  table.invalidateListCache();
-  void table.fetch();
 }
 </script>
 
@@ -279,81 +228,9 @@ function onModalSuccess() {
             >
               <Lucide icon="Eye" class="!h-3.5 !w-3.5" />
             </Button>
-            <Button
-                v-if="row.state !== 'archived'"
-              type="button"
-              variant="outline-secondary"
-              size="sm"
-              class="!h-7 !w-7 !px-0 !py-0"
-              :aria-label="t('title.update')"
-              :title="t('title.update')"
-              @click.stop="onEditRisk(row)"
-            >
-              <Lucide icon="Pencil" class="!h-3.5 !w-3.5" />
-            </Button>
-            <div v-else
-                 class="!h-7 !w-7 !px-0 !py-0">
-
-            </div>
-            <Button
-              v-if="row.state === 'draft'"
-              type="button"
-              variant="outline-danger"
-              size="sm"
-              class="!h-7 !w-7 !px-0 !py-0"
-              :aria-label="t('general.delete')"
-              :title="t('general.delete')"
-              @click.stop="onDeleteRisk(row)"
-            >
-              <Lucide icon="Trash2" class="!h-3.5 !w-3.5" />
-            </Button>
-            <div v-else
-                 class="!h-7 !w-7 !px-0 !py-0">
-
-            </div>
           </div>
         </template>
       </BaseTable>
     </div>
-
-    <RiskDraftModal
-      v-if="selectedRiskState === 'draft' && selectedRiskId"
-      :show="showDetailModal"
-      :risk-id="selectedRiskId"
-      @update:show="showDetailModal = $event"
-      @success="onModalSuccess"
-    />
-
-    <RiskRegisteredModal
-      v-if="selectedRiskState === 'registered' && selectedRiskId"
-      :show="showDetailModal"
-      :risk-id="selectedRiskId"
-      @update:show="showDetailModal = $event"
-      @success="onModalSuccess"
-    />
-
-    <RiskAnalysisModal
-      v-if="selectedRiskState === 'analysis' && selectedRiskId"
-      :show="showDetailModal"
-      :risk-id="selectedRiskId"
-      @update:show="showDetailModal = $event"
-      @success="onModalSuccess"
-    />
-
-    <RiskResponseModal
-      v-if="selectedRiskState === 'response' && selectedRiskId"
-      :show="showDetailModal"
-      :risk-id="selectedRiskId"
-      @update:show="showDetailModal = $event"
-      @success="onModalSuccess"
-    />
-
-    <RiskMonitoringModal
-      v-if="selectedRiskState === 'monitoring' && selectedRiskId"
-      :show="showDetailModal"
-      :risk-id="selectedRiskId"
-      @update:show="showDetailModal = $event"
-      @success="onModalSuccess"
-    />
   </div>
 </template>

@@ -275,7 +275,6 @@ function onDeleteMember(row: Record<string, unknown>) {
         :export-enabled="table.exportEnabled"
         :empty-message="t('general.no-data')"
         :actions="true"
-        :actions-header="t('task.settings')"
         actions-column-min-width="11rem"
         :show-search="false"
       >

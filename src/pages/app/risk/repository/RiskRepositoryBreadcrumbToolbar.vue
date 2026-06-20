@@ -4,14 +4,15 @@ import { computed, nextTick, onUnmounted, ref, toValue, watch } from 'vue';
 import { useElementBounding, onClickOutside, useEventListener } from '@vueuse/core';
 import { useI18n } from 'vue-i18n';
 import Lucide from '@/base-components/Lucide';
-import RiskListFilterPanel from './RiskListFilterPanel.vue';
+import RiskListFilterPanel from '../list/RiskListFilterPanel.vue';
 import {
   RISK_FILTER_PARAM_LABEL_KEYS,
   getActiveRiskFilterKeys,
   type RiskFilterParamKey,
-} from './riskFilterToolbarKeys';
+} from '../list/riskFilterToolbarKeys';
 
 const props = defineProps<{
+  onAdd?: () => void;
   onExport?: () => void;
   table: {
     replaceFilters: (f: Record<string, unknown>) => void;
@@ -112,6 +113,18 @@ useEventListener(document, 'keydown', (e: KeyboardEvent) => {
   <div class="relative flex flex-shrink-0 flex-wrap items-center gap-1.5" dir="ltr">
     <button
       type="button"
+      class="inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-md border border-primary bg-primary text-white shadow-sm transition hover:opacity-90 dark:border-primary dark:bg-primary dark:hover:opacity-90"
+      :aria-label="t('risk.toolbar-add')"
+      :title="t('risk.toolbar-add')"
+      @click="props.onAdd?.()"
+    >
+      <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="12" y1="5" x2="12" y2="19" />
+        <line x1="5" y1="12" x2="19" y2="12" />
+      </svg>
+    </button>
+    <button
+      type="button"
       class="inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-md border border-slate-200 bg-white text-slate-600 shadow-sm transition hover:bg-slate-50 hover:text-slate-800 dark:border-darkmode-600 dark:bg-darkmode-800 dark:text-slate-300 dark:hover:bg-darkmode-700 dark:hover:text-slate-100"
       :aria-label="t('risk.toolbar-export')"
       :title="t('risk.toolbar-export')"
@@ -209,6 +222,7 @@ useEventListener(document, 'keydown', (e: KeyboardEvent) => {
           <RiskListFilterPanel
             :table="table"
             :toolbar-clear-tick="filterToolbarClearTick"
+            hide-state-filter
           />
         </div>
       </Transition>

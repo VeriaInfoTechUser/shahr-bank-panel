@@ -109,8 +109,8 @@ const scoreDisplay = computed(() => {
 
 const impactLikelihoodDisplay = computed(() => {
   if (!risk.value) return '—';
-  const imp = risk.value.impactFactor ?? risk.value.impact;
-  const lik = risk.value.likelihood;
+  const imp = risk.value.inherentImpact ?? risk.value.impact;
+  const lik = risk.value.inherentLikelihood ?? risk.value.likelihood;
   if (imp == null || lik == null) return '—';
   return `${imp} × ${lik}`;
 });
@@ -339,7 +339,7 @@ watch(slug, () => {
               <div class="space-y-2.5">
                 <div class="flex items-start justify-between">
                   <span class="text-xs text-slate-500 dark:text-slate-400">{{ t('risk.field-impact-factor') }}</span>
-                  <span class="text-xs font-medium text-slate-700 dark:text-slate-200">{{ risk.impactFactor ?? '—' }}</span>
+                  <span class="text-xs font-medium text-slate-700 dark:text-slate-200">{{ risk.inherentImpact ?? '—' }}</span>
                 </div>
                 <div class="flex items-start justify-between">
                   <span class="text-xs text-slate-500 dark:text-slate-400">{{ t('risk.field-likelihood') }}</span>

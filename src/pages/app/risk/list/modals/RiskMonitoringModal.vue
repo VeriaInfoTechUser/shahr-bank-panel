@@ -180,8 +180,6 @@ async function loadRisk(id: string) {
   if (!data) return;
   risk.value = data;
   selectedCategorySlug.value = data.categorySlug ?? '';
-  residualScore.value = data.residualScore ?? null;
-  residualLevel.value = data.residualLevel ?? null;
   
   await loadTasks(id);
 
@@ -205,8 +203,8 @@ function populateForm(r: Risk) {
     monitoringDescription: r.monitoringDescription ?? '',
     residualImpact: r.residualImpact ?? '',
     residualLikelihood: r.residualLikelihood ?? '',
-    impactFactor: r.impactFactor ?? '',
-    likelihood: r.likelihood ?? '',
+    inherentImpact: r.inherentImpact ?? '',
+    inherentLikelihood: r.inherentLikelihood ?? '',
     vulnerability: r.vulnerability ?? '',
     threat: r.threat ?? '',
     strategy: r.strategy ?? '',
@@ -234,8 +232,6 @@ async function handleSave(values: Record<string, unknown>) {
       monitoringDescription: values.monitoringDescription || '',
       residualImpact: values.residualImpact ? Number(values.residualImpact) : null,
       residualLikelihood: values.residualLikelihood ? Number(values.residualLikelihood) : null,
-      residualScore: residualScore.value,
-      residualLevel: residualLevel.value,
     };
 
     await updateRisk(risk.value.slug, data);
@@ -284,8 +280,6 @@ function handleCloseRisk() {
     monitoringDescription,
     residualImpact: Number(residualImpact),
     residualLikelihood: Number(residualLikelihood),
-    residualScore: residualScore.value,
-    residualLevel: residualLevel.value,
   };
   
   openModal({
@@ -354,8 +348,6 @@ function handleArchiveRisk() {
     monitoringDescription,
     residualImpact: Number(residualImpact),
     residualLikelihood: Number(residualLikelihood),
-    residualScore: residualScore.value,
-    residualLevel: residualLevel.value,
   };
   
   openModal({

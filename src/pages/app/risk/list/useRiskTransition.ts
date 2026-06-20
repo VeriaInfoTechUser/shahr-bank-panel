@@ -55,8 +55,8 @@ const TRANSITION_REQUIREMENTS: Record<string, TransitionRequirements> = {
     requiredSectionFields: { registration: ['title', 'draftDescription', 'riskType', 'categorySlug', 'subCategorySlug', 'registerDescription'] },
   },
   response: {
-    requiredFields: ['impactFactor'],
-    requiredSectionFields: { analysis: ['impactFactor'] },
+    requiredFields: ['impact'],
+    requiredSectionFields: { analysis: ['impact'] },
   },
   monitoring: {
     requiredFields: ['strategy'],
@@ -81,7 +81,7 @@ const ERROR_KEY_MESSAGES: Record<string, string> = {
   'RISK_TRANSITION.REGISTERED.SUBCATEGORYSLUG_REQUIRED': 'risk.error.subcategoryslug-required',
   'RISK_TRANSITION.REGISTERED.SUBCATEGORYTITLE_REQUIRED': 'risk.error.subcategorytitle-required',
   'RISK_TRANSITION.ANALYSIS.REGISTER_DESCRIPTION_REQUIRED': 'risk.error.register-description-required',
-  'RISK_TRANSITION.ANALYSIS.IMPACTFACTOR_REQUIRED': 'risk.error.impactfactor-required',
+  'RISK_TRANSITION.ANALYSIS.IMPACT_REQUIRED': 'risk.error.impactfactor-required',
   'RISK_TRANSITION.RESPONSE.STRATEGY_REQUIRED': 'risk.error.strategy-required',
   'RISK_TRANSITION.RESPONSE.CONTROLS_AT_LEAST_ONE_REQUIRED': 'risk.error.controls-required',
   'RISK_TRANSITION.RESPONSE.TASKS_REQUIRED': 'risk.error.tasks-required',

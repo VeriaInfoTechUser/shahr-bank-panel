@@ -114,11 +114,11 @@ const table = useDataTable({
       bodyCell: (row) => (row.riskLevel as string) ?? '—',
     }),
     createColumn({
-      key: 'impactFactor',
+      key: 'inherentImpact',
       label: t('risk.col-impact'),
       sortable: false,
       bodyCell: (row) => {
-        const v = row.impactFactor;
+        const v = row.inherentImpact;
         return v != null ? String(v) : '—';
       },
     }),

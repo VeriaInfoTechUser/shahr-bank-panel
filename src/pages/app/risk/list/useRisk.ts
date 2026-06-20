@@ -29,11 +29,10 @@ export interface Risk {
   subCategoryTitle?: string;
   ownerId: string;
   state: string;
-  impactFactor: number | null;
+  inherentImpact: number | null;
+  inherentLikelihood: number | null;
   impact: number | null;
   likelihood: number | null;
-  inherentScore: number | null;
-  riskLevel: string | null;
   vulnerability: string;
   threat: string;
   note: string;
@@ -48,8 +47,6 @@ export interface Risk {
   tasks: RiskTask[];
   residualImpact: number | null;
   residualLikelihood: number | null;
-  residualScore: number | null;
-  residualLevel: string | null;
   stateHistory: Record<string, unknown>[];
   createdAt: string;
   updatedAt: string;

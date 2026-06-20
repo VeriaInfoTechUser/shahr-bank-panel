@@ -67,7 +67,7 @@ const validationSchema = computed(() => yup.object({
   categorySlug: yup.string().trim().required(t('validation.required')),
   subCategorySlug: yup.string().trim().required(t('validation.required')),
   ownerId: yup.string().trim().required(t('validation.required')),
-  impactFactor: yup.string().required(t('validation.required')),
+  impact: yup.string().required(t('validation.required')),
   likelihood: yup.string().required(t('validation.required')),
 }));
 
@@ -133,10 +133,8 @@ function populateForm(r: Risk) {
     categorySlug: r.categorySlug ?? '',
     subCategorySlug: r.subCategorySlug ?? '',
     ownerId: r.ownerId ?? '',
-    impactFactor: r.impactFactor ?? '',
-    likelihood: r.likelihood ?? '',
-    inherentScore: r.inherentScore != null ? String(r.inherentScore) : '',
-    riskLevel: r.riskLevel ?? '',
+    impact: r.inherentImpact ?? '',
+    likelihood: r.inherentLikelihood ?? '',
     vulnerability: r.vulnerability ?? '',
     threat: r.threat ?? '',
     analysisDescription: r.analysisDescription ?? '',
@@ -169,10 +167,8 @@ async function handleSave(values: Record<string, unknown>) {
       subCategorySlug: subCatSlug,
       subCategoryTitle: getSubCategoryTitle(catSlug, subCatSlug),
       ownerId: values.ownerId,
-      impactFactor: values.impactFactor ? Number(values.impactFactor) : null,
+      impact: values.impact ? Number(values.impact) : null,
       likelihood: values.likelihood ? Number(values.likelihood) : null,
-      inherentScore: values.inherentScore ? Number(values.inherentScore) : null,
-      riskLevel: values.riskLevel || null,
       vulnerability: values.vulnerability || '',
       threat: values.threat || '',
       analysisDescription: values.analysisDescription || '',
@@ -297,7 +293,7 @@ function handleTransitionToResponse() {
           </div>
           <div class="grid grid-cols-1 gap-3 md:grid-cols-2 md:gap-x-4 md:gap-y-3">
             <BaseSelect
-              name="impactFactor"
+              name="impact"
               :label="t('risk.field-impact-factor')"
               :options="impactOptions"
               :required="true"

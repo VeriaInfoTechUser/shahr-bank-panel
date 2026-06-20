@@ -17,23 +17,23 @@ const option = computed(() => ({
     axisPointer: { type: "shadow" },
     ...tooltipStyle,
   },
-  legend: {
-    bottom: 0,
-    textStyle: { color: "#cbd5e1", fontFamily: chartFont },
+    legend: {
+      bottom: 0,
+      textStyle: { color: "#334155", fontFamily: chartFont },
     itemWidth: 10,
     itemHeight: 10,
   },
   xAxis: {
     type: "value",
-    axisLabel: { color: "#94a3b8", fontFamily: chartFont },
+    axisLabel: { color: "#64748b", fontFamily: chartFont },
     splitLine: { lineStyle: { color: splitLineColor } },
   },
   yAxis: {
     type: "category",
     inverse: true,
     data: props.data.map((d) => d.categoryTitle),
-    axisLabel: { color: "#cbd5e1", fontFamily: chartFont },
-    axisLine: { lineStyle: { color: "#334155" } },
+      axisLabel: { color: "#334155", fontFamily: chartFont },
+      axisLine: { lineStyle: { color: "#cbd5e1" } },
     axisTick: { show: false },
   },
   series: levels.map((level) => ({
@@ -48,7 +48,7 @@ const option = computed(() => ({
     ),
     label: {
       show: true,
-      color: "#0f172a",
+      color: "#ffffff",
       fontFamily: chartFont,
       fontWeight: "bold",
       formatter: (p: { value: number }) => (p.value ? toFa(p.value) : ""),

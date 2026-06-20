@@ -39,7 +39,7 @@ onMounted(() => {
   <div
     v-if="loading && !dashboardData"
     dir="rtl"
-    class="flex min-h-screen flex-col items-center justify-center gap-3 bg-slate-950 text-slate-300"
+    class="flex min-h-screen flex-col items-center justify-center gap-3 bg-slate-50 text-slate-600"
   >
     <IconLoader2 :size="40" class="animate-spin text-sky-400" />
     <p class="text-sm">در حال بارگذاری داشبورد…</p>
@@ -49,13 +49,13 @@ onMounted(() => {
   <div
     v-else-if="error && !dashboardData"
     dir="rtl"
-    class="flex min-h-screen flex-col items-center justify-center gap-4 bg-slate-950 text-slate-300"
+    class="flex min-h-screen flex-col items-center justify-center gap-4 bg-slate-50 text-slate-600"
   >
     <IconAlertCircle :size="44" class="text-rose-400" />
     <p class="text-sm">{{ error }}</p>
     <button
       type="button"
-      class="inline-flex items-center gap-2 rounded-xl border border-slate-700 bg-slate-800 px-4 py-2 text-sm font-medium text-slate-100 transition hover:bg-slate-700"
+      class="inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100"
       @click="loadDashboard"
     >
       <IconRefresh :size="18" /> تلاش مجدد

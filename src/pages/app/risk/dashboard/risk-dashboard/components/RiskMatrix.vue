@@ -33,7 +33,7 @@ function cellStyle(impact: number, likelihood: number) {
   return {
     backgroundColor: `rgba(${rgb}, ${intensity})`,
     borderColor: `rgba(${rgb}, ${count === 0 ? 0.15 : 0.5})`,
-    color: count === 0 ? "#475569" : "#f8fafc",
+    color: count === 0 ? "#94a3b8" : "#0f172a",
   }
 }
 </script>
@@ -46,7 +46,7 @@ function cellStyle(impact: number, likelihood: number) {
         <span
           v-for="(impact, i) in impacts"
           :key="impact"
-          class="text-[11px] leading-tight text-slate-400"
+          class="text-[11px] leading-tight text-slate-500"
         >
           {{ impactLabels[impact - 1] }}
         </span>
@@ -75,7 +75,7 @@ function cellStyle(impact: number, likelihood: number) {
           <span
             v-for="likelihood in likelihoods"
             :key="likelihood"
-            class="text-center text-[11px] leading-tight text-slate-400"
+            class="text-center text-[11px] leading-tight text-slate-500"
           >
             {{ likelihoodLabels[likelihood - 1] }}
           </span>
@@ -83,7 +83,7 @@ function cellStyle(impact: number, likelihood: number) {
       </div>
     </div>
 
-    <div class="mt-3 flex items-center justify-center gap-4 text-[11px] text-slate-400">
+    <div class="mt-3 flex items-center justify-center gap-4 text-[11px] text-slate-500">
       <span class="flex items-center gap-1">
         <span class="h-2.5 w-2.5 rounded-sm" style="background-color: #34d399" /> کم‌خطر
       </span>

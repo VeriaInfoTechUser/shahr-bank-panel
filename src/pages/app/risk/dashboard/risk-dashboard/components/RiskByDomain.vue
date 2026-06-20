@@ -19,13 +19,13 @@ function count(domain: DomainRisk, level: RiskLevel): number {
     <li
       v-for="domain in sorted"
       :key="domain.domainSlug"
-      class="rounded-xl border border-slate-800 bg-slate-900/40 p-3"
+      class="rounded-xl border border-slate-200 bg-white p-3"
     >
       <div class="flex items-center justify-between gap-2">
-        <span class="line-clamp-1 text-sm font-medium text-slate-100">{{ domain.domainTitle }}</span>
-        <span class="shrink-0 text-xs font-bold text-slate-300">{{ toFa(domain.totalRisks) }}</span>
+        <span class="line-clamp-1 text-sm font-medium text-slate-800">{{ domain.domainTitle }}</span>
+        <span class="shrink-0 text-xs font-bold text-slate-600">{{ toFa(domain.totalRisks) }}</span>
       </div>
-      <div class="mt-2 flex h-2 w-full overflow-hidden rounded-full bg-slate-800">
+      <div class="mt-2 flex h-2 w-full overflow-hidden rounded-full bg-slate-200">
         <div
           v-for="level in levels"
           :key="level"

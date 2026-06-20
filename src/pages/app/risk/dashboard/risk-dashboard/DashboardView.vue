@@ -48,7 +48,7 @@ const monitoringCount = computed(
 </script>
 
 <template>
-  <div dir="rtl" class="min-h-screen bg-slate-950 text-slate-100">
+  <div dir="rtl" class="min-h-screen bg-slate-50 text-slate-800">
     <div class="mx-auto max-w-[1500px] px-4 py-6 lg:px-8">
       <DashboardHeader :loading="loading" @refresh="$emit('refresh')" />
 
@@ -171,7 +171,7 @@ const monitoringCount = computed(
         </DashboardCard>
       </div>
 
-      <footer class="mt-8 pb-4 text-center text-xs text-slate-500">
+      <footer     class="mt-8 pb-4 text-center text-xs text-slate-400">
         داشبورد مدیریت ریسک، حاکمیت و انطباق (GRC)
       </footer>
     </div>

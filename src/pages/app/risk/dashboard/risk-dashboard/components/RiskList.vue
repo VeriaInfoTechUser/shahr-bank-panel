@@ -21,10 +21,10 @@ defineProps<{
     <li
       v-for="item in items"
       :key="item.slug"
-      class="rounded-xl border border-slate-800 bg-slate-900/40 p-3 transition hover:border-slate-700 hover:bg-slate-800/50"
+      class="rounded-xl border border-slate-200 bg-white p-3 transition hover:border-slate-300 hover:bg-slate-50"
     >
       <div class="flex items-start justify-between gap-3">
-        <p class="line-clamp-2 flex-1 text-sm font-medium leading-6 text-slate-100">
+        <p class="line-clamp-2 flex-1 text-sm font-medium leading-6 text-slate-800">
           {{ item.title }}
         </p>
         <span
@@ -39,8 +39,8 @@ defineProps<{
         </span>
       </div>
 
-      <div class="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-400">
-        <span v-if="item.score !== null" class="font-semibold text-slate-300">
+      <div class="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-500">
+        <span v-if="item.score !== null" class="font-semibold text-slate-600">
           امتیاز: {{ toFa(item.score) }}
         </span>
         <span v-if="item.categoryTitle">دسته: {{ item.categoryTitle }}</span>
@@ -51,7 +51,7 @@ defineProps<{
         <span
           v-if="showDeadline && item.deadline"
           :class="
-            (daysUntil(item.deadline) ?? 0) < 0 ? 'font-semibold text-rose-400' : 'text-slate-400'
+            (daysUntil(item.deadline) ?? 0) < 0 ? 'font-semibold text-rose-400'           : 'text-slate-500'
           "
         >
           مهلت: {{ toJalali(item.deadline) }}
@@ -62,7 +62,7 @@ defineProps<{
       </div>
     </li>
 
-    <li v-if="!items.length" class="py-8 text-center text-sm text-slate-500">
+    <li v-if="!items.length" class="py-8 text-center text-sm text-slate-400">
       موردی برای نمایش وجود ندارد
     </li>
   </ul>

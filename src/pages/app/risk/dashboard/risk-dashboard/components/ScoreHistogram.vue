@@ -23,13 +23,13 @@ const option = computed(() => ({
   xAxis: {
     type: "category",
     data: props.data.map((d) => d.range),
-    axisLabel: { color: "#cbd5e1", fontFamily: chartFont },
-    axisLine: { lineStyle: { color: "#334155" } },
+    axisLabel: { color: "#334155", fontFamily: chartFont },
+    axisLine: { lineStyle: { color: "#cbd5e1" } },
     axisTick: { show: false },
   },
   yAxis: {
     type: "value",
-    axisLabel: { color: "#94a3b8", fontFamily: chartFont },
+    axisLabel: { color: "#64748b", fontFamily: chartFont },
     splitLine: { lineStyle: { color: splitLineColor } },
   },
   series: [
@@ -43,7 +43,7 @@ const option = computed(() => ({
       label: {
         show: true,
         position: "top",
-        color: "#cbd5e1",
+        color: "#334155",
         fontFamily: chartFont,
         formatter: (p: { value: number }) => toFa(p.value),
       },

@@ -22,7 +22,7 @@ const current = computed(() => props[active.value])
 
 <template>
   <div class="flex flex-col">
-    <div class="mb-3 flex gap-1 rounded-xl bg-slate-800/60 p-1">
+    <div class="mb-3 flex gap-1 rounded-xl bg-slate-100 p-1">
       <button
         v-for="tab in tabs"
         :key="tab.key"
@@ -31,7 +31,7 @@ const current = computed(() => props[active.value])
         :class="
           active === tab.key
             ? 'bg-sky-500 text-white shadow'
-            : 'text-slate-300 hover:text-slate-100'
+            : 'text-slate-500 hover:text-slate-800'
         "
         @click="active = tab.key"
       >

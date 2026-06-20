@@ -28,7 +28,7 @@ const rows = computed(() =>
   <div class="flex h-64 flex-col justify-center gap-4">
     <div v-for="row in rows" :key="row.riskType" class="space-y-2">
       <div class="flex items-center justify-between">
-        <span class="flex items-center gap-2 text-sm font-medium text-slate-200">
+        <span class="flex items-center gap-2 text-sm font-medium text-slate-700">
           <span
             class="flex h-8 w-8 items-center justify-center rounded-lg"
             :style="{ backgroundColor: row.color + '22', color: row.color }"
@@ -37,12 +37,12 @@ const rows = computed(() =>
           </span>
           {{ row.label }}
         </span>
-        <span class="text-sm font-bold text-slate-100">
+        <span class="text-sm font-bold text-slate-800">
           {{ toFa(row.count) }}
-          <span class="text-xs font-normal text-slate-400">({{ toFa(row.pct) }}٪)</span>
+          <span class="text-xs font-normal text-slate-500">({{ toFa(row.pct) }}٪)</span>
         </span>
       </div>
-      <div class="h-2.5 w-full overflow-hidden rounded-full bg-slate-800">
+      <div class="h-2.5 w-full overflow-hidden rounded-full bg-slate-200">
         <div
           class="h-full rounded-full transition-all"
           :style="{ width: row.pct + '%', backgroundColor: row.color }"

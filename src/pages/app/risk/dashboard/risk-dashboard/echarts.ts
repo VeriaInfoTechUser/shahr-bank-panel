@@ -28,14 +28,14 @@ use([
 ])
 
 export const chartFont = "Vazirmatn, system-ui, sans-serif"
-export const axisColor = "#475569"
-export const labelColor = "#cbd5e1"
-export const splitLineColor = "rgba(148, 163, 184, 0.12)"
+export const axisColor = "#64748b"
+export const labelColor = "#334155"
+export const splitLineColor = "rgba(148, 163, 184, 0.25)"
 
 export const tooltipStyle = {
-  backgroundColor: "rgba(15, 23, 42, 0.95)",
-  borderColor: "rgba(148, 163, 184, 0.2)",
+  backgroundColor: "rgba(255, 255, 255, 0.98)",
+  borderColor: "rgba(148, 163, 184, 0.3)",
   borderWidth: 1,
-  textStyle: { color: "#e2e8f0", fontFamily: chartFont },
-  extraCssText: "border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,0.4);",
+  textStyle: { color: "#1e293b", fontFamily: chartFont },
+  extraCssText: "border-radius:10px;box-shadow:0 4px 16px rgba(0,0,0,0.1);",
 }

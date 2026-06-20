@@ -13,7 +13,7 @@ defineProps<{
 
 <template>
   <div
-    class="relative overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/60 p-4 shadow-sm"
+    class="relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"
   >
     <span
       class="absolute inset-y-0 right-0 w-1"
@@ -22,9 +22,9 @@ defineProps<{
     />
     <div class="flex items-center justify-between gap-3">
       <div class="min-w-0">
-        <p class="truncate text-xs font-medium text-slate-400">{{ label }}</p>
-        <p class="mt-1 text-2xl font-extrabold text-slate-50">{{ toFa(value) }}</p>
-        <p v-if="hint" class="mt-1 truncate text-xs text-slate-500">{{ hint }}</p>
+        <p class="truncate text-xs font-medium text-slate-500">{{ label }}</p>
+        <p class="mt-1 text-2xl font-extrabold text-slate-900">{{ toFa(value) }}</p>
+        <p v-if="hint" class="mt-1 truncate text-xs text-slate-400">{{ hint }}</p>
       </div>
       <span
         class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl"

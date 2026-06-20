@@ -29,11 +29,11 @@ const frameworks = computed(() =>
     <div
       v-for="fw in frameworks"
       :key="fw.frameworkSlug"
-      class="rounded-xl border border-slate-800 bg-slate-900/40 p-3"
+      class="rounded-xl border border-slate-200 bg-white p-3"
     >
       <div class="mb-2 flex items-center justify-between">
-        <h4 class="text-sm font-bold text-slate-100">{{ fw.frameworkTitle }}</h4>
-        <span class="text-xs text-slate-400">
+        <h4 class="text-sm font-bold text-slate-800">{{ fw.frameworkTitle }}</h4>
+        <span class="text-xs text-slate-500">
           {{ toFa(fw.totalRisks) }} ریسک · میانگین {{ toFa(fw.avgScore) }}
         </span>
       </div>
@@ -50,7 +50,7 @@ const frameworks = computed(() =>
           <p class="text-lg font-extrabold" :style="{ color: levelColors[cell.level] }">
             {{ toFa(cell.count) }}
           </p>
-          <p class="text-[11px] text-slate-400">{{ levelLabels[cell.level] }}</p>
+          <p class="text-[11px] text-slate-500">{{ levelLabels[cell.level] }}</p>
         </div>
       </div>
     </div>

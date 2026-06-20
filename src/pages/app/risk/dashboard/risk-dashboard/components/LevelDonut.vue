@@ -17,9 +17,9 @@ const option = computed(() => ({
     formatter: (p: { name: string; value: number; percent: number }) =>
       `${p.name}<br/>${toFa(p.value)} مورد (${toFa(p.percent)}٪)`,
   },
-  legend: {
-    bottom: 0,
-    textStyle: { color: "#cbd5e1", fontFamily: chartFont },
+    legend: {
+      bottom: 0,
+      textStyle: { color: "#334155", fontFamily: chartFont },
     itemWidth: 10,
     itemHeight: 10,
   },
@@ -29,7 +29,7 @@ const option = computed(() => ({
       radius: ["52%", "75%"],
       center: ["50%", "44%"],
       avoidLabelOverlap: true,
-      itemStyle: { borderColor: "#0f172a", borderWidth: 2, borderRadius: 6 },
+      itemStyle: { borderColor: "#ffffff", borderWidth: 2, borderRadius: 6 },
       label: { show: false },
       data: props.data.map((d) => ({
         value: d.count,
@@ -47,8 +47,8 @@ const option = computed(() => ({
     <div
       class="pointer-events-none absolute inset-x-0 top-[38%] -translate-y-1/2 text-center"
     >
-      <p class="text-2xl font-extrabold text-slate-50">{{ toFa(total) }}</p>
-      <p class="text-xs text-slate-400">سطح‌بندی‌شده</p>
+      <p class="text-2xl font-extrabold text-slate-900">{{ toFa(total) }}</p>
+      <p class="text-xs text-slate-500">سطح‌بندی‌شده</p>
     </div>
   </div>
 </template>

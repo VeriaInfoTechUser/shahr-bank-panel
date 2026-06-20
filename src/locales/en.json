@@ -527,6 +527,7 @@
     "delete-error": "Could not delete the commitment."
   },
   "menu": {
+    "plans": "Plans",
     "comments": "Comments",
     "blogs": "News",
     "products": "Products",

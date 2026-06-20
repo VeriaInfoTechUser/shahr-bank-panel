@@ -13,6 +13,7 @@ defineProps<{
   items: RiskItem[]
   showDeadline?: boolean
   showFramework?: boolean
+  memberNames?: Map<string, string>
 }>()
 </script>
 
@@ -44,7 +45,7 @@ defineProps<{
           امتیاز: {{ toFa(item.score) }}
         </span>
         <span v-if="item.categoryTitle">دسته: {{ item.categoryTitle }}</span>
-        <span>{{ ownerLabel(item.ownerId) }}</span>
+        <span>{{ ownerLabel(item.ownerId, memberNames) }}</span>
         <span v-if="showFramework && item.frameworkTitle" class="text-sky-400">
           {{ item.frameworkTitle }}
         </span>

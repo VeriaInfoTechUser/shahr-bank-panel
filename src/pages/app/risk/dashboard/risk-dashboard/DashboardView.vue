@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from "vue"
+import { computed, ref, onMounted } from "vue"
 import type { DashboardData } from "./types"
 import { toFa } from "./helpers"
 
@@ -26,6 +26,9 @@ import {
   IconActivityHeartbeat,
 } from "@tabler/icons-vue"
 
+import { ermRepo } from "@/core/repositories/ermRepo"
+import { fetchMemberLightListCached } from "@/core/erm/ruleAuthorTypeOptionsCache"
+
 const props = defineProps<{
   data: DashboardData
   loading?: boolean
@@ -34,6 +37,35 @@ const props = defineProps<{
 defineEmits<{
   (e: "refresh"): void
 }>()
+
+const memberNames = ref<Map<string, string>>(new Map())
+
+onMounted(async () => {
+  try {
+    const res = await fetchMemberLightListCached(ermRepo)
+    const r = res as { data?: unknown; list?: unknown[] }
+    const d = r?.data
+    let list: Record<string, unknown>[] = []
+    if (Array.isArray(res)) list = res as Record<string, unknown>[]
+    else if (Array.isArray(d)) list = d as Record<string, unknown>[]
+    else if (d && typeof d === 'object' && 'list' in d && Array.isArray((d as { list: unknown[] }).list))
+      list = (d as { list: Record<string, unknown>[] }).list
+    else if (Array.isArray(r?.list)) list = r.list as Record<string, unknown>[]
+
+    const map = new Map<string, string>()
+    for (const m of list) {
+      const id = m.id ?? m.user_id
+      if (id == null) continue
+      const name =
+        [m.name, m.full_name, m.email, m.mobile]
+          .find((x) => typeof x === 'string' && String(x).trim()) ?? null
+      if (name) map.set(String(id), String(name).trim())
+    }
+    memberNames.value = map
+  } catch {
+    // silently ignore — fallback to generic labels
+  }
+})
 
 const summary = computed(() => props.data.summary)
 
@@ -125,6 +157,7 @@ const monitoringCount = computed(
             :analysis="data.topAnalysis"
             :response="data.topResponse"
             :monitoring="data.topMonitoring"
+            :member-names="memberNames"
           />
         </DashboardCard>
       </div>
@@ -139,7 +172,7 @@ const monitoringCount = computed(
           <FrameworkHeatmap :heatmap="data.frameworkHeatmap" :overview="data.frameworkOverview" />
         </DashboardCard>
         <DashboardCard class="lg:col-span-2" title="توزیع مالکیت ریسک" subtitle="بار کاری کارشناسان">
-          <OwnerPanel :data="data.ownerDistribution" />
+          <OwnerPanel :data="data.ownerDistribution" :member-names="memberNames" />
         </DashboardCard>
       </div>
 
@@ -161,12 +194,12 @@ const monitoringCount = computed(
       <div class="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-2">
         <DashboardCard title="ریسک‌های دارای تأخیر" :subtitle="`${toFa(overdueCount)} مورد`">
           <div class="max-h-96 overflow-y-auto pl-1">
-            <RiskList :items="data.overdueRisks" show-deadline />
+            <RiskList :items="data.overdueRisks" show-deadline :member-names="memberNames" />
           </div>
         </DashboardCard>
         <DashboardCard title="فعالیت‌های اخیر" subtitle="آخرین تغییرات ریسک‌ها">
           <div class="max-h-96 overflow-y-auto pl-1">
-            <RiskList :items="data.recentActivity" show-framework />
+            <RiskList :items="data.recentActivity" show-framework :member-names="memberNames" />
           </div>
         </DashboardCard>
       </div>

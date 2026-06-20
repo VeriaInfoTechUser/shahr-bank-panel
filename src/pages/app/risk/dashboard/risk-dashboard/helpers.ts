@@ -70,7 +70,8 @@ export function daysUntil(iso: string | null): number | null {
 }
 
 /** نمایش مالک بر اساس شناسه */
-export function ownerLabel(ownerId: string | null): string {
+export function ownerLabel(ownerId: string | null, memberNames?: Map<string, string>): string {
   if (!ownerId) return "بدون مالک"
+  if (memberNames?.has(ownerId)) return memberNames.get(ownerId)!
   return `کارشناس ${toFa(Number(ownerId))}`
 }

@@ -7,6 +7,7 @@ const props = defineProps<{
   analysis: RiskItem[]
   response: RiskItem[]
   monitoring: RiskItem[]
+  memberNames?: Map<string, string>
 }>()
 
 const tabs = [
@@ -39,7 +40,7 @@ const current = computed(() => props[active.value])
       </button>
     </div>
     <div class="max-h-80 overflow-y-auto pl-1">
-      <RiskList :items="current" />
+      <RiskList :items="current" :member-names="props.memberNames" />
     </div>
   </div>
 </template>

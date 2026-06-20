@@ -72,11 +72,11 @@ export const useSideMenuStore = defineStore("sideMenu", {
                 pageName: "app-compliance",
                 title: "menu.compliance",
                 subMenu: [
-                    // {
-                    //     icon: "LayoutDashboard",
-                    //     pageName: "app-compliance-dashboard",
-                    //     title: "menu.dashboard",
-                    // },
+                    {
+                        icon: "LayoutDashboard",
+                        pageName: "app-compliance-dashboard",
+                        title: "menu.dashboard",
+                    },
                     // {
                     //     icon: "ShieldCheck",
                     //     pageName: "app-compliance-operations",

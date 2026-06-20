@@ -7,7 +7,7 @@ import Lucide from '@/base-components/Lucide/Lucide.vue';
 import Button from '@/base-components/Button';
 import PerformancePieChart from './PerformancePieChart.vue';
 import DailyPerformanceChart from './DailyPerformanceChart.vue';
-import ComplianceFilterToolbar from '../dashboard/ComplianceFilterToolbar.vue';
+// import ComplianceFilterToolbar from '../dashboard/ComplianceFilterToolbar.vue';
 import { useBreadcrumbSlot } from '@/composables/useBreadcrumb';
 
 const { t } = useI18n();
@@ -196,13 +196,13 @@ onUnmounted(() => {
             </p>
           </div>
         </div>
-        <ComplianceFilterToolbar
-          :table="{
-            replaceFilters,
-            clearFilters,
-            filters
-          }"
-        />
+<!--        <ComplianceFilterToolbar-->
+<!--          :table="{-->
+<!--            replaceFilters,-->
+<!--            clearFilters,-->
+<!--            filters-->
+<!--          }"-->
+<!--        />-->
       </div>
     </header>
 

@@ -54,6 +54,10 @@ type PrimaryRoute =
   | 'app-risk-operations'
   | 'app-base-info-rules-regulations'
   | 'app-base-info-tasks'
+  | 'app-base-info-framework'
+  | 'app-base-info-domain'
+  | 'app-compliance-task'
+  | 'app-risk-list'
   | 'app-esg-dashboard'
   | 'app-esg-governance'
   | 'app-esg-social'
@@ -69,27 +73,27 @@ interface Spot {
 
 const spots = computed<Spot[]>(() => [
   {
-    route: 'app-base-info-rules-regulations',
-    titleKey: 'menu.rules-regulations',
-    descKey: 'dashboard-page.spot-rules-desc',
-    icon: 'Scale',
+    route: 'app-base-info-framework',
+    titleKey: 'menu.framework',
+    descKey: 'dashboard-page.spot-framework-desc',
+    icon: 'Layers',
   },
   {
-    route: 'app-base-info-tasks',
-    titleKey: 'menu.tasks',
-    descKey: 'dashboard-page.spot-tasks-desc',
+    route: 'app-base-info-domain',
+    titleKey: 'menu.domain',
+    descKey: 'dashboard-page.spot-domain-desc',
+    icon: 'Globe',
+  },
+  {
+    route: 'app-compliance-task',
+    titleKey: 'menu.compliance-task',
+    descKey: 'dashboard-page.spot-compliance-task-desc',
     icon: 'ClipboardCheck',
   },
   {
-    route: 'app-compliance-operations',
-    titleKey: 'menu.compliance-operations',
-    descKey: 'dashboard-page.spot-compliance-desc',
-    icon: 'ShieldCheck',
-  },
-  {
-    route: 'app-risk-operations',
+    route: 'app-risk-list',
     titleKey: 'menu.risk-operations',
-    descKey: 'dashboard-page.spot-risk-desc',
+    descKey: 'dashboard-page.spot-risk-list-desc',
     icon: 'AlertTriangle',
   },
   // {
@@ -324,15 +328,17 @@ function go(name: PrimaryRoute) {
           >
             {{ t(spot.descKey) }}
           </p>
-          <span
-            class="inline-flex items-center gap-1.5 text-xs font-medium text-primary opacity-90 transition group-hover:opacity-100"
-          >
-            {{ t('dashboard-page.cta') }}
-            <Lucide
-              icon="ArrowLeft"
-              class="h-3.5 w-3.5 transition group-hover:-translate-x-0.5 rtl:rotate-180 rtl:group-hover:translate-x-0.5"
-            />
-          </span>
+          <div class="flex justify-end">
+            <span
+              class="inline-flex items-center gap-1.5 text-xs font-medium text-primary opacity-90 transition group-hover:opacity-100"
+            >
+              {{ t('dashboard-page.cta') }}
+              <Lucide
+                icon="ArrowRight"
+                class="h-3.5 w-3.5 transition group-hover:translate-x-0.5 rtl:rotate-180 rtl:-translate-x-0.5 rtl:group-hover:-translate-x-1"
+              />
+            </span>
+          </div>
         </div>
       </button>
     </div>

@@ -32,34 +32,22 @@ const table = useDataTable({
   fetchFn: fetchFrameworks,
   columns: [
     createColumn({
-      key: 'slug',
-      label: t('title.id'),
-      sortable: false,
-      bodyCell: (row) => row.slug ?? '—',
-    }),
-    createColumn({
       key: 'title',
       label: t('title.title'),
       sortable: false,
       bodyCell: (row) => row.title ?? '—',
     }),
     createColumn({
+      key: 'version',
+      label: t('title.version'),
+      sortable: false,
+      bodyCell: (row) => row.version ?? '—',
+    }),
+    createColumn({
       key: 'summary',
       label: t('title.summary'),
       sortable: false,
-      bodyCell: (row) => row.summary ,
-    }),
-    createColumn({
-      key: 'domainsCount',
-      label: t('framework.domains-count'),
-      sortable: false,
-      bodyCell: (row) => row.domainsCount ?? '0',
-    }),
-    createColumn({
-      key: 'controlCount',
-      label: t('framework.controls-count'),
-      sortable: false,
-      bodyCell: (row) => row.controlCount ?? '0',
+      bodyCell: (row) => row.summary,
     }),
   ],
   selectable: false,

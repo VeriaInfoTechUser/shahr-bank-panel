@@ -158,6 +158,7 @@
     "request": "Request",
     "customer": "Customer",
     "product": "Product",
+    "version": "Version",
     "auth": {
       "google": {
         "title": "Login with Google",

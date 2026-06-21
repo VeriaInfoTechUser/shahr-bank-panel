@@ -32,12 +32,6 @@ const table = useDataTable({
   fetchFn: fetchDomains,
   columns: [
     createColumn({
-      key: 'slug',
-      label: t('title.id'),
-      sortable: false,
-      bodyCell: (row) => row.slug ?? '—',
-    }),
-    createColumn({
       key: 'title',
       label: t('title.title'),
       sortable: false,
@@ -48,12 +42,6 @@ const table = useDataTable({
       label: t('title.status'),
       sortable: false,
       bodyCell: (row) => row.status === 1 ? t('status.active') : t('status.inactive'),
-    }),
-    createColumn({
-      key: 'controlCount',
-      label: t('domain.controls-count'),
-      sortable: false,
-      bodyCell: (row) => row.controlCount ?? '0',
     }),
   ],
   selectable: false,

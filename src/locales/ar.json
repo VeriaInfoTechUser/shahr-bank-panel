@@ -1478,6 +1478,8 @@
     "action-approve": "موافقة",
     "action-reject": "رفض",
     "action-reopen": "إعادة فتح",
+    "action-review": "مراجعة",
+    "action-view": "عرض",
     "field-assignee": "مسؤول التنفيذ",
     "field-answer": "الإجابة",
     "field-answer-description": "وصف الإجابة",

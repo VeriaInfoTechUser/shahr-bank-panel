@@ -2188,6 +2188,8 @@
     "action-approve": "تأیید",
     "action-reject": "رد",
     "action-reopen": "بازگشایی",
+    "action-review": "بررسی",
+    "action-view": "مشاهده",
     "field-assignee": "مسئول اجرا",
     "field-answer": "پاسخ",
     "field-answer-description": "توضیحات پاسخ",

@@ -1955,6 +1955,8 @@
     "action-approve": "Approve",
     "action-reject": "Reject",
     "action-reopen": "Reopen",
+    "action-review": "Review",
+    "action-view": "View",
     "field-assignee": "Assignee",
     "field-answer": "Answer",
     "field-answer-description": "Answer Description",

@@ -44,6 +44,22 @@ const STATE_BADGE_KEY: Record<string, string> = {
   rejected: 'reject',
 };
 
+const ACTION_LABEL: Record<string, string> = {
+  todo: 'task-transition.action-review',
+  in_progress: 'task-transition.action-review',
+  done: 'task-transition.action-review',
+  approved: 'task-transition.action-view',
+  rejected: 'task-transition.action-review',
+};
+
+const ACTION_ICON: Record<string, string> = {
+  todo: 'Eye',
+  in_progress: 'Eye',
+  done: 'Eye',
+  approved: 'Eye',
+  rejected: 'Eye',
+};
+
 const ANSWER_I18N: Record<string, string> = {
   not_started: 'compliance-task.answer-not-started',
   compliant: 'compliance-task.answer-compliant',
@@ -99,6 +115,16 @@ function stateBadgeClass(row: Record<string, unknown>): string {
   const raw = String(row.state ?? '').trim().toLowerCase();
   const badgeKey = STATE_BADGE_KEY[raw] ?? 'unknown';
   return complianceOperationsStatusBadgeClass(badgeKey);
+}
+
+function actionLabel(row: Record<string, unknown>): string {
+  const raw = String(row.state ?? '').trim().toLowerCase();
+  return t(ACTION_LABEL[raw] ?? 'compliance-task.action-set-answer');
+}
+
+function actionIcon(row: Record<string, unknown>): string {
+  const raw = String(row.state ?? '').trim().toLowerCase();
+  return ACTION_ICON[raw] ?? 'ClipboardCheck';
 }
 
 function assignedUserCell(row: Record<string, unknown>): string {
@@ -241,13 +267,13 @@ onMounted(async () => {
               type="button"
               variant="outline-primary"
               size="sm"
-              class="!h-7 !px-2 !py-0 text-[11px] w-24"
-              :aria-label="t('compliance-task.action-set-answer')"
-              :title="t('compliance-task.action-set-answer')"
+              class="!h-7 !px-2 !py-0 text-[11px] gap-1.5"
+              :aria-label="actionLabel(row)"
+              :title="actionLabel(row)"
               @click.stop="openAnswerModal(row)"
             >
-              <Lucide icon="ClipboardCheck" class="mr-1 !h-3 !w-3" />
-              {{ t('compliance-task.action-set-answer') }}
+              <Lucide :icon="actionIcon(row)" class="!h-3 !w-3" />
+              {{ actionLabel(row) }}
             </Button>
           </div>
         </template>

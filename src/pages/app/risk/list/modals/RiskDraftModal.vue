@@ -328,7 +328,7 @@ function handleDelete() {
               form="risk-draft-modal-form"
               :disabled="saving"
           >
-            {{ t('title.update') }}
+            {{ t('button.save') }}
           </Button>
           <Button
             type="button"
@@ -337,7 +337,7 @@ function handleDelete() {
             :disabled="saving || registering"
             @click="handleRegister"
           >
-            {{ t('risk.action-register') }}
+            {{ t('button.confirm') }}
           </Button>
         </div>
       </div>

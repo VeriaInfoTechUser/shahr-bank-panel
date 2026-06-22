@@ -132,6 +132,36 @@ export const useSideMenuStore = defineStore("sideMenu", {
                 ],
             },
             {
+                icon: "Settings",
+                pageName: "app-settings",
+                title: "menu.settings",
+                subMenu: [
+                    {
+                        icon: "BookOpen",
+                        pageName: "app-settings-guide",
+                        title: "menu.settings-guide",
+                    },
+                    {
+                        icon: "Users",
+                        pageName: "app-settings-liaisons",
+                        title: "menu.settings-liaisons",
+                        requiredRole: "grc_admin",
+                    },
+                    {
+                        icon: "Landmark",
+                        pageName: "app-settings-legislative-authority",
+                        title: "menu.settings-legislative-authority",
+                        requiredRole: "grc_admin",
+                    },
+                    {
+                        icon: "FileType",
+                        pageName: "app-settings-law-type",
+                        title: "menu.settings-law-type",
+                        requiredRole: "grc_admin",
+                    },
+                ],
+            },
+            {
                 icon: "Globe",
                 pageName: "app-esg",
                 title: "menu.esg",
@@ -160,36 +190,6 @@ export const useSideMenuStore = defineStore("sideMenu", {
                         icon: "BarChart3",
                         pageName: "app-esg-report",
                         title: "menu.esg-report",
-                    },
-                ],
-            },
-            {
-                icon: "Settings",
-                pageName: "app-settings",
-                title: "menu.settings",
-                subMenu: [
-                    {
-                        icon: "BookOpen",
-                        pageName: "app-settings-guide",
-                        title: "menu.settings-guide",
-                    },
-                    {
-                        icon: "Users",
-                        pageName: "app-settings-liaisons",
-                        title: "menu.settings-liaisons",
-                        requiredRole: "grc_admin",
-                    },
-                    {
-                        icon: "Landmark",
-                        pageName: "app-settings-legislative-authority",
-                        title: "menu.settings-legislative-authority",
-                        requiredRole: "grc_admin",
-                    },
-                    {
-                        icon: "FileType",
-                        pageName: "app-settings-law-type",
-                        title: "menu.settings-law-type",
-                        requiredRole: "grc_admin",
                     },
                 ],
             },

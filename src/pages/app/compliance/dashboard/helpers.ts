@@ -15,7 +15,7 @@ export const stateLabels: Record<TaskState, string> = {
   rejected: "ردشده",
 }
 
-/** رنگ متناظر هر پاسخ انطباق */
+/** رنگ متناظر هر پاسخ تطبیق */
 export const answerColors: Record<ComplianceAnswer, string> = {
   compliant: "#34d399",
   partially_compliant: "#facc15",

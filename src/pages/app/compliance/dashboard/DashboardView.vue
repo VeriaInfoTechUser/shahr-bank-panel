@@ -91,7 +91,7 @@ const overdueCount = computed(() => props.data.overdueTasks.length)
           hint="در همه برنامه‌ها"
         />
         <StatCard
-          label="امتیاز کلی انطباق"
+          label="امتیاز کلی تطبیق"
           :value="Math.round(summary.overallScore * 10) / 10"
           :icon="IconGauge"
           accent="#34d399"
@@ -109,13 +109,13 @@ const overdueCount = computed(() => props.data.overdueTasks.length)
 
       <!-- distributions -->
       <div class="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-3">
-        <DashboardCard title="وضعیت انطباق وظایف" subtitle="تفکیک پاسخ‌های ارزیابی">
+        <DashboardCard title="وضعیت تطبیق وظایف" subtitle="تفکیک پاسخ‌های ارزیابی">
           <AnswerDonut :data="summary.tasksByAnswer" />
         </DashboardCard>
         <DashboardCard title="وضعیت چرخه کاری" subtitle="تعداد وظیفه در هر وضعیت">
           <StateBar :data="summary.tasksByState" />
         </DashboardCard>
-        <DashboardCard title="توزیع امتیاز انطباق" subtitle="بازه‌بندی امتیاز وظایف">
+        <DashboardCard title="توزیع امتیاز تطبیق" subtitle="بازه‌بندی امتیاز وظایف">
           <ScoreHistogram :data="data.scoreDistribution" />
         </DashboardCard>
       </div>
@@ -125,7 +125,7 @@ const overdueCount = computed(() => props.data.overdueTasks.length)
         <DashboardCard
           class="lg:col-span-3"
           title="مقایسه چارچوب‌ها"
-          subtitle="میانگین امتیاز در برابر نرخ انطباق"
+          subtitle="میانگین امتیاز در برابر نرخ تطبیق"
         >
           <FrameworkScores :data="data.frameworkCompliance" />
         </DashboardCard>
@@ -138,7 +138,7 @@ const overdueCount = computed(() => props.data.overdueTasks.length)
       <div class="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-5">
         <DashboardCard
           class="lg:col-span-3"
-          title="انطباق بر اساس دامنه کنترلی"
+          title="تطبیق بر اساس دامنه کنترلی"
           subtitle="ترکیب پاسخ‌ها در هر دامنه"
         >
           <DomainStacked :data="data.domainCompliance" />
@@ -188,7 +188,7 @@ const overdueCount = computed(() => props.data.overdueTasks.length)
       </div>
 
       <footer class="mt-8 pb-4 text-center text-xs text-slate-400">
-        داشبورد مدیریت انطباق، حاکمیت و ریسک (GRC)
+        داشبورد مدیریت تطبیق، حاکمیت و ریسک (GRC)
       </footer>
     </div>
   </div>

@@ -17,8 +17,8 @@ defineEmits<{
         <IconCircleCheck :size="26" />
       </span>
       <div>
-        <h1 class="text-xl font-extrabold text-slate-900">داشبورد انطباق</h1>
-        <p class="text-xs text-slate-500">حاکمیت، مدیریت ریسک و انطباق (GRC)</p>
+        <h1 class="text-xl font-extrabold text-slate-900">داشبورد تطبیق</h1>
+        <p class="text-xs text-slate-500">حاکمیت، مدیریت ریسک و تطبیق (GRC)</p>
       </div>
     </div>
 

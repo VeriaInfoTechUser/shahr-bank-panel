@@ -48,7 +48,7 @@ const option = computed(() => ({
       data: props.data.map((d) => Math.round(d.avgScore * 10) / 10),
     },
     {
-      name: "نرخ انطباق",
+      name: "نرخ تطبیق",
       type: "bar",
       barWidth: "28%",
       itemStyle: { color: "#34d399", borderRadius: [6, 6, 0, 0] },

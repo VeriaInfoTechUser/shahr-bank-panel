@@ -1533,7 +1533,7 @@
         "governance": {
           "intro": "حاکمیت — مقدمه",
           "board": "حاکمیت — هیئت‌مدیره و ریسک",
-          "ethics": "حاکمیت — اخلاق و انطباق",
+          "ethics": "حاکمیت — اخلاق و تطبیق",
           "transparency": "حاکمیت — شفافیت و کنترل"
         }
       },
@@ -1632,9 +1632,9 @@
         "ethics_training": "آموزش اخلاق و ضد فساد",
         "whistleblowing": "گزارش‌های افشاگری",
         "ethics_incidents": "تخلفات اخلاقی",
-        "compliance": "انطباق",
+        "compliance": "تطبیق",
         "regulatory_requirements": "الزامات با کنترل",
-        "compliance_training": "آموزش انطباق",
+        "compliance_training": "آموزش تطبیق",
         "cybersecurity": "سامانه‌های ارزیابی‌شده",
         "vulnerability_remediation": "رفع آسیب‌پذیری",
         "cybersecurity_incidents": "رخدادهای سایبری",
@@ -1646,12 +1646,12 @@
         "internal_audit": "ممیزی داخلی و سیستم‌های کنترلی",
         "esg_governance": "حاکمیت و گزارش‌دهی ESG",
         "aml": "مبارزه با پول‌شویی و جرائم مالی",
-        "regulatory_compliance": "انطباق حقوقی و مقرراتی",
+        "regulatory_compliance": "تطبیق حقوقی و مقرراتی",
         "data_governance": "حاکمیت داده ESG و کیفیت داده",
         "workforce_demographics": "ساختار و جمعیت‌شناسی نیروی انسانی",
         "health_safety_wellbeing": "سلامت، ایمنی و مشارکت کارکنان",
         "corporate_structure": "ساختار حاکمیت شرکتی و مدیریت ریسک",
-        "ethics_compliance_security": "اخلاق، انطباق، امنیت و زنجیره تأمین"
+        "ethics_compliance_security": "اخلاق، تطبیق، امنیت و زنجیره تأمین"
       },
       "highlights": {
         "strengths": "نقاط قوت",
@@ -1832,16 +1832,16 @@
           "title": "نرخ سوابق ESG با ردیابی‌پذیری"
         },
         "legal_regulatory_non_compliance_count": {
-          "title": "تعداد عدم انطباق حقوقی و مقررات"
+          "title": "تعداد عدم تطبیق حقوقی و مقررات"
         },
         "regulatory_requirements_with_defined_controls_rate": {
           "title": "نرخ الزامات مقررات با کنترل‌های تعریف‌شده"
         },
         "compliance_training_completion_rate": {
-          "title": "نرخ تکمیل آموزش انطباق"
+          "title": "نرخ تکمیل آموزش تطبیق"
         },
         "compliance_corrective_action_closure_rate": {
-          "title": "نرخ بستن اقدامات اصلاحی انطباق"
+          "title": "نرخ بستن اقدامات اصلاحی تطبیق"
         },
         "corruption_ethics_risk_assessments_count": {
           "title": "تعداد ارزیابی‌های ریسک اخلاق‌فساد"
@@ -1856,7 +1856,7 @@
           "title": "نرخ بستن پروندهای اخلاق"
         },
         "esg_risk_compliance_internal_audits_count": {
-          "title": "تعداد ممیزی‌های داخلی انطباق ریسک ESG"
+          "title": "تعداد ممیزی‌های داخلی تطبیق ریسک ESG"
         },
         "high_risk_audit_finding_closure_rate": {
           "title": "نرخ بستن یافته‌های ممیزی ریسک بالا"
@@ -1892,7 +1892,7 @@
           "title": "نرخ پذیرش قوانین رفتار تأمین‌کننده"
         },
         "tax_non_compliance_disputes_count": {
-          "title": "تعداد نزاع‌های عدم انطباق مالیاتی"
+          "title": "تعداد نزاع‌های عدم تطبیق مالیاتی"
         },
         "timely_key_financial_information_completion_rate": {
           "title": "نرخ تکمیل اطلاعات مالی کلیدی به‌موقع"
@@ -1918,7 +1918,7 @@
           "title": "مدیریت ریسک"
         },
         "compliance": {
-          "title": "انطباق"
+          "title": "تطبیق"
         },
         "internal_audit": {
           "title": "ممیزی داخلی"
@@ -1954,7 +1954,7 @@
         },
         "aml_evidence_approved": {
           "title": "مستندات غربالگری AML تأیید شد",
-          "description": "مستندات غربالگری AML توسط واحد انطباق تأیید شد."
+          "description": "مستندات غربالگری AML توسط واحد تطبیق تأیید شد."
         },
         "supplier_governance_review_requested": {
           "title": "بازبینی حاکمیت تأمین‌کننده درخواست شد",
@@ -1972,7 +1972,7 @@
       },
       "domains": {
         "regulatory_legal_compliance_risk": {
-          "title": "ریسک انطباق حقوقی و مقرراتی"
+          "title": "ریسک تطبیق حقوقی و مقرراتی"
         },
         "anti_money_laundering_financial_crime": {
           "title": "مبارزه با پول‌شویی و جرائم مالی"
@@ -1984,7 +1984,7 @@
           "title": "حاکمیت داده ESG و کیفیت داده"
         },
         "compliance_management": {
-          "title": "مدیریت انطباق"
+          "title": "مدیریت تطبیق"
         },
         "ethics_integrity": {
           "title": "اخلاق و یکپارچگی"
@@ -2011,7 +2011,7 @@
     }
   },
   "برنامه‌های درمان ریسک توسط واحد مدیریت ریسک به‌روزرسانی شد.": "برنامه‌های درمان ریسک توسط واحد مدیریت ریسک به‌روزرسانی شد.",
-  "مستندات غربالگری AML توسط واحد انطباق تأیید شد.": "مستندات غربالگری AML توسط واحد انطباق تأیید شد.",
+  "مستندات غربالگری AML توسط واحد تطبیق تأیید شد.": "مستندات غربالگری AML توسط واحد تطبیق تأیید شد.",
   "برای ارزیابی زنجیره تأمین درخواست بازبینی تکمیلی ثبت شد.": "برای ارزیابی زنجیره تأمین درخواست بازبینی تکمیلی ثبت شد.",
   "شاخص‌های ساختار حاکمیت شرکتی برای دوره سالانه ۲۰۲۴ بازخوانی شد.": "شاخص‌های ساختار حاکمیت شرکتی برای دوره سالانه ۲۰۲۴ بازخوانی شد.",
   "highlights": {
@@ -2060,7 +2060,7 @@
     "slug": "شناسه یکتا",
     "slug-placeholder": "مثال: annual-compliance-plan",
     "title": "عنوان",
-    "title-placeholder": "مثال: طرح انطباق سالانه",
+    "title-placeholder": "مثال: طرح تطبیق سالانه",
     "number": "شماره",
     "number-placeholder": "مثال: PLAN-001",
     "version": "نسخه",
@@ -2095,7 +2095,7 @@
     "wizard-step-controls": "انتخاب کنترل‌ها",
     "wizard-step-assign": "تخصیص کنترل‌ها",
     "wizard-field-title": "عنوان طرح",
-    "wizard-field-title-placeholder": "مثال: طرح انطباق سالانه ۲۰۲۵",
+    "wizard-field-title-placeholder": "مثال: طرح تطبیق سالانه ۲۰۲۵",
     "wizard-field-deadline": "تاریخ تکمیل هدف",
     "wizard-field-owner": "مالک طرح",
     "wizard-field-framework": "فریمورک",

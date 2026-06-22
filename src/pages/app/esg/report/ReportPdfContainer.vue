@@ -627,10 +627,10 @@ async function downloadPDF() {
       <!-- PAGE 14: Ethics & Compliance -->
       <div class="page">
         <div class="page-header">
-          <span class="section-pill pill-gov"> <IconBuildingBank :size="16" stroke-width="2" /> حاکمیت — اخلاق و انطباق</span>
+          <span class="section-pill pill-gov"> <IconBuildingBank :size="16" stroke-width="2" /> حاکمیت — اخلاق و تطبیق</span>
           <div class="header-meta"><div class="hm-label">بخش</div><div class="hm-value">۱۰</div></div>
         </div>
-        <div class="section-title">اخلاق، انطباق، امنیت و زنجیره تأمین</div>
+        <div class="section-title">اخلاق، تطبیق، امنیت و زنجیره تأمین</div>
         <div class="two-col">
           <div>
             <div class="domain-title">{{ narratives.governance?.domains?.['ethics-integrity']?.title }}</div>
@@ -646,7 +646,7 @@ async function downloadPDF() {
             <div class="narrative-box gov-border" style="font-size:10px">{{ narratives.governance?.domains?.['compliance-management']?.body }}</div>
             <div class="gauge-list">
               <div class="gauge-item"><div class="gauge-label">الزامات با کنترل ({{ getKF('regulatory-requirements-with-defined-controls-rate').answer_raw }}٪)</div><div class="gauge-bar-bg"><div class="gauge-bar-fill gov" :style="{width: getKF('regulatory-requirements-with-defined-controls-rate').answer_raw + '%'}"></div></div></div>
-              <div class="gauge-item"><div class="gauge-label">آموزش انطباق ({{ getKF('compliance-training-completion-rate').answer_raw }}٪)</div><div class="gauge-bar-bg"><div class="gauge-bar-fill gov" :style="{width: getKF('compliance-training-completion-rate').answer_raw + '%'}"></div></div></div>
+              <div class="gauge-item"><div class="gauge-label">آموزش تطبیق ({{ getKF('compliance-training-completion-rate').answer_raw }}٪)</div><div class="gauge-bar-bg"><div class="gauge-bar-fill gov" :style="{width: getKF('compliance-training-completion-rate').answer_raw + '%'}"></div></div></div>
             </div>
           </div>
           <div>

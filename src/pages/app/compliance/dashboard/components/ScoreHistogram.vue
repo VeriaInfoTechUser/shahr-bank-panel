@@ -8,7 +8,7 @@ import type { ScoreRange } from "../types"
 
 const props = defineProps<{ data: ScoreRange[] }>()
 
-/** رنگ هر بازه امتیاز انطباق: ۰ خاکستری (شروع‌نشده) تا ۱۰۰ سبز */
+/** رنگ هر بازه امتیاز تطبیق: ۰ خاکستری (شروع‌نشده) تا ۱۰۰ سبز */
 const rangeColors: Record<string, string> = {
   "0": "#94a3b8",
   "1-25": "#f43f5e",

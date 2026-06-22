@@ -1,4 +1,4 @@
-/** پاسخ‌های ممکن برای وضعیت انطباق هر وظیفه */
+/** پاسخ‌های ممکن برای وضعیت تطبیق هر وظیفه */
 export type ComplianceAnswer = "not_started" | "compliant" | "partially_compliant" | "non_compliant"
 
 /** وضعیت چرخه‌ی کاری هر وظیفه */

@@ -20,7 +20,7 @@ defineEmits<{
       </span>
       <div>
         <h1 class="text-xl font-extrabold text-slate-900">داشبورد مدیریت ریسک</h1>
-        <p class="text-xs text-slate-500">حاکمیت، مدیریت ریسک و انطباق (GRC)</p>
+        <p class="text-xs text-slate-500">حاکمیت، مدیریت ریسک و تطبیق (GRC)</p>
       </div>
     </div>
 

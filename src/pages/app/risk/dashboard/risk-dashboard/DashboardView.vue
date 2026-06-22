@@ -205,7 +205,7 @@ const monitoringCount = computed(
       </div>
 
       <footer     class="mt-8 pb-4 text-center text-xs text-slate-400">
-        داشبورد مدیریت ریسک، حاکمیت و انطباق (GRC)
+        داشبورد مدیریت ریسک، حاکمیت و تطبیق (GRC)
       </footer>
     </div>
   </div>

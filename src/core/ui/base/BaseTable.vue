@@ -81,7 +81,7 @@ const props = withDefaults(
     showSearch: true,
     searchPlaceholder: 'Search...',
     stickyHeader: true,
-    rowsPerPageOptions: () => [5, 10, 25, 50],
+    rowsPerPageOptions: () => [10, 20, 50],
     sortField: null,
     sortOrder: 1,
   }

@@ -54,7 +54,7 @@ export function useDataTable(options: DataTableOptions) {
     columns,
     selectable = false,
     exportEnabled = true,
-    pageSize = 10,
+    pageSize = 20,
     cacheKey,
     listCacheStaleTime = 0,
   } = options;

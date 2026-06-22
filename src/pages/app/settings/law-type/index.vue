@@ -57,7 +57,7 @@ const table = useDataTable({
   ],
   selectable: false,
   exportEnabled: true,
-  pageSize: 10,
+
   cacheKey: 'settings-rule-type-list',
   listCacheStaleTime: 0,
 });

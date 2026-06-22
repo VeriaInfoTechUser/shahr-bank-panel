@@ -88,7 +88,7 @@ const table = useDataTable({
   ],
   selectable: false,
   exportEnabled: true,
-  pageSize: 10,
+
   cacheKey: 'plan-list',
   listCacheStaleTime: 0,
 });

@@ -143,7 +143,7 @@ const table = useDataTable({
   ],
   selectable: false,
   exportEnabled: true,
-  pageSize: 10,
+
   cacheKey: 'settings-members-list',
   listCacheStaleTime: 0,
 });

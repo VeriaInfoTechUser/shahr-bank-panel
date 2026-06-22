@@ -172,7 +172,7 @@ const table = useDataTable({
   ],
   selectable: false,
   exportEnabled: true,
-  pageSize: 10,
+
   cacheKey: 'risk-operations-list',
   listCacheStaleTime: 0,
 });

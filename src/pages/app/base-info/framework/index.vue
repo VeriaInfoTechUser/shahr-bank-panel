@@ -52,7 +52,7 @@ const table = useDataTable({
   ],
   selectable: false,
   exportEnabled: true,
-  pageSize: 10,
+
   cacheKey: 'framework-list',
   listCacheStaleTime: 0,
 });

@@ -163,7 +163,7 @@ const table = useDataTable({
   ],
   selectable: false,
   exportEnabled: true,
-  pageSize: 10,
+
   cacheKey: 'risk-repository-list',
   listCacheStaleTime: 0,
 });

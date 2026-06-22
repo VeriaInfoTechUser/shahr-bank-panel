@@ -26,7 +26,7 @@ export function useTablePagination(
 ): UseTablePaginationReturn {
   const {
     initialPage = 1,
-    initialLimit = 10,
+    initialLimit = 20,
     initialTotal = 0,
   } = options;
 

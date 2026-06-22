@@ -160,7 +160,7 @@ const table = useDataTable({
   ],
   selectable: false,
   exportEnabled: true,
-  pageSize: 10,
+
   cacheKey: 'compliance-task-list',
   listCacheStaleTime: 0,
 });

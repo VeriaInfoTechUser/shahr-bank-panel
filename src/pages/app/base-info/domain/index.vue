@@ -46,7 +46,7 @@ const table = useDataTable({
   ],
   selectable: false,
   exportEnabled: true,
-  pageSize: 10,
+
   cacheKey: 'domain-list',
   listCacheStaleTime: 0,
 });

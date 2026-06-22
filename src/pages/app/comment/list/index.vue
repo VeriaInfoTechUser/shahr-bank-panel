@@ -22,7 +22,7 @@ const stockFilter = ref('all');
 const viewMode = ref('table'); // Default to table for admin
 // Pagination state
 const currentPage = ref(1);
-const itemsPerPage = ref(10);
+const itemsPerPage = ref(20);
 const availableItemsPerPage = [10, 25, 50, 100];
 // Search state
 const searchQuery = ref('');

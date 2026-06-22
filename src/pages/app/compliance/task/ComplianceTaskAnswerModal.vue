@@ -615,6 +615,7 @@ async function onReopen() {
             type="button"
             variant="success"
             size="sm"
+            class="text-white"
             :disabled="saving"
             @click="onDone"
         >
@@ -641,6 +642,7 @@ async function onReopen() {
             type="button"
             variant="success"
             size="sm"
+            class="text-white"
             :disabled="saving"
             @click="onApprove"
         >

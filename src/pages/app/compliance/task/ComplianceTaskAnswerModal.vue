@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
-import { Form, useField, useForm } from 'vee-validate';
+import { useField, useForm } from 'vee-validate';
 import * as yup from 'yup';
 import { useI18n } from 'vue-i18n';
 import { toast } from 'vue3-toastify';
@@ -87,6 +87,8 @@ const showStartButton = computed(() => taskState.value === 'todo');
 const showDoneButton = computed(() => taskState.value === 'in_progress');
 const showApproveRejectButtons = computed(() => taskState.value === 'done');
 const showReopenButton = computed(() => taskState.value === 'rejected');
+const answerReadonly = computed(() => taskState.value === 'done' || taskState.value === 'rejected' || taskState.value === 'approved');
+const commentReadonly = computed(() => taskState.value === 'approved');
 
 const stateBadge = computed(() => {
   switch (taskState.value) {
@@ -105,8 +107,8 @@ const stateBadge = computed(() => {
 
 const validationSchema = computed(() =>
     yup.object({
-      answer_key: yup.string().trim().optional(),
-      comment: yup.string().trim().optional(),
+      answer_key: yup.string().trim().required(t('validation.required')),
+      comment: yup.string().trim().required(t('validation.required')),
     })
 );
 
@@ -117,7 +119,7 @@ function buildInitialValues(task: Record<string, unknown> | null) {
   };
 }
 
-const { values, setFieldError, resetForm, handleSubmit } = useForm({
+const { values, setFieldError, resetForm, validate: validateForm } = useForm({
   validationSchema,
   initialValues: buildInitialValues(props.task),
 });
@@ -155,37 +157,39 @@ function getSlug(): string | null {
   return slug || null;
 }
 
-const onSubmit = handleSubmit(async (formValues) => {
+function buildPayload(): Record<string, unknown> {
+  const selectedKey = String(values.answer_key ?? '').trim();
+  const selectedOption = selectedKey
+      ? answerOptions.value.find((o) => o.key === selectedKey)
+      : undefined;
+  const note = String(values.comment ?? '');
+
+  const payload: Record<string, unknown> = {
+    comment: note,
+  };
+
+  if (selectedKey) {
+    payload.answerKey = selectedKey;
+    payload.answer = selectedKey;
+    if (selectedOption) {
+      payload.answerScore = selectedOption.score;
+      payload.answerTitle = selectedOption.title;
+      if (selectedOption.description) {
+        payload.answerDescription = selectedOption.description;
+      }
+    }
+  }
+
+  return payload;
+}
+
+async function onStart() {
   const slug = getSlug();
   if (!slug) return;
 
   saving.value = true;
   try {
-    const selectedKey = String(formValues.answer_key ?? '').trim();
-    const selectedOption = selectedKey
-        ? answerOptions.value.find((o) => o.key === selectedKey)
-        : undefined;
-
-    const payload: Record<string, unknown> = {};
-
-    const note = String(formValues.comment ?? '').trim();
-    if (note) {
-      payload.comment = note;
-    }
-
-    if (selectedKey) {
-      payload.answerKey = selectedKey;
-      payload.answer = selectedKey;
-      if (selectedOption) {
-        payload.answerScore = selectedOption.score;
-        payload.answerTitle = selectedOption.title;
-        if (selectedOption.description) {
-          payload.answerDescription = selectedOption.description;
-        }
-      }
-    }
-
-    const res = await grcRepo.taskStart(slug, payload);
+    const res = await grcRepo.taskStart(slug, buildPayload());
     if (res?.result) {
       toast(t('task-transition.start-success'), { type: 'success' });
       emit('success');
@@ -199,7 +203,7 @@ const onSubmit = handleSubmit(async (formValues) => {
   } finally {
     saving.value = false;
   }
-});
+}
 
 async function onUpdate() {
   const slug = getSlug();
@@ -207,31 +211,7 @@ async function onUpdate() {
 
   saving.value = true;
   try {
-    const selectedKey = answerKeyValue.value || '';
-    const selectedOption = selectedKey
-        ? answerOptions.value.find((o) => o.key === selectedKey)
-        : undefined;
-
-    const payload: Record<string, unknown> = {};
-
-    const note = values.comment?.trim();
-    if (note) {
-      payload.comment = note;
-    }
-
-    if (selectedKey) {
-      payload.answerKey = selectedKey;
-      payload.answer = selectedKey;
-      if (selectedOption) {
-        payload.answerScore = selectedOption.score;
-        payload.answerTitle = selectedOption.title;
-        if (selectedOption.description) {
-          payload.answerDescription = selectedOption.description;
-        }
-      }
-    }
-
-    const res = await grcRepo.complianceTaskUpdate(slug, payload);
+    const res = await grcRepo.complianceTaskUpdate(slug, buildPayload());
     if (res?.result) {
       toast(t('task-transition.update-success'), { type: 'success' });
       emit('success');
@@ -251,14 +231,12 @@ async function onDone() {
   const slug = getSlug();
   if (!slug) return;
 
-  if (!answerKeyValue.value) {
-    setFieldError('answer_key', t('compliance-task.answer-select-hint'));
-    return;
-  }
+  const { valid } = await validateForm();
+  if (!valid) return;
 
   saving.value = true;
   try {
-    const res = await grcRepo.taskDone(slug);
+    const res = await grcRepo.taskDone(slug, buildPayload());
     if (res?.result) {
       toast(t('task-transition.done-success'), { type: 'success' });
       emit('success');
@@ -278,33 +256,12 @@ async function onApprove() {
   const slug = getSlug();
   if (!slug) return;
 
+  const { valid } = await validateForm();
+  if (!valid) return;
+
   saving.value = true;
   try {
-    const selectedKey = answerKeyValue.value || '';
-    const selectedOption = selectedKey
-        ? answerOptions.value.find((o) => o.key === selectedKey)
-        : undefined;
-
-    const payload: Record<string, unknown> = {};
-
-    const note = values.comment?.trim();
-    if (note) {
-      payload.comment = note;
-    }
-
-    if (selectedKey) {
-      payload.answer = selectedKey;
-      payload.answerKey = selectedKey;
-      if (selectedOption) {
-        payload.answerScore = selectedOption.score;
-        payload.answerTitle = selectedOption.title;
-        if (selectedOption.description) {
-          payload.answerDescription = selectedOption.description;
-        }
-      }
-    }
-
-    const res = await grcRepo.taskApprove(slug, payload);
+    const res = await grcRepo.taskApprove(slug, buildPayload());
     if (res?.result) {
       toast(t('task-transition.approve-success'), { type: 'success' });
       emit('success');
@@ -324,16 +281,12 @@ async function onReject() {
   const slug = getSlug();
   if (!slug) return;
 
+  const { valid } = await validateForm();
+  if (!valid) return;
+
   saving.value = true;
   try {
-    const payload: Record<string, unknown> = {};
-
-    const note = values.comment?.trim();
-    if (note) {
-      payload.comment = note;
-    }
-
-    const res = await grcRepo.taskReject(slug, payload);
+    const res = await grcRepo.taskReject(slug, buildPayload());
     if (res?.result) {
       toast(t('task-transition.reject-success'), { type: 'success' });
       emit('success');
@@ -353,9 +306,12 @@ async function onReopen() {
   const slug = getSlug();
   if (!slug) return;
 
+  const { valid } = await validateForm();
+  if (!valid) return;
+
   saving.value = true;
   try {
-    const res = await grcRepo.taskReopen(slug);
+    const res = await grcRepo.taskReopen(slug, buildPayload());
     if (res?.result) {
       toast(t('task-transition.reopen-success'), { type: 'success' });
       emit('success');
@@ -446,18 +402,21 @@ async function onReopen() {
             <label
                 v-for="opt in answerOptionsView"
                 :key="opt.key"
-                class="group relative flex cursor-pointer items-center gap-3.5 overflow-hidden rounded-xl border px-4 py-3.5 backdrop-blur-md transition-all duration-200"
+                class="group relative flex items-center gap-3.5 overflow-hidden rounded-xl border px-4 py-3.5 backdrop-blur-md transition-all duration-200"
                 :class="[
+                answerReadonly ? 'cursor-default' : 'cursor-pointer',
                 answerKeyValue === opt.key
                   ? 'border-primary/60 bg-primary/10 shadow-[0_4px_18px_-4px_rgba(59,130,246,0.35)] dark:border-primary/40 dark:bg-primary/10'
-                  : 'border-white/60 bg-white/40 hover:-translate-y-[1px] hover:border-slate-300 hover:bg-white/65 hover:shadow-md dark:border-white/5 dark:bg-white/[0.02] dark:hover:border-white/15 dark:hover:bg-white/[0.05]',
+                  : answerReadonly
+                    ? 'border-white/60 bg-white/40 dark:border-white/5 dark:bg-white/[0.02]'
+                    : 'border-white/60 bg-white/40 hover:-translate-y-[1px] hover:border-slate-300 hover:bg-white/65 hover:shadow-md dark:border-white/5 dark:bg-white/[0.02] dark:hover:border-white/15 dark:hover:bg-white/[0.05]',
               ]"
             >
               <!-- left accent bar -->
               <span
                   class="absolute inset-y-0 left-0 w-1 rounded-r-full transition-opacity"
                   :class="[
-                  answerKeyValue === opt.key ? 'opacity-100' : 'opacity-30 group-hover:opacity-60',
+                  answerKeyValue === opt.key ? 'opacity-100' : answerReadonly ? 'opacity-30' : 'opacity-30 group-hover:opacity-60',
                   {
                     'bg-emerald-500': opt.tone === 'success',
                     'bg-amber-500': opt.tone === 'warning',
@@ -488,6 +447,7 @@ async function onReopen() {
                   type="radio"
                   name="answer_key"
                   class="sr-only"
+                  :disabled="answerReadonly"
                   :checked="answerKeyValue === opt.key"
                   @change="selectAnswer(opt.key)"
               />
@@ -566,6 +526,7 @@ async function onReopen() {
             name="comment"
             type="textarea"
             :rows="3"
+            :disabled="commentReadonly"
             :label="t('compliance-task.answer-note-label')"
             :placeholder="t('compliance-task.answer-note-placeholder')"
         />
@@ -590,7 +551,7 @@ async function onReopen() {
             variant="primary"
             size="sm"
             :disabled="saving"
-            @click="onSubmit"
+            @click="onStart"
         >
           <Lucide v-if="saving" icon="Loader2" class="mr-1 h-3.5 w-3.5 animate-spin" />
           <Lucide v-else icon="Save" class="mr-1 h-3.5 w-3.5" />

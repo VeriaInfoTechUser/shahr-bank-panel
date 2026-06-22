@@ -1,6 +1,6 @@
 # Veria Panel - Local Administration Dashboard
 
-A Vue 3 + TypeScript + Vite administration panel for Shahr Bank.
+A Vue 3 + TypeScript + Vite administration panel for  .
 
 ## Features
 
@@ -110,4 +110,4 @@ Displays a paginated table of tasks fetched via `POST /erm/task/list`. Columns:
 
 ## License
 
-Private - Shahr Bank
+Private  

@@ -84,7 +84,7 @@ const step1Schema = computed(() =>
     deadline: yup.string().trim().required(t('validation.required')),
     owner_id: yup.string().trim().required(t('validation.required')),
     framework_slugs: yup.array().of(yup.string()).min(1, t('validation.required')).required(t('validation.required')),
-    domain_slugs: yup.array().of(yup.string()).optional(),
+    domain_slugs: yup.array().of(yup.string()).min(1, t('validation.required')).required(t('validation.required')),
   })
 );
 
@@ -483,6 +483,7 @@ async function onCreatePlan() {
           :label="t('plan.wizard-field-domain')"
           :options="domainOptions"
           :placeholder="t('plan.wizard-field-domain-placeholder')"
+          :required="true"
           :disabled="domainsLoading || domainOptions.length === 0"
         />
       </Form>

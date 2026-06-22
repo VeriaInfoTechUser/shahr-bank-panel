@@ -1404,7 +1404,7 @@
     "wizard-field-deadline": "تاريخ الإنجاز المستهدف",
     "wizard-field-owner": "مالك الخطة",
     "wizard-field-framework": "الإطار",
-    "wizard-field-domain": "المجال (اختياري)",
+    "wizard-field-domain": "المجال",
     "wizard-field-domain-placeholder": "جميع المجالات",
     "wizard-field-assignee": "المسؤول",
     "wizard-field-control-deadline": "الموعد النهائي",

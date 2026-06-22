@@ -2095,7 +2095,7 @@
     "wizard-field-deadline": "Target completion date",
     "wizard-field-owner": "Plan owner",
     "wizard-field-framework": "Framework",
-    "wizard-field-domain": "Domain (optional)",
+    "wizard-field-domain": "Domain",
     "wizard-field-domain-placeholder": "All domains",
     "wizard-field-assignee": "Assignee",
     "wizard-field-control-deadline": "Deadline",

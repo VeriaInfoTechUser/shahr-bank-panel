@@ -2099,7 +2099,7 @@
     "wizard-field-deadline": "تاریخ تکمیل هدف",
     "wizard-field-owner": "مالک طرح",
     "wizard-field-framework": "فریمورک",
-    "wizard-field-domain": "دامنه (اختیاری)",
+    "wizard-field-domain": "دامنه",
     "wizard-field-domain-placeholder": "همه دامنه‌ها",
     "wizard-field-assignee": "مسئول",
     "wizard-field-control-deadline": "مهلت",

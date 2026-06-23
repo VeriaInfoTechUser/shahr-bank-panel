@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { toast } from 'vue3-toastify';
 import Lucide from '@/base-components/Lucide';
 import Button from '@/base-components/Button';
+import BaseConfirmModal from '@/core/ui/base/BaseConfirmModal.vue';
 import { grcRepo } from '@/core/repositories/grcRepo';
 import { useGlobalModal } from '@/composables/useGlobalModal';
 import CategoryFormModal from './CategoryFormModal.vue';
@@ -63,6 +65,39 @@ function onAddChild(parentSlug: string, parentTitle: string) {
   });
 }
 
+function onEdit(record: CategoryNode) {
+  openModal({
+    component: CategoryFormModal,
+    props: { record },
+    onSuccess: () => {
+      void fetchTree();
+    },
+  });
+}
+
+function onDelete(record: CategoryNode) {
+  openModal({
+    component: BaseConfirmModal,
+    props: {
+      title: t('settings-page.category-delete-title'),
+      message: t('settings-page.category-delete-message', { title: record.title }),
+      confirmVariant: 'danger' as const,
+      onConfirmAction: async () => {
+        const res = await grcRepo.governanceCategoryDelete(record.slug);
+        if (!res?.result) {
+          const msg = String(res?.error ?? t('settings-page.category-delete-error'));
+          toast(msg, { type: 'error' });
+          throw new Error(msg);
+        }
+      },
+    },
+    onSuccess: () => {
+      toast(t('settings-page.category-delete-success'), { type: 'success' });
+      void fetchTree();
+    },
+  });
+}
+
 onMounted(() => {
   fetchTree();
 });
@@ -111,18 +146,39 @@ onMounted(() => {
                 />
                 <span v-else class="h-4 w-4 shrink-0" />
                 <span class="text-slate-700 dark:text-slate-200">{{ node.title }}</span>
-                <span v-if="node.description" class="ml-auto text-xs text-slate-400">{{ node.description }}</span>
-                <Button
-                  type="button"
-                  variant="outline-secondary"
-                  size="sm"
-                  class="ml-auto !h-6 !px-1.5 opacity-0 group-hover:opacity-100"
-                  :class="{ '!ml-0': node.description }"
-                  :title="t('settings-page.category-add-child')"
-                  @click.stop="onAddChild(node.slug, node.title)"
-                >
-                  <Lucide icon="Plus" class="!h-3 !w-3" />
-                </Button>
+                <span v-if="node.description" class="ml-2 text-xs text-slate-400">{{ node.description }}</span>
+                <div class="ml-auto flex items-center gap-1 opacity-0 group-hover:opacity-100">
+                  <Button
+                    type="button"
+                    variant="outline-secondary"
+                    size="sm"
+                    class="!h-6 !px-1.5"
+                    :title="t('settings-page.category-add-child')"
+                    @click.stop="onAddChild(node.slug, node.title)"
+                  >
+                    <Lucide icon="Plus" class="!h-3 !w-3" />
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline-secondary"
+                    size="sm"
+                    class="!h-6 !px-1.5"
+                    :title="t('title.update')"
+                    @click.stop="onEdit(node)"
+                  >
+                    <Lucide icon="Pencil" class="!h-3 !w-3" />
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline-danger"
+                    size="sm"
+                    class="!h-6 !px-1.5"
+                    :title="t('general.delete')"
+                    @click.stop="onDelete(node)"
+                  >
+                    <Lucide icon="Trash2" class="!h-3 !w-3" />
+                  </Button>
+                </div>
               </div>
 
               <ul
@@ -144,18 +200,39 @@ onMounted(() => {
                       />
                       <span v-else class="h-4 w-4 shrink-0" />
                       <span class="text-slate-700 dark:text-slate-200">{{ child.title }}</span>
-                      <span v-if="child.description" class="ml-auto text-xs text-slate-400">{{ child.description }}</span>
-                      <Button
-                        type="button"
-                        variant="outline-secondary"
-                        size="sm"
-                        class="ml-auto !h-6 !px-1.5 opacity-0 group-hover:opacity-100"
-                        :class="{ '!ml-0': child.description }"
-                        :title="t('settings-page.category-add-child')"
-                        @click.stop="onAddChild(child.slug, child.title)"
-                      >
-                        <Lucide icon="Plus" class="!h-3 !w-3" />
-                      </Button>
+                      <span v-if="child.description" class="ml-2 text-xs text-slate-400">{{ child.description }}</span>
+                      <div class="ml-auto flex items-center gap-1 opacity-0 group-hover:opacity-100">
+                        <Button
+                          type="button"
+                          variant="outline-secondary"
+                          size="sm"
+                          class="!h-6 !px-1.5"
+                          :title="t('settings-page.category-add-child')"
+                          @click.stop="onAddChild(child.slug, child.title)"
+                        >
+                          <Lucide icon="Plus" class="!h-3 !w-3" />
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="outline-secondary"
+                          size="sm"
+                          class="!h-6 !px-1.5"
+                          :title="t('title.update')"
+                          @click.stop="onEdit(child)"
+                        >
+                          <Lucide icon="Pencil" class="!h-3 !w-3" />
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="outline-danger"
+                          size="sm"
+                          class="!h-6 !px-1.5"
+                          :title="t('general.delete')"
+                          @click.stop="onDelete(child)"
+                        >
+                          <Lucide icon="Trash2" class="!h-3 !w-3" />
+                        </Button>
+                      </div>
                     </div>
 
                     <ul
@@ -163,10 +240,32 @@ onMounted(() => {
                       class="ml-4 space-y-0.5 border-l border-slate-200 pl-2 dark:border-darkmode-600"
                     >
                       <li v-for="grandchild in child.children" :key="grandchild.slug">
-                        <div class="flex items-center gap-2 rounded-lg px-3 py-2 text-sm hover:bg-slate-50 dark:hover:bg-darkmode-700">
+                        <div class="group flex items-center gap-2 rounded-lg px-3 py-2 text-sm hover:bg-slate-50 dark:hover:bg-darkmode-700">
                           <span class="h-4 w-4 shrink-0" />
                           <span class="text-slate-700 dark:text-slate-200">{{ grandchild.title }}</span>
-                          <span v-if="grandchild.description" class="ml-auto text-xs text-slate-400">{{ grandchild.description }}</span>
+                          <span v-if="grandchild.description" class="ml-2 text-xs text-slate-400">{{ grandchild.description }}</span>
+                          <div class="ml-auto flex items-center gap-1 opacity-0 group-hover:opacity-100">
+                            <Button
+                              type="button"
+                              variant="outline-secondary"
+                              size="sm"
+                              class="!h-6 !px-1.5"
+                              :title="t('title.update')"
+                              @click.stop="onEdit(grandchild)"
+                            >
+                              <Lucide icon="Pencil" class="!h-3 !w-3" />
+                            </Button>
+                            <Button
+                              type="button"
+                              variant="outline-danger"
+                              size="sm"
+                              class="!h-6 !px-1.5"
+                              :title="t('general.delete')"
+                              @click.stop="onDelete(grandchild)"
+                            >
+                              <Lucide icon="Trash2" class="!h-3 !w-3" />
+                            </Button>
+                          </div>
                         </div>
                       </li>
                     </ul>

@@ -286,6 +286,14 @@ export const grcRepo = {
     return grcHttpRequest({ method: 'POST', url: '/governance/categories', data });
   },
 
+  governanceCategoryUpdate(slug: string, data: Record<string, unknown>): Promise<GrcApiResponse<Record<string, unknown>>> {
+    return grcHttpRequest({ method: 'PUT', url: `/governance/categories/${slug}`, data });
+  },
+
+  governanceCategoryDelete(slug: string): Promise<GrcApiResponse<null>> {
+    return grcHttpRequest({ method: 'DELETE', url: `/governance/categories/${slug}` });
+  },
+
   // Types
   typeList(params?: GrcListParams): Promise<GrcApiResponse<GrcPaginatedResponse>> {
     return grcHttpRequest({ method: 'GET', url: '/governance/types', params });

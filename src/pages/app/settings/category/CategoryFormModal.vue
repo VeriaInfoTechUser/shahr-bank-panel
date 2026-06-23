@@ -14,10 +14,12 @@ const props = withDefaults(
     show: boolean;
     parentSlug?: string | null;
     parentTitle?: string | null;
+    record?: Record<string, unknown> | null;
   }>(),
   {
     parentSlug: null,
     parentTitle: null,
+    record: null,
   }
 );
 
@@ -33,23 +35,42 @@ const formRef = ref<InstanceType<typeof Form> | null>(null);
 const saving = ref(false);
 const formKey = ref(0);
 
-const modalTitle = computed(() =>
-  props.parentSlug
-    ? t('settings-page.category-add-child')
-    : t('settings-page.category-add-parent')
-);
+const isEdit = computed(() => {
+  const r = props.record;
+  if (!r || typeof r !== 'object') return false;
+  const slug = r.slug;
+  return slug != null && slug !== '';
+});
 
-const initialValues = ref({ title: '', description: '' });
+const modalTitle = computed(() => {
+  if (isEdit.value) return t('settings-page.category-edit');
+  return props.parentSlug
+    ? t('settings-page.category-add-child')
+    : t('settings-page.category-add-parent');
+});
+
+const initialValues = ref({ slug: '', title: '', description: '' });
 
 const validationSchema = computed(() =>
   yup.object({
+    slug: isEdit.value
+      ? yup.string().optional()
+      : yup.string().trim().required(t('settings-page.category-validation-slug')),
     title: yup.string().trim().required(t('settings-page.category-validation-title')),
     description: yup.string().trim().optional(),
   })
 );
 
 function seedForm() {
-  initialValues.value = { title: '', description: '' };
+  if (isEdit.value && props.record) {
+    initialValues.value = {
+      slug: String(props.record.slug ?? ''),
+      title: String(props.record.title ?? ''),
+      description: String(props.record.description ?? ''),
+    };
+  } else {
+    initialValues.value = { slug: '', title: '', description: '' };
+  }
   formKey.value += 1;
 }
 
@@ -60,8 +81,8 @@ watch(locale, async () => {
 });
 
 watch(
-  () => props.show,
-  (visible) => {
+  () => [props.show, props.record] as const,
+  ([visible]) => {
     if (!visible) return;
     seedForm();
   },
@@ -78,30 +99,51 @@ function onDialogVisible(v: boolean) {
   if (!v) emit('close');
 }
 
-async function onSubmit(values: { title?: string; description?: string }) {
+async function onSubmit(values: { slug?: string; title?: string; description?: string }) {
   const title = String(values.title ?? '').trim();
   const description = String(values.description ?? '').trim();
   saving.value = true;
   try {
-    const payload: Record<string, unknown> = { title, description };
-    if (props.parentSlug) {
-      payload.parentSlug = props.parentSlug;
+    let result;
+    if (isEdit.value && props.record) {
+      const slug = String(props.record.slug ?? '');
+      result = await grcRepo.governanceCategoryUpdate(slug, { title, description });
+    } else {
+      const slug = String(values.slug ?? '').trim();
+      const payload: Record<string, unknown> = { slug, title, description };
+      if (props.parentSlug) {
+        payload.parentSlug = props.parentSlug;
+      }
+      result = await grcRepo.governanceCategoryCreate(payload);
     }
-    const result = await grcRepo.governanceCategoryCreate(payload);
 
     if (result?.result) {
-      toast(t('settings-page.category-form-add-success'), { type: 'success' });
+      toast(
+        isEdit.value
+          ? t('settings-page.category-form-edit-success')
+          : t('settings-page.category-form-add-success'),
+        { type: 'success' }
+      );
       emit('success');
       close();
     } else {
       toast(
-        String(result?.error ?? t('settings-page.category-form-add-error')),
+        String(
+          result?.error ??
+            (isEdit.value
+              ? t('settings-page.category-form-edit-error')
+              : t('settings-page.category-form-add-error'))
+        ),
         { type: 'error' }
       );
     }
   } catch (e) {
     toast(
-      e instanceof Error ? e.message : t('settings-page.category-form-add-error'),
+      e instanceof Error
+        ? e.message
+        : isEdit.value
+          ? t('settings-page.category-form-edit-error')
+          : t('settings-page.category-form-add-error'),
       { type: 'error' }
     );
   } finally {
@@ -127,15 +169,22 @@ async function onSubmit(values: { title?: string; description?: string }) {
       @submit="onSubmit"
     >
       <div data-autofocus-modal>
-        <div v-if="parentTitle" class="mb-2 text-xs text-slate-500">
+        <div v-if="parentTitle && !isEdit" class="mb-2 text-xs text-slate-500">
           {{ t('settings-page.category-parent-label') }}: <span class="font-medium text-slate-700 dark:text-slate-300">{{ parentTitle }}</span>
         </div>
+        <BaseInput
+          name="slug"
+          :label="t('settings-page.category-col-slug')"
+          type="text"
+          :required="!isEdit"
+          :disabled="isEdit"
+          autofocus
+        />
         <BaseInput
           name="title"
           :label="t('settings-page.category-col-title')"
           type="text"
           required
-          autofocus
         />
         <BaseInput
           name="description"
@@ -162,7 +211,7 @@ async function onSubmit(values: { title?: string; description?: string }) {
           form="category-form"
           :disabled="saving"
         >
-          {{ t('rule.form-submit') }}
+          {{ isEdit ? t('rule.form-edit-submit') : t('rule.form-submit') }}
         </Button>
       </div>
     </template>

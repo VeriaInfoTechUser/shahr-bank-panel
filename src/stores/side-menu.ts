@@ -125,6 +125,11 @@ export const useSideMenuStore = defineStore("sideMenu", {
                         title: "menu.risk-archive",
                     },
                     {
+                        icon: "ClipboardList",
+                        pageName: "app-risk-task",
+                        title: "menu.risk-task",
+                    },
+                    {
                         icon: "FileText",
                         pageName: "app-risk-report",
                         title: "menu.report",

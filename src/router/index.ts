@@ -38,6 +38,7 @@ import RiskList from "@/pages/app/risk/list/index.vue";
 import RiskRepository from "@/pages/app/risk/repository/index.vue";
 import RiskArchive from "@/pages/app/risk/archive/index.vue";
 import RiskDetail from "@/pages/app/risk/detail/index.vue";
+import RiskTask from "@/pages/app/risk/task/index.vue";
 import EsgDashboard from "@/pages/app/esg/dashboard/index.vue";
 import EsgGovernance from "@/pages/app/esg/governance/index.vue";
 import EsgSocial from "@/pages/app/esg/social/index.vue";
@@ -319,6 +320,12 @@ const routes = [
                                 name: "app-risk-archive",
                                 component: RiskArchive,
                                 meta: { breadcrumbLabel: 'menu.risk-archive' },
+                            },
+                            {
+                                path: "task",
+                                name: "app-risk-task",
+                                component: RiskTask,
+                                meta: { breadcrumbLabel: 'menu.risk-task' },
                             },
                             {
                                 path: "detail/:slug",

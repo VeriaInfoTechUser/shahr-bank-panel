@@ -32,6 +32,10 @@ function nameCell(row: Record<string, unknown>) {
   return pickStr(row, 'title', 'name', 'label');
 }
 
+function descriptionCell(row: Record<string, unknown>) {
+  return pickStr(row, 'description', 'summary');
+}
+
 const fetchLegislators: FetchFn = async ({ page, limit, filters }) => {
   const res = await grcRepo.legislatorList({
     page,
@@ -51,6 +55,12 @@ const table = useDataTable({
       label: t('settings-page.legislative-authority-col-name'),
       sortable: false,
       bodyCell: nameCell,
+    }),
+    createColumn({
+      key: 'description',
+      label: t('settings-page.legislative-authority-col-description'),
+      sortable: false,
+      bodyCell: descriptionCell,
     }),
   ],
   selectable: false,

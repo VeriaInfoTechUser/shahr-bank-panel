@@ -32,6 +32,10 @@ function titleCell(row: Record<string, unknown>) {
   return pickStr(row, 'title', 'name', 'label');
 }
 
+function descriptionCell(row: Record<string, unknown>) {
+  return pickStr(row, 'description', 'summary');
+}
+
 const fetchTypes: FetchFn = async ({ page, limit, filters }) => {
   const res = await grcRepo.typeList({
     page,
@@ -51,6 +55,12 @@ const table = useDataTable({
       label: t('settings-page.law-type-col-name'),
       sortable: false,
       bodyCell: titleCell,
+    }),
+    createColumn({
+      key: 'description',
+      label: t('settings-page.law-type-col-description'),
+      sortable: false,
+      bodyCell: descriptionCell,
     }),
   ],
   selectable: false,

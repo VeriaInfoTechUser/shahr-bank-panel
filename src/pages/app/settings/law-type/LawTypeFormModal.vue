@@ -42,11 +42,12 @@ const modalTitle = computed(() =>
   isEdit.value ? t('settings-page.edit-law-type') : t('settings-page.add-law-type')
 );
 
-const initialValues = ref({ title: '' });
+const initialValues = ref({ title: '', description: '' });
 
 const validationSchema = computed(() =>
   yup.object({
     title: yup.string().trim().required(t('settings-page.law-type-validation-title')),
+    description: yup.string().trim().optional(),
   })
 );
 
@@ -60,9 +61,19 @@ function titleFromRecord(rec: Record<string, unknown> | null | undefined): strin
   return '';
 }
 
+function descriptionFromRecord(rec: Record<string, unknown> | null | undefined): string {
+  if (!rec) return '';
+  for (const key of ['description', 'summary'] as const) {
+    const v = rec[key];
+    if (typeof v === 'string' && v.trim()) return v;
+  }
+  return '';
+}
+
 function seedForm() {
   initialValues.value = {
     title: titleFromRecord(props.record ?? null),
+    description: descriptionFromRecord(props.record ?? null),
   };
   formKey.value += 1;
 }
@@ -92,16 +103,17 @@ function onDialogVisible(v: boolean) {
   if (!v) emit('close');
 }
 
-async function onSubmit(values: { title?: string }) {
+async function onSubmit(values: { title?: string; description?: string }) {
   const title = String(values.title ?? '').trim();
+  const description = String(values.description ?? '').trim();
   saving.value = true;
   try {
     let result;
     if (isEdit.value && props.record) {
       const slug = String(props.record.slug ?? '');
-      result = await grcRepo.typeUpdate(slug, { title });
+      result = await grcRepo.typeUpdate(slug, { title, description });
     } else {
-      result = await grcRepo.typeCreate({ title });
+      result = await grcRepo.typeCreate({ title, description });
     }
 
     if (result?.result) {
@@ -162,6 +174,11 @@ async function onSubmit(values: { title?: string }) {
           type="text"
           required
           autofocus
+        />
+        <BaseInput
+          name="description"
+          :label="t('settings-page.law-type-col-description')"
+          type="textarea"
         />
       </div>
     </Form>

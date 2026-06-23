@@ -36,11 +36,11 @@ let memberLightListCache: unknown | null = null;
 let riskResponseTypeListInflight: Promise<unknown> | null = null;
 let riskResponseTypeListCache: unknown | null = null;
 
-export async function fetchRuleAuthorListCached(ermRepo: ErmRepo): Promise<unknown> {
+export async function fetchRuleAuthorListCached(): Promise<unknown> {
   if (authorCache !== null) return authorCache;
   if (!authorInflight) {
-    authorInflight = ermRepo
-      .ruleAuthorList({ ...DROPDOWN_LIST_PARAMS })
+    authorInflight = grcRepo
+      .legislatorList({ page: 1, limit: 500 })
       .then((res) => {
         authorCache = res;
         return res;

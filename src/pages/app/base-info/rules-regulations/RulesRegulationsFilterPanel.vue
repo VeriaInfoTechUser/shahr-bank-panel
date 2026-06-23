@@ -142,7 +142,7 @@ async function loadOptions() {
     const [catRes, typeRes, authorRes] = await Promise.all([
       fetchRuleCategoryListCached(ermRepo),
       fetchRuleTypeListCached(),
-      fetchRuleAuthorListCached(ermRepo),
+      fetchRuleAuthorListCached(),
     ]);
     categoryOptions.value = normalizeList(catRes);
     typeOptions.value = normalizeList(typeRes);

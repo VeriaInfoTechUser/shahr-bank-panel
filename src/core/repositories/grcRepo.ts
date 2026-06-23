@@ -290,6 +290,27 @@ export const grcRepo = {
     return grcHttpRequest({ method: 'DELETE', url: `/governance/types/${slug}` });
   },
 
+  // Legislators
+  legislatorList(params?: GrcListParams): Promise<GrcApiResponse<GrcPaginatedResponse>> {
+    return grcHttpRequest({ method: 'GET', url: '/governance/legislators', params });
+  },
+
+  legislatorGet(slug: string): Promise<GrcApiResponse<GrcEntity>> {
+    return grcHttpRequest({ method: 'GET', url: `/governance/legislators/${slug}` });
+  },
+
+  legislatorCreate(data: Record<string, unknown>): Promise<GrcApiResponse<GrcEntity>> {
+    return grcHttpRequest({ method: 'POST', url: '/governance/legislators', data });
+  },
+
+  legislatorUpdate(slug: string, data: Record<string, unknown>): Promise<GrcApiResponse<GrcEntity>> {
+    return grcHttpRequest({ method: 'PUT', url: `/governance/legislators/${slug}`, data });
+  },
+
+  legislatorDelete(slug: string): Promise<GrcApiResponse<null>> {
+    return grcHttpRequest({ method: 'DELETE', url: `/governance/legislators/${slug}` });
+  },
+
   // Task Transitions
   taskStart(slug: string, data: Record<string, unknown>): Promise<GrcApiResponse<Record<string, unknown>>> {
     return grcHttpRequest({ method: 'POST', url: `/grc/tasks/${slug}/start`, data });

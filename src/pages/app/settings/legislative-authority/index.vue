@@ -5,7 +5,7 @@ import { toast } from 'vue3-toastify';
 import { useDataTable, createColumn, type FetchFn } from '@core';
 import BaseTable from '@core/ui/base/BaseTable.vue';
 import BaseConfirmModal from '@core/ui/base/BaseConfirmModal.vue';
-import { ermRepo } from '@/core/repositories/ermRepo';
+import { grcRepo } from '@/core/repositories/grcRepo';
 import { invalidateRuleAuthorOptionsCache } from '@/core/erm/ruleAuthorTypeOptionsCache';
 import { useBreadcrumbSlot } from '@/composables/useBreadcrumb';
 import { useGlobalModal } from '@/composables/useGlobalModal';
@@ -32,13 +32,11 @@ function nameCell(row: Record<string, unknown>) {
   return pickStr(row, 'title', 'name', 'label');
 }
 
-const fetchAuthors: FetchFn = async ({ page, limit, sort, filters }) => {
-  const res = await ermRepo.ruleAuthorList({
+const fetchLegislators: FetchFn = async ({ page, limit, filters }) => {
+  const res = await grcRepo.legislatorList({
     page,
     limit,
-    ...(sort && { sort }),
     ...filters,
-    api_version: 8,
   });
   const list = res?.data?.list ?? [];
   const count = res?.data?.paginator?.count ?? 0;
@@ -46,7 +44,7 @@ const fetchAuthors: FetchFn = async ({ page, limit, sort, filters }) => {
 };
 
 const table = useDataTable({
-  fetchFn: fetchAuthors,
+  fetchFn: fetchLegislators,
   columns: [
     createColumn({
       key: 'title',
@@ -103,10 +101,16 @@ function onDeleteAuthor(row: Record<string, unknown>) {
       messageKey: 'settings-page.legislative-authority-delete-message',
       confirmVariant: 'danger' as const,
       onConfirmAction: async () => {
-        const res = await ermRepo.ruleAuthorDelete({ id: row.id });
+        const slug = String(row.slug ?? '');
+        if (!slug) {
+          const msg = t('settings-page.legislative-authority-delete-error');
+          toast(msg, { type: 'error' });
+          throw new Error(msg);
+        }
+        const res = await grcRepo.legislatorDelete(slug);
         if (!res?.result) {
           const msg = String(
-            res?.error?.message ?? t('settings-page.legislative-authority-delete-error')
+            res?.error ?? t('settings-page.legislative-authority-delete-error')
           );
           toast(msg, { type: 'error' });
           throw new Error(msg);

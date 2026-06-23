@@ -2,7 +2,10 @@
 import { onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import Lucide from '@/base-components/Lucide';
+import Button from '@/base-components/Button';
 import { grcRepo } from '@/core/repositories/grcRepo';
+import { useGlobalModal } from '@/composables/useGlobalModal';
+import CategoryFormModal from './CategoryFormModal.vue';
 
 interface CategoryNode {
   slug: string;
@@ -12,6 +15,7 @@ interface CategoryNode {
 }
 
 const { t } = useI18n();
+const { openModal } = useGlobalModal();
 const loading = ref(false);
 const tree = ref<CategoryNode[]>([]);
 const expanded = ref<Set<string>>(new Set());
@@ -38,6 +42,27 @@ function toggle(slug: string) {
   }
 }
 
+function onAddRoot() {
+  openModal({
+    component: CategoryFormModal,
+    props: {},
+    onSuccess: () => {
+      void fetchTree();
+    },
+  });
+}
+
+function onAddChild(parentSlug: string, parentTitle: string) {
+  expanded.value.add(parentSlug);
+  openModal({
+    component: CategoryFormModal,
+    props: { parentSlug, parentTitle },
+    onSuccess: () => {
+      void fetchTree();
+    },
+  });
+}
+
 onMounted(() => {
   fetchTree();
 });
@@ -51,6 +76,15 @@ onMounted(() => {
           <h2 class="text-base font-semibold text-slate-800 dark:text-slate-100">
             {{ t('settings-page.category-title') }}
           </h2>
+          <Button
+            type="button"
+            variant="primary"
+            size="sm"
+            @click="onAddRoot"
+          >
+            <Lucide icon="Plus" class="mr-1 !h-3.5 !w-3.5" />
+            {{ t('settings-page.category-add-parent') }}
+          </Button>
         </div>
 
         <div v-if="loading" class="flex items-center justify-center py-12">
@@ -65,7 +99,8 @@ onMounted(() => {
           <template v-for="node in tree" :key="node.slug">
             <li>
               <div
-                class="flex cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-sm hover:bg-slate-50 dark:hover:bg-darkmode-700"
+                class="group flex items-center gap-2 rounded-lg px-3 py-2 text-sm hover:bg-slate-50 dark:hover:bg-darkmode-700"
+                :class="{ 'cursor-pointer': node.children?.length }"
                 @click="node.children?.length ? toggle(node.slug) : undefined"
               >
                 <Lucide
@@ -77,6 +112,17 @@ onMounted(() => {
                 <span v-else class="h-4 w-4 shrink-0" />
                 <span class="text-slate-700 dark:text-slate-200">{{ node.title }}</span>
                 <span v-if="node.description" class="ml-auto text-xs text-slate-400">{{ node.description }}</span>
+                <Button
+                  type="button"
+                  variant="outline-secondary"
+                  size="sm"
+                  class="ml-auto !h-6 !px-1.5 opacity-0 group-hover:opacity-100"
+                  :class="{ '!ml-0': node.description }"
+                  :title="t('settings-page.category-add-child')"
+                  @click.stop="onAddChild(node.slug, node.title)"
+                >
+                  <Lucide icon="Plus" class="!h-3 !w-3" />
+                </Button>
               </div>
 
               <ul
@@ -86,7 +132,8 @@ onMounted(() => {
                 <template v-for="child in node.children" :key="child.slug">
                   <li>
                     <div
-                      class="flex cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-sm hover:bg-slate-50 dark:hover:bg-darkmode-700"
+                      class="group flex items-center gap-2 rounded-lg px-3 py-2 text-sm hover:bg-slate-50 dark:hover:bg-darkmode-700"
+                      :class="{ 'cursor-pointer': child.children?.length }"
                       @click="child.children?.length ? toggle(child.slug) : undefined"
                     >
                       <Lucide
@@ -98,6 +145,17 @@ onMounted(() => {
                       <span v-else class="h-4 w-4 shrink-0" />
                       <span class="text-slate-700 dark:text-slate-200">{{ child.title }}</span>
                       <span v-if="child.description" class="ml-auto text-xs text-slate-400">{{ child.description }}</span>
+                      <Button
+                        type="button"
+                        variant="outline-secondary"
+                        size="sm"
+                        class="ml-auto !h-6 !px-1.5 opacity-0 group-hover:opacity-100"
+                        :class="{ '!ml-0': child.description }"
+                        :title="t('settings-page.category-add-child')"
+                        @click.stop="onAddChild(child.slug, child.title)"
+                      >
+                        <Lucide icon="Plus" class="!h-3 !w-3" />
+                      </Button>
                     </div>
 
                     <ul

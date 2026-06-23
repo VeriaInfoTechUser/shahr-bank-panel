@@ -7,7 +7,7 @@ import { toast } from 'vue3-toastify';
 import BaseModal from '@/core/ui/base/BaseModal.vue';
 import BaseInput from '@/core/ui/base/BaseInput.vue';
 import Button from '@/base-components/Button';
-import { ermRepo } from '@/core/repositories/ermRepo';
+import { grcRepo } from '@/core/repositories/grcRepo';
 
 const props = withDefaults(
   defineProps<{
@@ -34,8 +34,8 @@ const formKey = ref(0);
 const isEdit = computed(() => {
   const r = props.record;
   if (!r || typeof r !== 'object') return false;
-  const id = r.id;
-  return id != null && id !== '';
+  const slug = r.slug;
+  return slug != null && slug !== '';
 });
 
 const modalTitle = computed(() =>
@@ -92,32 +92,17 @@ function onDialogVisible(v: boolean) {
   if (!v) emit('close');
 }
 
-function buildAddPayload(title: string) {
-  return {
-    id: null,
-    slug: null,
-    value: null,
-    title: title.trim(),
-  };
-}
-
-function buildEditPayload(rec: Record<string, unknown>, title: string) {
-  return {
-    id: rec.id ?? null,
-    slug: rec.slug ?? null,
-    value: rec.value ?? null,
-    title: title.trim(),
-  };
-}
-
 async function onSubmit(values: { title?: string }) {
   const title = String(values.title ?? '').trim();
   saving.value = true;
   try {
-    const result =
-      isEdit.value && props.record
-        ? await ermRepo.ruleTypeEdit(buildEditPayload(props.record, title))
-        : await ermRepo.ruleTypeAdd(buildAddPayload(title));
+    let result;
+    if (isEdit.value && props.record) {
+      const slug = String(props.record.slug ?? '');
+      result = await grcRepo.typeUpdate(slug, { title });
+    } else {
+      result = await grcRepo.typeCreate({ title });
+    }
 
     if (result?.result) {
       toast(
@@ -131,7 +116,7 @@ async function onSubmit(values: { title?: string }) {
     } else {
       toast(
         String(
-          result?.error?.message ??
+          result?.error ??
             (isEdit.value
               ? t('settings-page.law-type-form-edit-error')
               : t('settings-page.law-type-form-add-error'))

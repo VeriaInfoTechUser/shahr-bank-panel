@@ -1,5 +1,6 @@
 import type { ErmRepo } from '@/core/repositories/ermRepo';
 import type { RuleListParams } from '@/core/repositories/ermRepo';
+import { grcRepo } from '@/core/repositories/grcRepo';
 
 /** همان پارامتری که برای دراپ‌داون‌ها (فیلتر، مودال قانون) استفاده می‌شود */
 export const DROPDOWN_LIST_PARAMS: RuleListParams = {
@@ -51,11 +52,11 @@ export async function fetchRuleAuthorListCached(ermRepo: ErmRepo): Promise<unkno
   return authorInflight;
 }
 
-export async function fetchRuleTypeListCached(ermRepo: ErmRepo): Promise<unknown> {
+export async function fetchRuleTypeListCached(): Promise<unknown> {
   if (typeCache !== null) return typeCache;
   if (!typeInflight) {
-    typeInflight = ermRepo
-      .ruleTypeList({ ...DROPDOWN_LIST_PARAMS })
+    typeInflight = grcRepo
+      .typeList({ page: 1, limit: 500 })
       .then((res) => {
         typeCache = res;
         return res;

@@ -269,6 +269,27 @@ export const grcRepo = {
     return grcHttpRequest({ method: 'GET', url: '/grc/risks/categories/list', params });
   },
 
+  // Types
+  typeList(params?: GrcListParams): Promise<GrcApiResponse<GrcPaginatedResponse>> {
+    return grcHttpRequest({ method: 'GET', url: '/governance/types', params });
+  },
+
+  typeGet(slug: string): Promise<GrcApiResponse<GrcEntity>> {
+    return grcHttpRequest({ method: 'GET', url: `/governance/types/${slug}` });
+  },
+
+  typeCreate(data: Record<string, unknown>): Promise<GrcApiResponse<GrcEntity>> {
+    return grcHttpRequest({ method: 'POST', url: '/governance/types', data });
+  },
+
+  typeUpdate(slug: string, data: Record<string, unknown>): Promise<GrcApiResponse<GrcEntity>> {
+    return grcHttpRequest({ method: 'PUT', url: `/governance/types/${slug}`, data });
+  },
+
+  typeDelete(slug: string): Promise<GrcApiResponse<null>> {
+    return grcHttpRequest({ method: 'DELETE', url: `/governance/types/${slug}` });
+  },
+
   // Task Transitions
   taskStart(slug: string, data: Record<string, unknown>): Promise<GrcApiResponse<Record<string, unknown>>> {
     return grcHttpRequest({ method: 'POST', url: `/grc/tasks/${slug}/start`, data });

@@ -58,20 +58,6 @@ const ACTION_ICON: Record<string, string> = {
   rejected: 'Eye',
 };
 
-const ANSWER_I18N: Record<string, string> = {
-  not_started: 'risk-task.answer-not-started',
-  compliant: 'risk-task.answer-compliant',
-  partially_compliant: 'risk-task.answer-partially-compliant',
-  non_compliant: 'risk-task.answer-non-compliant',
-};
-
-const ANSWER_BADGE_KEY: Record<string, string> = {
-  not_started: 'todo',
-  compliant: 'approve',
-  partially_compliant: 'doing',
-  non_compliant: 'reject',
-};
-
 function mapUsers(list: Record<string, unknown>[]): UserOption[] {
   return list
     .map((m) => {
@@ -89,18 +75,6 @@ function getUserLabel(id: unknown): string {
   if (id == null) return '—';
   const key = String(id);
   return userOptions.value.find((u) => u.value === key)?.label ?? key;
-}
-
-function answerLabel(row: Record<string, unknown>): string {
-  const raw = String(row.answer ?? '').trim().toLowerCase();
-  if (!raw) return '—';
-  return t(ANSWER_I18N[raw] ?? 'risk-task.status-unknown');
-}
-
-function answerBadgeClass(row: Record<string, unknown>): string {
-  const raw = String(row.answer ?? '').trim().toLowerCase();
-  const badgeKey = ANSWER_BADGE_KEY[raw] ?? 'unknown';
-  return complianceOperationsStatusBadgeClass(badgeKey);
 }
 
 function stateLabel(row: Record<string, unknown>): string {
@@ -159,12 +133,6 @@ const table = useDataTable({
       label: t('risk-task.col-assigned'),
       sortable: false,
       bodyCell: assignedUserCell,
-    }),
-    createColumn({
-      key: 'answer',
-      label: t('risk-task.col-answer'),
-      sortable: false,
-      slot: true,
     }),
     createColumn({
       key: 'state',
@@ -227,19 +195,6 @@ onMounted(async () => {
         :actions="true"
         :show-search="false"
       >
-        <template #cell-answer="{ row }">
-          <button
-            v-if="row.answer === 'not_started'"
-            type="button"
-            disabled
-            class="w-24 inline-flex items-center justify-center !h-7 !px-3 text-[11px] rounded-md border border-white/20 bg-white/10 backdrop-blur-md shadow-sm text-slate-400 cursor-not-allowed dark:bg-slate-700/20 dark:border-slate-600/30"
-          >
-            -
-          </button>
-          <span v-else :class="answerBadgeClass(row)">
-            {{ answerLabel(row) }}
-          </span>
-        </template>
         <template #cell-state="{ row }">
           <span :class="stateBadgeClass(row)">
             {{ stateLabel(row) }}

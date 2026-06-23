@@ -2,7 +2,7 @@
 import {computed, onMounted, onUnmounted, ref} from "vue";
 import {useI18n} from "vue-i18n";
 import Lucide from "../../base-components/Lucide";
-import logoUrl from "@/assets/demo/logo.png";
+import logoUrl from "@/assets/grc-logo.png";
 import Breadcrumb from "../../base-components/Breadcrumb";
 import {Menu} from "../../base-components/Headless";
 import {useLogout} from "@/composables/useLogout.js";
@@ -101,7 +101,7 @@ onUnmounted(() => {
         >
           <img
               :alt="$t('title.logo-alt')"
-              class="w-6"
+              class="w-9"
               :src="logoUrl"
           />
           <span class="ms-3 text-lg text-white"> {{ $t("title.web-title") }} </span>

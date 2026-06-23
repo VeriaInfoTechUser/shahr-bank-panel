@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useRoute, useRouter } from "vue-router";
 import { twMerge } from "tailwind-merge";
-import logoUrl from "@/assets/demo/logo.png";
+import logoUrl from "@/assets/grc-logo.png";
 import Lucide from "../../base-components/Lucide";
 import { useSideMenuStore } from "../../stores/side-menu";
 import { FormattedMenu, nestedMenu } from "../../layouts/SideMenu/side-menu";
@@ -54,7 +54,7 @@ onMounted(() => {
       <span class="flex ms-0" @click="(e) => e.preventDefault()">
         <img
           :alt="$t('title.logo-alt')"
-          class="w-6"
+          class="w-9"
           :src="logoUrl"
           @click="
             () => {

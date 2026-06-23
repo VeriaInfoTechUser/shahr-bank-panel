@@ -148,6 +148,12 @@ export const useSideMenuStore = defineStore("sideMenu", {
                         requiredRole: "grc_admin",
                     },
                     {
+                        icon: "FolderTree",
+                        pageName: "app-settings-category",
+                        title: "menu.settings-category",
+                        requiredRole: "grc_admin",
+                    },
+                    {
                         icon: "Landmark",
                         pageName: "app-settings-legislative-authority",
                         title: "menu.settings-legislative-authority",

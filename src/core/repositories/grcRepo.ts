@@ -269,6 +269,11 @@ export const grcRepo = {
     return grcHttpRequest({ method: 'GET', url: '/grc/risks/categories/list', params });
   },
 
+  // Governance Categories
+  governanceCategoriesTree(): Promise<GrcApiResponse<Record<string, unknown>[]>> {
+    return grcHttpRequest({ method: 'GET', url: '/governance/categories/tree' });
+  },
+
   // Types
   typeList(params?: GrcListParams): Promise<GrcApiResponse<GrcPaginatedResponse>> {
     return grcHttpRequest({ method: 'GET', url: '/governance/types', params });

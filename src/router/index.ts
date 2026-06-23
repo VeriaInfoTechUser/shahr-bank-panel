@@ -21,6 +21,7 @@ import SettingsGuide from "@/pages/app/settings/guide/index.vue";
 import SettingsLiaisons from "@/pages/app/settings/liaisons/index.vue";
 import SettingsLegislativeAuthority from "@/pages/app/settings/legislative-authority/index.vue";
 import SettingsLawType from "@/pages/app/settings/law-type/index.vue";
+import SettingsCategory from "@/pages/app/settings/category/index.vue";
 import ComplianceDashboard from "@/pages/app/compliance/dashboard/index.vue";
 import CompliancePerformanceReport from "@/pages/app/compliance/performance-report/index.vue";
 import ComplianceReport from "@/pages/app/compliance/report/index.vue";
@@ -190,6 +191,12 @@ const routes = [
                                 name: "app-settings-law-type",
                                 component: SettingsLawType,
                                 meta: { breadcrumbLabel: 'menu.settings-law-type', requiredRole: 'grc_admin' },
+                            },
+                            {
+                                path: "category",
+                                name: "app-settings-category",
+                                component: SettingsCategory,
+                                meta: { breadcrumbLabel: 'menu.settings-category', requiredRole: 'grc_admin' },
                             },
                         ],
                     },

@@ -1,0 +1,124 @@
+<script setup lang="ts">
+import { onMounted, ref } from 'vue';
+import { useI18n } from 'vue-i18n';
+import Lucide from '@/base-components/Lucide';
+import { grcRepo } from '@/core/repositories/grcRepo';
+
+interface CategoryNode {
+  slug: string;
+  title: string;
+  description?: string;
+  children?: CategoryNode[];
+}
+
+const { t } = useI18n();
+const loading = ref(false);
+const tree = ref<CategoryNode[]>([]);
+const expanded = ref<Set<string>>(new Set());
+
+async function fetchTree() {
+  loading.value = true;
+  try {
+    const res = await grcRepo.governanceCategoriesTree();
+    if (res?.result && Array.isArray(res.data)) {
+      tree.value = res.data as CategoryNode[];
+    }
+  } catch {
+    tree.value = [];
+  } finally {
+    loading.value = false;
+  }
+}
+
+function toggle(slug: string) {
+  if (expanded.value.has(slug)) {
+    expanded.value.delete(slug);
+  } else {
+    expanded.value.add(slug);
+  }
+}
+
+onMounted(() => {
+  fetchTree();
+});
+</script>
+
+<template>
+  <div class="grid grid-cols-12 gap-2 p-2">
+    <div class="col-span-12">
+      <div class="rounded-xl border border-slate-200/60 bg-white p-4 shadow-sm dark:border-darkmode-700/60 dark:bg-darkmode-800">
+        <div class="mb-4 flex items-center justify-between">
+          <h2 class="text-base font-semibold text-slate-800 dark:text-slate-100">
+            {{ t('settings-page.category-title') }}
+          </h2>
+        </div>
+
+        <div v-if="loading" class="flex items-center justify-center py-12">
+          <div class="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+        </div>
+
+        <div v-else-if="tree.length === 0" class="py-12 text-center text-sm text-slate-400">
+          {{ t('general.no-data') }}
+        </div>
+
+        <ul v-else class="space-y-0.5">
+          <template v-for="node in tree" :key="node.slug">
+            <li>
+              <div
+                class="flex cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-sm hover:bg-slate-50 dark:hover:bg-darkmode-700"
+                @click="node.children?.length ? toggle(node.slug) : undefined"
+              >
+                <Lucide
+                  v-if="node.children?.length"
+                  icon="ChevronRight"
+                  class="h-4 w-4 shrink-0 text-slate-400 transition-transform"
+                  :class="{ 'rotate-90': expanded.has(node.slug) }"
+                />
+                <span v-else class="h-4 w-4 shrink-0" />
+                <span class="text-slate-700 dark:text-slate-200">{{ node.title }}</span>
+                <span v-if="node.description" class="ml-auto text-xs text-slate-400">{{ node.description }}</span>
+              </div>
+
+              <ul
+                v-if="node.children?.length && expanded.has(node.slug)"
+                class="ml-4 space-y-0.5 border-l border-slate-200 pl-2 dark:border-darkmode-600"
+              >
+                <template v-for="child in node.children" :key="child.slug">
+                  <li>
+                    <div
+                      class="flex cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-sm hover:bg-slate-50 dark:hover:bg-darkmode-700"
+                      @click="child.children?.length ? toggle(child.slug) : undefined"
+                    >
+                      <Lucide
+                        v-if="child.children?.length"
+                        icon="ChevronRight"
+                        class="h-4 w-4 shrink-0 text-slate-400 transition-transform"
+                        :class="{ 'rotate-90': expanded.has(child.slug) }"
+                      />
+                      <span v-else class="h-4 w-4 shrink-0" />
+                      <span class="text-slate-700 dark:text-slate-200">{{ child.title }}</span>
+                      <span v-if="child.description" class="ml-auto text-xs text-slate-400">{{ child.description }}</span>
+                    </div>
+
+                    <ul
+                      v-if="child.children?.length && expanded.has(child.slug)"
+                      class="ml-4 space-y-0.5 border-l border-slate-200 pl-2 dark:border-darkmode-600"
+                    >
+                      <li v-for="grandchild in child.children" :key="grandchild.slug">
+                        <div class="flex items-center gap-2 rounded-lg px-3 py-2 text-sm hover:bg-slate-50 dark:hover:bg-darkmode-700">
+                          <span class="h-4 w-4 shrink-0" />
+                          <span class="text-slate-700 dark:text-slate-200">{{ grandchild.title }}</span>
+                          <span v-if="grandchild.description" class="ml-auto text-xs text-slate-400">{{ grandchild.description }}</span>
+                        </div>
+                      </li>
+                    </ul>
+                  </li>
+                </template>
+              </ul>
+            </li>
+          </template>
+        </ul>
+      </div>
+    </div>
+  </div>
+</template>

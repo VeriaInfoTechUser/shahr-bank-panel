@@ -76,10 +76,10 @@ const login = async (values) => {
         </div>
         <div>
           <h1 class="text-3xl font-bold text-slate-900 dark:text-white">
-            سامانه حاکمیت، ریسک و تطبیق
+            سامانه یکپارچه پایداری، مدیریت ریسک و تاب آوری
           </h1>
           <p class="mt-3 max-w-md text-slate-600 dark:text-slate-300 leading-relaxed">
-            مدیریت یکپارچه‌ی حاکمیت سازمانی، پایش ریسک و تطبیق با چارچوب‌های نظارتی در یک پلتفرم امن.
+            مدیریت یکپارچه پایداری، شناسایی و پایش ریسک‌ها و ارتقای تاب‌آوری سازمانی در یک پلتفرم امن.
           </p>
         </div>
       </div>
@@ -92,7 +92,7 @@ const login = async (values) => {
               <img :alt="$t('title.logo-alt')" class="w-24 h-24 object-contain drop-shadow-lg" :src="logoUrl" />
             </div>
             <h1 class="text-lg font-bold text-slate-900 dark:text-white text-center">
-              سامانه حاکمیت، ریسک و تطبیق
+              سامانه یکپارچه پایداری، مدیریت ریسک و تاب آوری
             </h1>
           </div>
 

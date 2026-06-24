@@ -759,6 +759,20 @@
     "liaisons-edit-success": "Member was updated successfully.",
     "liaisons-edit-error": "Could not update the member."
   },
+  "governance-page": {
+    "add-entity": "Add {entity}",
+    "edit-entity": "Edit {entity}",
+    "add-success": "{entity} was added successfully.",
+    "add-error": "Could not add the {entity}.",
+    "edit-success": "{entity} was updated successfully.",
+    "edit-error": "Could not update the {entity}.",
+    "delete-title": "Delete {entity}",
+    "delete-message": "Are you sure you want to delete this {entity}?",
+    "delete-error": "Could not delete the {entity}.",
+    "validation-title-required": "Enter the title.",
+    "col-title": "Title",
+    "col-description": "Description"
+  },
   "compliance-page": {
     "col-code": "Code",
     "status-modal-tab-task-attachment": "Task Attachments",

@@ -780,6 +780,20 @@
     "liaisons-edit-success": "اطلاعات عضو به‌روزرسانی شد.",
     "liaisons-edit-error": "به‌روزرسانی انجام نشد."
   },
+  "governance-page": {
+    "add-entity": "افزودن {entity}",
+    "edit-entity": "ویرایش {entity}",
+    "add-success": "{entity} با موفقیت اضافه شد.",
+    "add-error": "افزودن {entity} انجام نشد.",
+    "edit-success": "{entity} با موفقیت به‌روزرسانی شد.",
+    "edit-error": "به‌روزرسانی {entity} انجام نشد.",
+    "delete-title": "حذف {entity}",
+    "delete-message": "آیا مطمئن هستید که می‌خواهید این {entity} را حذف کنید؟",
+    "delete-error": "حذف {entity} انجام نشد.",
+    "validation-title-required": "عنوان را وارد کنید.",
+    "col-title": "عنوان",
+    "col-description": "توضیحات"
+  },
   "compliance-page": {
     "col-code": "کد",
     "status-modal-tab-task-attachment": "پیوست تعهد",

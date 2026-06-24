@@ -13,6 +13,8 @@ const props = withDefaults(
   defineProps<{
     show: boolean;
     record?: Record<string, unknown> | null;
+    type: string;
+    entityName: string;
   }>(),
   {
     record: null,
@@ -25,7 +27,7 @@ const emit = defineEmits<{
   (e: 'success'): void;
 }>();
 
-const { t, locale } = useI18n();
+const { t } = useI18n();
 
 const formRef = ref<InstanceType<typeof Form> | null>(null);
 const saving = ref(false);
@@ -39,14 +41,19 @@ const isEdit = computed(() => {
 });
 
 const modalTitle = computed(() =>
-  isEdit.value ? t('settings-page.edit-law-type') : t('settings-page.add-law-type')
+  isEdit.value
+    ? t('governance-page.edit-entity', { entity: t(`menu.governance-${props.entityName}`) })
+    : t('governance-page.add-entity', { entity: t(`menu.governance-${props.entityName}`) })
 );
 
 const initialValues = ref({ title: '', description: '' });
 
 const validationSchema = computed(() =>
   yup.object({
-    title: yup.string().trim().required(t('settings-page.law-type-validation-title')),
+    title: yup
+      .string()
+      .trim()
+      .required(t('governance-page.validation-title-required')),
     description: yup.string().trim().optional(),
   })
 );
@@ -78,12 +85,6 @@ function seedForm() {
   formKey.value += 1;
 }
 
-watch(locale, async () => {
-  await nextTick();
-  const exposed = formRef.value as { validate?: () => Promise<unknown> } | null;
-  await exposed?.validate?.();
-});
-
 watch(
   () => [props.show, props.record] as const,
   ([visible]) => {
@@ -111,16 +112,16 @@ async function onSubmit(values: { title?: string; description?: string }) {
     let result;
     if (isEdit.value && props.record) {
       const slug = String(props.record.slug ?? '');
-      result = await grcRepo.typeUpdate(slug, { title, description });
+      result = await grcRepo.governanceUpdate(slug, { title, description });
     } else {
-      result = await grcRepo.typeCreate({ title, description });
+      result = await grcRepo.governanceCreate({ type: props.type, title, description });
     }
 
     if (result?.result) {
       toast(
         isEdit.value
-          ? t('settings-page.law-type-form-edit-success')
-          : t('settings-page.law-type-form-add-success'),
+          ? t('governance-page.edit-success', { entity: t(`menu.governance-${props.entityName}`) })
+          : t('governance-page.add-success', { entity: t(`menu.governance-${props.entityName}`) }),
         { type: 'success' }
       );
       emit('success');
@@ -130,8 +131,8 @@ async function onSubmit(values: { title?: string; description?: string }) {
         String(
           result?.error ??
             (isEdit.value
-              ? t('settings-page.law-type-form-edit-error')
-              : t('settings-page.law-type-form-add-error'))
+              ? t('governance-page.edit-error', { entity: t(`menu.governance-${props.entityName}`) })
+              : t('governance-page.add-error', { entity: t(`menu.governance-${props.entityName}`) }))
         ),
         { type: 'error' }
       );
@@ -141,8 +142,8 @@ async function onSubmit(values: { title?: string; description?: string }) {
       e instanceof Error
         ? e.message
         : isEdit.value
-          ? t('settings-page.law-type-form-edit-error')
-          : t('settings-page.law-type-form-add-error'),
+          ? t('governance-page.edit-error', { entity: t(`menu.governance-${props.entityName}`) })
+          : t('governance-page.add-error', { entity: t(`menu.governance-${props.entityName}`) }),
       { type: 'error' }
     );
   } finally {
@@ -159,7 +160,7 @@ async function onSubmit(values: { title?: string; description?: string }) {
     @update:visible="onDialogVisible"
   >
     <Form
-      id="law-type-form"
+      :id="`governance-${entityName}-form`"
       :key="formKey"
       ref="formRef"
       :validation-schema="validationSchema"
@@ -170,14 +171,14 @@ async function onSubmit(values: { title?: string; description?: string }) {
       <div data-autofocus-modal>
         <BaseInput
           name="title"
-          :label="t('settings-page.law-type-col-name')"
+          :label="t('governance-page.col-title')"
           type="text"
           required
           autofocus
         />
         <BaseInput
           name="description"
-          :label="t('settings-page.law-type-col-description')"
+          :label="t('governance-page.col-description')"
           type="textarea"
         />
       </div>
@@ -197,7 +198,7 @@ async function onSubmit(values: { title?: string; description?: string }) {
           type="submit"
           variant="primary"
           size="sm"
-          form="law-type-form"
+          :form="`governance-${entityName}-form`"
           :disabled="saving"
         >
           {{ isEdit ? t('rule.form-edit-submit') : t('rule.form-submit') }}

@@ -8,10 +8,13 @@ const props = defineProps<{
   onAdd?: () => void;
   /** i18n key for add button label (default: settings-page.add-member) */
   addLabelKey?: string;
+  /** i18n params for add button label */
+  addLabelParams?: Record<string, string>;
 }>();
 
 const { t } = useI18n();
 const resolvedAddLabelKey = computed(() => props.addLabelKey ?? 'settings-page.add-member');
+const resolvedAddLabel = computed(() => t(resolvedAddLabelKey.value, props.addLabelParams ?? {}));
 </script>
 
 <template>
@@ -33,8 +36,8 @@ const resolvedAddLabelKey = computed(() => props.addLabelKey ?? 'settings-page.a
       v-if="onAdd"
       type="button"
       class="inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-md border border-primary bg-primary text-white shadow-sm transition hover:opacity-90 dark:border-primary dark:bg-primary dark:hover:opacity-90"
-      :aria-label="t(resolvedAddLabelKey)"
-      :title="t(resolvedAddLabelKey)"
+      :aria-label="resolvedAddLabel"
+      :title="resolvedAddLabel"
       @click="onAdd?.()"
     >
       <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">

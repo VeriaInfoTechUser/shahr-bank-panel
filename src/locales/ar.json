@@ -517,6 +517,20 @@
     "liaisons-action-logs": "السجلات",
     "liaisons-action-delete": "حذف"
   },
+  "governance-page": {
+    "add-entity": "إضافة {entity}",
+    "edit-entity": "تعديل {entity}",
+    "add-success": "تمت إضافة {entity} بنجاح.",
+    "add-error": "تعذّر إضافة {entity}.",
+    "edit-success": "تم تحديث {entity} بنجاح.",
+    "edit-error": "تعذّر تحديث {entity}.",
+    "delete-title": "حذف {entity}",
+    "delete-message": "هل أنت متأكد أنك تريد حذف {entity}؟",
+    "delete-error": "تعذّر حذف {entity}.",
+    "validation-title-required": "أدخل العنوان.",
+    "col-title": "العنوان",
+    "col-description": "الوصف"
+  },
   "compliance-page": {
     "col-code": "الرمز",
     "status-modal-tab-task-attachment": "مرفقات التعهد",

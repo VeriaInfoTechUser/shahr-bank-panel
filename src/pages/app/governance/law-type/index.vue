@@ -1,139 +1,12 @@
 <script setup lang="ts">
-import { onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { toast } from 'vue3-toastify';
-import { useDataTable, createColumn, type FetchFn } from '@core';
 import BaseTable from '@core/ui/base/BaseTable.vue';
-import BaseConfirmModal from '@core/ui/base/BaseConfirmModal.vue';
-import { grcRepo } from '@/core/repositories/grcRepo';
-import { invalidateRuleTypeOptionsCache } from '@/core/erm/ruleAuthorTypeOptionsCache';
-import { useBreadcrumbSlot } from '@/composables/useBreadcrumb';
-import { useGlobalModal } from '@/composables/useGlobalModal';
 import Button from '@/base-components/Button';
 import Lucide from '@/base-components/Lucide';
-import GovernanceExportToolbar from '../GovernanceExportToolbar.vue';
-import LawTypeFormModal from './LawTypeFormModal.vue';
+import { useGovernancePage } from '@/composables/useGovernancePage';
 
 const { t } = useI18n();
-const { setContent: setBreadcrumbSlot } = useBreadcrumbSlot();
-const { openModal } = useGlobalModal();
-
-function pickStr(row: Record<string, unknown>, ...keys: string[]) {
-  for (const k of keys) {
-    const v = row[k];
-    if (v == null) continue;
-    if (typeof v === 'string' && v.trim()) return v;
-    if (typeof v === 'number' && !Number.isNaN(v)) return String(v);
-  }
-  return '—';
-}
-
-function titleCell(row: Record<string, unknown>) {
-  return pickStr(row, 'title', 'name', 'label');
-}
-
-function descriptionCell(row: Record<string, unknown>) {
-  return pickStr(row, 'description', 'summary');
-}
-
-const fetchTypes: FetchFn = async ({ page, limit, filters }) => {
-  const res = await grcRepo.typeList({
-    page,
-    limit,
-    ...filters,
-  });
-  const list = res?.data?.list ?? [];
-  const count = res?.data?.paginator?.count ?? 0;
-  return { list: Array.isArray(list) ? list : [], count };
-};
-
-const table = useDataTable({
-  fetchFn: fetchTypes,
-  columns: [
-    createColumn({
-      key: 'title',
-      label: t('settings-page.law-type-col-name'),
-      sortable: false,
-      bodyCell: titleCell,
-    }),
-    createColumn({
-      key: 'description',
-      label: t('settings-page.law-type-col-description'),
-      sortable: false,
-      bodyCell: descriptionCell,
-    }),
-  ],
-  selectable: false,
-  exportEnabled: true,
-
-  cacheKey: 'settings-rule-type-list',
-  listCacheStaleTime: 0,
-});
-
-function onAddLawType() {
-  openModal({
-    component: LawTypeFormModal,
-    props: {},
-    onSuccess: () => {
-      invalidateRuleTypeOptionsCache();
-      table.invalidateListCache();
-      void table.fetch();
-    },
-  });
-}
-
-onMounted(() => {
-  table.fetch();
-  setBreadcrumbSlot(GovernanceExportToolbar, {
-    onExport: () => table.exportCSV(),
-    onAdd: onAddLawType,
-    addLabelKey: 'settings-page.add-law-type',
-  });
-});
-
-function onEditLawType(row: Record<string, unknown>) {
-  openModal({
-    component: LawTypeFormModal,
-    props: { record: row },
-    onSuccess: () => {
-      invalidateRuleTypeOptionsCache();
-      table.invalidateListCache();
-      void table.fetch();
-    },
-  });
-}
-
-function onDeleteLawType(row: Record<string, unknown>) {
-  openModal({
-    component: BaseConfirmModal,
-    props: {
-      titleKey: 'settings-page.law-type-delete-title',
-      messageKey: 'settings-page.law-type-delete-message',
-      confirmVariant: 'danger' as const,
-      onConfirmAction: async () => {
-        const slug = String(row.slug ?? '');
-        if (!slug) {
-          const msg = t('settings-page.law-type-delete-error');
-          toast(msg, { type: 'error' });
-          throw new Error(msg);
-        }
-        const res = await grcRepo.typeDelete(slug);
-        if (!res?.result) {
-          const msg = String(
-            res?.error ?? t('settings-page.law-type-delete-error')
-          );
-          toast(msg, { type: 'error' });
-          throw new Error(msg);
-        }
-      },
-    },
-    onSuccess: () => {
-      invalidateRuleTypeOptionsCache();
-      table.invalidateListCache();
-      void table.fetch();
-    },
-  });
-}
+const { table, onEdit, onDelete } = useGovernancePage('law-type', 'law-type');
 </script>
 
 <template>
@@ -153,10 +26,10 @@ function onDeleteLawType(row: Record<string, unknown>) {
               type="button"
               variant="outline-secondary"
               size="sm"
-              class="!h-7 !w-7 shrink-0 !px-0 !py-0"
+              class="!h-7 !w-7 !px-0 !py-0"
               :aria-label="t('title.update')"
               :title="t('title.update')"
-              @click.stop="onEditLawType(row)"
+              @click.stop="onEdit(row)"
             >
               <Lucide icon="Pencil" class="!h-3.5 !w-3.5" />
             </Button>
@@ -164,10 +37,10 @@ function onDeleteLawType(row: Record<string, unknown>) {
               type="button"
               variant="outline-danger"
               size="sm"
-              class="!h-7 !w-7 shrink-0 !px-0 !py-0"
+              class="!h-7 !w-7 !px-0 !py-0"
               :aria-label="t('general.delete')"
               :title="t('general.delete')"
-              @click.stop="onDeleteLawType(row)"
+              @click.stop="onDelete(row)"
             >
               <Lucide icon="Trash2" class="!h-3.5 !w-3.5" />
             </Button>

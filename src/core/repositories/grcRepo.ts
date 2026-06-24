@@ -133,65 +133,65 @@ export const grcRepo = {
 
   // Frameworks
   frameworkList(params?: GrcListParams): Promise<GrcApiResponse<GrcPaginatedResponse>> {
-    return grcHttpRequest({ method: 'GET', url: '/grc/frameworks', params });
+    return grcHttpRequest({ method: 'GET', url: '/context/frameworks', params });
   },
 
   frameworkGet(slug: string): Promise<GrcApiResponse<GrcEntity>> {
-    return grcHttpRequest({ method: 'GET', url: `/grc/frameworks/${slug}` });
+    return grcHttpRequest({ method: 'GET', url: `/context/frameworks/${slug}` });
   },
 
   frameworkCreate(data: GrcCreateFramework): Promise<GrcApiResponse<GrcEntity>> {
-    return grcHttpRequest({ method: 'POST', url: '/grc/frameworks', data });
+    return grcHttpRequest({ method: 'POST', url: '/context/frameworks', data });
   },
 
   frameworkUpdate(slug: string, data: GrcUpdateFramework): Promise<GrcApiResponse<GrcEntity>> {
-    return grcHttpRequest({ method: 'PUT', url: `/grc/frameworks/${slug}`, data });
+    return grcHttpRequest({ method: 'PUT', url: `/context/frameworks/${slug}`, data });
   },
 
   frameworkDelete(slug: string): Promise<GrcApiResponse<null>> {
-    return grcHttpRequest({ method: 'DELETE', url: `/grc/frameworks/${slug}` });
+    return grcHttpRequest({ method: 'DELETE', url: `/context/frameworks/${slug}` });
   },
 
   // Domains
   domainList(params?: GrcListParams): Promise<GrcApiResponse<GrcPaginatedResponse>> {
-    return grcHttpRequest({ method: 'GET', url: '/grc/domains', params });
+    return grcHttpRequest({ method: 'GET', url: '/context/domains', params });
   },
 
   domainGet(slug: string): Promise<GrcApiResponse<GrcEntity>> {
-    return grcHttpRequest({ method: 'GET', url: `/grc/domains/${slug}` });
+    return grcHttpRequest({ method: 'GET', url: `/context/domains/${slug}` });
   },
 
   domainCreate(data: GrcCreateDomain): Promise<GrcApiResponse<GrcEntity>> {
-    return grcHttpRequest({ method: 'POST', url: '/grc/domains', data });
+    return grcHttpRequest({ method: 'POST', url: '/context/domains', data });
   },
 
   domainUpdate(slug: string, data: GrcUpdateDomain): Promise<GrcApiResponse<GrcEntity>> {
-    return grcHttpRequest({ method: 'PUT', url: `/grc/domains/${slug}`, data });
+    return grcHttpRequest({ method: 'PUT', url: `/context/domains/${slug}`, data });
   },
 
   domainDelete(slug: string): Promise<GrcApiResponse<null>> {
-    return grcHttpRequest({ method: 'DELETE', url: `/grc/domains/${slug}` });
+    return grcHttpRequest({ method: 'DELETE', url: `/context/domains/${slug}` });
   },
 
   // Controls
   controlList(params?: GrcListParams): Promise<GrcApiResponse<GrcPaginatedResponse>> {
-    return grcHttpRequest({ method: 'GET', url: '/grc/controls', params });
+    return grcHttpRequest({ method: 'GET', url: '/context/controls', params });
   },
 
   controlGet(slug: string): Promise<GrcApiResponse<GrcEntity>> {
-    return grcHttpRequest({ method: 'GET', url: `/grc/controls/${slug}` });
+    return grcHttpRequest({ method: 'GET', url: `/context/controls/${slug}` });
   },
 
   controlCreate(data: GrcCreateControl): Promise<GrcApiResponse<GrcEntity>> {
-    return grcHttpRequest({ method: 'POST', url: '/grc/controls', data });
+    return grcHttpRequest({ method: 'POST', url: '/context/controls', data });
   },
 
   controlUpdate(slug: string, data: GrcUpdateControl): Promise<GrcApiResponse<GrcEntity>> {
-    return grcHttpRequest({ method: 'PUT', url: `/grc/controls/${slug}`, data });
+    return grcHttpRequest({ method: 'PUT', url: `/context/controls/${slug}`, data });
   },
 
   controlDelete(slug: string): Promise<GrcApiResponse<null>> {
-    return grcHttpRequest({ method: 'DELETE', url: `/grc/controls/${slug}` });
+    return grcHttpRequest({ method: 'DELETE', url: `/context/controls/${slug}` });
   },
 
   // Plans
@@ -279,19 +279,19 @@ export const grcRepo = {
 
   // Governance Categories
   governanceCategoriesTree(): Promise<GrcApiResponse<Record<string, unknown>[]>> {
-    return grcHttpRequest({ method: 'GET', url: '/governance/categories/tree' });
+    return grcHttpRequest({ method: 'GET', url: '/context/categories/tree' });
   },
 
   governanceCategoryCreate(data: Record<string, unknown>): Promise<GrcApiResponse<Record<string, unknown>>> {
-    return grcHttpRequest({ method: 'POST', url: '/governance/categories', data });
+    return grcHttpRequest({ method: 'POST', url: '/context/categories', data });
   },
 
   governanceCategoryUpdate(slug: string, data: Record<string, unknown>): Promise<GrcApiResponse<Record<string, unknown>>> {
-    return grcHttpRequest({ method: 'PUT', url: `/governance/categories/${slug}`, data });
+    return grcHttpRequest({ method: 'PUT', url: `/context/categories/${slug}`, data });
   },
 
   governanceCategoryDelete(slug: string): Promise<GrcApiResponse<null>> {
-    return grcHttpRequest({ method: 'DELETE', url: `/governance/categories/${slug}` });
+    return grcHttpRequest({ method: 'DELETE', url: `/context/categories/${slug}` });
   },
 
   // Types
@@ -334,6 +334,27 @@ export const grcRepo = {
 
   legislatorDelete(slug: string): Promise<GrcApiResponse<null>> {
     return grcHttpRequest({ method: 'DELETE', url: `/governance/legislators/${slug}` });
+  },
+
+  // Generic Governance CRUD
+  governanceList(type: string, params?: GrcListParams): Promise<GrcApiResponse<GrcPaginatedResponse>> {
+    return grcHttpRequest({ method: 'GET', url: '/governance', params: { type, ...params } });
+  },
+
+  governanceGet(slug: string): Promise<GrcApiResponse<GrcEntity>> {
+    return grcHttpRequest({ method: 'GET', url: `/governance/${slug}` });
+  },
+
+  governanceCreate(data: Record<string, unknown>): Promise<GrcApiResponse<GrcEntity>> {
+    return grcHttpRequest({ method: 'POST', url: '/governance', data });
+  },
+
+  governanceUpdate(slug: string, data: Record<string, unknown>): Promise<GrcApiResponse<GrcEntity>> {
+    return grcHttpRequest({ method: 'PUT', url: `/governance/${slug}`, data });
+  },
+
+  governanceDelete(slug: string): Promise<GrcApiResponse<null>> {
+    return grcHttpRequest({ method: 'DELETE', url: `/governance/${slug}` });
   },
 
   // Task Transitions

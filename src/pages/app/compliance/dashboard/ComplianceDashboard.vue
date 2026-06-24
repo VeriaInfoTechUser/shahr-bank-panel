@@ -11,12 +11,15 @@ const { t } = useI18n()
 const loading = ref(false)
 const dashboardData = ref<DashboardData | null>(null)
 const error = ref<string | null>(null)
+const filterPlanSlug = ref("")
 
 async function loadDashboard() {
   loading.value = true
   error.value = null
   try {
-    const res = await grcRepo.complianceDashboard()
+    const params: Record<string, string> = {}
+    if (filterPlanSlug.value) params.planSlug = filterPlanSlug.value
+    const res = await grcRepo.complianceDashboard(Object.keys(params).length ? params : undefined)
     if (res?.result) {
       dashboardData.value = (res.data as DashboardData) ?? null
     } else {
@@ -32,6 +35,11 @@ async function loadDashboard() {
 onMounted(() => {
   loadDashboard()
 })
+
+function onFilter(planSlug: string) {
+  filterPlanSlug.value = planSlug
+  loadDashboard()
+}
 </script>
 
 <template>
@@ -63,5 +71,5 @@ onMounted(() => {
   </div>
 
   <!-- داشبورد -->
-  <DashboardView v-else-if="dashboardData" :data="dashboardData" :loading="loading" @refresh="loadDashboard" />
+  <DashboardView v-else-if="dashboardData" :data="dashboardData" :loading="loading" @refresh="loadDashboard" @filter="onFilter" />
 </template>

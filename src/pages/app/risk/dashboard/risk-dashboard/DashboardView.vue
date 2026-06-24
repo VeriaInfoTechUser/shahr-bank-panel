@@ -36,6 +36,7 @@ const props = defineProps<{
 
 defineEmits<{
   (e: "refresh"): void
+  (e: "filter", range: { from: string; to: string }): void
 }>()
 
 const memberNames = ref<Map<string, string>>(new Map())
@@ -82,7 +83,7 @@ const monitoringCount = computed(
 <template>
   <div dir="rtl" class="min-h-screen bg-slate-50 text-slate-800">
     <div class="mx-auto max-w-[1500px] px-4 py-6 lg:px-8">
-      <DashboardHeader :loading="loading" @refresh="$emit('refresh')" />
+      <DashboardHeader :loading="loading" @refresh="$emit('refresh')" @filter="$emit('filter', $event)" />
 
       <!-- KPI row -->
       <div class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">

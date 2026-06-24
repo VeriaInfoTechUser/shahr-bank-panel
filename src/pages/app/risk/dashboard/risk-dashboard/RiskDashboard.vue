@@ -11,12 +11,16 @@ const { t } = useI18n()
 const loading = ref(false)
 const dashboardData = ref<DashboardData | null>(null)
 const error = ref<string | null>(null)
+const filterRange = ref<{ from: string; to: string }>({ from: "", to: "" })
 
 async function loadDashboard() {
   loading.value = true
   error.value = null
   try {
-    const res = await grcRepo.riskDashboard()
+    const params: Record<string, string> = {}
+    if (filterRange.value.from) params.updatedAtStart = filterRange.value.from
+    if (filterRange.value.to) params.updatedAtEnd = filterRange.value.to
+    const res = await grcRepo.riskDashboard(Object.keys(params).length ? params : undefined)
     if (res?.result) {
       dashboardData.value = (res.data as DashboardData) ?? null
     } else {
@@ -32,6 +36,11 @@ async function loadDashboard() {
 onMounted(() => {
   loadDashboard()
 })
+
+function onFilter(range: { from: string; to: string }) {
+  filterRange.value = range
+  loadDashboard()
+}
 </script>
 
 <template>
@@ -68,5 +77,6 @@ onMounted(() => {
     :data="dashboardData"
     :loading="loading"
     @refresh="loadDashboard"
+    @filter="onFilter"
   />
 </template>

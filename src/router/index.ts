@@ -17,11 +17,20 @@ import BaseInfoTasks from "@/pages/app/base-info/tasks/index.vue";
 import BaseInfoFramework from "@/pages/app/base-info/framework/index.vue";
 import BaseInfoDomain from "@/pages/app/base-info/domain/index.vue";
 import BaseInfoControl from "@/pages/app/base-info/control/index.vue";
-import SettingsGuide from "@/pages/app/settings/guide/index.vue";
-import SettingsLiaisons from "@/pages/app/settings/liaisons/index.vue";
-import SettingsLegislativeAuthority from "@/pages/app/settings/legislative-authority/index.vue";
-import SettingsLawType from "@/pages/app/settings/law-type/index.vue";
-import SettingsCategory from "@/pages/app/settings/category/index.vue";
+import GovernanceGuide from "@/pages/app/governance/guide/index.vue";
+import GovernanceLiaisons from "@/pages/app/governance/liaisons/index.vue";
+import GovernanceLegislativeAuthority from "@/pages/app/governance/legislative-authority/index.vue";
+import GovernanceLawType from "@/pages/app/governance/law-type/index.vue";
+import GovernanceGeographicRegions from "@/pages/app/governance/geographic-regions/index.vue";
+import GovernanceIndustry from "@/pages/app/governance/industry/index.vue";
+import GovernanceKeyStakeholders from "@/pages/app/governance/key-stakeholders/index.vue";
+import GovernanceOperationalUnits from "@/pages/app/governance/operational-units/index.vue";
+import GovernanceOrganizationSize from "@/pages/app/governance/organization-size/index.vue";
+import GovernanceOrganizationalStructure from "@/pages/app/governance/organizational-structure/index.vue";
+import GovernanceProductsServices from "@/pages/app/governance/products-services/index.vue";
+import GovernanceReportingBoundary from "@/pages/app/governance/reporting-boundary/index.vue";
+import GovernanceSubsidiaries from "@/pages/app/governance/subsidiaries/index.vue";
+import GovernanceValueChain from "@/pages/app/governance/value-chain/index.vue";
 import ComplianceDashboard from "@/pages/app/compliance/dashboard/index.vue";
 import CompliancePerformanceReport from "@/pages/app/compliance/performance-report/index.vue";
 import ComplianceReport from "@/pages/app/compliance/report/index.vue";
@@ -44,6 +53,9 @@ import EsgGovernance from "@/pages/app/esg/governance/index.vue";
 import EsgSocial from "@/pages/app/esg/social/index.vue";
 import EsgEnvironment from "@/pages/app/esg/environment/index.vue";
 import EsgReport from "@/pages/app/esg/report/index.vue";
+import CapitalIndex from "@/pages/app/capital/index/index.vue";
+import CapitalAsset from "@/pages/app/capital/asset/index.vue";
+import CapitalCategory from "@/pages/app/capital/category/index.vue";
 import SectionPlaceholderPage from "@/pages/app/shared/SectionPlaceholderPage.vue";
 import AuthLogin from "@/pages/auth/login/index.vue";
 
@@ -164,40 +176,94 @@ const routes = [
                         ]
                     },
                     {
-                        path: "settings",
-                        name: "app-settings",
-                        redirect: { name: "app-settings-guide" },
-                        meta: { breadcrumbLabel: 'menu.settings' },
+                        path: "governance",
+                        name: "app-governance",
+                        redirect: { name: "app-governance-legislative-authority" },
+                        meta: { breadcrumbLabel: 'menu.governance' },
                         children: [
                             {
-                                path: "guide",
-                                name: "app-settings-guide",
-                                component: SettingsGuide,
-                                meta: { breadcrumbLabel: 'menu.settings-guide' },
-                            },
-                            {
-                                path: "liaisons",
-                                name: "app-settings-liaisons",
-                                component: SettingsLiaisons,
-                                meta: { breadcrumbLabel: 'menu.settings-liaisons', requiredRole: 'grc_admin' },
-                            },
-                            {
                                 path: "legislative-authority",
-                                name: "app-settings-legislative-authority",
-                                component: SettingsLegislativeAuthority,
-                                meta: { breadcrumbLabel: 'menu.settings-legislative-authority', requiredRole: 'grc_admin' },
+                                name: "app-governance-legislative-authority",
+                                component: GovernanceLegislativeAuthority,
+                                meta: { breadcrumbLabel: 'menu.governance-legislative-authority', requiredRole: 'grc_admin' },
                             },
                             {
                                 path: "law-type",
-                                name: "app-settings-law-type",
-                                component: SettingsLawType,
-                                meta: { breadcrumbLabel: 'menu.settings-law-type', requiredRole: 'grc_admin' },
+                                name: "app-governance-law-type",
+                                component: GovernanceLawType,
+                                meta: { breadcrumbLabel: 'menu.governance-law-type', requiredRole: 'grc_admin' },
                             },
                             {
-                                path: "category",
-                                name: "app-settings-category",
-                                component: SettingsCategory,
-                                meta: { breadcrumbLabel: 'menu.settings-category', requiredRole: 'grc_admin' },
+                                path: "geographic-regions",
+                                name: "app-governance-geographic-regions",
+                                component: GovernanceGeographicRegions,
+                                meta: { breadcrumbLabel: 'menu.governance-geographic-regions' },
+                            },
+                            {
+                                path: "industry",
+                                name: "app-governance-industry",
+                                component: GovernanceIndustry,
+                                meta: { breadcrumbLabel: 'menu.governance-industry' },
+                            },
+                            {
+                                path: "key-stakeholders",
+                                name: "app-governance-key-stakeholders",
+                                component: GovernanceKeyStakeholders,
+                                meta: { breadcrumbLabel: 'menu.governance-key-stakeholders' },
+                            },
+                            {
+                                path: "operational-units",
+                                name: "app-governance-operational-units",
+                                component: GovernanceOperationalUnits,
+                                meta: { breadcrumbLabel: 'menu.governance-operational-units' },
+                            },
+                            {
+                                path: "organization-size",
+                                name: "app-governance-organization-size",
+                                component: GovernanceOrganizationSize,
+                                meta: { breadcrumbLabel: 'menu.governance-organization-size' },
+                            },
+                            {
+                                path: "organizational-structure",
+                                name: "app-governance-organizational-structure",
+                                component: GovernanceOrganizationalStructure,
+                                meta: { breadcrumbLabel: 'menu.governance-organizational-structure' },
+                            },
+                            {
+                                path: "products-services",
+                                name: "app-governance-products-services",
+                                component: GovernanceProductsServices,
+                                meta: { breadcrumbLabel: 'menu.governance-products-services' },
+                            },
+                            {
+                                path: "reporting-boundary",
+                                name: "app-governance-reporting-boundary",
+                                component: GovernanceReportingBoundary,
+                                meta: { breadcrumbLabel: 'menu.governance-reporting-boundary' },
+                            },
+                            {
+                                path: "subsidiaries",
+                                name: "app-governance-subsidiaries",
+                                component: GovernanceSubsidiaries,
+                                meta: { breadcrumbLabel: 'menu.governance-subsidiaries' },
+                            },
+                            {
+                                path: "value-chain",
+                                name: "app-governance-value-chain",
+                                component: GovernanceValueChain,
+                                meta: { breadcrumbLabel: 'menu.governance-value-chain' },
+                            },
+                            {
+                                path: "liaisons",
+                                name: "app-governance-liaisons",
+                                component: GovernanceLiaisons,
+                                meta: { breadcrumbLabel: 'menu.governance-liaisons', requiredRole: 'grc_admin' },
+                            },
+                            {
+                                path: "guide",
+                                name: "app-governance-guide",
+                                component: GovernanceGuide,
+                                meta: { breadcrumbLabel: 'menu.governance-guide' },
                             },
                         ],
                     },
@@ -378,6 +444,32 @@ const routes = [
                                 name: "app-esg-report",
                                 component: EsgReport,
                                 meta: { breadcrumbLabel: 'menu.esg-report' },
+                            },
+                        ],
+                    },
+                    {
+                        path: "capital",
+                        name: "app-capital",
+                        redirect: { name: "app-capital-category" },
+                        meta: { breadcrumbLabel: 'menu.capital' },
+                        children: [
+                            {
+                                path: "category",
+                                name: "app-capital-category",
+                                component: CapitalCategory,
+                                meta: { breadcrumbLabel: 'menu.capital-category', requiredRole: 'grc_admin' },
+                            },
+                            {
+                                path: "index",
+                                name: "app-capital-index",
+                                component: CapitalIndex,
+                                meta: { breadcrumbLabel: 'menu.capital-index' },
+                            },
+                            {
+                                path: "asset",
+                                name: "app-capital-asset",
+                                component: CapitalAsset,
+                                meta: { breadcrumbLabel: 'menu.capital-asset' },
                             },
                         ],
                     },

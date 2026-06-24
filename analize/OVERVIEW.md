@@ -22,7 +22,7 @@
 | Compliance | `/app/compliance` | Dashboard, operations, doing-task, reports |
 | Risk | `/app/risk` | Dashboard, operations, doing-task, reports |
 | ESG | `/app/esg` | Dashboard, governance, social, environment, reports |
-| Settings | `/app/settings` | Guide, liaisons, legislative authority, law type |
+| Governance | `/app/governance` | Guide, liaisons, legislative authority, law type |
 | Auth | `/auth/login` | Login page |
 
 ## Architecture

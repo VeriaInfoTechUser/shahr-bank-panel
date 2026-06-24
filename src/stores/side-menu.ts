@@ -138,37 +138,104 @@ export const useSideMenuStore = defineStore("sideMenu", {
             },
             {
                 icon: "Settings",
-                pageName: "app-settings",
-                title: "menu.settings",
+                pageName: "app-governance",
+                title: "menu.governance",
                 subMenu: [
                     {
-                        icon: "BookOpen",
-                        pageName: "app-settings-guide",
-                        title: "menu.settings-guide",
-                    },
-                    {
-                        icon: "Users",
-                        pageName: "app-settings-liaisons",
-                        title: "menu.settings-liaisons",
-                        requiredRole: "grc_admin",
-                    },
-                    {
-                        icon: "FolderTree",
-                        pageName: "app-settings-category",
-                        title: "menu.settings-category",
-                        requiredRole: "grc_admin",
-                    },
-                    {
                         icon: "Landmark",
-                        pageName: "app-settings-legislative-authority",
-                        title: "menu.settings-legislative-authority",
+                        pageName: "app-governance-legislative-authority",
+                        title: "menu.governance-legislative-authority",
                         requiredRole: "grc_admin",
                     },
                     {
                         icon: "FileType",
-                        pageName: "app-settings-law-type",
-                        title: "menu.settings-law-type",
+                        pageName: "app-governance-law-type",
+                        title: "menu.governance-law-type",
                         requiredRole: "grc_admin",
+                    },
+                    {
+                        icon: "MapPin",
+                        pageName: "app-governance-geographic-regions",
+                        title: "menu.governance-geographic-regions",
+                    },
+                    {
+                        icon: "Factory",
+                        pageName: "app-governance-industry",
+                        title: "menu.governance-industry",
+                    },
+                    {
+                        icon: "UserCheck",
+                        pageName: "app-governance-key-stakeholders",
+                        title: "menu.governance-key-stakeholders",
+                    },
+                    {
+                        icon: "Building",
+                        pageName: "app-governance-operational-units",
+                        title: "menu.governance-operational-units",
+                    },
+                    {
+                        icon: "Maximize",
+                        pageName: "app-governance-organization-size",
+                        title: "menu.governance-organization-size",
+                    },
+                    {
+                        icon: "Network",
+                        pageName: "app-governance-organizational-structure",
+                        title: "menu.governance-organizational-structure",
+                    },
+                    {
+                        icon: "Package",
+                        pageName: "app-governance-products-services",
+                        title: "menu.governance-products-services",
+                    },
+                    {
+                        icon: "FileText",
+                        pageName: "app-governance-reporting-boundary",
+                        title: "menu.governance-reporting-boundary",
+                    },
+                    {
+                        icon: "GitBranch",
+                        pageName: "app-governance-subsidiaries",
+                        title: "menu.governance-subsidiaries",
+                    },
+                    {
+                        icon: "Link",
+                        pageName: "app-governance-value-chain",
+                        title: "menu.governance-value-chain",
+                    },
+                    {
+                        icon: "Users",
+                        pageName: "app-governance-liaisons",
+                        title: "menu.governance-liaisons",
+                        requiredRole: "grc_admin",
+                    },
+                    {
+                        icon: "BookOpen",
+                        pageName: "app-governance-guide",
+                        title: "menu.governance-guide",
+                    },
+                ],
+            },
+            {
+                icon: "Coins",
+                pageName: "app-capital",
+                title: "menu.capital",
+                subMenu: [
+                    {
+                        icon: "FolderTree",
+                        pageName: "app-capital-category",
+                        title: "menu.capital-category",
+                        requiredRole: "grc_admin",
+                    },
+                    {
+                        icon: "TrendingUp",
+                        pageName: "app-capital-index",
+                        title: "menu.capital-index",
+                    },
+                    {
+                        icon: "Briefcase",
+                        pageName: "app-capital-asset",
+                        title: "menu.capital-asset",
                     },
                 ],
             },

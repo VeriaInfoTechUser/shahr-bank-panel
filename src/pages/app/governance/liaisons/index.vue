@@ -10,7 +10,7 @@ import { useBreadcrumbSlot } from '@/composables/useBreadcrumb';
 import { useGlobalModal } from '@/composables/useGlobalModal';
 import Button from '@/base-components/Button';
 import Lucide from '@/base-components/Lucide';
-import SettingsExportToolbar from '../SettingsExportToolbar.vue';
+import GovernanceExportToolbar from '../GovernanceExportToolbar.vue';
 import MemberAddModal from './MemberAddModal.vue';
 import MemberLogsModal from './MemberLogsModal.vue';
 import MemberChangePasswordModal from './MemberChangePasswordModal.vue';
@@ -150,7 +150,7 @@ const table = useDataTable({
 
 onMounted(() => {
   table.fetch();
-  setBreadcrumbSlot(SettingsExportToolbar, {
+  setBreadcrumbSlot(GovernanceExportToolbar, {
     onExport: () => table.exportCSV(),
     onAdd: onAddMember,
     addLabelKey: 'settings-page.add-member',

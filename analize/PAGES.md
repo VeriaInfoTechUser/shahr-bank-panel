@@ -56,13 +56,13 @@
 | Environment | `/app/esg/environment` | `pages/app/esg/environment/index.vue` |
 | Report | `/app/esg/report` | `pages/app/esg/report/index.vue` |
 
-### Settings
+### Governance
 | Page | Route | Component |
 |------|-------|-----------|
-| Guide | `/app/settings/guide` | `pages/app/settings/guide/index.vue` |
-| Liaisons | `/app/settings/liaisons` | `pages/app/settings/liaisons/index.vue` |
-| Legislative Authority | `/app/settings/legislative-authority` | `pages/app/settings/legislative-authority/index.vue` |
-| Law Type | `/app/settings/law-type` | `pages/app/settings/law-type/index.vue` |
+| Guide | `/app/governance/guide` | `pages/app/governance/guide/index.vue` |
+| Liaisons | `/app/governance/liaisons` | `pages/app/governance/liaisons/index.vue` |
+| Legislative Authority | `/app/governance/legislative-authority` | `pages/app/governance/legislative-authority/index.vue` |
+| Law Type | `/app/governance/law-type` | `pages/app/governance/law-type/index.vue` |
 
 ## Unregistered Pages (exist but not in router)
 

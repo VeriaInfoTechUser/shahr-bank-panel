@@ -6,13 +6,13 @@ import { useDataTable, createColumn, type FetchFn } from '@core';
 import BaseTable from '@core/ui/base/BaseTable.vue';
 import BaseConfirmModal from '@core/ui/base/BaseConfirmModal.vue';
 import { grcRepo } from '@/core/repositories/grcRepo';
-import { invalidateRuleTypeOptionsCache } from '@/core/erm/ruleAuthorTypeOptionsCache';
+import { invalidateRuleAuthorOptionsCache } from '@/core/erm/ruleAuthorTypeOptionsCache';
 import { useBreadcrumbSlot } from '@/composables/useBreadcrumb';
 import { useGlobalModal } from '@/composables/useGlobalModal';
 import Button from '@/base-components/Button';
 import Lucide from '@/base-components/Lucide';
-import SettingsExportToolbar from '../SettingsExportToolbar.vue';
-import LawTypeFormModal from './LawTypeFormModal.vue';
+import GovernanceExportToolbar from '../GovernanceExportToolbar.vue';
+import LegislativeAuthorityFormModal from './LegislativeAuthorityFormModal.vue';
 
 const { t } = useI18n();
 const { setContent: setBreadcrumbSlot } = useBreadcrumbSlot();
@@ -28,7 +28,7 @@ function pickStr(row: Record<string, unknown>, ...keys: string[]) {
   return '—';
 }
 
-function titleCell(row: Record<string, unknown>) {
+function nameCell(row: Record<string, unknown>) {
   return pickStr(row, 'title', 'name', 'label');
 }
 
@@ -36,8 +36,8 @@ function descriptionCell(row: Record<string, unknown>) {
   return pickStr(row, 'description', 'summary');
 }
 
-const fetchTypes: FetchFn = async ({ page, limit, filters }) => {
-  const res = await grcRepo.typeList({
+const fetchLegislators: FetchFn = async ({ page, limit, filters }) => {
+  const res = await grcRepo.legislatorList({
     page,
     limit,
     ...filters,
@@ -48,17 +48,17 @@ const fetchTypes: FetchFn = async ({ page, limit, filters }) => {
 };
 
 const table = useDataTable({
-  fetchFn: fetchTypes,
+  fetchFn: fetchLegislators,
   columns: [
     createColumn({
       key: 'title',
-      label: t('settings-page.law-type-col-name'),
+      label: t('settings-page.legislative-authority-col-name'),
       sortable: false,
-      bodyCell: titleCell,
+      bodyCell: nameCell,
     }),
     createColumn({
       key: 'description',
-      label: t('settings-page.law-type-col-description'),
+      label: t('settings-page.legislative-authority-col-description'),
       sortable: false,
       bodyCell: descriptionCell,
     }),
@@ -66,16 +66,16 @@ const table = useDataTable({
   selectable: false,
   exportEnabled: true,
 
-  cacheKey: 'settings-rule-type-list',
+  cacheKey: 'settings-rule-author-list',
   listCacheStaleTime: 0,
 });
 
-function onAddLawType() {
+function onAddAuthor() {
   openModal({
-    component: LawTypeFormModal,
+    component: LegislativeAuthorityFormModal,
     props: {},
     onSuccess: () => {
-      invalidateRuleTypeOptionsCache();
+      invalidateRuleAuthorOptionsCache();
       table.invalidateListCache();
       void table.fetch();
     },
@@ -84,43 +84,43 @@ function onAddLawType() {
 
 onMounted(() => {
   table.fetch();
-  setBreadcrumbSlot(SettingsExportToolbar, {
+  setBreadcrumbSlot(GovernanceExportToolbar, {
     onExport: () => table.exportCSV(),
-    onAdd: onAddLawType,
-    addLabelKey: 'settings-page.add-law-type',
+    onAdd: onAddAuthor,
+    addLabelKey: 'settings-page.add-legislative-authority',
   });
 });
 
-function onEditLawType(row: Record<string, unknown>) {
+function onEditAuthor(row: Record<string, unknown>) {
   openModal({
-    component: LawTypeFormModal,
+    component: LegislativeAuthorityFormModal,
     props: { record: row },
     onSuccess: () => {
-      invalidateRuleTypeOptionsCache();
+      invalidateRuleAuthorOptionsCache();
       table.invalidateListCache();
       void table.fetch();
     },
   });
 }
 
-function onDeleteLawType(row: Record<string, unknown>) {
+function onDeleteAuthor(row: Record<string, unknown>) {
   openModal({
     component: BaseConfirmModal,
     props: {
-      titleKey: 'settings-page.law-type-delete-title',
-      messageKey: 'settings-page.law-type-delete-message',
+      titleKey: 'settings-page.legislative-authority-delete-title',
+      messageKey: 'settings-page.legislative-authority-delete-message',
       confirmVariant: 'danger' as const,
       onConfirmAction: async () => {
         const slug = String(row.slug ?? '');
         if (!slug) {
-          const msg = t('settings-page.law-type-delete-error');
+          const msg = t('settings-page.legislative-authority-delete-error');
           toast(msg, { type: 'error' });
           throw new Error(msg);
         }
-        const res = await grcRepo.typeDelete(slug);
+        const res = await grcRepo.legislatorDelete(slug);
         if (!res?.result) {
           const msg = String(
-            res?.error ?? t('settings-page.law-type-delete-error')
+            res?.error ?? t('settings-page.legislative-authority-delete-error')
           );
           toast(msg, { type: 'error' });
           throw new Error(msg);
@@ -128,7 +128,7 @@ function onDeleteLawType(row: Record<string, unknown>) {
       },
     },
     onSuccess: () => {
-      invalidateRuleTypeOptionsCache();
+      invalidateRuleAuthorOptionsCache();
       table.invalidateListCache();
       void table.fetch();
     },
@@ -153,10 +153,10 @@ function onDeleteLawType(row: Record<string, unknown>) {
               type="button"
               variant="outline-secondary"
               size="sm"
-              class="!h-7 !w-7 shrink-0 !px-0 !py-0"
+              class="!h-7 !w-7 !px-0 !py-0"
               :aria-label="t('title.update')"
               :title="t('title.update')"
-              @click.stop="onEditLawType(row)"
+              @click.stop="onEditAuthor(row)"
             >
               <Lucide icon="Pencil" class="!h-3.5 !w-3.5" />
             </Button>
@@ -164,10 +164,10 @@ function onDeleteLawType(row: Record<string, unknown>) {
               type="button"
               variant="outline-danger"
               size="sm"
-              class="!h-7 !w-7 shrink-0 !px-0 !py-0"
+              class="!h-7 !w-7 !px-0 !py-0"
               :aria-label="t('general.delete')"
               :title="t('general.delete')"
-              @click.stop="onDeleteLawType(row)"
+              @click.stop="onDeleteAuthor(row)"
             >
               <Lucide icon="Trash2" class="!h-3.5 !w-3.5" />
             </Button>

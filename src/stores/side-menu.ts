@@ -137,7 +137,7 @@ export const useSideMenuStore = defineStore("sideMenu", {
                 ],
             },
             {
-                icon: "Settings",
+                icon: "Shield",
                 pageName: "app-governance",
                 title: "menu.governance",
                 subMenu: [

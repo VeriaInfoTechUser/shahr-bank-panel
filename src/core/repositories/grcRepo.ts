@@ -377,4 +377,25 @@ export const grcRepo = {
   taskReopen(slug: string, data: Record<string, unknown> = {}): Promise<GrcApiResponse<Record<string, unknown>>> {
     return grcHttpRequest({ method: 'POST', url: `/grc/tasks/${slug}/reopen`, data });
   },
+
+  // Metrics
+  metricsList(params?: GrcListParams): Promise<GrcApiResponse<GrcPaginatedResponse>> {
+    return grcHttpRequest({ method: 'GET', url: '/context/metrics', params });
+  },
+
+  metricsGet(slug: string): Promise<GrcApiResponse<Record<string, unknown>>> {
+    return grcHttpRequest({ method: 'GET', url: `/context/metrics/${slug}` });
+  },
+
+  metricsCreate(data: Record<string, unknown>): Promise<GrcApiResponse<GrcEntity>> {
+    return grcHttpRequest({ method: 'POST', url: '/context/metrics', data });
+  },
+
+  metricsUpdate(slug: string, data: Record<string, unknown>): Promise<GrcApiResponse<GrcEntity>> {
+    return grcHttpRequest({ method: 'PUT', url: `/context/metrics/${slug}`, data });
+  },
+
+  metricsDelete(slug: string): Promise<GrcApiResponse<null>> {
+    return grcHttpRequest({ method: 'DELETE', url: `/context/metrics/${slug}` });
+  },
 };

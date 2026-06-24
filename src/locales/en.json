@@ -209,6 +209,7 @@
     "code": "Code",
     "description": "Description",
     "no-data": "No data found.",
+    "back": "Back",
     "loading": "Loading...",
     "select-filter-placeholder": "Search…",
     "confirm-dialog-title": "Confirm",
@@ -607,6 +608,7 @@
     "esg-report": "Report",
     "capital": "Capital",
     "capital-metrics": "Metrics",
+    "capital-metrics-detail": "Metric Detail",
     "capital-asset": "Asset",
     "capital-category": "Category",
     "user-list": "User list",
@@ -772,6 +774,18 @@
     "validation-title-required": "Enter the title.",
     "col-title": "Title",
     "col-description": "Description"
+  },
+  "capital-metrics-page": {
+    "col-number": "Number",
+    "col-metric-type": "Metric Type",
+    "col-unit": "Unit",
+    "col-category": "Category",
+    "col-subcategory": "Subcategory",
+    "col-reporting-period": "Reporting Period",
+    "col-direction": "Direction",
+    "col-formula": "Formula",
+    "col-industries": "Industries",
+    "view-detail": "View Detail"
   },
   "compliance-page": {
     "col-code": "Code",

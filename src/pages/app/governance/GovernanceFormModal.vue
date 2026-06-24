@@ -60,7 +60,13 @@ const validationSchema = computed(() =>
 
 function titleFromRecord(rec: Record<string, unknown> | null | undefined): string {
   if (!rec) return '';
+  const info = rec.information as Record<string, unknown> | undefined;
   for (const key of ['title', 'name', 'label'] as const) {
+    if (info) {
+      const v = info[key];
+      if (typeof v === 'string' && v.trim()) return v;
+      if (typeof v === 'number' && !Number.isNaN(v)) return String(v);
+    }
     const v = rec[key];
     if (typeof v === 'string' && v.trim()) return v;
     if (typeof v === 'number' && !Number.isNaN(v)) return String(v);
@@ -70,7 +76,12 @@ function titleFromRecord(rec: Record<string, unknown> | null | undefined): strin
 
 function descriptionFromRecord(rec: Record<string, unknown> | null | undefined): string {
   if (!rec) return '';
+  const info = rec.information as Record<string, unknown> | undefined;
   for (const key of ['description', 'summary'] as const) {
+    if (info) {
+      const v = info[key];
+      if (typeof v === 'string' && v.trim()) return v;
+    }
     const v = rec[key];
     if (typeof v === 'string' && v.trim()) return v;
   }
@@ -112,9 +123,15 @@ async function onSubmit(values: { title?: string; description?: string }) {
     let result;
     if (isEdit.value && props.record) {
       const slug = String(props.record.slug ?? '');
-      result = await grcRepo.governanceUpdate(slug, { title, description });
+      const data = props.type === 'metric'
+        ? { information: { title, description } }
+        : { title, description };
+      result = await grcRepo.governanceUpdate(slug, data);
     } else {
-      result = await grcRepo.governanceCreate({ type: props.type, title, description });
+      const data = props.type === 'metric'
+        ? { type: props.type, information: { title, description } }
+        : { type: props.type, title, description };
+      result = await grcRepo.governanceCreate(data);
     }
 
     if (result?.result) {

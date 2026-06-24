@@ -77,6 +77,7 @@
     "code": "الرمز",
     "description": "الوصف",
     "no-data": "لا توجد بيانات.",
+    "back": "رجوع",
     "loading": "جاري التحميل...",
     "cancel": "إلغاء",
     "select-filter-placeholder": "بحث…",
@@ -444,6 +445,7 @@
     "esg-report": "التقرير",
     "capital": "رأس المال",
     "capital-metrics": "المؤشرات",
+    "capital-metrics-detail": "تفاصيل المقياس",
     "capital-asset": "الأصول",
     "capital-category": "الفئات",
     "user-list": "قائمة المستخدمين",
@@ -530,6 +532,18 @@
     "validation-title-required": "أدخل العنوان.",
     "col-title": "العنوان",
     "col-description": "الوصف"
+  },
+  "capital-metrics-page": {
+    "col-number": "الرقم",
+    "col-metric-type": "نوع المقياس",
+    "col-unit": "الوحدة",
+    "col-category": "الفئة",
+    "col-subcategory": "الفئة الفرعية",
+    "col-reporting-period": "فترة التقرير",
+    "col-direction": "الاتجاه",
+    "col-formula": "المعادلة",
+    "col-industries": "الصناعات",
+    "view-detail": "عرض التفاصيل"
   },
   "compliance-page": {
     "col-code": "الرمز",

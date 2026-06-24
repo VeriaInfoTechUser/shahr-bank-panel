@@ -12,14 +12,14 @@ import { grcRepo } from '@/core/repositories/grcRepo';
 const props = withDefaults(
   defineProps<{
     show: boolean;
+    record?: Record<string, unknown> | null;
     parentSlug?: string | null;
     parentTitle?: string | null;
-    record?: Record<string, unknown> | null;
   }>(),
   {
+    record: null,
     parentSlug: null,
     parentTitle: null,
-    record: null,
   }
 );
 
@@ -29,7 +29,7 @@ const emit = defineEmits<{
   (e: 'success'): void;
 }>();
 
-const { t, locale } = useI18n();
+const { t } = useI18n();
 
 const formRef = ref<InstanceType<typeof Form> | null>(null);
 const saving = ref(false);
@@ -44,41 +44,48 @@ const isEdit = computed(() => {
 
 const modalTitle = computed(() => {
   if (isEdit.value) return t('settings-page.category-edit');
-  return props.parentSlug
-    ? t('settings-page.category-add-child')
-    : t('settings-page.category-add-parent');
+  if (props.parentSlug) return t('settings-page.category-add-child');
+  return t('settings-page.category-add-parent');
 });
 
-const initialValues = ref({ slug: '', title: '', description: '' });
+const initialValues = ref({ title: '', description: '' });
 
 const validationSchema = computed(() =>
   yup.object({
-    slug: isEdit.value
-      ? yup.string().optional()
-      : yup.string().trim().required(t('settings-page.category-validation-slug')),
-    title: yup.string().trim().required(t('settings-page.category-validation-title')),
+    title: yup
+      .string()
+      .trim()
+      .required(t('settings-page.category-validation-title')),
     description: yup.string().trim().optional(),
   })
 );
 
-function seedForm() {
-  if (isEdit.value && props.record) {
-    initialValues.value = {
-      slug: String(props.record.slug ?? ''),
-      title: String(props.record.title ?? ''),
-      description: String(props.record.description ?? ''),
-    };
-  } else {
-    initialValues.value = { slug: '', title: '', description: '' };
+function titleFromRecord(rec: Record<string, unknown> | null | undefined): string {
+  if (!rec) return '';
+  for (const key of ['title', 'name', 'label'] as const) {
+    const v = rec[key];
+    if (typeof v === 'string' && v.trim()) return v;
+    if (typeof v === 'number' && !Number.isNaN(v)) return String(v);
   }
-  formKey.value += 1;
+  return '';
 }
 
-watch(locale, async () => {
-  await nextTick();
-  const exposed = formRef.value as { validate?: () => Promise<unknown> } | null;
-  await exposed?.validate?.();
-});
+function descriptionFromRecord(rec: Record<string, unknown> | null | undefined): string {
+  if (!rec) return '';
+  for (const key of ['description', 'summary'] as const) {
+    const v = rec[key];
+    if (typeof v === 'string' && v.trim()) return v;
+  }
+  return '';
+}
+
+function seedForm() {
+  initialValues.value = {
+    title: titleFromRecord(props.record ?? null),
+    description: descriptionFromRecord(props.record ?? null),
+  };
+  formKey.value += 1;
+}
 
 watch(
   () => [props.show, props.record] as const,
@@ -99,7 +106,7 @@ function onDialogVisible(v: boolean) {
   if (!v) emit('close');
 }
 
-async function onSubmit(values: { slug?: string; title?: string; description?: string }) {
+async function onSubmit(values: { title?: string; description?: string }) {
   const title = String(values.title ?? '').trim();
   const description = String(values.description ?? '').trim();
   saving.value = true;
@@ -109,12 +116,11 @@ async function onSubmit(values: { slug?: string; title?: string; description?: s
       const slug = String(props.record.slug ?? '');
       result = await grcRepo.governanceCategoryUpdate(slug, { title, description });
     } else {
-      const slug = String(values.slug ?? '').trim();
-      const payload: Record<string, unknown> = { slug, title, description };
+      const data: Record<string, unknown> = { title, description };
       if (props.parentSlug) {
-        payload.parentSlug = props.parentSlug;
+        data.parentSlug = props.parentSlug;
       }
-      result = await grcRepo.governanceCategoryCreate(payload);
+      result = await grcRepo.governanceCategoryCreate(data);
     }
 
     if (result?.result) {
@@ -169,22 +175,15 @@ async function onSubmit(values: { slug?: string; title?: string; description?: s
       @submit="onSubmit"
     >
       <div data-autofocus-modal>
-        <div v-if="parentTitle && !isEdit" class="mb-2 text-xs text-slate-500">
+        <div v-if="parentTitle" class="mb-2 text-sm text-slate-500">
           {{ t('settings-page.category-parent-label') }}: <span class="font-medium text-slate-700 dark:text-slate-300">{{ parentTitle }}</span>
         </div>
-        <BaseInput
-          name="slug"
-          :label="t('settings-page.category-col-slug')"
-          type="text"
-          :required="!isEdit"
-          :disabled="isEdit"
-          autofocus
-        />
         <BaseInput
           name="title"
           :label="t('settings-page.category-col-title')"
           type="text"
           required
+          autofocus
         />
         <BaseInput
           name="description"

@@ -56,6 +56,7 @@ import EsgReport from "@/pages/app/esg/report/index.vue";
 import CapitalMetrics from "@/pages/app/capital/metrics/index.vue";
 import CapitalAsset from "@/pages/app/capital/asset/index.vue";
 import CapitalCategory from "@/pages/app/capital/category/index.vue";
+import CapitalMetricsDetail from "@/pages/app/capital/metrics/detail/index.vue";
 import SectionPlaceholderPage from "@/pages/app/shared/SectionPlaceholderPage.vue";
 import AuthLogin from "@/pages/auth/login/index.vue";
 
@@ -464,6 +465,20 @@ const routes = [
                                 name: "app-capital-metrics",
                                 component: CapitalMetrics,
                                 meta: { breadcrumbLabel: 'menu.capital-metrics' },
+                            },
+                            {
+                                path: "metrics/:slug",
+                                name: "app-capital-metrics-detail",
+                                component: CapitalMetricsDetail,
+                                meta: {
+                                    breadcrumbLabel: 'menu.capital-metrics-detail',
+                                    breadcrumbPrefix: [
+                                        {
+                                            routeName: 'app-capital-metrics',
+                                            labelKey: 'menu.capital-metrics',
+                                        },
+                                    ],
+                                },
                             },
                             {
                                 path: "asset",

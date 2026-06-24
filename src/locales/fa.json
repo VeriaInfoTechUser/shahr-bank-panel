@@ -228,6 +228,7 @@
     "code": "کد",
     "description": "توضیحات",
     "no-data": "داده‌ای یافت نشد.",
+    "back": "بازگشت",
     "loading": "در حال بارگذاری...",
     "cancel": "انصراف",
     "select-filter-placeholder": "جستجو…",
@@ -628,6 +629,7 @@
     "esg-report": "گزارش",
     "capital": "سرمایه",
     "capital-metrics": "شاخص‌ها",
+    "capital-metrics-detail": "جزئیات شاخص",
     "capital-asset": "دارایی",
     "capital-category": "دسته‌بندی",
     "user-list": "فهرست کاربران",
@@ -793,6 +795,18 @@
     "validation-title-required": "عنوان را وارد کنید.",
     "col-title": "عنوان",
     "col-description": "توضیحات"
+  },
+  "capital-metrics-page": {
+    "col-number": "شماره",
+    "col-metric-type": "نوع شاخص",
+    "col-unit": "واحد",
+    "col-category": "دسته‌بندی",
+    "col-subcategory": "زیرمجموعه",
+    "col-reporting-period": "دوره گزارش‌دهی",
+    "col-direction": "جهت",
+    "col-formula": "فرمول",
+    "col-industries": "صنایع",
+    "view-detail": "مشاهده جزئیات"
   },
   "compliance-page": {
     "col-code": "کد",

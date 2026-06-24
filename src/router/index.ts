@@ -53,7 +53,7 @@ import EsgGovernance from "@/pages/app/esg/governance/index.vue";
 import EsgSocial from "@/pages/app/esg/social/index.vue";
 import EsgEnvironment from "@/pages/app/esg/environment/index.vue";
 import EsgReport from "@/pages/app/esg/report/index.vue";
-import CapitalIndex from "@/pages/app/capital/index/index.vue";
+import CapitalMetrics from "@/pages/app/capital/metrics/index.vue";
 import CapitalAsset from "@/pages/app/capital/asset/index.vue";
 import CapitalCategory from "@/pages/app/capital/category/index.vue";
 import SectionPlaceholderPage from "@/pages/app/shared/SectionPlaceholderPage.vue";
@@ -460,10 +460,10 @@ const routes = [
                                 meta: { breadcrumbLabel: 'menu.capital-category', requiredRole: 'grc_admin' },
                             },
                             {
-                                path: "index",
-                                name: "app-capital-index",
-                                component: CapitalIndex,
-                                meta: { breadcrumbLabel: 'menu.capital-index' },
+                                path: "metrics",
+                                name: "app-capital-metrics",
+                                component: CapitalMetrics,
+                                meta: { breadcrumbLabel: 'menu.capital-metrics' },
                             },
                             {
                                 path: "asset",

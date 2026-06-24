@@ -229,8 +229,8 @@ export const useSideMenuStore = defineStore("sideMenu", {
                     },
                     {
                         icon: "TrendingUp",
-                        pageName: "app-capital-index",
-                        title: "menu.capital-index",
+                        pageName: "app-capital-metrics",
+                        title: "menu.capital-metrics",
                     },
                     {
                         icon: "Briefcase",

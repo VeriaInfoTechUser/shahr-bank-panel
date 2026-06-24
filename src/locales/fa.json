@@ -254,7 +254,11 @@
     "error": "خطای سیستمی",
     "last-updated": "آخرین به‌روزرسانی",
     "chart-component": "نوع نمودار",
-    "unanswered": "بدون پاسخ"
+    "unanswered": "بدون پاسخ",
+    "active": "فعال",
+    "inactive": "غیرفعال",
+    "yes": "بله",
+    "no": "خیر"
   },
   "login-history": {
     "title": "تاریخچه ورود",
@@ -604,6 +608,7 @@
     "governance-key-stakeholders": "ذینفعان کلیدی",
     "governance-operational-units": "واحدهای عملیاتی",
     "governance-organization-size": "اندازه سازمان",
+    "organization-profile": "پرفایل سازمان",
     "governance-organizational-structure": "ساختار سازمانی",
     "governance-products-services": "محصولات و خدمات",
     "governance-reporting-boundary": "مرز گزارش‌دهی",
@@ -796,6 +801,70 @@
     "col-title": "عنوان",
     "col-description": "توضیحات"
   },
+  "metrics": {
+    "vendor_profile": "پروفایل فروشنده",
+    "supplier_profile": "پروفایل تأمین‌کننده",
+    "project_profile": "پروفایل پروژه",
+
+    "software_repository": "مخزن نرم‌افزار",
+    "codebase_repository": "مخزن کد",
+    "data_repository": "مخزن داده",
+
+    "portfolio_ledger": "دفتر پرتفوی",
+    "risk_register": "ثبت ریسک",
+    "compliance_log": "ثبت انطباق",
+
+    "equipment_asset": "دارایی تجهیز",
+    "production_line": "خط تولید",
+    "server_node": "گره سرور",
+
+    "cybersecurity_siem": "سامانه SIEM",
+    "ip_registry": "ثبت دارایی‌های IP",
+
+    "grievance_channel": "کانال رسیدگی به شکایات",
+
+    "water_inlet": "ورودی آب",
+    "discharge_point": "نقطه تخلیه",
+    "treatment_plant": "تصفیه‌خانه",
+
+    "facility_meter": "کنتور تأسیسات",
+    "energy_source": "منبع انرژی",
+
+    "emission_point": "نقطه انتشار",
+    "emission_stack": "دودکش انتشار",
+
+    "waste_storage": "محل نگهداری پسماند",
+    "manual_processed": "پردازش دستی",
+    "automated_batch": "خودکار دسته‌ای",
+    "automated_realtime": "خودکار بلادرنگ",
+
+    "none": "بدون مقدار",
+
+    "facility": "تأسیسات",
+    "facility_site": "سایت تأسیسات",
+    "geographical_site": "موقعیت جغرافیایی",
+    "department_unit": "واحد سازمانی",
+    "monitoring_station": "ایستگاه پایش",
+
+    "incident_log": "ثبت رخداد",
+    "legal_case_log": "ثبت پرونده حقوقی",
+    "timesheet_system": "سیستم ثبت زمان",
+    "payroll_system": "سیستم حقوق و دستمزد",
+    "sum": "مجموع",
+    "average": "میانگین",
+    "ratio": "نسبت",
+    "percentage": "درصد",
+    "count": "تعداد",
+    "direct": "مستقیم",
+    "weighted": "وزنی",
+    "cumulative": "تجمعی",
+    "financial": "مالی",
+    "manufactured": "ساخته‌شده",
+    "intellectual": "فکری",
+    "human": "انسانی",
+    "social": "اجتماعی",
+    "natural": "طبیعی"
+  },
   "capital-metrics-page": {
     "col-number": "شماره",
     "col-metric-type": "نوع شاخص",
@@ -806,7 +875,38 @@
     "col-direction": "جهت",
     "col-formula": "فرمول",
     "col-industries": "صنایع",
-    "view-detail": "مشاهده جزئیات"
+    "view-detail": "مشاهده جزئیات",
+    "annual-target": "هدف سالانه",
+    "target-year": "سال هدف",
+    "description": "توضیحات",
+    "thresholds": "آستانه‌ها",
+    "target": "هدف",
+    "warning": "هشدار",
+    "critical": "بحرانی",
+    "framework-mappings": "نگاشت چارچوب‌ها",
+    "cascading-effects": "اثرات آبشاری",
+    "sustainability-goal": "هدف پایداری",
+    "classification": "طبقه‌بندی",
+    "metric-role": "نقش شاخص",
+    "metric-type": "نوع شاخص",
+    "data-type": "نوع داده",
+    "calculation-type": "نوع محاسبه",
+    "resilience-test": "آزمون تاب‌آوری",
+    "data-ownership": "مالکیت داده",
+    "data-owner": "صاحب داده",
+    "data-source": "منبع داده",
+    "source-asset": "دارایی مبدأ",
+    "has-sub-assets": "دارای زیردارایی",
+    "reporting": "گزارش‌دهی",
+    "reporting-period": "دوره گزارش‌دهی",
+    "collection-frequency": "فرکانس جمع‌آوری",
+    "spatial-aggregation": "تجمیع مکانی",
+    "temporal-aggregation": "تجمیع زمانی",
+    "dynamic-aggregation": "تجمیع پویا",
+    "associated-industries": "صنایع مرتبط",
+    "col-calculation-type": "روش محاسبه",
+    "col-source-asset": "دارایی مبدأ",
+    "col-metric-role": "نوع شاخص"
   },
   "compliance-page": {
     "col-code": "کد",

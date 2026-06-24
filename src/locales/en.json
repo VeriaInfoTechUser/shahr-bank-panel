@@ -235,7 +235,11 @@
     "last-updated": "Last Updated",
     "chart-component": "Chart Type",
     "unanswered": "Unanswered",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "active": "Active",
+    "inactive": "Inactive",
+    "yes": "Yes",
+    "no": "No"
   },
   "login-history": {
     "title": "Login History",
@@ -583,6 +587,7 @@
     "governance-key-stakeholders": "Key stakeholders",
     "governance-operational-units": "Operational units",
     "governance-organization-size": "Organization size",
+    "organization-profile": "Organization profile",
     "governance-organizational-structure": "Organizational structure",
     "governance-products-services": "Products & services",
     "governance-reporting-boundary": "Reporting boundary",
@@ -775,6 +780,70 @@
     "col-title": "Title",
     "col-description": "Description"
   },
+  "metrics": {
+    "vendor_profile": "Vendor Profile",
+    "supplier_profile": "Supplier Profile",
+    "project_profile": "Project Profile",
+
+    "software_repository": "Software Repository",
+    "codebase_repository": "Code Repository",
+    "data_repository": "Data Repository",
+
+    "portfolio_ledger": "Portfolio Ledger",
+    "risk_register": "Risk Register",
+    "compliance_log": "Compliance Log",
+
+    "equipment_asset": "Equipment Asset",
+    "production_line": "Production Line",
+    "server_node": "Server Node",
+
+    "cybersecurity_siem": "Cybersecurity SIEM",
+    "ip_registry": "IP Registry",
+
+    "grievance_channel": "Grievance Channel",
+
+    "water_inlet": "Water Inlet",
+    "discharge_point": "Discharge Point",
+    "treatment_plant": "Treatment Plant",
+
+    "facility_meter": "Facility Meter",
+    "energy_source": "Energy Source",
+
+    "emission_point": "Emission Point",
+    "emission_stack": "Emission Stack",
+
+    "waste_storage": "Waste Storage",
+    "manual_processed": "Manual Processed",
+    "automated_batch": "Automated Batch",
+    "automated_realtime": "Automated Realtime",
+
+    "none": "None",
+
+    "facility": "Facility",
+    "facility_site": "Facility Site",
+    "geographical_site": "Geographical Site",
+    "department_unit": "Department Unit",
+    "monitoring_station": "Monitoring Station",
+
+    "incident_log": "Incident Log",
+    "legal_case_log": "Legal Case Log",
+    "timesheet_system": "Timesheet System",
+    "payroll_system": "Payroll System",
+    "sum": "Sum",
+    "average": "Average",
+    "ratio": "Ratio",
+    "percentage": "Percentage",
+    "count": "Count",
+    "direct": "Direct",
+    "weighted": "Weighted",
+    "cumulative": "Cumulative",
+    "financial": "Financial",
+    "manufactured": "Manufactured",
+    "intellectual": "Intellectual",
+    "human": "Human",
+    "social": "Social",
+    "natural": "Natural"
+  },
   "capital-metrics-page": {
     "col-number": "Number",
     "col-metric-type": "Metric Type",
@@ -785,7 +854,38 @@
     "col-direction": "Direction",
     "col-formula": "Formula",
     "col-industries": "Industries",
-    "view-detail": "View Detail"
+    "view-detail": "View Detail",
+    "annual-target": "Annual Target",
+    "target-year": "Target Year",
+    "description": "Description",
+    "thresholds": "Thresholds",
+    "target": "Target",
+    "warning": "Warning",
+    "critical": "Critical",
+    "framework-mappings": "Framework Mappings",
+    "cascading-effects": "Cascading Effects",
+    "sustainability-goal": "Sustainability Goal",
+    "classification": "Classification",
+    "metric-role": "Metric Role",
+    "metric-type": "Metric Type",
+    "data-type": "Data Type",
+    "calculation-type": "Calculation Type",
+    "resilience-test": "Resilience Test",
+    "data-ownership": "Data Ownership",
+    "data-owner": "Data Owner",
+    "data-source": "Data Source",
+    "source-asset": "Source Asset",
+    "has-sub-assets": "Has Sub-Assets",
+    "reporting": "Reporting",
+    "reporting-period": "Reporting Period",
+    "collection-frequency": "Collection Frequency",
+    "spatial-aggregation": "Spatial Aggregation",
+    "temporal-aggregation": "Temporal Aggregation",
+    "dynamic-aggregation": "Dynamic Aggregation",
+    "associated-industries": "Associated Industries",
+    "col-calculation-type": "Calculation Type",
+    "col-source-asset": "Source Asset",
+    "col-metric-role": "Metric Role"
   },
   "compliance-page": {
     "col-code": "Code",

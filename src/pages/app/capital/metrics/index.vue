@@ -48,12 +48,6 @@ const table = useDataTable({
       bodyCell: (row) => pickStr(row, 'title'),
     }),
     createColumn({
-      key: 'unit',
-      label: t('capital-metrics-page.col-unit'),
-      sortable: false,
-      bodyCell: (row) => pickStr(row, 'unit'),
-    }),
-    createColumn({
       key: 'categoryTitle',
       label: t('capital-metrics-page.col-category'),
       sortable: false,
@@ -66,10 +60,39 @@ const table = useDataTable({
       bodyCell: (row) => pickStr(row, 'categorySubTitle'),
     }),
     createColumn({
-      key: 'direction',
-      label: t('capital-metrics-page.col-direction'),
+      key: 'industries',
+      label: t('capital-metrics-page.col-industries'),
       sortable: false,
-      bodyCell: (row) => pickStr(row, 'direction'),
+    }),
+    createColumn({
+      key: 'metricRole',
+      label: t('capital-metrics-page.col-metric-role'),
+      sortable: false,
+    }),
+    createColumn({
+      key: 'calculationType',
+      label: t('capital-metrics-page.col-calculation-type'),
+      sortable: false,
+      bodyCell: (row) => {
+        const v = row.calculationType;
+        if (typeof v === 'string' && v.trim()) return t(`metrics.${v.trim()}`);
+        return '—';
+      },
+    }),
+    createColumn({
+      key: 'hasSubAssets',
+      label: t('capital-metrics-page.has-sub-assets'),
+      sortable: false,
+    }),
+    createColumn({
+      key: 'sourceAssetType',
+      label: t('capital-metrics-page.col-source-asset'),
+      sortable: false,
+      bodyCell: (row) => {
+        const v = row.sourceAssetType;
+        if (typeof v === 'string' && v.trim()) return t(`metrics.${v.trim()}`);
+        return '—';
+      },
     }),
   ],
   selectable: false,
@@ -77,6 +100,17 @@ const table = useDataTable({
   cacheKey: 'capital-metrics-list',
   listCacheStaleTime: 0,
 });
+
+const metricRoleColors: Record<string, string> = {
+  kpi: 'bg-warning/15 text-warning',
+  pi: 'bg-info/15 text-info',
+  control: 'bg-success/15 text-success',
+};
+
+function metricRoleClass(role: unknown): string {
+  const key = String(role ?? '').trim().toLowerCase();
+  return metricRoleColors[key] ?? 'bg-slate-100 text-slate-600 dark:bg-darkmode-700 dark:text-slate-300';
+}
 
 function goToDetail(row: Record<string, unknown>) {
   const slug = String(row.slug ?? '');
@@ -104,6 +138,34 @@ onMounted(() => {
         :actions="true"
         :show-search="false"
       >
+        <template #cell-industries="{ row }">
+          <div class="flex flex-wrap gap-1">
+            <span
+              v-for="ind in (Array.isArray(row.industries) ? row.industries : [])"
+              :key="ind"
+              class="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary"
+            >
+              {{ ind }}
+            </span>
+            <span v-if="!Array.isArray(row.industries) || !row.industries.length">—</span>
+          </div>
+        </template>
+        <template #cell-metricRole="{ row }">
+          <span
+            class="inline-block w-20 rounded px-2 py-0.5 text-center text-xs font-semibold"
+            :class="metricRoleClass(row.metricRole)"
+          >
+            {{ pickStr(row, 'metricRole') }}
+          </span>
+        </template>
+        <template #cell-hasSubAssets="{ row }">
+          <span
+            class="rounded px-2 py-0.5 text-xs font-medium"
+            :class="row.hasSubAssets ? 'bg-success/10 text-success' : 'bg-slate-100 text-slate-500 dark:bg-darkmode-700 dark:text-slate-400'"
+          >
+            {{ row.hasSubAssets ? t('general.yes') : t('general.no') }}
+          </span>
+        </template>
         <template #actions="{ row }">
           <div class="flex items-center justify-center gap-3">
             <Button

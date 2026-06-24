@@ -103,7 +103,11 @@
     "error": "حدث خطأ ما",
     "last-updated": "آخر تحديث",
     "chart-component": "نوع المخطط",
-    "unanswered": "لم يتم الرد"
+    "unanswered": "لم يتم الرد",
+    "active": "نشط",
+    "inactive": "غير نشط",
+    "yes": "نعم",
+    "no": "لا"
   },
   "login-history": {
     "title": "سجل الدخول",
@@ -533,6 +537,70 @@
     "col-title": "العنوان",
     "col-description": "الوصف"
   },
+  "metrics": {
+    "vendor_profile": "ملف المورد",
+    "supplier_profile": "ملف المورّد",
+    "project_profile": "ملف المشروع",
+
+    "software_repository": "مستودع البرمجيات",
+    "codebase_repository": "مستودع الشيفرة",
+    "data_repository": "مستودع البيانات",
+
+    "portfolio_ledger": "سجل المحفظة",
+    "risk_register": "سجل المخاطر",
+    "compliance_log": "سجل الامتثال",
+
+    "equipment_asset": "أصل المعدات",
+    "production_line": "خط الإنتاج",
+    "server_node": "عقدة الخادم",
+
+    "cybersecurity_siem": "نظام SIEM",
+    "ip_registry": "سجل الملكية الفكرية",
+
+    "grievance_channel": "قناة الشكاوى",
+
+    "water_inlet": "مدخل المياه",
+    "discharge_point": "نقطة التصريف",
+    "treatment_plant": "محطة المعالجة",
+
+    "facility_meter": "عداد المنشأة",
+    "energy_source": "مصدر الطاقة",
+
+    "emission_point": "نقطة الانبعاث",
+    "emission_stack": "مدخنة الانبعاث",
+
+    "waste_storage": "موقع تخزين النفايات",
+    "manual_processed": "معالجة يدوية",
+    "automated_batch": "معالجة آلية مجمعة",
+    "automated_realtime": "معالجة آلية فورية",
+
+    "none": "لا يوجد",
+
+    "facility": "منشأة",
+    "facility_site": "موقع المنشأة",
+    "geographical_site": "موقع جغرافي",
+    "department_unit": "وحدة تنظيمية",
+    "monitoring_station": "محطة مراقبة",
+
+    "incident_log": "سجل الحوادث",
+    "legal_case_log": "سجل القضايا القانونية",
+    "timesheet_system": "نظام تسجيل الوقت",
+    "payroll_system": "نظام الرواتب",
+    "sum": "المجموع",
+    "average": "المتوسط",
+    "ratio": "النسبة",
+    "percentage": "النسبة المئوية",
+    "count": "العدد",
+    "direct": "مباشر",
+    "weighted": "موزون",
+    "cumulative": "تراكمي",
+    "financial": "مالي",
+    "manufactured": "مصنع",
+    "intellectual": "فكري",
+    "human": "بشري",
+    "social": "اجتماعي",
+    "natural": "طبيعي"
+  },
   "capital-metrics-page": {
     "col-number": "الرقم",
     "col-metric-type": "نوع المقياس",
@@ -543,7 +611,38 @@
     "col-direction": "الاتجاه",
     "col-formula": "المعادلة",
     "col-industries": "الصناعات",
-    "view-detail": "عرض التفاصيل"
+    "view-detail": "عرض التفاصيل",
+    "annual-target": "الهدف السنوي",
+    "target-year": "السنة المستهدفة",
+    "description": "الوصف",
+    "thresholds": "العتبات",
+    "target": "الهدف",
+    "warning": "تحذير",
+    "critical": "حرج",
+    "framework-mappings": "تعيينات الإطار",
+    "cascading-effects": "التأثيرات المتتالية",
+    "sustainability-goal": "هدف الاستدامة",
+    "classification": "التصنيف",
+    "metric-role": "دور المقياس",
+    "metric-type": "نوع المقياس",
+    "data-type": "نوع البيانات",
+    "calculation-type": "نوع الحساب",
+    "resilience-test": "اختبار المرونة",
+    "data-ownership": "ملكية البيانات",
+    "data-owner": "صاحب البيانات",
+    "data-source": "مصدر البيانات",
+    "source-asset": "الأصل المصدر",
+    "has-sub-assets": "يحتوي على أصول فرعية",
+    "reporting": "التقارير",
+    "reporting-period": "فترة التقرير",
+    "collection-frequency": "تكرار الجمع",
+    "spatial-aggregation": "التجميع المكاني",
+    "temporal-aggregation": "التجميع الزمني",
+    "dynamic-aggregation": "التجميع الديناميكي",
+    "associated-industries": "الصناعات المرتبطة",
+    "col-calculation-type": "نوع الحساب",
+    "col-source-asset": "الأصل المصدر",
+    "col-metric-role": "دور المقياس"
   },
   "compliance-page": {
     "col-code": "الرمز",

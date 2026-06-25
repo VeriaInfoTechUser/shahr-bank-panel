@@ -139,7 +139,7 @@ export const useSideMenuStore = defineStore("sideMenu", {
             {
                 icon: "Shield",
                 pageName: "app-governance",
-                title: "menu.governance",
+                title: "menu.organization-profile",
                 subMenu: [
                     {
                         icon: "Landmark",
@@ -236,6 +236,23 @@ export const useSideMenuStore = defineStore("sideMenu", {
                         icon: "Briefcase",
                         pageName: "app-capital-asset",
                         title: "menu.capital-asset",
+                    },
+                ],
+            },
+            {
+                icon: "Database",
+                pageName: "app-data",
+                title: "menu.data",
+                subMenu: [
+                    {
+                        icon: "FileText",
+                        pageName: "app-data-raw",
+                        title: "menu.data-raw",
+                    },
+                    {
+                        icon: "Upload",
+                        pageName: "app-data-entry",
+                        title: "menu.data-entry",
                     },
                 ],
             },

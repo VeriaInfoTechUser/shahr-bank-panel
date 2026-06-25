@@ -48,7 +48,7 @@ function onFilter(range: { from: string; to: string }) {
   <div
     v-if="loading && !dashboardData"
     dir="rtl"
-    class="flex min-h-screen flex-col items-center justify-center gap-3 bg-slate-50 text-slate-600"
+    class="flex min-h-screen flex-col items-center justify-center gap-3 text-slate-600"
   >
     <IconLoader2 :size="40" class="animate-spin text-sky-400" />
     <p class="text-sm">در حال بارگذاری داشبورد…</p>
@@ -58,7 +58,7 @@ function onFilter(range: { from: string; to: string }) {
   <div
     v-else-if="error && !dashboardData"
     dir="rtl"
-    class="flex min-h-screen flex-col items-center justify-center gap-4 bg-slate-50 text-slate-600"
+    class="flex min-h-screen flex-col items-center justify-center gap-4 text-slate-600"
   >
     <IconAlertCircle :size="44" class="text-rose-400" />
     <p class="text-sm">{{ error }}</p>

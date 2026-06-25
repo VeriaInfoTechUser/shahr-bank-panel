@@ -81,7 +81,7 @@ const monitoringCount = computed(
 </script>
 
 <template>
-  <div dir="rtl" class="min-h-screen bg-slate-50 text-slate-800">
+  <div dir="rtl" class="min-h-screen text-slate-800">
     <div class="mx-auto max-w-[1500px] px-4 py-6 lg:px-8">
       <DashboardHeader :loading="loading" @refresh="$emit('refresh')" @filter="$emit('filter', $event)" />
 

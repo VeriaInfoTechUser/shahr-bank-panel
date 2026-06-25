@@ -925,6 +925,20 @@
     "api-copied": "API URL copied to clipboard.",
     "workflow-started": "Workflow started."
   },
+  "raw-data-page": {
+    "col-id": "ID",
+    "col-asset": "Asset",
+    "col-metric": "Metric",
+    "col-value": "Value",
+    "col-unit": "Unit",
+    "col-status": "Status",
+    "col-timezone": "Timezone",
+    "col-from": "From",
+    "col-to": "To",
+    "col-created": "Created At",
+    "status-active": "Active",
+    "status-inactive": "Inactive"
+  },
   "capital-metrics-page": {
     "col-number": "Number",
     "col-metric-type": "Metric Type",

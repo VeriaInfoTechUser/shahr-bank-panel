@@ -398,4 +398,9 @@ export const grcRepo = {
   metricsDelete(slug: string): Promise<GrcApiResponse<null>> {
     return grcHttpRequest({ method: 'DELETE', url: `/context/metrics/${slug}` });
   },
+
+  // Raw Data
+  rawDataList(params?: GrcListParams): Promise<GrcApiResponse<GrcPaginatedResponse>> {
+    return grcHttpRequest({ method: 'GET', url: '/raw-data', params });
+  },
 };

@@ -682,6 +682,20 @@
     "api-copied": "تم نسخ عنوان API إلى الحافظة.",
     "workflow-started": "تم بدء سير العمل."
   },
+  "raw-data-page": {
+    "col-id": "المعرّف",
+    "col-asset": "الأصل",
+    "col-metric": "المؤشر",
+    "col-value": "القيمة",
+    "col-unit": "الوحدة",
+    "col-status": "الحالة",
+    "col-timezone": "المنطقة الزمنية",
+    "col-from": "من",
+    "col-to": "إلى",
+    "col-created": "تاريخ الإنشاء",
+    "status-active": "نشط",
+    "status-inactive": "غير نشط"
+  },
   "capital-metrics-page": {
     "col-number": "الرقم",
     "col-metric-type": "نوع المقياس",

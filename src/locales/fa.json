@@ -946,6 +946,20 @@
     "api-copied": "آدرس API در کلیپ‌بورد کپی شد.",
     "workflow-started": "گردش کار شروع شد."
   },
+  "raw-data-page": {
+    "col-id": "شناسه",
+    "col-asset": "دارایی",
+    "col-metric": "شاخص",
+    "col-value": "مقدار",
+    "col-unit": "واحد",
+    "col-status": "وضعیت",
+    "col-timezone": "منطقه زمانی",
+    "col-from": "از",
+    "col-to": "تا",
+    "col-created": "تاریخ ایجاد",
+    "status-active": "فعال",
+    "status-inactive": "غیرفعال"
+  },
   "capital-metrics-page": {
     "col-number": "شماره",
     "col-metric-type": "نوع شاخص",

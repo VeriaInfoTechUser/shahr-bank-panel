@@ -38,6 +38,16 @@ const allAssets = ref<{ value: string; label: string }[]>([]);
 const metricOptions = ref<{ value: string; label: string }[]>([]);
 const selectedAssetType = ref('');
 
+const currentSlug = computed(() =>
+  isEdit.value ? String(props.record?.slug ?? '') : ''
+);
+
+const relationOptions = computed(() =>
+  currentSlug.value
+    ? allAssets.value.filter((a) => a.value !== currentSlug.value)
+    : allAssets.value
+);
+
 const isEdit = computed(() => {
   const r = props.record;
   if (!r || typeof r !== 'object') return false;
@@ -312,7 +322,7 @@ async function onSubmit(values: {
         <BaseMultiSelect
           name="relationSlugs"
           :label="t('asset-page.col-relations')"
-          :options="allAssets"
+          :options="relationOptions"
         />
         <div class="md:col-span-2">
           <BaseInput

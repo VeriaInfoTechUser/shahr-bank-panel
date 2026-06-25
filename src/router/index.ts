@@ -411,6 +411,26 @@ const routes = [
                         ],
                     },
                     {
+                        path: "data",
+                        name: "app-data",
+                        redirect: { name: "app-data-raw" },
+                        meta: { breadcrumbLabel: 'menu.data' },
+                        children: [
+                            {
+                                path: "raw",
+                                name: "app-data-raw",
+                                component: SectionPlaceholderPage,
+                                meta: { breadcrumbLabel: 'menu.data-raw' },
+                            },
+                            {
+                                path: "entry",
+                                name: "app-data-entry",
+                                component: SectionPlaceholderPage,
+                                meta: { breadcrumbLabel: 'menu.data-entry' },
+                            },
+                        ],
+                    },
+                    {
                         path: "esg",
                         name: "app-esg",
                         redirect: { name: "app-esg-dashboard" },

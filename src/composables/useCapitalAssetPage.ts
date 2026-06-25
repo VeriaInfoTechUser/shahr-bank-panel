@@ -7,7 +7,8 @@ import { grcRepo } from '@/core/repositories/grcRepo';
 import { useBreadcrumbSlot } from '@/composables/useBreadcrumb';
 import { useGlobalModal } from '@/composables/useGlobalModal';
 import GovernanceExportToolbar from '@/pages/app/governance/GovernanceExportToolbar.vue';
-import GovernanceFormModal from '@/pages/app/governance/GovernanceFormModal.vue';
+import AssetFormModal from '@/pages/app/capital/asset/AssetFormModal.vue';
+import { sourceAssetTypes } from '@/pages/app/capital/source-asset-types';
 
 function pickStr(row: Record<string, unknown>, ...keys: string[]) {
   for (const k of keys) {
@@ -19,18 +20,15 @@ function pickStr(row: Record<string, unknown>, ...keys: string[]) {
   return '—';
 }
 
-export function useGovernancePage(
-  entityName: string,
-  type: string,
-  opts?: { entityLabelKey?: string },
-) {
+export function useCapitalAssetPage() {
   const { t } = useI18n();
   const { setContent: setBreadcrumbSlot } = useBreadcrumbSlot();
   const { openModal } = useGlobalModal();
-  const entityLabel = t(opts?.entityLabelKey ?? `menu.governance-${entityName}`);
+
+  const assetTypeMap = new Map(sourceAssetTypes.map((item) => [item.slug, t(item.title)]));
 
   const fetchItems: FetchFn = async ({ page, limit, filters }) => {
-    const res = await grcRepo.governanceList(type, { page, limit, ...filters });
+    const res = await grcRepo.governanceList('assets', { page, limit, ...filters });
     const list = res?.data?.list ?? [];
     const count = res?.data?.paginator?.count ?? 0;
     return { list: Array.isArray(list) ? list : [], count };
@@ -46,6 +44,26 @@ export function useGovernancePage(
         bodyCell: (row) => pickStr(row, 'title', 'name', 'label'),
       }),
       createColumn({
+        key: 'assetType',
+        label: t('asset-page.col-asset-type'),
+        sortable: false,
+        bodyCell: (row) => {
+          const val = pickStr(row, 'assetType');
+          return assetTypeMap.get(val) ?? val;
+        },
+      }),
+      createColumn({
+        key: 'status',
+        label: t('asset-page.col-status'),
+        sortable: false,
+        bodyCell: (row) => {
+          const val = row.status;
+          return val === 1 || val === '1'
+            ? t('asset-page.status-active')
+            : t('asset-page.status-inactive');
+        },
+      }),
+      createColumn({
         key: 'description',
         label: t('governance-page.col-description'),
         sortable: false,
@@ -54,14 +72,13 @@ export function useGovernancePage(
     ],
     selectable: false,
     exportEnabled: true,
-    cacheKey: `governance-${type}-list`,
+    cacheKey: 'governance-assets-list',
     listCacheStaleTime: 0,
   });
 
   function onAdd() {
     openModal({
-      component: GovernanceFormModal,
-      props: { type, entityName, entityLabelKey: opts?.entityLabelKey },
+      component: AssetFormModal,
       onSuccess: () => {
         table.invalidateListCache();
         void table.fetch();
@@ -71,8 +88,8 @@ export function useGovernancePage(
 
   function onEdit(row: Record<string, unknown>) {
     openModal({
-      component: GovernanceFormModal,
-      props: { record: row, type, entityName, entityLabelKey: opts?.entityLabelKey },
+      component: AssetFormModal,
+      props: { record: row },
       onSuccess: () => {
         table.invalidateListCache();
         void table.fetch();
@@ -84,20 +101,20 @@ export function useGovernancePage(
     openModal({
       component: BaseConfirmModal,
       props: {
-        title: t('governance-page.delete-title', { entity: entityLabel }),
-        message: t('governance-page.delete-message', { entity: entityLabel }),
+        title: t('governance-page.delete-title', { entity: t('menu.capital-asset') }),
+        message: t('governance-page.delete-message', { entity: t('menu.capital-asset') }),
         confirmVariant: 'danger' as const,
         onConfirmAction: async () => {
           const slug = String(row.slug ?? '');
           if (!slug) {
-            const msg = t('governance-page.delete-error', { entity: entityLabel });
+            const msg = t('governance-page.delete-error', { entity: t('menu.capital-asset') });
             toast(msg, { type: 'error' });
             throw new Error(msg);
           }
           const res = await grcRepo.governanceDelete(slug);
           if (!res?.result) {
             const msg = String(
-              res?.error ?? t('governance-page.delete-error', { entity: entityLabel })
+              res?.error ?? t('governance-page.delete-error', { entity: t('menu.capital-asset') })
             );
             toast(msg, { type: 'error' });
             throw new Error(msg);
@@ -117,7 +134,7 @@ export function useGovernancePage(
       onExport: () => table.exportCSV(),
       onAdd,
       addLabelKey: 'governance-page.add-entity',
-      addLabelParams: { entity: entityLabel },
+      addLabelParams: { entity: t('menu.capital-asset') },
     });
   });
 

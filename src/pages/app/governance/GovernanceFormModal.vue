@@ -15,9 +15,11 @@ const props = withDefaults(
     record?: Record<string, unknown> | null;
     type: string;
     entityName: string;
+    entityLabelKey?: string;
   }>(),
   {
     record: null,
+    entityLabelKey: undefined,
   }
 );
 
@@ -40,10 +42,12 @@ const isEdit = computed(() => {
   return slug != null && slug !== '';
 });
 
+const entityLabel = computed(() => t(props.entityLabelKey ?? `menu.governance-${props.entityName}`));
+
 const modalTitle = computed(() =>
   isEdit.value
-    ? t('governance-page.edit-entity', { entity: t(`menu.governance-${props.entityName}`) })
-    : t('governance-page.add-entity', { entity: t(`menu.governance-${props.entityName}`) })
+    ? t('governance-page.edit-entity', { entity: entityLabel.value })
+    : t('governance-page.add-entity', { entity: entityLabel.value })
 );
 
 const initialValues = ref({ title: '', description: '' });
@@ -137,8 +141,8 @@ async function onSubmit(values: { title?: string; description?: string }) {
     if (result?.result) {
       toast(
         isEdit.value
-          ? t('governance-page.edit-success', { entity: t(`menu.governance-${props.entityName}`) })
-          : t('governance-page.add-success', { entity: t(`menu.governance-${props.entityName}`) }),
+          ? t('governance-page.edit-success', { entity: entityLabel.value })
+          : t('governance-page.add-success', { entity: entityLabel.value }),
         { type: 'success' }
       );
       emit('success');
@@ -148,8 +152,8 @@ async function onSubmit(values: { title?: string; description?: string }) {
         String(
           result?.error ??
             (isEdit.value
-              ? t('governance-page.edit-error', { entity: t(`menu.governance-${props.entityName}`) })
-              : t('governance-page.add-error', { entity: t(`menu.governance-${props.entityName}`) }))
+              ? t('governance-page.edit-error', { entity: entityLabel.value })
+              : t('governance-page.add-error', { entity: entityLabel.value }))
         ),
         { type: 'error' }
       );
@@ -159,8 +163,8 @@ async function onSubmit(values: { title?: string; description?: string }) {
       e instanceof Error
         ? e.message
         : isEdit.value
-          ? t('governance-page.edit-error', { entity: t(`menu.governance-${props.entityName}`) })
-          : t('governance-page.add-error', { entity: t(`menu.governance-${props.entityName}`) }),
+          ? t('governance-page.edit-error', { entity: entityLabel.value })
+          : t('governance-page.add-error', { entity: entityLabel.value }),
       { type: 'error' }
     );
   } finally {

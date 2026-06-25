@@ -619,6 +619,8 @@
     "data": "Data",
     "data-raw": "Raw Data",
     "data-entry": "Data Entry",
+    "data-log": "Data Log",
+    "data-processing": "Data Processing",
     "user-list": "User list",
     "request": "Request",
     "request-list": "Request list",

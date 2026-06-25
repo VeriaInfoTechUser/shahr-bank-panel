@@ -640,6 +640,8 @@
     "data": "داده",
     "data-raw": "داده خام",
     "data-entry": "ورود داده",
+    "data-log": "لاگ داده ها",
+    "data-processing": "پردازش داده ها",
     "user-list": "فهرست کاربران",
     "request": "درخواست",
     "request-list": "فهرست",

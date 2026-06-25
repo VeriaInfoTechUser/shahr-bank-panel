@@ -59,6 +59,8 @@ import CapitalCategory from "@/pages/app/capital/category/index.vue";
 import CapitalMetricsDetail from "@/pages/app/capital/metrics/detail/index.vue";
 import DataEntry from "@/pages/app/data/entry/index.vue";
 import DataRaw from "@/pages/app/data/raw/index.vue";
+import DataLog from "@/pages/app/data/log/index.vue";
+import DataProcessing from "@/pages/app/data/processing/index.vue";
 import SectionPlaceholderPage from "@/pages/app/shared/SectionPlaceholderPage.vue";
 import AuthLogin from "@/pages/auth/login/index.vue";
 
@@ -429,6 +431,18 @@ const routes = [
                                 name: "app-data-entry",
                                 component: DataEntry,
                                 meta: { breadcrumbLabel: 'menu.data-entry' },
+                            },
+                            {
+                                path: "log",
+                                name: "app-data-log",
+                                component: DataLog,
+                                meta: { breadcrumbLabel: 'menu.data-log' },
+                            },
+                            {
+                                path: "processing",
+                                name: "app-data-processing",
+                                component: DataProcessing,
+                                meta: { breadcrumbLabel: 'menu.data-processing' },
                             },
                         ],
                     },

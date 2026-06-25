@@ -254,6 +254,16 @@ export const useSideMenuStore = defineStore("sideMenu", {
                         pageName: "app-data-entry",
                         title: "menu.data-entry",
                     },
+                    {
+                        icon: "FileText",
+                        pageName: "app-data-log",
+                        title: "menu.data-log",
+                    },
+                    {
+                        icon: "Settings",
+                        pageName: "app-data-processing",
+                        title: "menu.data-processing",
+                    },
                 ],
             },
             {

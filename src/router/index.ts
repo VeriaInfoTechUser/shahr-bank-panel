@@ -57,6 +57,8 @@ import CapitalMetrics from "@/pages/app/capital/metrics/index.vue";
 import CapitalAsset from "@/pages/app/capital/asset/index.vue";
 import CapitalCategory from "@/pages/app/capital/category/index.vue";
 import CapitalMetricsDetail from "@/pages/app/capital/metrics/detail/index.vue";
+import DataEntry from "@/pages/app/data/entry/index.vue";
+import DataRaw from "@/pages/app/data/raw/index.vue";
 import SectionPlaceholderPage from "@/pages/app/shared/SectionPlaceholderPage.vue";
 import AuthLogin from "@/pages/auth/login/index.vue";
 
@@ -419,13 +421,13 @@ const routes = [
                             {
                                 path: "raw",
                                 name: "app-data-raw",
-                                component: SectionPlaceholderPage,
+                                component: DataRaw,
                                 meta: { breadcrumbLabel: 'menu.data-raw' },
                             },
                             {
                                 path: "entry",
                                 name: "app-data-entry",
-                                component: SectionPlaceholderPage,
+                                component: DataEntry,
                                 meta: { breadcrumbLabel: 'menu.data-entry' },
                             },
                         ],

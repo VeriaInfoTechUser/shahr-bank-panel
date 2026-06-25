@@ -64,6 +64,12 @@ export function useCapitalAssetPage() {
         },
       }),
       createColumn({
+        key: 'metricSlug',
+        label: t('asset-page.col-metric'),
+        sortable: false,
+        bodyCell: (row) => pickStr(row, 'metricSlug'),
+      }),
+      createColumn({
         key: 'description',
         label: t('governance-page.col-description'),
         sortable: false,

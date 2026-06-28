@@ -5,10 +5,10 @@ import * as yup from 'yup';
 import { useI18n } from 'vue-i18n';
 import { toast } from 'vue3-toastify';
 import BaseModal from '@/core/ui/base/BaseModal.vue';
-import BaseInput from '@/core/ui/base/BaseInput.vue';
 import BaseSelect from '@/core/ui/base/BaseSelect.vue';
 import Button from '@/base-components/Button';
 import { grcRepo, type GrcEntity } from '@/core/repositories/grcRepo';
+import BaseDatePicker from '@/core/ui/base/BaseDatePicker.vue';
 
 const props = withDefaults(
   defineProps<{
@@ -49,66 +49,25 @@ const assetOptions = computed(() =>
   assets.value.map((a) => ({ value: a.slug, label: a.title ?? a.slug }))
 );
 
-const typeOptions = [
-  { value: 'CALCULATE', label: t('job.type-calculate') },
-  { value: 'RECALCULATE', label: t('job.type-recalculate') },
-  { value: 'UPDATE', label: t('job.type-update') },
-  { value: 'TEST', label: t('job.type-test') },
-];
-
-const calculationLevelOptions = [
-  { value: 'PRIMARY', label: t('job.level-primary') },
-  { value: 'SECONDARY', label: t('job.level-secondary') },
-];
-
-const statusOptions = [
-  { value: 'TO_DO', label: t('job.status-to-do') },
-  { value: 'IN_PROGRESS', label: t('job.status-in-progress') },
-  { value: 'DONE', label: t('job.status-done') },
-  { value: 'FAILED', label: t('job.status-failed') },
-  { value: 'CANCELLED', label: t('job.status-cancelled') },
-];
-
-const persistentOptions = [
-  { value: 'true', label: t('general.yes') },
-  { value: 'false', label: t('general.no') },
-];
-
 const initialValues = ref({
-  metric_slug: '',
   asset_slug: '',
-  date_start: '',
-  type: '',
-  is_persistent: 'true',
+  metric_slug: '',
   calculation_level: '',
-  status: 'TO_DO',
+  date: '',
 });
 
 const validationSchema = computed(() =>
   yup.object({
-    metric_slug: isPrimary.value
-      ? yup.string().trim().optional()
-      : yup.string().trim().required(t('validation.required')),
-    asset_slug: yup.string().trim().optional(),
-    date_start: isPrimary.value
+    asset_slug: isPrimary.value
       ? yup.string().trim().required(t('validation.required'))
       : yup.string().trim().optional(),
-    type: yup.string().trim().required(t('validation.required')),
+    metric_slug: !isPrimary.value
+      ? yup.string().trim().required(t('validation.required'))
+      : yup.string().trim().optional(),
     calculation_level: yup.string().trim().required(t('validation.required')),
-    status: yup.string().trim().optional(),
+    date: yup.string().trim().required(t('validation.required')),
   })
 );
-
-async function loadMetrics() {
-  try {
-    const res = await grcRepo.metricsList({ limit: 1000 });
-    if (res?.result && res.data?.list) {
-      metrics.value = res.data.list;
-    }
-  } catch {
-    // silent
-  }
-}
 
 async function loadAllAssets() {
   loadingAssets.value = true;
@@ -126,34 +85,16 @@ async function loadAllAssets() {
   }
 }
 
-async function loadAssetsByMetric(metricSlug: string) {
-  if (!metricSlug) {
-    assets.value = [];
-    return;
-  }
-  loadingAssets.value = true;
+async function loadMetrics() {
   try {
-    const res = await grcRepo.metricAssetsList(metricSlug, { limit: 1000 });
+    const res = await grcRepo.metricsList({ limit: 1000 });
     if (res?.result && res.data?.list) {
-      assets.value = res.data.list;
-    } else {
-      assets.value = [];
+      metrics.value = res.data.list;
     }
   } catch {
-    assets.value = [];
-  } finally {
-    loadingAssets.value = false;
+    // silent
   }
 }
-
-watch(selectedMetricSlug, async (newSlug, oldSlug) => {
-  if (newSlug === oldSlug) return;
-  const currentAsset = initialValues.value.asset_slug;
-  await loadAssetsByMetric(newSlug);
-  if (currentAsset && !assets.value.find((a) => a.slug === currentAsset)) {
-    initialValues.value.asset_slug = '';
-  }
-});
 
 watch(
   () => [props.show, props.mode, props.job] as const,
@@ -167,30 +108,21 @@ watch(
     }
 
     if (mode === 'edit' && j) {
-      const metricSlug = (j.metric_slug as string) ?? '';
-      selectedMetricSlug.value = metricSlug;
-      if (!isPrimary.value && metricSlug) await loadAssetsByMetric(metricSlug);
       initialValues.value = {
-        metric_slug: metricSlug,
         asset_slug: (j.asset_slug as string) ?? '',
-        date_start: (j.date_start as string) ?? '',
-        type: (j.type as string) ?? '',
-        is_persistent: String(j.is_persistent ?? true),
+        metric_slug: (j.metric_slug as string) ?? '',
         calculation_level: (j.calculation_level as string) ?? '',
-        status: (j.status as string) ?? 'TO_DO',
+        date: (j.date as string) ?? '',
       };
+      selectedMetricSlug.value = (j.metric_slug as string) ?? '';
     } else {
-      selectedMetricSlug.value = '';
-      if (!isPrimary.value) assets.value = [];
       initialValues.value = {
-        metric_slug: '',
         asset_slug: '',
-        date_start: '',
-        type: '',
-        is_persistent: 'true',
+        metric_slug: '',
         calculation_level: props.defaultCalculationLevel || '',
-        status: 'TO_DO',
+        date: '',
       };
+      selectedMetricSlug.value = '';
     }
     formKey.value += 1;
   },
@@ -215,15 +147,18 @@ async function onSubmit(values: Record<string, unknown>) {
   saving.value = true;
   try {
     const payload: Record<string, unknown> = {
-      type: String(values.type ?? ''),
-      is_persistent: values.is_persistent === 'true',
       calculation_level: String(values.calculation_level ?? ''),
     };
 
-    if (!isPrimary.value && values.metric_slug) payload.metric_slug = String(values.metric_slug);
-    if (values.asset_slug) payload.asset_slug = String(values.asset_slug);
-    if (values.date_start) payload.date_start = String(values.date_start);
-    if (values.status) payload.status = String(values.status);
+    if (isPrimary.value) {
+      if (values.asset_slug) payload.asset_slug = String(values.asset_slug);
+    } else {
+      if (values.metric_slug) payload.metric_slug = String(values.metric_slug);
+    }
+
+    if (values.date) {
+      payload.date = String(values.date);
+    }
 
     if (props.mode === 'edit' && props.job) {
       const id = String(props.job.id ?? '');
@@ -258,6 +193,7 @@ async function onSubmit(values: Record<string, unknown>) {
   <BaseModal
     :visible="show"
     :title="props.mode === 'edit' ? t('job.edit') : t('job.add')"
+    size="sm"
     @update:visible="onDialogVisible"
   >
     <Form
@@ -269,9 +205,26 @@ async function onSubmit(values: Record<string, unknown>) {
       class="space-y-3"
       @submit="onSubmit"
     >
-      <div class="grid grid-cols-1 gap-3 md:grid-cols-2 md:gap-x-4 md:gap-y-3">
+      <!-- Primary: asset dropdown + date -->
+      <div v-if="isPrimary" class="space-y-3">
         <BaseSelect
-          v-if="!isPrimary"
+          name="asset_slug"
+          :label="t('job.asset-slug')"
+          :options="assetOptions"
+          :placeholder="loadingAssets ? t('general.loading') : t('job.asset-slug-placeholder')"
+          :required="true"
+          :filter="true"
+        />
+        <BaseDatePicker
+          name="date"
+          :label="t('job.date')"
+          :required="true"
+        />
+      </div>
+
+      <!-- Secondary: metric select + date -->
+      <div v-else class="space-y-3">
+        <BaseSelect
           name="metric_slug"
           :label="t('job.metric-slug')"
           :options="metricOptions"
@@ -280,47 +233,10 @@ async function onSubmit(values: Record<string, unknown>) {
           :filter="true"
           @change="onMetricChanged"
         />
-        <BaseSelect
-          name="asset_slug"
-          :label="t('job.asset-slug')"
-          :options="assetOptions"
-          :placeholder="loadingAssets ? t('general.loading') : t('job.asset-slug-placeholder')"
-          :filter="true"
-          :disabled="!isPrimary && !selectedMetricSlug"
-        />
-        <BaseInput
-          v-if="isPrimary"
-          name="date_start"
-          :label="t('job.date-start')"
-          type="datetime-local"
+        <BaseDatePicker
+          name="date"
+          :label="t('job.date')"
           :required="true"
-        />
-        <BaseSelect
-          name="type"
-          :label="t('job.type')"
-          :options="typeOptions"
-          :required="true"
-        />
-        <div>
-          <BaseSelect
-            name="is_persistent"
-            :label="t('job.is-persistent')"
-            :options="persistentOptions"
-          />
-          <p class="mt-1 text-xs font-medium text-slate-500 dark:text-slate-400">
-            {{ t('job.is-persistent-hint') }}
-          </p>
-        </div>
-        <BaseSelect
-          name="calculation_level"
-          :label="t('job.calculation-level')"
-          :options="calculationLevelOptions"
-          :required="true"
-        />
-        <BaseSelect
-          name="status"
-          :label="t('job.status')"
-          :options="statusOptions"
         />
       </div>
     </Form>

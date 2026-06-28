@@ -2621,6 +2621,7 @@
     "date-from": "Date From",
     "date-to": "Date To",
     "date-start": "Start Date",
+    "date": "Date",
     "type": "Type",
     "type-calculate": "Calculate",
     "type-recalculate": "Recalculate",

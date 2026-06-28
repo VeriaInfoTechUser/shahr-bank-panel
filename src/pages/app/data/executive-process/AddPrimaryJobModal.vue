@@ -130,9 +130,8 @@ async function onSubmit(values: Record<string, unknown>) {
         toast(res?.error?.[0] ?? t('job.add-error'), { type: 'error' });
       }
     }
-  } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : t('general.error');
-    toast(message, { type: 'error' });
+  } catch {
+    // toast shown by http interceptor
   } finally {
     saving.value = false;
   }

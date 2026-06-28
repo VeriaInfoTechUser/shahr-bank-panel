@@ -399,8 +399,34 @@ export const grcRepo = {
     return grcHttpRequest({ method: 'DELETE', url: `/context/metrics/${slug}` });
   },
 
+  // Metric Assets
+  metricAssetsList(slug: string, params?: GrcListParams): Promise<GrcApiResponse<GrcPaginatedResponse>> {
+    return grcHttpRequest({ method: 'GET', url: '/governance', params: { type: 'assets', metricSlug: slug, ...(params ?? {}) } });
+  },
+
   // Raw Data
   rawDataList(params?: GrcListParams): Promise<GrcApiResponse<GrcPaginatedResponse>> {
     return grcHttpRequest({ method: 'GET', url: '/raw-data', params });
+  },
+
+  // Calculations Jobs
+  calculationJobList(params?: GrcListParams): Promise<GrcApiResponse<GrcPaginatedResponse>> {
+    return grcHttpRequest({ method: 'GET', url: '/calculations/jobs', params });
+  },
+
+  calculationJobGet(id: string): Promise<GrcApiResponse<Record<string, unknown>>> {
+    return grcHttpRequest({ method: 'GET', url: `/calculations/jobs/${id}` });
+  },
+
+  calculationJobCreate(data: Record<string, unknown>): Promise<GrcApiResponse<Record<string, unknown>>> {
+    return grcHttpRequest({ method: 'POST', url: '/calculations/jobs', data });
+  },
+
+  calculationJobUpdate(id: string, data: Record<string, unknown>): Promise<GrcApiResponse<Record<string, unknown>>> {
+    return grcHttpRequest({ method: 'PUT', url: `/calculations/jobs/${id}`, data });
+  },
+
+  calculationJobDelete(id: string): Promise<GrcApiResponse<null>> {
+    return grcHttpRequest({ method: 'DELETE', url: `/calculations/jobs/${id}` });
   },
 };

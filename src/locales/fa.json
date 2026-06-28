@@ -642,6 +642,7 @@
     "data-entry": "ورود داده",
     "data-log": "لاگ داده ها",
     "data-processing": "پردازش داده ها",
+    "data-executive-process": "فرآیند اجرایی",
     "user-list": "فهرست کاربران",
     "request": "درخواست",
     "request-list": "فهرست",
@@ -2567,7 +2568,8 @@
     "archived": "بایگانی شده"
   },
   "validation": {
-    "required": "این فیلد الزامی است"
+    "required": "این فیلد الزامی است",
+    "date-to-after-date-from": "تاریخ پایان نمی‌تواند قبل از تاریخ شروع باشد"
   },
   "risk": {
     "create-title": "ریسک جدید",
@@ -2772,5 +2774,49 @@
       "cancelled.desc": "تسک لغو شده است",
       "unknown": "نامشخص"
     }
+  },
+  "job": {
+    "add": "افزودن فرآیند",
+    "edit": "ویرایش فرآیند",
+    "toolbar-add": "افزودن فرآیند",
+    "toolbar-export": "خروجی",
+    "slug": "شناسه یکتا",
+    "slug-placeholder": "مثال: job-001",
+    "metric-slug": "شناسه شاخص",
+    "metric-slug-placeholder": "شناسه شاخص را وارد کنید",
+    "asset-slug": "شناسه دارایی",
+    "asset-slug-placeholder": "شناسه دارایی را وارد کنید",
+    "date-from": "تاریخ شروع",
+    "date-to": "تاریخ پایان",
+    "type": "نوع",
+    "type-calculate": "محاسبه",
+    "type-recalculate": "محاسبه مجدد",
+    "type-update": "بروزرسانی",
+    "type-test": "آزمایشی",
+    "is-persistent": "ماندگار",
+    "is-persistent-hint": "در صورت ماندگار نبودن، نتیجه این اجرا در سامانه ذخیره نمی‌شود و تنها لاگ آن ثبت می‌شود",
+    "calculation-level": "سطح محاسبه",
+    "level-primary": "اولیه",
+    "level-secondary": "ثانویه",
+    "status": "وضعیت",
+    "status-to-do": "در انتظار",
+    "status-in-progress": "در حال انجام",
+    "status-done": "انجام شده",
+    "status-failed": "ناموفق",
+    "status-cancelled": "لغو شده",
+    "tenant-id": "شناسه مستأجر",
+    "tenant-id-placeholder": "شناسه مستأجر",
+    "parent-job-id": "شناسه والد",
+    "retry-count": "تعداد تلاش",
+    "error-message": "پیام خطا",
+    "started-at": "زمان شروع",
+    "completed-at": "زمان پایان",
+    "add-success": "فرآیند با موفقیت ایجاد شد",
+    "add-error": "خطا در ایجاد فرآیند",
+    "edit-success": "فرآیند با موفقیت به‌روزرسانی شد",
+    "edit-error": "خطا در به‌روزرسانی فرآیند",
+    "delete-confirm-title": "حذف فرآیند",
+    "delete-confirm-message": "آیا از حذف این فرآیند اطمینان دارید؟",
+    "delete-error": "خطا در حذف فرآیند"
   }
 }

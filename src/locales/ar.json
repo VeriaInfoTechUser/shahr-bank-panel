@@ -457,6 +457,7 @@
     "data-entry": "إدخال البيانات",
     "data-log": "سجل البيانات",
     "data-processing": "معالجة البيانات",
+    "data-executive-process": "العملية التنفيذية",
     "user-list": "قائمة المستخدمين",
     "blogs": "أخبار",
     "request": "الطلب",
@@ -1856,7 +1857,8 @@
     "archived": "مؤرشف"
   },
   "validation": {
-    "required": "هذا الحقل مطلوب"
+    "required": "هذا الحقل مطلوب",
+    "date-to-after-date-from": "لا يمكن أن يكون تاريخ الانتهاء قبل تاريخ البدء"
   },
   "risk": {
     "create-title": "مخاطرة جديدة",
@@ -2051,5 +2053,49 @@
       "cancelled.desc": "تم إلغاء المهمة",
       "unknown": "غير معروف"
     }
+  },
+  "job": {
+    "add": "إضافة مهمة",
+    "edit": "تعديل مهمة",
+    "toolbar-add": "إضافة مهمة",
+    "toolbar-export": "تصدير",
+    "slug": "المعرف",
+    "slug-placeholder": "مثال: job-001",
+    "metric-slug": "معرف المقياس",
+    "metric-slug-placeholder": "أدخل معرف المقياس",
+    "asset-slug": "معرف الأصل",
+    "asset-slug-placeholder": "أدخل معرف الأصل",
+    "date-from": "تاريخ البدء",
+    "date-to": "تاريخ الانتهاء",
+    "type": "النوع",
+    "type-calculate": "حساب",
+    "type-recalculate": "إعادة حساب",
+    "type-update": "تحديث",
+    "type-test": "اختبار",
+    "is-persistent": "دائم",
+    "is-persistent-hint": "في حالة التعطيل، لن يتم تخزين أي بيانات في قاعدة البيانات",
+    "calculation-level": "مستوى الحساب",
+    "level-primary": "أساسي",
+    "level-secondary": "ثانوي",
+    "status": "الحالة",
+    "status-to-do": "قيد الانتظار",
+    "status-in-progress": "قيد التنفيذ",
+    "status-done": "مكتمل",
+    "status-failed": "فشل",
+    "status-cancelled": "ملغى",
+    "tenant-id": "معرف المستأجر",
+    "tenant-id-placeholder": "معرف المستأجر",
+    "parent-job-id": "معرف المهمة الأب",
+    "retry-count": "عدد المحاولات",
+    "error-message": "رسالة الخطأ",
+    "started-at": "وقت البدء",
+    "completed-at": "وقت الانتهاء",
+    "add-success": "تم إنشاء المهمة بنجاح",
+    "add-error": "خطأ في إنشاء المهمة",
+    "edit-success": "تم تحديث المهمة بنجاح",
+    "edit-error": "خطأ في تحديث المهمة",
+    "delete-confirm-title": "حذف المهمة",
+    "delete-confirm-message": "هل أنت متأكد من حذف هذه المهمة؟",
+    "delete-error": "خطأ في حذف المهمة"
   }
 }

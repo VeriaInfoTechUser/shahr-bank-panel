@@ -264,6 +264,11 @@ export const useSideMenuStore = defineStore("sideMenu", {
                         pageName: "app-data-processing",
                         title: "menu.data-processing",
                     },
+                    {
+                        icon: "Zap",
+                        pageName: "app-data-executive-process",
+                        title: "menu.data-executive-process",
+                    },
                 ],
             },
             {

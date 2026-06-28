@@ -621,6 +621,7 @@
     "data-entry": "Data Entry",
     "data-log": "Data Log",
     "data-processing": "Data Processing",
+    "data-executive-process": "Executive Process",
     "user-list": "User list",
     "request": "Request",
     "request-list": "Request list",
@@ -2334,7 +2335,8 @@
     "archived": "Archived"
   },
   "validation": {
-    "required": "This field is required"
+    "required": "This field is required",
+    "date-to-after-date-from": "End date cannot be before start date"
   },
   "plan": {
     "add": "Add plan",
@@ -2602,5 +2604,49 @@
       "cancelled.desc": "Task has been cancelled",
       "unknown": "Unknown"
     }
+  },
+  "job": {
+    "add": "Add Job",
+    "edit": "Edit Job",
+    "toolbar-add": "Add Job",
+    "toolbar-export": "Export",
+    "slug": "Slug",
+    "slug-placeholder": "e.g. job-001",
+    "metric-slug": "Metric Slug",
+    "metric-slug-placeholder": "Enter metric slug",
+    "asset-slug": "Asset Slug",
+    "asset-slug-placeholder": "Enter asset slug",
+    "date-from": "Date From",
+    "date-to": "Date To",
+    "type": "Type",
+    "type-calculate": "Calculate",
+    "type-recalculate": "Recalculate",
+    "type-update": "Update",
+    "type-test": "Test",
+    "is-persistent": "Persistent",
+    "is-persistent-hint": "If disabled, no data will be stored in the database",
+    "calculation-level": "Calculation Level",
+    "level-primary": "Primary",
+    "level-secondary": "Secondary",
+    "status": "Status",
+    "status-to-do": "To Do",
+    "status-in-progress": "In Progress",
+    "status-done": "Done",
+    "status-failed": "Failed",
+    "status-cancelled": "Cancelled",
+    "tenant-id": "Tenant ID",
+    "tenant-id-placeholder": "Tenant ID",
+    "parent-job-id": "Parent Job ID",
+    "retry-count": "Retry Count",
+    "error-message": "Error Message",
+    "started-at": "Started At",
+    "completed-at": "Completed At",
+    "add-success": "Job created successfully",
+    "add-error": "Error creating job",
+    "edit-success": "Job updated successfully",
+    "edit-error": "Error updating job",
+    "delete-confirm-title": "Delete Job",
+    "delete-confirm-message": "Are you sure you want to delete this job?",
+    "delete-error": "Error deleting job"
   }
 }

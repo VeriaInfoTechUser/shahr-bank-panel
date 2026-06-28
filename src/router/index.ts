@@ -61,6 +61,7 @@ import DataEntry from "@/pages/app/data/entry/index.vue";
 import DataRaw from "@/pages/app/data/raw/index.vue";
 import DataLog from "@/pages/app/data/log/index.vue";
 import DataProcessing from "@/pages/app/data/processing/index.vue";
+import DataExecutiveProcess from "@/pages/app/data/executive-process/index.vue";
 import SectionPlaceholderPage from "@/pages/app/shared/SectionPlaceholderPage.vue";
 import AuthLogin from "@/pages/auth/login/index.vue";
 
@@ -443,6 +444,12 @@ const routes = [
                                 name: "app-data-processing",
                                 component: DataProcessing,
                                 meta: { breadcrumbLabel: 'menu.data-processing' },
+                            },
+                            {
+                                path: "executive-process",
+                                name: "app-data-executive-process",
+                                component: DataExecutiveProcess,
+                                meta: { breadcrumbLabel: 'menu.data-executive-process' },
                             },
                         ],
                     },

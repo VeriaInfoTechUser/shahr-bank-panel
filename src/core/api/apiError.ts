@@ -93,7 +93,10 @@ export function normalizeError(
     if (axiosErr.response) {
       base.code = axiosErr.response.status ?? 0;
       const data = axiosErr.response.data as Record<string, unknown> | undefined;
-      if (data?.error && typeof data.error === 'object' && data.error !== null) {
+      if (Array.isArray(data?.error)) {
+        base.message = (data.error as string[]).filter(Boolean).join('<br/>');
+        base.details = data.error;
+      } else if (data?.error && typeof data.error === 'object' && data.error !== null) {
         const errObj = data.error as Record<string, unknown>;
         base.message = (errObj.message as string) ?? base.message;
         base.details = errObj;

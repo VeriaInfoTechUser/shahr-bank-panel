@@ -2609,6 +2609,8 @@
     "add": "Add Job",
     "edit": "Edit Job",
     "toolbar-add": "Add Job",
+    "toolbar-add-primary": "Primary Process",
+    "toolbar-add-secondary": "Secondary Process",
     "toolbar-export": "Export",
     "slug": "Slug",
     "slug-placeholder": "e.g. job-001",

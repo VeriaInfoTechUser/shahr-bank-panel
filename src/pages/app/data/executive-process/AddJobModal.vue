@@ -14,10 +14,12 @@ const props = withDefaults(
     show: boolean;
     mode?: 'add' | 'edit';
     job?: Record<string, unknown> | null;
+    defaultCalculationLevel?: string;
   }>(),
   {
     mode: 'add',
     job: null,
+    defaultCalculationLevel: '',
   }
 );
 
@@ -151,7 +153,7 @@ watch(
         asset_slug: '',
         type: '',
         is_persistent: 'true',
-        calculation_level: '',
+        calculation_level: props.defaultCalculationLevel || '',
         status: 'TO_DO',
       };
     }

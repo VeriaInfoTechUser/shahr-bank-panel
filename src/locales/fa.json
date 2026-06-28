@@ -2779,6 +2779,8 @@
     "add": "افزودن فرآیند",
     "edit": "ویرایش فرآیند",
     "toolbar-add": "افزودن فرآیند",
+    "toolbar-add-primary": "فرایند اولیه",
+    "toolbar-add-secondary": "فرایند ثانویه",
     "toolbar-export": "خروجی",
     "slug": "شناسه یکتا",
     "slug-placeholder": "مثال: job-001",

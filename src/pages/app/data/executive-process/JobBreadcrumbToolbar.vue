@@ -2,7 +2,8 @@
 import { useI18n } from 'vue-i18n';
 
 const props = defineProps<{
-  onAdd?: () => void;
+  onAddPrimary?: () => void;
+  onAddSecondary?: () => void;
   onExport?: () => void;
 }>();
 
@@ -13,15 +14,29 @@ const { t } = useI18n();
   <div class="relative flex flex-shrink-0 flex-wrap items-center gap-1.5" dir="ltr">
     <button
       type="button"
-      class="inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-md border border-primary bg-primary text-white shadow-sm transition hover:opacity-90 dark:border-primary dark:bg-primary dark:hover:opacity-90"
-      :aria-label="t('job.toolbar-add')"
-      :title="t('job.toolbar-add')"
-      @click="props.onAdd?.()"
+      class="inline-flex h-8 items-center justify-center gap-1.5 rounded-md border border-primary bg-primary px-2.5 text-xs font-medium text-white shadow-sm transition hover:opacity-90 dark:border-primary dark:bg-primary dark:hover:opacity-90"
+      :aria-label="t('job.toolbar-add-primary')"
+      :title="t('job.toolbar-add-primary')"
+      @click="props.onAddPrimary?.()"
     >
-      <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
         <line x1="12" y1="5" x2="12" y2="19" />
         <line x1="5" y1="12" x2="19" y2="12" />
       </svg>
+      <span>{{ t('job.toolbar-add-primary') }}</span>
+    </button>
+    <button
+      type="button"
+      class="inline-flex h-8 items-center justify-center gap-1.5 rounded-md border border-emerald-600 bg-emerald-600 px-2.5 text-xs font-medium text-white shadow-sm transition hover:opacity-90 dark:border-emerald-500 dark:bg-emerald-500 dark:hover:opacity-90"
+      :aria-label="t('job.toolbar-add-secondary')"
+      :title="t('job.toolbar-add-secondary')"
+      @click="props.onAddSecondary?.()"
+    >
+      <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="12" y1="5" x2="12" y2="19" />
+        <line x1="5" y1="12" x2="19" y2="12" />
+      </svg>
+      <span>{{ t('job.toolbar-add-secondary') }}</span>
     </button>
     <button
       type="button"

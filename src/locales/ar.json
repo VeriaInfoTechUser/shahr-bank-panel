@@ -2058,6 +2058,8 @@
     "add": "إضافة مهمة",
     "edit": "تعديل مهمة",
     "toolbar-add": "إضافة مهمة",
+    "toolbar-add-primary": "عملية أولية",
+    "toolbar-add-secondary": "عملية ثانوية",
     "toolbar-export": "تصدير",
     "slug": "المعرف",
     "slug-placeholder": "مثال: job-001",

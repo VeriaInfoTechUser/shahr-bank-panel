@@ -20,6 +20,7 @@ const { openModal } = useGlobalModal();
 const showAddModal = ref(false);
 const showEditModal = ref(false);
 const selectedJob = ref<Record<string, unknown> | null>(null);
+const defaultCalculationLevel = ref('');
 
 const statusLabelMap: Record<string, string> = {
   TO_DO: t('job.status-to-do'),
@@ -108,7 +109,8 @@ onMounted(() => {
   table.invalidateListCache();
   table.fetch();
   setBreadcrumbSlot(JobBreadcrumbToolbar, {
-    onAdd: onAddJob,
+    onAddPrimary: () => onAddJob('PRIMARY'),
+    onAddSecondary: () => onAddJob('SECONDARY'),
     onExport: onExportJobs,
   });
 });
@@ -146,7 +148,8 @@ function onDeleteJob(row: Record<string, unknown>) {
   });
 }
 
-function onAddJob() {
+function onAddJob(level: string) {
+  defaultCalculationLevel.value = level;
   showAddModal.value = true;
 }
 
@@ -199,6 +202,7 @@ function onModalSuccess() {
     <AddJobModal
       :show="showAddModal"
       mode="add"
+      :default-calculation-level="defaultCalculationLevel"
       @update:show="showAddModal = $event"
       @success="onModalSuccess"
     />

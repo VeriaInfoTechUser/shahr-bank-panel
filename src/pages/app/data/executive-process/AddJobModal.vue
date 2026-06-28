@@ -5,6 +5,7 @@ import * as yup from 'yup';
 import { useI18n } from 'vue-i18n';
 import { toast } from 'vue3-toastify';
 import BaseModal from '@/core/ui/base/BaseModal.vue';
+import BaseInput from '@/core/ui/base/BaseInput.vue';
 import BaseSelect from '@/core/ui/base/BaseSelect.vue';
 import Button from '@/base-components/Button';
 import { grcRepo, type GrcEntity } from '@/core/repositories/grcRepo';
@@ -38,6 +39,8 @@ const metrics = ref<GrcEntity[]>([]);
 const assets = ref<GrcEntity[]>([]);
 const loadingAssets = ref(false);
 const selectedMetricSlug = ref('');
+
+const isPrimary = computed(() => props.defaultCalculationLevel === 'PRIMARY');
 
 const metricOptions = computed(() =>
   metrics.value.map((m) => ({ value: m.slug, label: m.title ?? m.slug }))
@@ -74,19 +77,27 @@ const persistentOptions = [
 const initialValues = ref({
   metric_slug: '',
   asset_slug: '',
+  date_start: '',
   type: '',
   is_persistent: 'true',
   calculation_level: '',
   status: 'TO_DO',
 });
 
-const validationSchema = yup.object({
-  metric_slug: yup.string().trim().required(t('validation.required')),
-  asset_slug: yup.string().trim().optional(),
-  type: yup.string().trim().required(t('validation.required')),
-  calculation_level: yup.string().trim().required(t('validation.required')),
-  status: yup.string().trim().optional(),
-});
+const validationSchema = computed(() =>
+  yup.object({
+    metric_slug: isPrimary.value
+      ? yup.string().trim().optional()
+      : yup.string().trim().required(t('validation.required')),
+    asset_slug: yup.string().trim().optional(),
+    date_start: isPrimary.value
+      ? yup.string().trim().required(t('validation.required'))
+      : yup.string().trim().optional(),
+    type: yup.string().trim().required(t('validation.required')),
+    calculation_level: yup.string().trim().required(t('validation.required')),
+    status: yup.string().trim().optional(),
+  })
+);
 
 async function loadMetrics() {
   try {
@@ -99,7 +110,23 @@ async function loadMetrics() {
   }
 }
 
-async function loadAssets(metricSlug: string) {
+async function loadAllAssets() {
+  loadingAssets.value = true;
+  try {
+    const res = await grcRepo.assetsList({ limit: 1000 });
+    if (res?.result && res.data?.list) {
+      assets.value = res.data.list;
+    } else {
+      assets.value = [];
+    }
+  } catch {
+    assets.value = [];
+  } finally {
+    loadingAssets.value = false;
+  }
+}
+
+async function loadAssetsByMetric(metricSlug: string) {
   if (!metricSlug) {
     assets.value = [];
     return;
@@ -122,7 +149,7 @@ async function loadAssets(metricSlug: string) {
 watch(selectedMetricSlug, async (newSlug, oldSlug) => {
   if (newSlug === oldSlug) return;
   const currentAsset = initialValues.value.asset_slug;
-  await loadAssets(newSlug);
+  await loadAssetsByMetric(newSlug);
   if (currentAsset && !assets.value.find((a) => a.slug === currentAsset)) {
     initialValues.value.asset_slug = '';
   }
@@ -132,14 +159,21 @@ watch(
   () => [props.show, props.mode, props.job] as const,
   async ([show, mode, j]) => {
     if (!show) return;
-    await loadMetrics();
+
+    if (isPrimary.value) {
+      await loadAllAssets();
+    } else {
+      await loadMetrics();
+    }
+
     if (mode === 'edit' && j) {
       const metricSlug = (j.metric_slug as string) ?? '';
       selectedMetricSlug.value = metricSlug;
-      if (metricSlug) await loadAssets(metricSlug);
+      if (!isPrimary.value && metricSlug) await loadAssetsByMetric(metricSlug);
       initialValues.value = {
         metric_slug: metricSlug,
         asset_slug: (j.asset_slug as string) ?? '',
+        date_start: (j.date_start as string) ?? '',
         type: (j.type as string) ?? '',
         is_persistent: String(j.is_persistent ?? true),
         calculation_level: (j.calculation_level as string) ?? '',
@@ -147,10 +181,11 @@ watch(
       };
     } else {
       selectedMetricSlug.value = '';
-      assets.value = [];
+      if (!isPrimary.value) assets.value = [];
       initialValues.value = {
         metric_slug: '',
         asset_slug: '',
+        date_start: '',
         type: '',
         is_persistent: 'true',
         calculation_level: props.defaultCalculationLevel || '',
@@ -180,13 +215,14 @@ async function onSubmit(values: Record<string, unknown>) {
   saving.value = true;
   try {
     const payload: Record<string, unknown> = {
-      metric_slug: String(values.metric_slug ?? ''),
       type: String(values.type ?? ''),
       is_persistent: values.is_persistent === 'true',
       calculation_level: String(values.calculation_level ?? ''),
     };
 
+    if (!isPrimary.value && values.metric_slug) payload.metric_slug = String(values.metric_slug);
     if (values.asset_slug) payload.asset_slug = String(values.asset_slug);
+    if (values.date_start) payload.date_start = String(values.date_start);
     if (values.status) payload.status = String(values.status);
 
     if (props.mode === 'edit' && props.job) {
@@ -235,6 +271,7 @@ async function onSubmit(values: Record<string, unknown>) {
     >
       <div class="grid grid-cols-1 gap-3 md:grid-cols-2 md:gap-x-4 md:gap-y-3">
         <BaseSelect
+          v-if="!isPrimary"
           name="metric_slug"
           :label="t('job.metric-slug')"
           :options="metricOptions"
@@ -249,7 +286,14 @@ async function onSubmit(values: Record<string, unknown>) {
           :options="assetOptions"
           :placeholder="loadingAssets ? t('general.loading') : t('job.asset-slug-placeholder')"
           :filter="true"
-          :disabled="!selectedMetricSlug"
+          :disabled="!isPrimary && !selectedMetricSlug"
+        />
+        <BaseInput
+          v-if="isPrimary"
+          name="date_start"
+          :label="t('job.date-start')"
+          type="datetime-local"
+          :required="true"
         />
         <BaseSelect
           name="type"

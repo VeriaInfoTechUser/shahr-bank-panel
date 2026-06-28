@@ -2620,6 +2620,7 @@
     "asset-slug-placeholder": "Enter asset slug",
     "date-from": "Date From",
     "date-to": "Date To",
+    "date-start": "Start Date",
     "type": "Type",
     "type-calculate": "Calculate",
     "type-recalculate": "Recalculate",

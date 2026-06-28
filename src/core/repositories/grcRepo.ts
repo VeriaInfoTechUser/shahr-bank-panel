@@ -404,6 +404,11 @@ export const grcRepo = {
     return grcHttpRequest({ method: 'GET', url: '/governance', params: { type: 'assets', metricSlug: slug, ...(params ?? {}) } });
   },
 
+  // All Assets
+  assetsList(params?: GrcListParams): Promise<GrcApiResponse<GrcPaginatedResponse>> {
+    return grcHttpRequest({ method: 'GET', url: '/governance', params: { type: 'assets', ...(params ?? {}) } });
+  },
+
   // Raw Data
   rawDataList(params?: GrcListParams): Promise<GrcApiResponse<GrcPaginatedResponse>> {
     return grcHttpRequest({ method: 'GET', url: '/raw-data', params });

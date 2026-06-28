@@ -6,21 +6,22 @@ import { useDataTable, createColumn, type FetchFn } from '@core';
 import BaseTable from '@core/ui/base/BaseTable.vue';
 import BaseConfirmModal from '@core/ui/base/BaseConfirmModal.vue';
 import { grcRepo } from '@/core/repositories/grcRepo';
-import { useBreadcrumbSlot } from '@/composables/useBreadcrumb';
 import { useGlobalModal } from '@/composables/useGlobalModal';
+import { useBreadcrumbSlot } from '@/composables/useBreadcrumb';
 import Button from '@/base-components/Button';
 import Lucide from '@/base-components/Lucide';
-import AddJobModal from './AddJobModal.vue';
+import AddPrimaryJobModal from './AddPrimaryJobModal.vue';
+import AddSecondaryJobModal from './AddSecondaryJobModal.vue';
 import JobBreadcrumbToolbar from './JobBreadcrumbToolbar.vue';
 
 const { t } = useI18n();
-const { setContent: setBreadcrumbSlot } = useBreadcrumbSlot();
 const { openModal } = useGlobalModal();
+const { setContent: setBreadcrumbSlot } = useBreadcrumbSlot();
 
-const showAddModal = ref(false);
+const showPrimaryModal = ref(false);
+const showSecondaryModal = ref(false);
 const showEditModal = ref(false);
 const selectedJob = ref<Record<string, unknown> | null>(null);
-const defaultCalculationLevel = ref('');
 
 const statusLabelMap: Record<string, string> = {
   TO_DO: t('job.status-to-do'),
@@ -109,8 +110,8 @@ onMounted(() => {
   table.invalidateListCache();
   table.fetch();
   setBreadcrumbSlot(JobBreadcrumbToolbar, {
-    onAddPrimary: () => onAddJob('PRIMARY'),
-    onAddSecondary: () => onAddJob('SECONDARY'),
+    onAddPrimary: onAddPrimaryJob,
+    onAddSecondary: onAddSecondaryJob,
     onExport: onExportJobs,
   });
 });
@@ -148,9 +149,12 @@ function onDeleteJob(row: Record<string, unknown>) {
   });
 }
 
-function onAddJob(level: string) {
-  defaultCalculationLevel.value = level;
-  showAddModal.value = true;
+function onAddPrimaryJob() {
+  showPrimaryModal.value = true;
+}
+
+function onAddSecondaryJob() {
+  showSecondaryModal.value = true;
 }
 
 function onModalSuccess() {
@@ -199,16 +203,31 @@ function onModalSuccess() {
       </BaseTable>
     </div>
 
-    <AddJobModal
-      :show="showAddModal"
+    <AddPrimaryJobModal
+      :show="showPrimaryModal"
       mode="add"
-      :default-calculation-level="defaultCalculationLevel"
-      @update:show="showAddModal = $event"
+      @update:show="showPrimaryModal = $event"
       @success="onModalSuccess"
     />
 
-    <AddJobModal
-      v-if="selectedJob"
+    <AddSecondaryJobModal
+      :show="showSecondaryModal"
+      mode="add"
+      @update:show="showSecondaryModal = $event"
+      @success="onModalSuccess"
+    />
+
+    <AddPrimaryJobModal
+      v-if="selectedJob && selectedJob.calculation_level === 'PRIMARY'"
+      :show="showEditModal"
+      mode="edit"
+      :job="selectedJob"
+      @update:show="showEditModal = $event"
+      @success="onModalSuccess"
+    />
+
+    <AddSecondaryJobModal
+      v-if="selectedJob && selectedJob.calculation_level === 'SECONDARY'"
       :show="showEditModal"
       mode="edit"
       :job="selectedJob"

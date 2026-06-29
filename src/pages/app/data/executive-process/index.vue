@@ -48,10 +48,16 @@ const table = useDataTable({
       bodyCell: (row) => row.slug ?? '—',
     }),
     createColumn({
-      key: 'metric_slug',
-      label: t('job.metric-slug'),
+      key: 'metric_name',
+      label: t('job.metric-name'),
       sortable: false,
-      bodyCell: (row) => row.metric_slug ?? '—',
+      bodyCell: (row) => row.metric_name ?? '—',
+    }),
+    createColumn({
+      key: 'asset_name',
+      label: t('job.asset-name'),
+      sortable: false,
+      bodyCell: (row) => row.asset_name ?? '—',
     }),
     createColumn({
       key: 'type',

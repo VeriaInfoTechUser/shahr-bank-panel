@@ -26,6 +26,7 @@ const executeResultData = ref<Record<string, unknown> | null>(null);
 
 const stateLabelMap: Record<string, string> = {
   TO_DO: t('job.status-to-do'),
+  IN_QUEUE: t('job.status-in-queue'),
   IN_PROGRESS: t('job.status-in-progress'),
   DONE: t('job.status-done'),
   FAILED: t('job.status-failed'),

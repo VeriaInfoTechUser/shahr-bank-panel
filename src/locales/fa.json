@@ -2806,6 +2806,7 @@
     "level-secondary": "ثانویه",
     "status": "وضعیت",
     "status-to-do": "در انتظار",
+    "status-in-queue": "در صف",
     "status-in-progress": "در حال انجام",
     "status-done": "انجام شده",
     "status-failed": "ناموفق",

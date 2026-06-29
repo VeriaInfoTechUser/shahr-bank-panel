@@ -2085,6 +2085,7 @@
     "level-secondary": "ثانوي",
     "status": "الحالة",
     "status-to-do": "قيد الانتظار",
+    "status-in-queue": "في الطابور",
     "status-in-progress": "قيد التنفيذ",
     "status-done": "مكتمل",
     "status-failed": "فشل",

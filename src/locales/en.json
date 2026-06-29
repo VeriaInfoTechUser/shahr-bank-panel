@@ -2636,6 +2636,7 @@
     "level-secondary": "Secondary",
     "status": "Status",
     "status-to-do": "To Do",
+    "status-in-queue": "In Queue",
     "status-in-progress": "In Progress",
     "status-done": "Done",
     "status-failed": "Failed",

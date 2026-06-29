@@ -4,6 +4,7 @@ import { Form } from 'vee-validate';
 import * as yup from 'yup';
 import { useI18n } from 'vue-i18n';
 import { toast } from 'vue3-toastify';
+import dayjs from 'dayjs';
 import BaseModal from '@/core/ui/base/BaseModal.vue';
 import BaseSelect from '@/core/ui/base/BaseSelect.vue';
 import Button from '@/base-components/Button';
@@ -103,12 +104,16 @@ function onDialogVisible(v: boolean) {
 async function onSubmit(values: Record<string, unknown>) {
   saving.value = true;
   try {
+    const selectedAsset = assets.value.find((a) => a.slug === values.asset_slug);
     const payload: Record<string, unknown> = {
       calculation_level: 'PRIMARY',
     };
 
     if (values.asset_slug) payload.asset_slug = String(values.asset_slug);
-    if (values.date) payload.date = String(values.date);
+    if (selectedAsset && 'metricSlug' in selectedAsset) {
+      payload.metric_slug = (selectedAsset as Record<string, unknown>).metricSlug;
+    }
+    if (values.date) payload.date = dayjs(String(values.date)).toISOString();
 
     if (props.mode === 'edit' && props.job) {
       const id = String(props.job.id ?? '');

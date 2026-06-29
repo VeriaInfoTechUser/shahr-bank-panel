@@ -4,6 +4,7 @@ import { Form } from 'vee-validate';
 import * as yup from 'yup';
 import { useI18n } from 'vue-i18n';
 import { toast } from 'vue3-toastify';
+import dayjs from 'dayjs';
 import BaseModal from '@/core/ui/base/BaseModal.vue';
 import BaseSelect from '@/core/ui/base/BaseSelect.vue';
 import Button from '@/base-components/Button';
@@ -107,7 +108,7 @@ async function onSubmit(values: Record<string, unknown>) {
     };
 
     if (values.metric_slug) payload.metric_slug = String(values.metric_slug);
-    if (values.date) payload.date = String(values.date);
+    if (values.date) payload.date = dayjs(String(values.date)).toISOString();
 
     if (props.mode === 'edit' && props.job) {
       const id = String(props.job.id ?? '');

@@ -2657,6 +2657,12 @@
     "execute-confirm-title": "Execute Job",
     "execute-confirm-message": "Are you sure you want to execute this job?",
     "execute-success": "Job executed successfully",
-    "execute-error": "Error executing job"
+    "execute-error": "Error executing job",
+    "execute-result-title": "Execution Result",
+    "formula": "Formula",
+    "calculated-value": "Calculated Value",
+    "results": "Results",
+    "value": "Value",
+    "total-raw-records": "Total Records"
   }
 }

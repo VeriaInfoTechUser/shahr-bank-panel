@@ -2106,6 +2106,12 @@
     "execute-confirm-title": "تنفيذ المهمة",
     "execute-confirm-message": "هل أنت متأكد من تنفيذ هذه المهمة؟",
     "execute-success": "تم تنفيذ المهمة بنجاح",
-    "execute-error": "خطأ في تنفيذ المهمة"
+    "execute-error": "خطأ في تنفيذ المهمة",
+    "execute-result-title": "نتيجة التنفيذ",
+    "formula": "الصيغة",
+    "calculated-value": "القيمة المحسوبة",
+    "results": "النتائج",
+    "value": "القيمة",
+    "total-raw-records": "إجمالي السجلات"
   }
 }

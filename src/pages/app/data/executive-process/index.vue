@@ -12,6 +12,7 @@ import Button from '@/base-components/Button';
 import Lucide from '@/base-components/Lucide';
 import AddPrimaryJobModal from './AddPrimaryJobModal.vue';
 import AddSecondaryJobModal from './AddSecondaryJobModal.vue';
+import ExecuteResultModal from './ExecuteResultModal.vue';
 import JobBreadcrumbToolbar from './JobBreadcrumbToolbar.vue';
 
 const { t } = useI18n();
@@ -20,6 +21,8 @@ const { setContent: setBreadcrumbSlot } = useBreadcrumbSlot();
 
 const showPrimaryModal = ref(false);
 const showSecondaryModal = ref(false);
+const showResultModal = ref(false);
+const executeResultData = ref<Record<string, unknown> | null>(null);
 
 const stateLabelMap: Record<string, string> = {
   TO_DO: t('job.status-to-do'),
@@ -147,6 +150,8 @@ function onExecuteJob(row: Record<string, unknown>) {
           toast(msg, { type: 'error' });
           throw new Error(msg);
         }
+        executeResultData.value = res.data;
+        showResultModal.value = true;
       },
     },
     onSuccess: () => {
@@ -203,6 +208,12 @@ function onModalSuccess() {
       mode="add"
       @update:show="showSecondaryModal = $event"
       @success="onModalSuccess"
+    />
+
+    <ExecuteResultModal
+      :show="showResultModal"
+      :data="executeResultData"
+      @update:show="showResultModal = $event"
     />
   </div>
 </template>

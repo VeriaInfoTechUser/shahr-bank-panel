@@ -2827,6 +2827,12 @@
     "execute-confirm-title": "اجرای فرآیند",
     "execute-confirm-message": "آیا از اجرای این فرآیند اطمینان دارید؟",
     "execute-success": "فرآیند با موفقیت اجرا شد",
-    "execute-error": "خطا در اجرای فرآیند"
+    "execute-error": "خطا در اجرای فرآیند",
+    "execute-result-title": "نتیجه اجرا",
+    "formula": "فرمول",
+    "calculated-value": "مقدار محاسبه‌شده",
+    "results": "نتایج",
+    "value": "مقدار",
+    "total-raw-records": "کل رکوردها"
   }
 }

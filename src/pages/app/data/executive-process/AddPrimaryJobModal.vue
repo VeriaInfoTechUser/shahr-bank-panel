@@ -112,10 +112,7 @@ async function onSubmit(values: Record<string, unknown>) {
     if (selectedAsset && 'metricSlug' in selectedAsset) {
       payload.metric_slug = (selectedAsset as Record<string, unknown>).metricSlug;
     }
-    if (values.date) {
-      payload.date_from = String(values.date);
-      payload.date_to = String(values.date);
-    }
+    if (values.date) payload.date_from = String(values.date);
 
     if (props.mode === 'edit' && props.job) {
       const id = String(props.job.id ?? '');

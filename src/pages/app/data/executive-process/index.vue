@@ -23,7 +23,7 @@ const showSecondaryModal = ref(false);
 const showEditModal = ref(false);
 const selectedJob = ref<Record<string, unknown> | null>(null);
 
-const statusLabelMap: Record<string, string> = {
+const stateLabelMap: Record<string, string> = {
   TO_DO: t('job.status-to-do'),
   IN_PROGRESS: t('job.status-in-progress'),
   DONE: t('job.status-done'),
@@ -72,10 +72,10 @@ const table = useDataTable({
       bodyCell: (row) => row.calculation_level ?? '—',
     }),
     createColumn({
-      key: 'status',
+      key: 'state',
       label: t('job.status'),
       sortable: false,
-      bodyCell: (row) => statusLabelMap[row.status as string] ?? (row.status as string) ?? '—',
+      bodyCell: (row) => stateLabelMap[row.state as string] ?? (row.state as string) ?? '—',
     }),
     createColumn({
       key: 'date_from',

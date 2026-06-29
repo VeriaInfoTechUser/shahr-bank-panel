@@ -20,8 +20,6 @@ const { setContent: setBreadcrumbSlot } = useBreadcrumbSlot();
 
 const showPrimaryModal = ref(false);
 const showSecondaryModal = ref(false);
-const showEditModal = ref(false);
-const selectedJob = ref<Record<string, unknown> | null>(null);
 
 const stateLabelMap: Record<string, string> = {
   TO_DO: t('job.status-to-do'),
@@ -122,27 +120,30 @@ onMounted(() => {
   });
 });
 
-function onEditJob(row: Record<string, unknown>) {
-  selectedJob.value = row;
-  showEditModal.value = true;
+function onAddPrimaryJob() {
+  showPrimaryModal.value = true;
 }
 
-function onDeleteJob(row: Record<string, unknown>) {
+function onAddSecondaryJob() {
+  showSecondaryModal.value = true;
+}
+
+function onExecuteJob(row: Record<string, unknown>) {
   openModal({
     component: BaseConfirmModal,
     props: {
-      titleKey: 'job.delete-confirm-title',
-      messageKey: 'job.delete-confirm-message',
-      confirmVariant: 'danger' as const,
+      titleKey: 'job.execute-confirm-title',
+      messageKey: 'job.execute-confirm-message',
+      confirmVariant: 'primary' as const,
       onConfirmAction: async () => {
-        const id = row.id;
-        if (!id) {
-          toast(t('job.delete-error'), { type: 'error' });
-          throw new Error('missing id');
+        const slug = row.slug;
+        if (!slug) {
+          toast(t('job.execute-error'), { type: 'error' });
+          throw new Error('missing slug');
         }
-        const res = await grcRepo.calculationJobDelete(String(id));
+        const res = await grcRepo.calculationJobExecute(String(slug));
         if (!res?.result) {
-          const msg = res?.error?.[0] ?? t('job.delete-error');
+          const msg = res?.error?.[0] ?? t('job.execute-error');
           toast(msg, { type: 'error' });
           throw new Error(msg);
         }
@@ -153,14 +154,6 @@ function onDeleteJob(row: Record<string, unknown>) {
       void table.fetch();
     },
   });
-}
-
-function onAddPrimaryJob() {
-  showPrimaryModal.value = true;
-}
-
-function onAddSecondaryJob() {
-  showSecondaryModal.value = true;
 }
 
 function onModalSuccess() {
@@ -181,28 +174,17 @@ function onModalSuccess() {
         :show-search="false"
       >
         <template #actions="{ row }">
-          <div class="flex items-center justify-center gap-3">
+          <div class="flex items-center justify-center">
             <Button
               type="button"
-              variant="outline-secondary"
+              variant="primary"
               size="sm"
-              class="!h-7 !w-7 !px-0 !py-0"
-              :aria-label="t('title.update')"
-              :title="t('title.update')"
-              @click.stop="onEditJob(row)"
+              class="!h-7 !px-2.5 !py-0"
+              :aria-label="t('job.execute-confirm-title')"
+              :title="t('job.execute-confirm-title')"
+              @click.stop="onExecuteJob(row)"
             >
-              <Lucide icon="Pencil" class="!h-3.5 !w-3.5" />
-            </Button>
-            <Button
-              type="button"
-              variant="outline-danger"
-              size="sm"
-              class="!h-7 !w-7 !px-0 !py-0"
-              :aria-label="t('general.delete')"
-              :title="t('general.delete')"
-              @click.stop="onDeleteJob(row)"
-            >
-              <Lucide icon="Trash2" class="!h-3.5 !w-3.5" />
+              <Lucide icon="Play" class="!h-3.5 !w-3.5" />
             </Button>
           </div>
         </template>
@@ -220,24 +202,6 @@ function onModalSuccess() {
       :show="showSecondaryModal"
       mode="add"
       @update:show="showSecondaryModal = $event"
-      @success="onModalSuccess"
-    />
-
-    <AddPrimaryJobModal
-      v-if="selectedJob && selectedJob.calculation_level === 'PRIMARY'"
-      :show="showEditModal"
-      mode="edit"
-      :job="selectedJob"
-      @update:show="showEditModal = $event"
-      @success="onModalSuccess"
-    />
-
-    <AddSecondaryJobModal
-      v-if="selectedJob && selectedJob.calculation_level === 'SECONDARY'"
-      :show="showEditModal"
-      mode="edit"
-      :job="selectedJob"
-      @update:show="showEditModal = $event"
       @success="onModalSuccess"
     />
   </div>

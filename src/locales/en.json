@@ -2653,6 +2653,10 @@
     "edit-error": "Error updating job",
     "delete-confirm-title": "Delete Job",
     "delete-confirm-message": "Are you sure you want to delete this job?",
-    "delete-error": "Error deleting job"
+    "delete-error": "Error deleting job",
+    "execute-confirm-title": "Execute Job",
+    "execute-confirm-message": "Are you sure you want to execute this job?",
+    "execute-success": "Job executed successfully",
+    "execute-error": "Error executing job"
   }
 }

@@ -434,4 +434,8 @@ export const grcRepo = {
   calculationJobDelete(id: string): Promise<GrcApiResponse<null>> {
     return grcHttpRequest({ method: 'DELETE', url: `/calculations/jobs/${id}` });
   },
+
+  calculationJobExecute(slug: string): Promise<GrcApiResponse<Record<string, unknown>>> {
+    return grcHttpRequest({ method: 'POST', url: `/calculations/jobs/${slug}/execute` });
+  },
 };

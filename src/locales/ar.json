@@ -2102,6 +2102,10 @@
     "edit-error": "خطأ في تحديث المهمة",
     "delete-confirm-title": "حذف المهمة",
     "delete-confirm-message": "هل أنت متأكد من حذف هذه المهمة؟",
-    "delete-error": "خطأ في حذف المهمة"
+    "delete-error": "خطأ في حذف المهمة",
+    "execute-confirm-title": "تنفيذ المهمة",
+    "execute-confirm-message": "هل أنت متأكد من تنفيذ هذه المهمة؟",
+    "execute-success": "تم تنفيذ المهمة بنجاح",
+    "execute-error": "خطأ في تنفيذ المهمة"
   }
 }

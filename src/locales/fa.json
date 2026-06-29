@@ -2823,6 +2823,10 @@
     "edit-error": "خطا در به‌روزرسانی فرآیند",
     "delete-confirm-title": "حذف فرآیند",
     "delete-confirm-message": "آیا از حذف این فرآیند اطمینان دارید؟",
-    "delete-error": "خطا در حذف فرآیند"
+    "delete-error": "خطا در حذف فرآیند",
+    "execute-confirm-title": "اجرای فرآیند",
+    "execute-confirm-message": "آیا از اجرای این فرآیند اطمینان دارید؟",
+    "execute-success": "فرآیند با موفقیت اجرا شد",
+    "execute-error": "خطا در اجرای فرآیند"
   }
 }

@@ -21,20 +21,16 @@ const table = useDataTable({
   fetchFn: fetchItems,
   columns: [
     createColumn({
-      key: 'id',
-      label: t('raw-data-page.col-id'),
-      sortable: false,
-      width: '70px',
-    }),
-    createColumn({
-      key: 'asset_slug',
+      key: 'asset_name',
       label: t('raw-data-page.col-asset'),
       sortable: false,
+      bodyCell: (row) => row.asset_name ?? row.asset_slug ?? '—',
     }),
     createColumn({
-      key: 'metric_slug',
+      key: 'metric_name',
       label: t('raw-data-page.col-metric'),
       sortable: false,
+      bodyCell: (row) => row.metric_name ?? row.metric_slug ?? '—',
     }),
     createColumn({
       key: 'value',

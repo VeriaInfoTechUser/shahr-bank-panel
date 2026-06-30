@@ -1,8 +1,5 @@
 export { apiClient } from './api/apiClient';
 
-export { useThemeStore } from './theme/themeStore';
-export { THEME_OPTIONS } from './theme/themeConfig';
-
 export { usePermissionStore } from './permission/permissionStore';
 export { usePermission } from './permission/usePermission';
 export { useMenuBuilder } from './permission/menuBuilder';

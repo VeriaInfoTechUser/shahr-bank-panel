@@ -4,8 +4,6 @@ import Tippy from "../../base-components/Tippy";
 import Lucide from "../../base-components/Lucide";
 import TopBar from "../../components/TopBar";
 import Breadcrumb from "../../components/Breadcrumb/Breadcrumb.vue";
-import DarkModeSwitcher from "../../components/DarkModeSwitcher";
-import MainColorSwitcher from "../../components/MainColorSwitcher";
 import MobileMenu from "../../components/MobileMenu";
 import { useSideMenuStore } from "../../stores/side-menu";
 import { usePermissionStore } from "@/core/permission/permissionStore";
@@ -95,8 +93,6 @@ onMounted(() => {
   <div
     class="pb-8 min-h-screen before:content-[''] before:absolute before:inset-0 before:bg-fixed before:bg-no-repeat before:bg-skew-pattern dark:before:bg-skew-pattern-dark"
   >
-<!--    <DarkModeSwitcher />-->
-<!--    <MainColorSwitcher />-->
 <!--    <MobileMenu />-->
     <TopBar />
     <div

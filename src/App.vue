@@ -2,18 +2,15 @@
 import { getDirection } from "@/utils/index.js";
 import { onBeforeMount, watch } from "vue";
 import { useI18n } from "vue-i18n";
-import { useThemeStore } from "@/core/theme/themeStore";
 import GlobalModalHost from "@/core/ui/global/GlobalModalHost.vue";
 import PersianDigitsDomProvider from "@/core/ui/global/PersianDigitsDomProvider.vue";
 import LoginHistoryModal from "@/components/LoginHistoryModal.vue";
 import { useUserStore } from "@/stores/user.js";
 
 const { t, locale } = useI18n();
-const themeStore = useThemeStore();
 const userStore = useUserStore();
 
 onBeforeMount(() => {
-  themeStore.init();
   document.querySelector('html').style.direction = getDirection().direction
 
   if (getDirection().isRtl) {

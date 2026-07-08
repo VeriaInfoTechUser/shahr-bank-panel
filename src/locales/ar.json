@@ -738,7 +738,13 @@
     "associated-industries": "الصناعات المرتبطة",
     "col-calculation-type": "نوع الحساب",
     "col-source-asset": "الأصل المصدر",
-    "col-metric-role": "دور المقياس"
+    "col-metric-role": "دور المقياس",
+    "filter-panel-title": "فلتر المقاييس",
+    "filter-field-title": "العنوان",
+    "toolbar-filter": "فلتر",
+    "toolbar-clear-filters": "مسح الفلاتر",
+    "toolbar-export": "تصدير",
+    "filter-badge-remove-aria": "إزالة الفلتر {{label}}"
   },
   "compliance-page": {
     "col-code": "الرمز",

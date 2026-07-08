@@ -981,7 +981,13 @@
     "associated-industries": "Associated Industries",
     "col-calculation-type": "Calculation Type",
     "col-source-asset": "Source Asset",
-    "col-metric-role": "Metric Role"
+    "col-metric-role": "Metric Role",
+    "filter-panel-title": "Metrics Filter",
+    "filter-field-title": "Title",
+    "toolbar-filter": "Filter",
+    "toolbar-clear-filters": "Clear Filters",
+    "toolbar-export": "Export",
+    "filter-badge-remove-aria": "Remove filter {{label}}"
   },
   "compliance-page": {
     "col-code": "Code",

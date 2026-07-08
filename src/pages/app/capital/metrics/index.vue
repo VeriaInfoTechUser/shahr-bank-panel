@@ -5,10 +5,9 @@ import { useDataTable, createColumn, type FetchFn } from '@core';
 import BaseTable from '@core/ui/base/BaseTable.vue';
 import { grcRepo } from '@/core/repositories/grcRepo';
 import { useBreadcrumbSlot } from '@/composables/useBreadcrumb';
-import { useGlobalModal } from '@/composables/useGlobalModal';
 import Button from '@/base-components/Button';
 import Lucide from '@/base-components/Lucide';
-import GovernanceExportToolbar from '@/pages/app/governance/GovernanceExportToolbar.vue';
+import CapitalMetricsBreadcrumbToolbar from './CapitalMetricsBreadcrumbToolbar.vue';
 import { useRouter } from 'vue-router';
 
 const { t } = useI18n();
@@ -121,8 +120,9 @@ function goToDetail(row: Record<string, unknown>) {
 
 onMounted(() => {
   table.fetch();
-  setBreadcrumbSlot(GovernanceExportToolbar, {
+  setBreadcrumbSlot(CapitalMetricsBreadcrumbToolbar, {
     onExport: () => table.exportCSV(),
+    table,
   });
 });
 </script>

@@ -1002,7 +1002,13 @@
     "associated-industries": "صنایع مرتبط",
     "col-calculation-type": "روش محاسبه",
     "col-source-asset": "دارایی مبدأ",
-    "col-metric-role": "نوع شاخص"
+    "col-metric-role": "نوع شاخص",
+    "filter-panel-title": "فیلتر شاخص‌ها",
+    "filter-field-title": "عنوان",
+    "toolbar-filter": "فیلتر",
+    "toolbar-clear-filters": "پاک کردن فیلترها",
+    "toolbar-export": "خروجی",
+    "filter-badge-remove-aria": "حذف فیلتر {{label}}"
   },
   "compliance-page": {
     "col-code": "کد",

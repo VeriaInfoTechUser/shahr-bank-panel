@@ -1,9 +1,11 @@
-export const CAPITAL_METRICS_FILTER_PARAM_ORDER = ['title'] as const;
+export const CAPITAL_METRICS_FILTER_PARAM_ORDER = ['title', 'industries', 'metricRole'] as const;
 
 export type CapitalMetricsFilterParamKey = (typeof CAPITAL_METRICS_FILTER_PARAM_ORDER)[number];
 
 export const CAPITAL_METRICS_FILTER_PARAM_LABEL_KEYS: Record<CapitalMetricsFilterParamKey, string> = {
   title: 'capital-metrics-page.filter-field-title',
+  industries: 'capital-metrics-page.col-industries',
+  metricRole: 'capital-metrics-page.col-metric-role',
 };
 
 export function isCapitalMetricsFilterValueSet(value: unknown): boolean {

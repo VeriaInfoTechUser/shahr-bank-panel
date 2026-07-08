@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { nextTick, onMounted, ref } from 'vue';
+import { nextTick, onMounted, ref, watch } from 'vue';
 import { useFormValues } from 'vee-validate';
 import { watchDebounced } from '@vueuse/core';
 
@@ -30,6 +30,15 @@ watchDebounced(
   () => String(values.value.title ?? ''),
   () => emitIfReady(),
   { debounce: 450 }
+);
+
+watch(
+  () => ({
+    industries: Array.isArray(values.value.industries) ? [...(values.value.industries as string[])] : [],
+    metricRole: Array.isArray(values.value.metricRole) ? [...(values.value.metricRole as string[])] : [],
+  }),
+  () => emitIfReady(),
+  { deep: true }
 );
 </script>
 

@@ -4,6 +4,7 @@ import { computed, ref, toValue, watch } from 'vue';
 import { Form } from 'vee-validate';
 import { useI18n } from 'vue-i18n';
 import BaseInput from '@/core/ui/base/BaseInput.vue';
+import BaseMultiSelect from '@/core/ui/base/BaseMultiSelect.vue';
 import CapitalMetricsFilterAutoApply from './CapitalMetricsFilterAutoApply.vue';
 
 const props = withDefaults(
@@ -29,10 +30,27 @@ const { t } = useI18n();
 const formKey = ref(0);
 const formId = 'capital-metrics-filter-form';
 
+const industryOptions = computed(() => [
+  { value: 'نفت و گاز', label: 'نفت و گاز' },
+  { value: 'خودرو', label: 'خودرو' },
+  { value: 'فولاد و معدن', label: 'فولاد و معدن' },
+  { value: 'بانک', label: 'بانک' },
+  { value: 'بیمه', label: 'بیمه' },
+]);
+
+const metricRoleOptions = computed(() => [
+  { value: 'CONTROL', label: 'CONTROL' },
+  { value: 'PI', label: 'PI' },
+  { value: 'KPI', label: 'KPI' },
+  { value: 'KRI', label: 'KRI' },
+]);
+
 function apiFiltersToFormValues(f: Record<string, unknown> | undefined | null) {
   const x = f ?? {};
   return {
     title: String(x.title ?? ''),
+    industries: Array.isArray(x.industries) ? (x.industries as unknown[]).map(String) : [],
+    metricRole: Array.isArray(x.metricRole) ? (x.metricRole as unknown[]).map(String) : [],
   };
 }
 
@@ -52,6 +70,10 @@ function buildPayload(values: Record<string, unknown>): Record<string, unknown> 
   const o: Record<string, unknown> = {};
   const title = String(values.title ?? '').trim();
   if (title) o.title = title;
+  const industries = values.industries as string[] | undefined;
+  if (industries?.length) o.industries = industries;
+  const metricRole = values.metricRole as string[] | undefined;
+  if (metricRole?.length) o.metricRole = metricRole;
   return o;
 }
 
@@ -82,6 +104,20 @@ function onAutoApply(payload: Record<string, unknown>) {
           name="title"
           compact-label
           :label="t('capital-metrics-page.filter-field-title')"
+        />
+        <BaseMultiSelect
+          name="industries"
+          compact-label
+          :label="t('capital-metrics-page.col-industries')"
+          :options="industryOptions"
+          placeholder=""
+        />
+        <BaseMultiSelect
+          name="metricRole"
+          compact-label
+          :label="t('capital-metrics-page.col-metric-role')"
+          :options="metricRoleOptions"
+          placeholder=""
         />
       </div>
     </Form>

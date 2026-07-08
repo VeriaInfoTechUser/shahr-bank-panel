@@ -818,7 +818,7 @@
 
     "portfolio_ledger": "دفتر پرتفوی",
     "risk_register": "ثبت ریسک",
-    "compliance_log": "ثبت انطباق",
+    "compliance_log": "ثبت تطبیق",
 
     "equipment_asset": "دارایی تجهیز",
     "production_line": "خط تولید",
@@ -873,7 +873,7 @@
   },
   "source-asset-type": {
     "codebase_repository": "مخزن کد",
-    "compliance_log": "ثبت انطباق",
+    "compliance_log": "ثبت تطبیق",
     "cybersecurity_siem": "سامانه SIEM",
     "data_repository": "مخزن داده",
     "department_unit": "واحد سازمانی",

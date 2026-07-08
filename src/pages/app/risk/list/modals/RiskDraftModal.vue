@@ -42,6 +42,7 @@ const formRef = ref<InstanceType<typeof Form>>();
 
 const validationSchema = computed(() => yup.object({
   title: yup.string().trim().required(t('validation.required')),
+  draftDescription: yup.string().trim().required(t('validation.required')),
   riskType: yup.string().trim().required(t('validation.required')),
   categorySlug: yup.string().trim().required(t('validation.required')),
   subCategorySlug: yup.string().trim().required(t('validation.required')),
@@ -146,8 +147,6 @@ async function handleSave(values: Record<string, unknown>) {
       subCategorySlug: subCatSlug,
       subCategoryTitle: getSubCategoryTitle(catSlug, subCatSlug),
       ownerId: values.ownerId,
-      impact: risk.value.impact ?? null,
-      likelihood: risk.value.likelihood ?? null,
     };
 
     await updateRisk(risk.value.slug, data);
@@ -185,11 +184,7 @@ function handleRegister() {
         onConfirmAction: async () => {
           registering.value = true;
           try {
-            const res = await transitionRisk(risk.value!.slug, 'registered', {
-              ...values,
-              impact: risk.value!.impact ?? null,
-              likelihood: risk.value!.likelihood ?? null,
-            });
+            const res = await transitionRisk(risk.value!.slug, 'registered', { draftDescription: values.draftDescription });
             if (!res) throw new Error(t('risk.transition-error'));
           } catch (err: unknown) {
             if (err instanceof Error) {
@@ -328,7 +323,7 @@ function handleDelete() {
               form="risk-draft-modal-form"
               :disabled="saving"
           >
-            {{ t('button.save') }}
+            {{ t('title.update') }}
           </Button>
           <Button
             type="button"
@@ -337,7 +332,7 @@ function handleDelete() {
             :disabled="saving || registering"
             @click="handleRegister"
           >
-            {{ t('button.confirm') }}
+            {{ t('risk.action-register') }}
           </Button>
         </div>
       </div>

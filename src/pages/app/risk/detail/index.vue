@@ -81,7 +81,7 @@ const statusBadgeClass = computed(() => {
 
 const riskLevelBadgeClass = computed(() => {
   const base = 'inline-flex items-center justify-center rounded-md px-3 py-1 text-xs font-semibold leading-snug shadow-sm';
-  const level = risk.value?.level;
+  const level = risk.value?.riskLevel;
   switch (level) {
     case 'low': return `${base} bg-green-100 text-green-800 border border-green-200`;
     case 'medium': return `${base} bg-amber-100 text-amber-800 border border-amber-200`;
@@ -101,13 +101,13 @@ const riskTypeBadgeClass = computed(() => {
 
 const scoreDisplay = computed(() => {
   if (!risk.value) return '—';
-  const s = risk.value.score;
+  const s = risk.value.inherentScore;
   return s != null ? String(s) : '—';
 });
 
 const impactLikelihoodDisplay = computed(() => {
   if (!risk.value) return '—';
-  const imp = risk.value.impact;
+  const imp = risk.value.impactFactor ?? risk.value.impact;
   const lik = risk.value.likelihood;
   if (imp == null || lik == null) return '—';
   return `${imp} × ${lik}`;
@@ -115,27 +115,13 @@ const impactLikelihoodDisplay = computed(() => {
 
 const residualScoreDisplay = computed(() => {
   if (!risk.value) return '—';
-  const imp = risk.value.impact;
-  const lik = risk.value.likelihood;
-  if (imp == null || lik == null) return '—';
-  return String(imp * lik);
-});
-
-const residualLevelDisplay = computed(() => {
-  if (!risk.value) return '';
-  const imp = risk.value.impact;
-  const lik = risk.value.likelihood;
-  if (imp == null || lik == null) return '';
-  const score = imp * lik;
-  if (score <= 4) return 'low';
-  if (score <= 9) return 'medium';
-  if (score <= 16) return 'high';
-  return 'critical';
+  const s = risk.value.residualScore;
+  return s != null ? String(s) : '—';
 });
 
 const residualLevelBadgeClass = computed(() => {
   const base = 'inline-flex items-center justify-center rounded-md px-2 py-0.5 text-[10px] font-semibold leading-snug shadow-sm';
-  const level = residualLevelDisplay.value;
+  const level = risk.value?.residualLevel;
   switch (level) {
     case 'low': return `${base} bg-green-100 text-green-800 border border-green-200`;
     case 'medium': return `${base} bg-amber-100 text-amber-800 border border-amber-200`;
@@ -147,8 +133,20 @@ const residualLevelBadgeClass = computed(() => {
 
 const stateHistory = computed(() => {
   if (!risk.value?.stateHistory) return [];
-  return risk.value.stateHistory;
+  const raw = risk.value.stateHistory;
+  if (Array.isArray(raw)) return raw as Record<string, unknown>[];
+  return [];
 });
+
+const taskStateBadgeClass = (state: string): string => {
+  const base = 'inline-flex items-center justify-center rounded-md px-2 py-0.5 text-[9px] font-semibold leading-snug shadow-sm';
+  switch (state) {
+    case 'open': return `${base} bg-orange-100 text-orange-800 border border-orange-200`;
+    case 'in_progress': return `${base} bg-violet-100 text-violet-800 border border-violet-200`;
+    case 'done': return `${base} bg-emerald-100 text-emerald-800 border border-emerald-200`;
+    default: return `${base} bg-slate-100 text-slate-600 border border-slate-200`;
+  }
+};
 
 const tabItems = computed(() => [
   { key: 'overview', label: t('risk.tab-overview'), icon: 'LayoutDashboard' },
@@ -246,16 +244,16 @@ watch(slug, () => {
     </div>
 
     <template v-else-if="risk">
-<!--      <div class="col-span-12">-->
-<!--        <div class="rounded-2xl border border-slate-200/90 bg-white p-5 shadow-sm dark:border-darkmode-600 dark:bg-darkmode-800">-->
-<!--          <div class="flex flex-wrap items-center gap-3">-->
-<!--            <span :class="statusBadgeClass">{{ t(`risk.status-${risk.state}`) }}</span>-->
-<!--            <span :class="riskLevelBadgeClass" v-if="risk.riskLevel">{{ risk.riskLevel ? t(`risk.level-${risk.riskLevel}`) : '—' }}</span>-->
-<!--            <span :class="riskTypeBadgeClass">{{ t(`risk.type-${risk.riskType}`) }}</span>-->
-<!--            <span class="text-xs text-slate-400">{{ risk.createdAt }}</span>-->
-<!--          </div>-->
-<!--        </div>-->
-<!--      </div>-->
+      <div class="col-span-12">
+        <div class="rounded-2xl border border-slate-200/90 bg-white p-5 shadow-sm dark:border-darkmode-600 dark:bg-darkmode-800">
+          <div class="flex flex-wrap items-center gap-3">
+            <span :class="statusBadgeClass">{{ t(`risk.status-${risk.state}`) }}</span>
+            <span :class="riskLevelBadgeClass" v-if="risk.riskLevel">{{ risk.riskLevel ? t(`risk.level-${risk.riskLevel}`) : '—' }}</span>
+            <span :class="riskTypeBadgeClass">{{ t(`risk.type-${risk.riskType}`) }}</span>
+            <span class="text-xs text-slate-400">{{ risk.createdAt }}</span>
+          </div>
+        </div>
+      </div>
 
       <div class="col-span-12">
         <div class="flex gap-1 rounded-xl border border-slate-200/90 bg-white p-1 shadow-sm dark:border-darkmode-600 dark:bg-darkmode-800">
@@ -281,7 +279,7 @@ watch(slug, () => {
             <div class="rounded-2xl border border-slate-200/90 bg-white p-4 shadow-sm dark:border-darkmode-600 dark:bg-darkmode-800">
               <div class="mb-1 text-xs font-medium text-slate-500 dark:text-slate-400">{{ t('risk.field-risk-level') }}</div>
               <span :class="riskLevelBadgeClass" class="!text-sm !px-3 !py-1">
-                {{ risk.level ? t(`risk.level-${risk.level}`) : '—' }}
+                {{ risk.riskLevel ? t(`risk.level-${risk.riskLevel}`) : '—' }}
               </span>
             </div>
             <div class="rounded-2xl border border-slate-200/90 bg-white p-4 shadow-sm dark:border-darkmode-600 dark:bg-darkmode-800">
@@ -327,8 +325,8 @@ watch(slug, () => {
               <h3 class="mb-3 text-sm font-semibold text-slate-700 dark:text-slate-200">{{ t('risk.section-analysis') }}</h3>
               <div class="space-y-2.5">
                 <div class="flex items-start justify-between">
-                  <span class="text-xs text-slate-500 dark:text-slate-400">{{ t('risk.field-impact') }}</span>
-                  <span class="text-xs font-medium text-slate-700 dark:text-slate-200">{{ risk.impact ?? '—' }}</span>
+                  <span class="text-xs text-slate-500 dark:text-slate-400">{{ t('risk.field-impact-factor') }}</span>
+                  <span class="text-xs font-medium text-slate-700 dark:text-slate-200">{{ risk.impactFactor ?? '—' }}</span>
                 </div>
                 <div class="flex items-start justify-between">
                   <span class="text-xs text-slate-500 dark:text-slate-400">{{ t('risk.field-likelihood') }}</span>
@@ -340,23 +338,23 @@ watch(slug, () => {
                 </div>
                 <div class="flex items-start justify-between">
                   <span class="text-xs text-slate-500 dark:text-slate-400">{{ t('risk.field-risk-level') }}</span>
-                  <span v-if="risk.level" :class="riskLevelBadgeClass">{{ t(`risk.level-${risk.level}`) }}</span>
+                  <span v-if="risk.riskLevel" :class="riskLevelBadgeClass">{{ t(`risk.level-${risk.riskLevel}`) }}</span>
                   <span v-else class="text-xs text-slate-400">—</span>
                 </div>
               </div>
             </div>
           </div>
 
-          <div v-if="risk.impact != null || risk.likelihood != null" class="rounded-2xl border border-slate-200/90 bg-white p-5 shadow-sm dark:border-darkmode-600 dark:bg-darkmode-800">
+          <div v-if="risk.residualScore != null || risk.residualLevel" class="rounded-2xl border border-slate-200/90 bg-white p-5 shadow-sm dark:border-darkmode-600 dark:bg-darkmode-800">
             <h3 class="mb-3 text-sm font-semibold text-slate-700 dark:text-slate-200">{{ t('risk.section-monitoring') }}</h3>
             <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
               <div>
                 <div class="text-xs text-slate-500 dark:text-slate-400">{{ t('risk.field-residual-impact') }}</div>
-                <div class="text-sm font-medium text-slate-700 dark:text-slate-200">{{ risk.impact ?? '—' }}</div>
+                <div class="text-sm font-medium text-slate-700 dark:text-slate-200">{{ risk.residualImpact ?? '—' }}</div>
               </div>
               <div>
                 <div class="text-xs text-slate-500 dark:text-slate-400">{{ t('risk.field-residual-likelihood') }}</div>
-                <div class="text-sm font-medium text-slate-700 dark:text-slate-200">{{ risk.likelihood ?? '—' }}</div>
+                <div class="text-sm font-medium text-slate-700 dark:text-slate-200">{{ risk.residualLikelihood ?? '—' }}</div>
               </div>
               <div>
                 <div class="text-xs text-slate-500 dark:text-slate-400">{{ t('risk.field-residual-score') }}</div>
@@ -364,7 +362,7 @@ watch(slug, () => {
               </div>
               <div>
                 <div class="text-xs text-slate-500 dark:text-slate-400">{{ t('risk.field-residual-level') }}</div>
-                <span v-if="residualLevelDisplay" :class="residualLevelBadgeClass">{{ t(`risk.level-${residualLevelDisplay}`) }}</span>
+                <span v-if="risk.residualLevel" :class="residualLevelBadgeClass">{{ t(`risk.level-${risk.residualLevel}`) }}</span>
                 <span v-else class="text-xs text-slate-400">—</span>
               </div>
             </div>
@@ -427,17 +425,13 @@ watch(slug, () => {
                 <div class="mb-1 text-xs font-medium text-slate-500 dark:text-slate-400">{{ t('risk.field-treatment-strategy') }}</div>
                 <div class="text-sm text-slate-700 dark:text-slate-200">{{ t(`risk.strategy-${risk.strategy}`) }}</div>
               </div>
-              <div v-if="risk.frameworkTitle">
+              <div v-if="risk.framework?.length">
                 <div class="mb-1 text-xs font-medium text-slate-500 dark:text-slate-400">{{ t('risk.field-framework') }}</div>
-                <div class="text-sm text-slate-700 dark:text-slate-200">{{ risk.frameworkTitle }}</div>
+                <div class="text-sm text-slate-700 dark:text-slate-200">{{ risk.framework.join(', ') }}</div>
               </div>
-              <div v-if="risk.domainTitle">
-                <div class="mb-1 text-xs font-medium text-slate-500 dark:text-slate-400">{{ t('risk.field-domain') }}</div>
-                <div class="text-sm text-slate-700 dark:text-slate-200">{{ risk.domainTitle }}</div>
-              </div>
-              <div v-if="risk.controlTitle">
+              <div v-if="risk.control?.length">
                 <div class="mb-1 text-xs font-medium text-slate-500 dark:text-slate-400">{{ t('risk.field-control') }}</div>
-                <div class="text-sm text-slate-700 dark:text-slate-200">{{ risk.controlTitle }}</div>
+                <div class="text-sm text-slate-700 dark:text-slate-200">{{ risk.control.join(', ') }}</div>
               </div>
               <div v-if="risk.responseDescription">
                 <div class="mb-1 text-xs font-medium text-slate-500 dark:text-slate-400">{{ t('risk.field-response-description') }}</div>
@@ -461,10 +455,14 @@ watch(slug, () => {
           <div class="border-b border-slate-200 px-5 py-3 dark:border-darkmode-600">
             <h3 class="text-sm font-semibold text-slate-700 dark:text-slate-200">{{ t('risk.tab-controls') }}</h3>
           </div>
-          <div v-if="risk.controlTitle" class="px-5 py-3">
-            <div class="flex items-center gap-3">
+          <div v-if="risk.control?.length" class="divide-y divide-slate-200 dark:divide-darkmode-600">
+            <div
+              v-for="(ctrl, idx) in risk.control"
+              :key="idx"
+              class="flex items-center gap-3 px-5 py-3"
+            >
               <Lucide icon="Shield" class="!h-4 !w-4 text-slate-400" />
-              <span class="text-sm text-slate-700 dark:text-slate-200">{{ risk.controlTitle }}</span>
+              <span class="text-sm text-slate-700 dark:text-slate-200">{{ ctrl }}</span>
             </div>
           </div>
           <div v-else class="px-5 py-8 text-center text-sm text-slate-400">
@@ -483,7 +481,8 @@ watch(slug, () => {
               class="flex items-center gap-3 px-5 py-3"
             >
               <Lucide icon="CheckSquare" class="!h-4 !w-4 text-slate-400" />
-              <span class="flex-1 text-sm text-slate-700 dark:text-slate-200">{{ task }}</span>
+              <span class="flex-1 text-sm text-slate-700 dark:text-slate-200">{{ task.title }}</span>
+              <span :class="taskStateBadgeClass(task.state)">{{ t(`task.status.${task.state}`) }}</span>
             </div>
           </div>
           <div v-else class="px-5 py-8 text-center text-sm text-slate-400">
@@ -512,9 +511,10 @@ watch(slug, () => {
                     <Lucide icon="ArrowRight" class="mx-1 inline !h-3 !w-3 text-slate-400 rtl:rotate-180" />
                     {{ entry.toState ? t(`risk.status-${entry.toState}`) : '—' }}
                   </span>
-                  <span v-if="entry.date" class="text-[10px] text-slate-400">{{ new Date(entry.date).toLocaleString() }}</span>
+                  <span v-if="entry.timestamp" class="text-[10px] text-slate-400">{{ String(entry.timestamp) }}</span>
                 </div>
-                <div v-if="entry.description" class="mt-1 text-xs text-slate-500 dark:text-slate-400">{{ entry.description }}</div>
+                <div v-if="entry.comment" class="mt-1 text-xs text-slate-500 dark:text-slate-400">{{ String(entry.comment) }}</div>
+                <div v-if="entry.updatedBy" class="mt-0.5 text-[10px] text-slate-400">{{ String(entry.updatedBy) }}</div>
               </div>
             </div>
           </div>

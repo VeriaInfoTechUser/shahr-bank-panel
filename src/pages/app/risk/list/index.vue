@@ -13,6 +13,7 @@ import Button from '@/base-components/Button';
 import Lucide from '@/base-components/Lucide';
 import { toast } from 'vue3-toastify';
 import RiskListBreadcrumbToolbar from './RiskListBreadcrumbToolbar.vue';
+import CreateRiskModal from './CreateRiskModal.vue';
 import RiskDraftModal from './modals/RiskDraftModal.vue';
 import RiskRegisteredModal from './modals/RiskRegisteredModal.vue';
 import RiskAnalysisModal from './modals/RiskAnalysisModal.vue';
@@ -25,6 +26,7 @@ const router = useRouter();
 const { setContent: setBreadcrumbSlot } = useBreadcrumbSlot();
 const { openModal } = useGlobalModal();
 
+const showCreateModal = ref(false);
 const showDetailModal = ref(false);
 const selectedRiskId = ref<string | null>(null);
 const selectedRiskState = ref<string | null>(null);
@@ -60,10 +62,8 @@ async function loadMembers() {
   }
 }
 
-const RISK_OPERATIONS_STATES = ['registered', 'analysis', 'response', 'monitoring'] as const;
-
 const fetchRisks: FetchFn = async ({ page, limit, filters }) => {
-  const res = await grcRepo.riskList({ page, limit, state: [...RISK_OPERATIONS_STATES], ...(filters ?? {}) });
+  const res = await grcRepo.riskList({ page, limit, ...(filters ?? {}) });
   const list = res?.data?.list ?? [];
   const count = res?.data?.paginator?.count ?? 0;
   return { list: Array.isArray(list) ? list : [], count };
@@ -118,18 +118,18 @@ const table = useDataTable({
       bodyCell: (row) => (row.state as string) ?? '—',
     }),
     createColumn({
-      key: 'level',
+      key: 'riskLevel',
       label: t('risk.col-level'),
       sortable: false,
       slot: true,
-      bodyCell: (row) => (row.level as string) ?? '—',
+      bodyCell: (row) => (row.riskLevel as string) ?? '—',
     }),
     createColumn({
-      key: 'inherentImpact',
+      key: 'impactFactor',
       label: t('risk.col-impact'),
       sortable: false,
       bodyCell: (row) => {
-        const v = row.inherentImpact;
+        const v = row.impactFactor;
         return v != null ? String(v) : '—';
       },
     }),
@@ -174,7 +174,7 @@ const table = useDataTable({
   ],
   selectable: false,
   exportEnabled: true,
-
+  pageSize: 10,
   cacheKey: 'risk-list',
   listCacheStaleTime: 0,
 });
@@ -184,10 +184,15 @@ onMounted(() => {
   table.invalidateListCache();
   table.fetch();
   setBreadcrumbSlot(RiskListBreadcrumbToolbar, {
+    onAdd: onCreateRisk,
     onExport: onExportRisks,
     table,
   });
 });
+
+function onCreateRisk() {
+  showCreateModal.value = true;
+}
 
 function onExportRisks() {
   table.exportCSV();
@@ -254,9 +259,9 @@ function onModalSuccess() {
           </span>
         </template>
 
-        <template #cell-level="{ row }">
-          <span :class="riskLevelBadgeClass(row.level)">
-            {{ row.level ? t(`risk.level-${row.level}`) : '—' }}
+        <template #cell-riskLevel="{ row }">
+          <span :class="riskLevelBadgeClass(row.riskLevel)">
+            {{ row.riskLevel ? t(`risk.level-${row.riskLevel}`) : '—' }}
           </span>
         </template>
 
@@ -280,7 +285,6 @@ function onModalSuccess() {
               <Lucide icon="Eye" class="!h-3.5 !w-3.5" />
             </Button>
             <Button
-                v-if="row.state !== 'archived'"
               type="button"
               variant="outline-secondary"
               size="sm"
@@ -291,10 +295,6 @@ function onModalSuccess() {
             >
               <Lucide icon="Pencil" class="!h-3.5 !w-3.5" />
             </Button>
-            <div v-else
-                 class="!h-7 !w-7 !px-0 !py-0">
-
-            </div>
             <Button
               v-if="row.state === 'draft'"
               type="button"
@@ -315,6 +315,12 @@ function onModalSuccess() {
         </template>
       </BaseTable>
     </div>
+
+    <CreateRiskModal
+      :show="showCreateModal"
+      @update:show="showCreateModal = $event"
+      @success="onModalSuccess"
+    />
 
     <RiskDraftModal
       v-if="selectedRiskState === 'draft' && selectedRiskId"

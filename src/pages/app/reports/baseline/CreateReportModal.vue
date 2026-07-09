@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { toast } from 'vue3-toastify';
 import BaseModal from '@/core/ui/base/BaseModal.vue';
 import DatePickerExtra from '@/components/DatePickerExtra.vue';
 import Button from '@/base-components/Button';
@@ -119,9 +118,14 @@ const periodLabel = computed(() => {
   return `${labels[p.type] ?? p.type}  •  ${p.startDate} — ${p.endDate}`;
 });
 
+const submitError = ref('');
+const submitSuccess = ref(false);
+
 async function submitReport() {
   if (!selectedFramework.value || !selectedPeriod.value) return;
   saving.value = true;
+  submitError.value = '';
+  submitSuccess.value = false;
   try {
     await reportRepo.createReport({
       title: reportTitle.value.trim(),
@@ -133,11 +137,11 @@ async function submitReport() {
       startDate: selectedPeriod.value.startDate,
       endDate: selectedPeriod.value.endDate,
     });
-    toast(t('reports.create-success'), { type: 'success' });
+    submitSuccess.value = true;
     emit('success');
-    close();
+    setTimeout(() => close(), 1200);
   } catch {
-    toast(t('reports.create-error'), { type: 'error' });
+    submitError.value = t('reports.create-error');
   } finally {
     saving.value = false;
   }
@@ -167,6 +171,8 @@ watch(() => props.show, (visible) => {
   selectedFramework.value = null;
   frameworkSearch.value = '';
   saving.value = false;
+  submitError.value = '';
+  submitSuccess.value = false;
 });
 </script>
 
@@ -368,6 +374,24 @@ watch(() => props.show, (visible) => {
               </div>
             </div>
           </div>
+        </div>
+      </div>
+
+      <!-- ═══ Inline feedback ═══ -->
+      <div v-if="submitSuccess || submitError" class="mt-4">
+        <div
+          v-if="submitSuccess"
+          class="flex items-center gap-2 rounded-lg border border-success/30 bg-success/10 px-3 py-2 text-sm font-medium text-success"
+        >
+          <Lucide icon="CheckCircle" class="h-4 w-4" />
+          {{ t('reports.create-success') }}
+        </div>
+        <div
+          v-else-if="submitError"
+          class="flex items-center gap-2 rounded-lg border border-danger/30 bg-danger/10 px-3 py-2 text-sm font-medium text-danger"
+        >
+          <Lucide icon="XCircle" class="h-4 w-4" />
+          {{ submitError }}
         </div>
       </div>
     </div>

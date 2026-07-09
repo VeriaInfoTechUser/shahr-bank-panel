@@ -798,7 +798,7 @@
     "validation-period-required": "اختيار الفترة مطلوب",
     "validation-report-a-required": "اختيار التقرير الأول مطلوب",
     "validation-report-b-required": "اختيار التقرير الثاني مطلوب",
-    "not-enough-reports": "عدد التقارير المرجعية لهذا الإطار والفترة غير كافٍ (يتطلب على الأقل تقريرين)",
+    "not-enough-reports": "يلزم تقريران على الأقل لإنشاء تقرير مقارن",
     "wizard-next": "التالي",
     "toolbar-export": "تصدير",
     "title-placeholder": "عنوان التقرير...",

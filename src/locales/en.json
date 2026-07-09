@@ -1041,7 +1041,7 @@
     "validation-period-required": "Period selection is required",
     "validation-report-a-required": "First report selection is required",
     "validation-report-b-required": "Second report selection is required",
-    "not-enough-reports": "Not enough baseline reports for this framework and period (at least 2 required)",
+    "not-enough-reports": "At least 2 reports are required for a comparative report",
     "wizard-next": "Next",
     "toolbar-export": "Export",
     "title-placeholder": "Report title...",

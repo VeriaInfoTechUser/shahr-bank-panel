@@ -1062,7 +1062,7 @@
     "validation-period-required": "انتخاب دوره الزامی است",
     "validation-report-a-required": "انتخاب گزارش اول الزامی است",
     "validation-report-b-required": "انتخاب گزارش دوم الزامی است",
-    "not-enough-reports": "تعداد گزارش‌های مبنا برای این چارچوب و دوره کافی نیست (حداقل ۲ گزارش مورد نیاز است)",
+    "not-enough-reports": "حداقل دو گزارش برای گزارش مقایسه‌ای مورد نیاز است",
     "wizard-next": "مرحله بعد",
     "toolbar-export": "خروجی",
     "title-placeholder": "عنوان گزارش...",

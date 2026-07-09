@@ -1039,6 +1039,7 @@
     "validation-title-required": "Title is required",
     "validation-framework-required": "Framework selection is required",
     "validation-period-required": "Period selection is required",
+    "validation-date-type-required": "Calendar type selection is required",
     "validation-report-a-required": "First report selection is required",
     "validation-report-b-required": "Second report selection is required",
     "not-enough-reports": "At least 2 reports are required for a comparative report",

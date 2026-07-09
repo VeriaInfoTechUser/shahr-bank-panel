@@ -1060,6 +1060,7 @@
     "validation-title-required": "عنوان الزامی است",
     "validation-framework-required": "انتخاب چارچوب الزامی است",
     "validation-period-required": "انتخاب دوره الزامی است",
+    "validation-date-type-required": "انتخاب نوع تقویم الزامی است",
     "validation-report-a-required": "انتخاب گزارش اول الزامی است",
     "validation-report-b-required": "انتخاب گزارش دوم الزامی است",
     "not-enough-reports": "حداقل دو گزارش برای گزارش مقایسه‌ای مورد نیاز است",

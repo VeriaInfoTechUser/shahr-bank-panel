@@ -8,7 +8,7 @@ const props = withDefaults(
   defineProps<{
     name: string;
     label?: string;
-    options?: { value: unknown; label: string }[];
+    options?: { value: unknown; label: string; subtitle?: string }[];
     placeholder?: string;
     required?: boolean;
     disabled?: boolean;
@@ -89,7 +89,14 @@ const labelTextClass = computed(() =>
       :class="{ 'select-error': errorMessage }"
       @blur="handleBlur"
       @change="onChange"
-    />
+    >
+      <template #option="{ option }">
+        <div class="flex flex-col">
+          <span>{{ option.label }}</span>
+          <span v-if="option.subtitle" class="text-[10px] font-light text-slate-400 dark:text-slate-500">{{ option.subtitle }}</span>
+        </div>
+      </template>
+    </Select>
     <label v-if="errorMessage" class="label min-h-0 py-0 pt-0.5">
       <span class="label-text-alt text-error text-xs">{{ errorMessage }}</span>
     </label>

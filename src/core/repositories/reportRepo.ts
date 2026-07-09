@@ -61,8 +61,14 @@ export class ReportRepo {
     frameworkTitle: string;
     dateType: string;
     periodType: string;
-    startDate: string;
-    endDate: string;
+    reportASlug: string;
+    reportATitle: string;
+    reportAStartDate: string;
+    reportAEndDate: string;
+    reportBSlug: string;
+    reportBTitle: string;
+    reportBStartDate: string;
+    reportBEndDate: string;
   }) {
     return grcHttpRequest({
       method: 'POST',

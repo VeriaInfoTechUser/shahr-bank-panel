@@ -25,10 +25,7 @@ const emit = defineEmits<{
 const { t } = useI18n();
 
 const modalRootClass = computed(() => {
-  if (currentStep.value === 1) {
-    return `w-[min(100%,28rem)] max-w-[28rem] ${MODAL_SKIN} report-wizard-modal`;
-  }
-  return `max-w-4xl w-[min(100%,56rem)] ${MODAL_SKIN} report-wizard-modal`;
+  return `w-[min(100%,28rem)] max-w-[28rem] ${MODAL_SKIN} report-wizard-modal`;
 });
 
 const STEPS = [
@@ -47,12 +44,18 @@ const step1Schema = yup.object({
   title: yup.string().trim().required(t('reports.validation-title-required')),
   framework: yup.string().trim().required(t('reports.validation-framework-required')),
   periodType: yup.string().trim().required(t('reports.validation-period-required')),
+  dateType: yup.string().trim().required(t('reports.validation-date-type-required')),
 });
 
 const periodTypeOptions = computed(() => [
   { value: 'YEARLY', label: t('reports.period-type.yearly') },
   { value: 'QUARTERLY', label: t('reports.period-type.quarterly') },
   { value: 'MONTHLY', label: t('reports.period-type.monthly') },
+]);
+
+const dateTypeOptions = computed(() => [
+  { value: 'jalali', label: t('reports.date-type.jalali') },
+  { value: 'gregorian', label: t('reports.date-type.gregorian') },
 ]);
 
 const selectedFrameworkTitle = ref('');
@@ -65,16 +68,17 @@ async function fetchFrameworks({ page, limit, search }: { page: number; limit: n
   };
 }
 
-const step1Values = ref<{ title: string; framework: string; periodType: string }>({ title: '', framework: '', periodType: '' });
+const step1Values = ref<{ title: string; framework: string; periodType: string; dateType: string }>({ title: '', framework: '', periodType: '', dateType: '' });
 
 async function onStep1Submit(values: Record<string, unknown>) {
   step1Values.value = {
     title: String(values.title ?? ''),
     framework: String(values.framework ?? ''),
     periodType: String(values.periodType ?? ''),
+    dateType: String(values.dateType ?? ''),
   };
   selectedFrameworkTitle.value = '';
-  await loadBaselineReports();
+  await Promise.all([loadBaselineReports(), loadFrameworkTitle()]);
   if (baselineReports.value.length < 2) {
     toast(t('reports.not-enough-reports'), { type: 'warning' });
     return;
@@ -99,6 +103,7 @@ async function loadBaselineReports() {
       limit: 200,
       frameworkSlug: step1Values.value.framework,
       periodType: step1Values.value.periodType,
+      dateType: step1Values.value.dateType,
     });
     baselineReports.value = res?.data?.list ?? [];
   } catch {
@@ -108,8 +113,23 @@ async function loadBaselineReports() {
   }
 }
 
+async function loadFrameworkTitle() {
+  try {
+    const res = await grcRepo.frameworkGet(step1Values.value.framework);
+    selectedFrameworkTitle.value = res?.data?.title ?? '';
+  } catch {
+    selectedFrameworkTitle.value = '';
+  }
+}
+
 const reportOptions = computed(() =>
-  baselineReports.value.map(r => ({ value: r.slug, label: r.title || r.slug }))
+  baselineReports.value.map(r => ({
+    value: r.slug,
+    label: r.title || r.slug,
+    subtitle: r.startDate && r.endDate
+      ? `${new Date(r.startDate).toLocaleDateString('fa-IR')} — ${new Date(r.endDate).toLocaleDateString('fa-IR')}`
+      : undefined,
+  }))
 );
 
 const step2Values = ref<{ reportA: string; reportB: string }>({ reportA: '', reportB: '' });
@@ -126,10 +146,21 @@ function reportLabel(slug: string) {
   return baselineReports.value.find(x => x.slug === slug)?.title || slug;
 }
 
+function reportDate(slug: string) {
+  const r = baselineReports.value.find(x => x.slug === slug);
+  if (!r?.startDate || !r?.endDate) return '';
+  return `${new Date(r.startDate).toLocaleDateString('fa-IR')} — ${new Date(r.endDate).toLocaleDateString('fa-IR')}`;
+}
+
 // ── Step 3 ──────────────────────────────────────────────────────────────────
 const periodLabel = computed(() => {
   const labels: Record<string, string> = { YEARLY: 'سالانه', QUARTERLY: 'فصلی', MONTHLY: 'ماهانه' };
   return labels[step1Values.value.periodType] ?? step1Values.value.periodType;
+});
+
+const dateTypeLabel = computed(() => {
+  const labels: Record<string, string> = { jalali: t('reports.date-type.jalali'), gregorian: t('reports.date-type.gregorian') };
+  return labels[step1Values.value.dateType] ?? step1Values.value.dateType;
 });
 
 const submitError = ref('');
@@ -141,18 +172,24 @@ async function submitReport() {
   submitError.value = '';
   submitSuccess.value = false;
   try {
-    let fwTitle = selectedFrameworkTitle.value;
-    if (!fwTitle) {
-      const fwRes = await grcRepo.frameworkGet(step1Values.value.framework);
-      fwTitle = fwRes?.data?.title ?? step1Values.value.framework;
-    }
+    const fwTitle = selectedFrameworkTitle.value || step1Values.value.framework;
+    const reportA = baselineReports.value.find(x => x.slug === step2Values.value.reportA);
+    const reportB = baselineReports.value.find(x => x.slug === step2Values.value.reportB);
     await reportRepo.createComparative({
       title: step1Values.value.title,
+      type: 'comparative',
       frameworkSlug: step1Values.value.framework,
       frameworkTitle: fwTitle,
+      dateType: step1Values.value.dateType,
       periodType: step1Values.value.periodType,
       reportASlug: step2Values.value.reportA,
+      reportATitle: reportLabel(step2Values.value.reportA),
+      reportAStartDate: reportA?.startDate ?? '',
+      reportAEndDate: reportA?.endDate ?? '',
       reportBSlug: step2Values.value.reportB,
+      reportBTitle: reportLabel(step2Values.value.reportB),
+      reportBStartDate: reportB?.startDate ?? '',
+      reportBEndDate: reportB?.endDate ?? '',
     });
     submitSuccess.value = true;
     emit('success');
@@ -183,7 +220,7 @@ watch(() => props.show, (visible) => {
   currentStep.value = 1;
   step1FormKey.value++;
   step2FormKey.value++;
-  step1Values.value = { title: '', framework: '', periodType: '' };
+  step1Values.value = { title: '', framework: '', periodType: '', dateType: '' };
   step2Values.value = { reportA: '', reportB: '' };
   selectedFrameworkTitle.value = '';
   baselineReports.value = [];
@@ -245,13 +282,16 @@ watch(() => props.show, (visible) => {
         :key="'step1-' + step1FormKey"
         id="comparative-wizard-step1"
         :validation-schema="step1Schema"
-        :initial-values="{ title: '', framework: '', periodType: '' }"
+        :initial-values="{ title: '', framework: '', periodType: '', dateType: '' }"
         class="space-y-4"
         @submit="onStep1Submit"
       >
         <BaseInput name="title" :label="t('reports.col-title')" :placeholder="t('reports.title-placeholder')" :required="true" />
         <BasePaginatedSelect name="framework" :label="t('menu.framework')" :fetch-fn="fetchFrameworks" :limit="10" :search="true" :required="true" placeholder="" />
-        <BaseSelect name="periodType" :label="t('reports.col-period')" :options="periodTypeOptions" :required="true" placeholder="" />
+        <div class="grid grid-cols-2 gap-3">
+          <BaseSelect name="periodType" :label="t('reports.col-period')" :options="periodTypeOptions" :required="true" placeholder="" />
+          <BaseSelect name="dateType" :label="t('reports.col-date-type')" :options="dateTypeOptions" :required="true" placeholder="" />
+        </div>
       </Form>
 
       <!-- ═══ Step 2 ═══ -->
@@ -271,8 +311,8 @@ watch(() => props.show, (visible) => {
           <span class="inline-block h-5 w-5 animate-spin rounded-full border-2 border-slate-300 border-t-primary" />
         </div>
         <template v-else>
-          <ComparativeReportSelect name="reportA" :label="t('reports.select-report-a')" :options="reportOptions" :exclude-slug="step2Values.reportB" :required="true" />
-          <ComparativeReportSelect name="reportB" :label="t('reports.select-report-b')" :options="reportOptions" :exclude-slug="step2Values.reportA" :required="true" />
+          <ComparativeReportSelect name="reportA" other-field-name="reportB" :label="t('reports.select-report-a')" :options="reportOptions" :required="true" />
+          <ComparativeReportSelect name="reportB" other-field-name="reportA" :label="t('reports.select-report-b')" :options="reportOptions" :required="true" />
         </template>
       </Form>
 
@@ -297,17 +337,28 @@ watch(() => props.show, (visible) => {
             <span class="text-sm font-medium text-slate-700 dark:text-slate-200">{{ periodLabel }}</span>
           </div>
           <div class="mb-4 h-px bg-slate-200 dark:bg-darkmode-600" />
+          <div class="mb-4">
+            <span class="mb-1 block text-[11px] font-medium text-slate-400 dark:text-slate-500">{{ t('reports.col-date-type') }}</span>
+            <span class="text-sm font-medium text-slate-700 dark:text-slate-200">{{ dateTypeLabel }}</span>
+          </div>
+          <div class="mb-4 h-px bg-slate-200 dark:bg-darkmode-600" />
           <div>
             <span class="mb-1 block text-[11px] font-medium text-slate-400 dark:text-slate-500">{{ t('reports.reports-to-compare') }}</span>
             <div class="flex items-center gap-3">
               <div class="flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 dark:border-darkmode-600 dark:bg-darkmode-800">
-                <Lucide icon="FileText" class="h-4 w-4 text-primary" />
-                <span class="text-sm font-medium text-slate-700 dark:text-slate-200">{{ reportLabel(step2Values.reportA) }}</span>
+                <Lucide icon="FileText" class="h-4 w-4 shrink-0 text-primary" />
+                <div class="flex flex-col">
+                  <span class="text-sm font-medium text-slate-700 dark:text-slate-200">{{ reportLabel(step2Values.reportA) }}</span>
+                  <span v-if="reportDate(step2Values.reportA)" class="text-[10px] font-light text-slate-400 dark:text-slate-500">{{ reportDate(step2Values.reportA) }}</span>
+                </div>
               </div>
               <Lucide icon="ArrowLeftRight" class="h-4 w-4 shrink-0 text-slate-400" />
               <div class="flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 dark:border-darkmode-600 dark:bg-darkmode-800">
-                <Lucide icon="FileText" class="h-4 w-4 text-primary" />
-                <span class="text-sm font-medium text-slate-700 dark:text-slate-200">{{ reportLabel(step2Values.reportB) }}</span>
+                <Lucide icon="FileText" class="h-4 w-4 shrink-0 text-primary" />
+                <div class="flex flex-col">
+                  <span class="text-sm font-medium text-slate-700 dark:text-slate-200">{{ reportLabel(step2Values.reportB) }}</span>
+                  <span v-if="reportDate(step2Values.reportB)" class="text-[10px] font-light text-slate-400 dark:text-slate-500">{{ reportDate(step2Values.reportB) }}</span>
+                </div>
               </div>
             </div>
           </div>
@@ -358,20 +409,21 @@ import BaseSelect from '@/core/ui/base/BaseSelect.vue';
 
 const ComparativeReportSelect = defineComponent({
   name: 'ComparativeReportSelect',
+  components: { BaseSelect },
   props: {
     name: { type: String, required: true },
+    otherFieldName: { type: String, required: true },
     label: { type: String, default: '' },
     options: { type: Array, default: () => [] },
-    excludeSlug: { type: String, default: '' },
     required: { type: Boolean, default: false },
   },
   setup(props) {
     const { value } = useField<string>(props.name);
+    const { value: otherValue } = useField<string>(props.otherFieldName);
     const filteredOptions = computed(() => {
-      if (!props.excludeSlug) return props.options as { value: string; label: string }[];
-      return (props.options as { value: string; label: string }[]).filter(o => o.value !== props.excludeSlug);
+      return (props.options as { value: string; label: string }[]).filter(o => o.value !== otherValue.value);
     });
-    watch(() => props.excludeSlug, (v) => { if (v && value.value === v) value.value = ''; });
+    watch(otherValue, (v) => { if (v && value.value === v) value.value = ''; });
     return { value, filteredOptions };
   },
   template: `<BaseSelect :name="name" :label="label" :options="filteredOptions" :required="required" placeholder="" />`,

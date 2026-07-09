@@ -796,6 +796,7 @@
     "validation-title-required": "العنوان مطلوب",
     "validation-framework-required": "اختيار الإطار مطلوب",
     "validation-period-required": "اختيار الفترة مطلوب",
+    "validation-date-type-required": "اختيار نوع التقويم مطلوب",
     "validation-report-a-required": "اختيار التقرير الأول مطلوب",
     "validation-report-b-required": "اختيار التقرير الثاني مطلوب",
     "not-enough-reports": "يلزم تقريران على الأقل لإنشاء تقرير مقارن",

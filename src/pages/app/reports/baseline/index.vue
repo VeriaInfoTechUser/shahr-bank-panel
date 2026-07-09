@@ -35,7 +35,7 @@ async function saveEditTitle() {
   if (!editingReport.value || !editTitle.value.trim()) return;
   editSaving.value = true;
   try {
-    await reportRepo.updateReport(editingReport.value.slug, { title: editTitle.value.trim() });
+    await reportRepo.updateBaseline(editingReport.value.slug, { title: editTitle.value.trim() });
     showEditModal.value = false;
     table.invalidateListCache();
     void table.fetch();

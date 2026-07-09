@@ -3,9 +3,9 @@ import { computed, ref, watch } from 'vue';
 import { Form } from 'vee-validate';
 import * as yup from 'yup';
 import { useI18n } from 'vue-i18n';
+import { toast } from 'vue3-toastify';
 import BaseModal from '@/core/ui/base/BaseModal.vue';
 import BaseInput from '@/core/ui/base/BaseInput.vue';
-import BaseSelect from '@/core/ui/base/BaseSelect.vue';
 import BasePaginatedSelect from '@/core/ui/base/BasePaginatedSelect.vue';
 import DatePickerExtra from '@/components/DatePickerExtra.vue';
 import Button from '@/base-components/Button';
@@ -24,36 +24,17 @@ const emit = defineEmits<{
 
 const { t } = useI18n();
 
-const modalRootClass = computed(() => {
-  if (currentStep.value === 1) {
-    return `w-[min(100%,28rem)] max-w-[28rem] ${MODAL_SKIN} report-wizard-modal`;
-  }
-  return `max-w-4xl w-[min(100%,56rem)] ${MODAL_SKIN} report-wizard-modal`;
-});
-
-const STEPS = [
-  { key: 1, labelKey: 'reports.wizard-step-info', icon: 'FileText' },
-  { key: 2, labelKey: 'reports.wizard-step-period', icon: 'Calendar' },
-  { key: 3, labelKey: 'reports.wizard-step-confirm', icon: 'CheckCircle' },
-] as const;
-
-const currentStep = ref(1);
 const saving = ref(false);
-const step1FormKey = ref(0);
+const formKey = ref(0);
 
-// ── Step 1 ──────────────────────────────────────────────────────────────────
-const step1Schema = yup.object({
+// ── Form ─────────────────────────────────────────────────────────────────────
+const formSchema = yup.object({
   title: yup.string().trim().required(t('reports.validation-title-required')),
   framework: yup.string().trim().required(t('reports.validation-framework-required')),
-  periodType: yup.string().trim().required(t('reports.validation-period-required')),
 });
 
-const periodTypeOptions = computed(() => [
-  { value: 'YEARLY', label: t('reports.period-type.yearly') },
-  { value: 'QUARTERLY', label: t('reports.period-type.quarterly') },
-  { value: 'MONTHLY', label: t('reports.period-type.monthly') },
-]);
-
+const selectedPeriod = ref<{ type: string; startDate: string; endDate: string } | null>(null);
+const dateType = ref<'jalali' | 'gregorian'>('jalali');
 const selectedFrameworkTitle = ref('');
 
 async function fetchFrameworks({ page, limit, search }: { page: number; limit: number; search?: string }) {
@@ -64,74 +45,38 @@ async function fetchFrameworks({ page, limit, search }: { page: number; limit: n
   };
 }
 
-const step1Values = ref<{ title: string; framework: string; periodType: string }>({ title: '', framework: '', periodType: '' });
-
-function onStep1Submit(values: Record<string, unknown>) {
-  step1Values.value = {
-    title: String(values.title ?? ''),
-    framework: String(values.framework ?? ''),
-    periodType: String(values.periodType ?? ''),
-  };
-  selectedFrameworkTitle.value = '';
-  currentStep.value = 2;
-}
-
-// ── Step 2 ──────────────────────────────────────────────────────────────────
-const selectedPeriod = ref<{ type: string; startDate: string; endDate: string } | null>(null);
-const dateType = ref<'jalali' | 'gregorian'>('jalali');
-
-function goToStep3() {
+async function onSubmit(values: Record<string, unknown>) {
   if (!selectedPeriod.value) return;
-  currentStep.value = 3;
-}
-
-// ── Step 3 ──────────────────────────────────────────────────────────────────
-const periodLabel = computed(() => {
-  const p = selectedPeriod.value;
-  if (!p) return '';
-  const labels: Record<string, string> = { season: 'فصل / Quarter', month: 'ماه / Month', year: 'سال / Year' };
-  return `${labels[p.type] ?? p.type}  •  ${p.startDate} — ${p.endDate}`;
-});
-
-const submitError = ref('');
-const submitSuccess = ref(false);
-
-async function submitReport() {
-  if (!selectedPeriod.value || !step1Values.value.framework) return;
   saving.value = true;
-  submitError.value = '';
-  submitSuccess.value = false;
   try {
+    const title = String(values.title ?? '');
+    const frameworkSlug = String(values.framework ?? '');
     let fwTitle = selectedFrameworkTitle.value;
     if (!fwTitle) {
-      const fwRes = await grcRepo.frameworkGet(step1Values.value.framework);
-      fwTitle = fwRes?.data?.title ?? step1Values.value.framework;
+      const fwRes = await grcRepo.frameworkGet(frameworkSlug);
+      fwTitle = fwRes?.data?.title ?? frameworkSlug;
     }
     await reportRepo.createBaseline({
-      title: step1Values.value.title,
+      title,
       type: selectedPeriod.value.type,
-      frameworkSlug: step1Values.value.framework,
+      frameworkSlug,
       frameworkTitle: fwTitle,
       dateType: dateType.value,
       periodType: selectedPeriod.value.type,
       startDate: selectedPeriod.value.startDate,
       endDate: selectedPeriod.value.endDate,
     });
-    submitSuccess.value = true;
+    toast(t('reports.create-success'), { type: 'success' });
     emit('success');
-    setTimeout(() => close(), 1200);
+    close();
   } catch {
-    submitError.value = t('reports.create-error');
+    toast(t('reports.create-error'), { type: 'error' });
   } finally {
     saving.value = false;
   }
 }
 
 // ── Navigation ──────────────────────────────────────────────────────────────
-function goBack() {
-  if (currentStep.value > 1) currentStep.value--;
-}
-
 function close() {
   emit('update:show', false);
   emit('close');
@@ -143,15 +88,11 @@ function onDialogVisible(v: boolean) {
 
 watch(() => props.show, (visible) => {
   if (!visible) return;
-  currentStep.value = 1;
-  step1FormKey.value++;
-  step1Values.value = { title: '', framework: '', periodType: '' };
+  formKey.value++;
   selectedFrameworkTitle.value = '';
   selectedPeriod.value = null;
   dateType.value = 'jalali';
   saving.value = false;
-  submitError.value = '';
-  submitSuccess.value = false;
 });
 </script>
 
@@ -159,87 +100,39 @@ watch(() => props.show, (visible) => {
   <BaseModal
     :visible="show"
     :title="t('reports.wizard-title')"
-    :root-class="modalRootClass"
+    :root-class="`w-[min(100%,32rem)] max-w-[32rem] ${MODAL_SKIN}`"
     @update:visible="onDialogVisible"
   >
-    <div :class="currentStep === 1 ? 'min-h-0' : 'min-h-[28rem]'">
-      <!-- Stepper -->
-      <nav class="mb-6 flex items-center gap-1">
-        <template v-for="(step, idx) in STEPS" :key="step.key">
-          <button
-            type="button"
-            class="flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium transition"
-            :class="[
-              currentStep === step.key
-                ? 'bg-primary/10 text-primary dark:bg-primary/20'
-                : currentStep > step.key
-                  ? 'text-primary/70'
-                  : 'text-slate-400 dark:text-slate-500',
-            ]"
-            @click="currentStep > step.key ? (currentStep = step.key) : undefined"
-          >
-            <span
-              class="flex h-6 w-6 items-center justify-center rounded-full text-[11px] font-bold"
-              :class="[
-                currentStep === step.key
-                  ? 'bg-primary text-white'
-                  : currentStep > step.key
-                    ? 'bg-primary/20 text-primary'
-                    : 'bg-slate-200 text-slate-500 dark:bg-darkmode-600 dark:text-slate-400',
-              ]"
-            >
-              <Lucide v-if="currentStep > step.key" icon="Check" class="h-3.5 w-3.5" />
-              <span v-else>{{ step.key }}</span>
-            </span>
-            <span class="hidden sm:inline">{{ t(step.labelKey) }}</span>
-          </button>
-          <div
-            v-if="idx < STEPS.length - 1"
-            class="mx-1 h-px flex-1"
-            :class="currentStep > step.key ? 'bg-primary/30' : 'bg-slate-200 dark:bg-darkmode-600'"
-          />
-        </template>
-      </nav>
+    <Form
+      :key="'form-' + formKey"
+      id="create-report-form"
+      :validation-schema="formSchema"
+      :initial-values="{ title: '', framework: '' }"
+      class="space-y-4"
+      @submit="onSubmit"
+    >
+      <BaseInput
+        name="title"
+        :label="t('reports.col-title')"
+        :placeholder="t('reports.title-placeholder')"
+        :required="true"
+      />
+      <BasePaginatedSelect
+        name="framework"
+        :label="t('menu.framework')"
+        :fetch-fn="fetchFrameworks"
+        :limit="10"
+        :search="true"
+        :required="true"
+        placeholder=""
+      />
 
-      <!-- ═══ Step 1 ═══ -->
-      <Form
-        v-if="currentStep === 1"
-        :key="'step1-' + step1FormKey"
-        id="report-wizard-step1"
-        :validation-schema="step1Schema"
-        :initial-values="{ title: '', framework: '', periodType: '' }"
-        class="space-y-4"
-        @submit="onStep1Submit"
-      >
-        <BaseInput
-          name="title"
-          :label="t('reports.col-title')"
-          :placeholder="t('reports.title-placeholder')"
-          :required="true"
-        />
-        <BasePaginatedSelect
-          name="framework"
-          :label="t('menu.framework')"
-          :fetch-fn="fetchFrameworks"
-          :limit="10"
-          :search="true"
-          :required="true"
-          placeholder=""
-        />
-        <BaseSelect
-          name="periodType"
-          :label="t('reports.col-period')"
-          :options="periodTypeOptions"
-          :required="true"
-          placeholder=""
-        />
-      </Form>
-
-      <!-- ═══ Step 2 ═══ -->
-      <div v-else-if="currentStep === 2">
-        <p class="mb-4 text-[11px] font-semibold uppercase tracking-[0.08em] text-slate-400 dark:text-slate-500">
-          {{ t('reports.wizard-step-period') }}
-        </p>
+      <!-- Date Picker -->
+      <div>
+        <label class="mb-1.5 block text-xs font-medium text-slate-500 dark:text-slate-400">
+          {{ t('reports.col-period') }}
+          <span class="me-0.5 text-danger">*</span>
+        </label>
         <div class="flex justify-center">
           <DatePickerExtra
             v-model="selectedPeriod"
@@ -247,68 +140,18 @@ watch(() => props.show, (visible) => {
             @calendar-change="dateType = $event"
           />
         </div>
-      </div>
-
-      <!-- ═══ Step 3 ═══ -->
-      <div v-else-if="currentStep === 3">
-        <p class="mb-4 text-[11px] font-semibold uppercase tracking-[0.08em] text-slate-400 dark:text-slate-500">
-          {{ t('reports.wizard-step-confirm') }}
+        <p v-if="!selectedPeriod" class="mt-1 text-[11px] text-danger">
+          {{ t('reports.validation-period-required') }}
         </p>
-        <div class="rounded-xl border border-slate-200 bg-slate-50 p-5 dark:border-darkmode-600 dark:bg-darkmode-700">
-          <div class="mb-4">
-            <span class="mb-1 block text-[11px] font-medium text-slate-400 dark:text-slate-500">{{ t('reports.col-title') }}</span>
-            <div class="flex items-center gap-2">
-              <Lucide icon="Type" class="h-4 w-4 text-primary" />
-              <span class="text-sm font-medium text-slate-700 dark:text-slate-200">{{ step1Values.title }}</span>
-            </div>
-          </div>
-          <div class="mb-4 h-px bg-slate-200 dark:bg-darkmode-600" />
-          <div class="mb-4">
-            <span class="mb-1 block text-[11px] font-medium text-slate-400 dark:text-slate-500">{{ t('menu.framework') }}</span>
-            <span class="text-sm font-medium text-slate-700 dark:text-slate-200">{{ selectedFrameworkTitle || step1Values.framework }}</span>
-          </div>
-          <div class="mb-4 h-px bg-slate-200 dark:bg-darkmode-600" />
-          <div>
-            <span class="mb-1 block text-[11px] font-medium text-slate-400 dark:text-slate-500">{{ t('reports.period') }}</span>
-            <div class="flex items-center gap-2">
-              <Lucide icon="Calendar" class="h-4 w-4 text-primary" />
-              <span class="text-sm font-medium text-slate-700 dark:text-slate-200">{{ periodLabel }}</span>
-            </div>
-            <span class="mt-1 inline-block rounded bg-slate-200 px-1.5 py-0.5 text-[10px] font-medium text-slate-600 dark:bg-darkmode-500 dark:text-slate-300">
-              {{ dateType === 'jalali' ? 'شمسی' : 'میلادی' }}
-            </span>
-          </div>
-        </div>
       </div>
-
-      <!-- Feedback -->
-      <div v-if="submitSuccess || submitError" class="mt-4">
-        <div v-if="submitSuccess" class="flex items-center gap-2 rounded-lg border border-success/30 bg-success/10 px-3 py-2 text-sm font-medium text-success">
-          <Lucide icon="CheckCircle" class="h-4 w-4" />
-          {{ t('reports.create-success') }}
-        </div>
-        <div v-else-if="submitError" class="flex items-center gap-2 rounded-lg border border-danger/30 bg-danger/10 px-3 py-2 text-sm font-medium text-danger">
-          <Lucide icon="XCircle" class="h-4 w-4" />
-          {{ submitError }}
-        </div>
-      </div>
-    </div>
+    </Form>
 
     <template #footer>
       <div class="flex flex-wrap justify-end gap-2">
         <Button type="button" variant="outline-secondary" size="sm" :disabled="saving" @click="close">
           {{ t('button.cancel') }}
         </Button>
-        <Button v-if="currentStep > 1" type="button" variant="outline-secondary" size="sm" @click="goBack">
-          {{ t('button.back') }}
-        </Button>
-        <Button v-if="currentStep === 1" type="submit" variant="primary" size="sm" form="report-wizard-step1">
-          {{ t('reports.wizard-next') }}
-        </Button>
-        <Button v-else-if="currentStep === 2" type="button" variant="primary" size="sm" :disabled="!selectedPeriod" @click="goToStep3">
-          {{ t('reports.wizard-next') }}
-        </Button>
-        <Button v-else type="button" variant="primary" size="sm" :disabled="saving" @click="submitReport">
+        <Button type="submit" variant="primary" size="sm" :disabled="saving || !selectedPeriod" form="create-report-form">
           <Lucide v-if="saving" icon="Loader2" class="me-1 h-3.5 w-3.5 animate-spin" />
           <Lucide v-else icon="Check" class="me-1 h-3.5 w-3.5" />
           {{ t('reports.submit') }}
@@ -317,9 +160,3 @@ watch(() => props.show, (visible) => {
     </template>
   </BaseModal>
 </template>
-
-<style>
-.report-wizard-modal {
-  transition: max-width 0.3s ease, width 0.3s ease !important;
-}
-</style>

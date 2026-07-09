@@ -1070,6 +1070,11 @@
     "view-dashboard": "مشاهده داشبورد",
     "report": "گزارش",
     "dashboard": "داشبورد",
+    "baseline-report": "گزارش مبنا",
+    "baseline-dashboard": "داشبورد مبنا",
+    "comparative-report": "گزارش مقایسه‌ای",
+    "comparative-dashboard": "داشبورد مقایسه‌ای",
+    "comparative-wizard-title": "ایجاد گزارش مقایسه‌ای",
     "edit-title": "ویرایش عنوان",
     "update-success": "عنوان با موفقیت بروزرسانی شد",
     "update-error": "خطا در بروزرسانی عنوان"

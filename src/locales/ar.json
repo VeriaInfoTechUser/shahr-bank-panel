@@ -806,6 +806,11 @@
     "view-dashboard": "عرض لوحة التحكم",
     "report": "تقرير",
     "dashboard": "لوحة التحكم",
+    "baseline-report": "التقرير المرجعي",
+    "baseline-dashboard": "لوحة تحكم مرجعية",
+    "comparative-report": "التقرير المقارن",
+    "comparative-dashboard": "لوحة تحكم مقارنة",
+    "comparative-wizard-title": "إنشاء تقرير مقارن",
     "edit-title": "تعديل العنوان",
     "update-success": "تم تحديث العنوان بنجاح",
     "update-error": "خطأ في تحديث العنوان"

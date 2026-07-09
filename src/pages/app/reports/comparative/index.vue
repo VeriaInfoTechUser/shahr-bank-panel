@@ -6,7 +6,7 @@ import BaseTable from '@core/ui/base/BaseTable.vue';
 import BaseModal from '@/core/ui/base/BaseModal.vue';
 import Button from '@/base-components/Button';
 import Lucide from '@/base-components/Lucide';
-import CreateReportModal from '../baseline/CreateReportModal.vue';
+import CreateComparativeReportModal from './CreateComparativeReportModal.vue';
 import ComparativeBreadcrumbToolbar from './ComparativeBreadcrumbToolbar.vue';
 import { reportRepo, type ReportItem } from '@/core/repositories/reportRepo';
 import { useBreadcrumbSlot } from '@/composables/useBreadcrumb';
@@ -212,9 +212,8 @@ onMounted(() => {
     </div>
 
     <!-- Create Modal -->
-    <CreateReportModal
+    <CreateComparativeReportModal
       :show="showCreateModal"
-      report-type="comparative"
       @update:show="showCreateModal = $event"
       @success="onModalSuccess"
     />

@@ -1049,6 +1049,11 @@
     "view-dashboard": "View Dashboard",
     "report": "Report",
     "dashboard": "Dashboard",
+    "baseline-report": "Baseline Report",
+    "baseline-dashboard": "Baseline Dashboard",
+    "comparative-report": "Comparative Report",
+    "comparative-dashboard": "Comparative Dashboard",
+    "comparative-wizard-title": "Create Comparative Report",
     "edit-title": "Edit Title",
     "update-success": "Title updated successfully",
     "update-error": "Error updating title"

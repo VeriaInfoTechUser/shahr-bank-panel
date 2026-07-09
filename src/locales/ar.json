@@ -765,8 +765,20 @@
     "col-type": "النوع",
     "col-date": "تاريخ الإنشاء",
     "col-title": "العنوان",
+    "col-date-type": "التقويم",
+    "col-date-range": "النطاق الزمني",
     "col-actions": "الإجراءات",
+    "period-type": {
+      "yearly": "سنوي",
+      "quarterly": "ربع سنوي",
+      "monthly": "شهري"
+    },
+    "date-type": {
+      "jalali": "هجري",
+      "gregorian": "ميلادي"
+    },
     "download": "تحميل",
+    "toolbar-clear-filters": "مسح الفلاتر",
     "empty": "لم يتم إنشاء أي تقارير بعد",
     "required-framework": "اختيار الإطار مطلوب",
     "required-period": "اختيار الفترة الزمنية مطلوب",
@@ -781,6 +793,8 @@
     "title-placeholder": "عنوان التقرير...",
     "view-report": "عرض التقرير",
     "view-dashboard": "عرض لوحة التحكم",
+    "report": "تقرير",
+    "dashboard": "لوحة التحكم",
     "edit-title": "تعديل العنوان",
     "update-success": "تم تحديث العنوان بنجاح",
     "update-error": "خطأ في تحديث العنوان"

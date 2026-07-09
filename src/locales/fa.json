@@ -1029,8 +1029,20 @@
     "col-type": "نوع",
     "col-date": "تاریخ ایجاد",
     "col-title": "عنوان",
+    "col-date-type": "تقویم",
+    "col-date-range": "بازه زمانی",
     "col-actions": "عملیات",
+    "period-type": {
+      "yearly": "سالانه",
+      "quarterly": "فصلی",
+      "monthly": "ماهانه"
+    },
+    "date-type": {
+      "jalali": "شمسی",
+      "gregorian": "میلادی"
+    },
     "download": "دانلود",
+    "toolbar-clear-filters": "پاک کردن فیلترها",
     "empty": "هنوز گزارشی ایجاد نشده است",
     "required-framework": "انتخاب چارچوب الزامی است",
     "required-period": "انتخاب دوره زمانی الزامی است",
@@ -1045,6 +1057,8 @@
     "title-placeholder": "عنوان گزارش...",
     "view-report": "مشاهده گزارش",
     "view-dashboard": "مشاهده داشبورد",
+    "report": "گزارش",
+    "dashboard": "داشبورد",
     "edit-title": "ویرایش عنوان",
     "update-success": "عنوان با موفقیت بروزرسانی شد",
     "update-error": "خطا در بروزرسانی عنوان"

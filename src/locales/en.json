@@ -1008,8 +1008,20 @@
     "col-type": "Type",
     "col-date": "Created At",
     "col-title": "Title",
+    "col-date-type": "Calendar",
+    "col-date-range": "Date Range",
     "col-actions": "Actions",
+    "period-type": {
+      "yearly": "Yearly",
+      "quarterly": "Quarterly",
+      "monthly": "Monthly"
+    },
+    "date-type": {
+      "jalali": "Jalali",
+      "gregorian": "Gregorian"
+    },
     "download": "Download",
+    "toolbar-clear-filters": "Clear Filters",
     "empty": "No reports created yet",
     "required-framework": "Framework selection is required",
     "required-period": "Time period selection is required",
@@ -1024,6 +1036,8 @@
     "title-placeholder": "Report title...",
     "view-report": "View Report",
     "view-dashboard": "View Dashboard",
+    "report": "Report",
+    "dashboard": "Dashboard",
     "edit-title": "Edit Title",
     "update-success": "Title updated successfully",
     "update-error": "Error updating title"

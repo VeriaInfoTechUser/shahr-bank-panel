@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
-// import { toast } from 'vue3-toastify';
 import { useDataTable, createColumn, type FetchFn } from '@core';
 import BaseTable from '@core/ui/base/BaseTable.vue';
 import BaseModal from '@/core/ui/base/BaseModal.vue';
@@ -37,12 +36,9 @@ async function saveEditTitle() {
   editSaving.value = true;
   try {
     await reportRepo.updateReport(editingReport.value.slug, { title: editTitle.value.trim() });
-    // toast(t('reports.update-success'), { type: 'success' });
     showEditModal.value = false;
     table.invalidateListCache();
     void table.fetch();
-  } catch {
-    // toast(t('reports.update-error'), { type: 'error' });
   } finally {
     editSaving.value = false;
   }
@@ -56,6 +52,18 @@ function formatDate(iso: string) {
   } catch {
     return iso;
   }
+}
+
+function periodTypeLabel(v: unknown) {
+  const key = String(v ?? '').trim();
+  if (!key) return '—';
+  return t(`reports.period-type.${key.toLowerCase()}`, key);
+}
+
+function dateTypeLabel(v: unknown) {
+  const key = String(v ?? '').trim();
+  if (!key) return '—';
+  return t(`reports.date-type.${key}`, key);
 }
 
 const fetchReports: FetchFn = async ({ page, limit }) => {
@@ -75,22 +83,30 @@ const table = useDataTable({
       bodyCell: (row: Record<string, unknown>) => row.title ?? '—',
     }),
     createColumn({
-      key: 'period',
+      key: 'periodType',
       label: t('reports.col-period'),
       sortable: false,
-      bodyCell: (row: Record<string, unknown>) => {
-        const p = String(row.period ?? '');
-        return p || '—';
-      },
     }),
     createColumn({
-      key: 'frameworkSlugs',
+      key: 'frameworkTitle',
       label: t('reports.col-framework'),
       sortable: false,
+      bodyCell: (row: Record<string, unknown>) => row.frameworkTitle ?? '—',
+    }),
+    createColumn({
+      key: 'dateType',
+      label: t('reports.col-date-type'),
+      sortable: false,
+    }),
+    createColumn({
+      key: 'dateRange',
+      label: t('reports.col-date-range'),
+      sortable: false,
       bodyCell: (row: Record<string, unknown>) => {
-        const slugs = row.frameworkSlugs;
-        if (!Array.isArray(slugs) || slugs.length === 0) return '—';
-        return slugs.join(', ');
+        const s = String(row.startDate ?? '');
+        const e = String(row.endDate ?? '');
+        if (!s && !e) return '—';
+        return `${formatDate(s)} — ${formatDate(e)}`;
       },
     }),
     createColumn({
@@ -116,7 +132,11 @@ onMounted(() => {
   setBreadcrumbSlot(BaselineBreadcrumbToolbar, {
     onAdd: () => { showCreateModal.value = true; },
     onExport: () => table.exportCSV(),
-    table,
+    table: {
+      replaceFilters: (f: Record<string, unknown>) => table.replaceFilters(f),
+      clearFilters: () => table.clearFilters(),
+      filters: table.filters,
+    },
   });
 });
 </script>
@@ -132,47 +152,49 @@ onMounted(() => {
         :actions="true"
         :show-search="false"
       >
-        <template #cell-period="{ row }">
+        <!-- Period type badge -->
+        <template #cell-periodType="{ row }">
           <span class="inline-block rounded bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
-            {{ row.period ?? '—' }}
+            {{ periodTypeLabel(row.periodType) }}
           </span>
         </template>
-        <template #cell-frameworkSlugs="{ row }">
-          <div class="flex flex-wrap gap-1">
-            <span
-              v-for="slug in (Array.isArray(row.frameworkSlugs) ? row.frameworkSlugs : [])"
-              :key="slug"
-              class="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600 dark:bg-darkmode-600 dark:text-slate-300"
-            >
-              {{ slug }}
-            </span>
-            <span v-if="!Array.isArray(row.frameworkSlugs) || !row.frameworkSlugs.length">—</span>
-          </div>
+
+        <!-- Framework -->
+        <template #cell-frameworkTitle="{ row }">
+          <span class="text-xs font-medium text-slate-700 dark:text-slate-200">
+            {{ row.frameworkTitle ?? '—' }}
+          </span>
         </template>
+
+        <!-- Date type badge -->
+        <template #cell-dateType="{ row }">
+          <span
+            class="inline-block rounded px-2 py-0.5 text-xs font-medium"
+            :class="row.dateType === 'jalali' ? 'bg-warning/15 text-warning' : 'bg-info/15 text-info'"
+          >
+            {{ dateTypeLabel(row.dateType) }}
+          </span>
+        </template>
+
+        <!-- Actions -->
         <template #actions="{ row }">
           <div class="flex items-center justify-center gap-2">
-            <Button
-              type="button"
-              variant="outline-secondary"
-              size="sm"
-              class="!h-7 !w-7 !px-0 !py-0"
-              :aria-label="t('reports.view-report')"
-              :title="t('reports.view-report')"
-              @click.stop="router.push({ name: 'app-reports-baseline-detail', params: { slug: row.slug } })"
+            <a
+              href="#"
+              class="inline-flex items-center gap-1 rounded px-2 py-1 text-[11px] font-medium text-primary transition-colors hover:bg-primary/10"
+              @click.prevent
             >
-              <Lucide icon="Eye" class="!h-3.5 !w-3.5" />
-            </Button>
-            <Button
-              type="button"
-              variant="outline-secondary"
-              size="sm"
-              class="!h-7 !w-7 !px-0 !py-0"
-              :aria-label="t('reports.view-dashboard')"
-              :title="t('reports.view-dashboard')"
-              @click.stop="router.push({ name: 'app-reports-baseline-dashboard', params: { slug: row.slug } })"
+              <Lucide icon="Eye" class="h-3.5 w-3.5" />
+              {{ t('reports.report') }}
+            </a>
+            <a
+              href="#"
+              class="inline-flex items-center gap-1 rounded px-2 py-1 text-[11px] font-medium text-primary transition-colors hover:bg-primary/10"
+              @click.prevent
             >
-              <Lucide icon="LayoutDashboard" class="!h-3.5 !w-3.5" />
-            </Button>
+              <Lucide icon="LayoutDashboard" class="h-3.5 w-3.5" />
+              {{ t('reports.dashboard') }}
+            </a>
             <Button
               type="button"
               variant="outline-secondary"

@@ -8,10 +8,12 @@ export interface ReportItem {
   status: number;
   title: string;
   reportType: string;
-  period: string;
-  frameworkSlugs: string[];
-  domainSlugs: string[];
-  metricSlugs: string[];
+  frameworkSlug: string;
+  frameworkTitle: string;
+  dateType: string;
+  periodType: string;
+  startDate: string;
+  endDate: string;
   createdAt: string;
   updatedAt: string;
 }

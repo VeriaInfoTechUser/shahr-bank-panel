@@ -107,7 +107,10 @@
     "active": "نشط",
     "inactive": "غير نشط",
     "yes": "نعم",
-    "no": "لا"
+    "no": "لا",
+    "previous": "السابق",
+    "next": "التالي",
+    "select": "اختر"
   },
   "login-history": {
     "title": "سجل الدخول",
@@ -775,7 +778,12 @@
     "wizard-step-confirm": "تأكيد",
     "wizard-next": "التالي",
     "toolbar-export": "تصدير",
-    "title-placeholder": "عنوان التقرير..."
+    "title-placeholder": "عنوان التقرير...",
+    "view-report": "عرض التقرير",
+    "view-dashboard": "عرض لوحة التحكم",
+    "edit-title": "تعديل العنوان",
+    "update-success": "تم تحديث العنوان بنجاح",
+    "update-error": "خطأ في تحديث العنوان"
   },
   "compliance-page": {
     "col-code": "الرمز",

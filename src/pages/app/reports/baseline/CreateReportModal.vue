@@ -2,6 +2,7 @@
 import { computed, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import BaseModal from '@/core/ui/base/BaseModal.vue';
+import BasePaginatedSelect from '@/core/ui/base/BasePaginatedSelect.vue';
 import DatePickerExtra from '@/components/DatePickerExtra.vue';
 import Button from '@/base-components/Button';
 import Lucide from '@/base-components/Lucide';
@@ -47,65 +48,29 @@ const dateType = ref<'jalali' | 'gregorian'>('jalali');
 function goToStep2() {
   if (!selectedPeriod.value || !reportTitle.value.trim()) return;
   currentStep.value = 2;
-  loadFrameworks();
 }
 
 // ── Step 2: Framework ───────────────────────────────────────────────────────
-interface Framework {
-  slug: string;
-  title: string;
-  number: string;
-  version: string;
-  summary: string;
-}
-
-const frameworks = ref<Framework[]>([]);
-const frameworksLoading = ref(false);
 const selectedFramework = ref<string | null>(null);
-const frameworkSearch = ref('');
+const selectedFrameworkTitle = ref('');
 
-const filteredFrameworks = computed(() => {
-  const q = frameworkSearch.value.trim().toLowerCase();
-  if (!q) return frameworks.value;
-  return frameworks.value.filter(
-    fw => fw.title.toLowerCase().includes(q)
-      || fw.number.toLowerCase().includes(q)
-      || fw.summary.toLowerCase().includes(q)
-  );
-});
-
-function selectFramework(slug: string) {
-  selectedFramework.value = selectedFramework.value === slug ? null : slug;
+async function fetchFrameworks({ page, limit, search }: { page: number; limit: number; search?: string }) {
+  const res = await grcRepo.frameworkList({ page, limit, title: search });
+  const list = (res?.data?.list ?? []).map((fw: GrcEntity) => ({
+    value: fw.slug,
+    label: fw.title ?? fw.slug,
+  }));
+  return { list, count: res?.data?.paginator?.count ?? 0 };
 }
 
-async function loadFrameworks() {
-  if (frameworks.value.length > 0) return;
-  frameworksLoading.value = true;
-  try {
-    const res = await grcRepo.frameworkList({ limit: 100 });
-    frameworks.value = (res?.data?.list ?? []).map((fw: GrcEntity) => ({
-      slug: fw.slug,
-      title: fw.title ?? fw.slug,
-      number: fw.number ?? '',
-      version: fw.version ?? '',
-      summary: fw.summary ?? '',
-    }));
-  } catch {
-    frameworks.value = [];
-  } finally {
-    frameworksLoading.value = false;
-  }
+function onFrameworkChange(slug: unknown) {
+  selectedFramework.value = String(slug ?? '');
 }
 
 function goToStep3() {
   if (!selectedFramework.value) return;
   currentStep.value = 3;
 }
-
-// ── Step 3: Confirm & Submit ────────────────────────────────────────────────
-const selectedFrameworkData = computed(() =>
-  frameworks.value.find(fw => fw.slug === selectedFramework.value) ?? null
-);
 
 const periodLabel = computed(() => {
   const p = selectedPeriod.value;
@@ -127,11 +92,16 @@ async function submitReport() {
   submitError.value = '';
   submitSuccess.value = false;
   try {
+    let fwTitle = selectedFrameworkTitle.value;
+    if (!fwTitle) {
+      const fwRes = await grcRepo.frameworkGet(selectedFramework.value);
+      fwTitle = fwRes?.data?.title ?? selectedFramework.value;
+    }
     await reportRepo.createReport({
       title: reportTitle.value.trim(),
       type: selectedPeriod.value.type,
       frameworkSlug: selectedFramework.value,
-      frameworkTitle: selectedFrameworkData.value?.title ?? '',
+      frameworkTitle: fwTitle,
       dateType: dateType.value,
       periodType: selectedPeriod.value.type,
       startDate: selectedPeriod.value.startDate,
@@ -169,7 +139,7 @@ watch(() => props.show, (visible) => {
   selectedPeriod.value = null;
   dateType.value = 'jalali';
   selectedFramework.value = null;
-  frameworkSearch.value = '';
+  selectedFrameworkTitle.value = '';
   saving.value = false;
   submitError.value = '';
   submitSuccess.value = false;
@@ -247,67 +217,15 @@ watch(() => props.show, (visible) => {
         <p class="mb-4 text-[11px] font-semibold uppercase tracking-[0.08em] text-slate-400 dark:text-slate-500">
           {{ t('reports.wizard-step-framework') }}
         </p>
-
-        <!-- Search -->
-        <div v-if="!frameworksLoading && frameworks.length" class="relative mb-3">
-          <Lucide icon="Search" class="absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-          <input
-            v-model="frameworkSearch"
-            type="text"
-            class="w-full rounded-lg border border-slate-200 bg-slate-50 py-2 pe-3 ps-9 text-sm text-slate-700 placeholder-slate-400 outline-none transition-colors focus:border-primary focus:bg-white dark:border-darkmode-600 dark:bg-darkmode-700 dark:text-slate-200 dark:placeholder-slate-500 dark:focus:border-primary"
-            :placeholder="t('reports.search-framework')"
-          />
-        </div>
-
-        <!-- Loading -->
-        <div v-if="frameworksLoading" class="space-y-2">
-          <div v-for="i in 5" :key="i" class="h-14 animate-pulse rounded-lg border border-slate-200 bg-slate-50 dark:border-darkmode-600 dark:bg-darkmode-700" />
-        </div>
-
-        <!-- List -->
-        <div v-else-if="filteredFrameworks.length" class="max-h-[340px] space-y-1.5 overflow-y-auto overscroll-contain pe-1">
-          <button
-            v-for="fw in filteredFrameworks"
-            :key="fw.slug"
-            type="button"
-            class="group flex w-full items-center gap-3 rounded-lg border p-3 text-right transition-all"
-            :class="
-              selectedFramework === fw.slug
-                ? 'border-primary bg-primary/5 shadow-sm ring-1 ring-primary/20'
-                : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50 dark:border-darkmode-600 dark:bg-darkmode-800 dark:hover:border-darkmode-500 dark:hover:bg-darkmode-700'
-            "
-            @click="selectFramework(fw.slug)"
-          >
-            <!-- Radio -->
-            <div
-              class="flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 transition-all"
-              :class="selectedFramework === fw.slug ? 'border-primary bg-primary' : 'border-slate-300 dark:border-darkmode-500'"
-            >
-              <div v-if="selectedFramework === fw.slug" class="h-2 w-2 rounded-full bg-white" />
-            </div>
-
-            <div class="min-w-0 flex-1">
-              <div class="flex items-center gap-2">
-                <span class="truncate text-sm font-semibold" :class="selectedFramework === fw.slug ? 'text-primary' : 'text-slate-700 dark:text-slate-200'">
-                  {{ fw.title }}
-                </span>
-                <span v-if="fw.version" class="shrink-0 rounded bg-slate-100 px-1.5 py-0.5 text-[10px] font-medium text-slate-500 dark:bg-darkmode-600 dark:text-slate-400">
-                  v{{ fw.version }}
-                </span>
-              </div>
-              <div class="mt-0.5 flex items-center gap-2">
-                <span v-if="fw.number" class="font-mono text-[11px] text-slate-400 dark:text-slate-500">{{ fw.number }}</span>
-                <span v-if="fw.summary" class="hidden text-[11px] text-slate-400 dark:text-slate-500 sm:inline">— {{ fw.summary }}</span>
-              </div>
-            </div>
-          </button>
-        </div>
-
-        <!-- Empty -->
-        <div v-else class="py-8 text-center">
-          <Lucide icon="LayoutGrid" class="mx-auto mb-2 h-8 w-8 text-slate-300 dark:text-darkmode-500" />
-          <p class="text-sm text-slate-400 dark:text-slate-500">{{ t('general.no-data') }}</p>
-        </div>
+        <BasePaginatedSelect
+          name="framework"
+          :label="t('menu.framework')"
+          :fetch-fn="fetchFrameworks"
+          :limit="10"
+          :search="true"
+          placeholder=""
+          @change="onFrameworkChange"
+        />
       </div>
 
       <!-- ═══ Step 3: Confirm ═══ -->
@@ -355,21 +273,13 @@ watch(() => props.show, (visible) => {
             <span class="mb-1 block text-[11px] font-medium text-slate-400 dark:text-slate-500">
               {{ t('menu.framework') }}
             </span>
-            <div v-if="selectedFrameworkData" class="flex items-start gap-3">
+            <div v-if="selectedFramework" class="flex items-start gap-3">
               <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
                 <Lucide icon="LayoutGrid" class="h-5 w-5 text-primary" />
               </div>
               <div class="min-w-0">
-                <div class="flex items-center gap-2">
-                  <span class="text-sm font-semibold text-slate-700 dark:text-slate-200">
-                    {{ selectedFrameworkData.title }}
-                  </span>
-                  <span v-if="selectedFrameworkData.version" class="rounded bg-slate-200 px-1.5 py-0.5 text-[10px] font-medium text-slate-600 dark:bg-darkmode-500 dark:text-slate-300">
-                    v{{ selectedFrameworkData.version }}
-                  </span>
-                </div>
-                <span v-if="selectedFrameworkData.number" class="font-mono text-xs text-slate-400 dark:text-slate-500">
-                  {{ selectedFrameworkData.number }}
+                <span class="text-sm font-semibold text-slate-700 dark:text-slate-200">
+                  {{ selectedFrameworkTitle || selectedFramework }}
                 </span>
               </div>
             </div>

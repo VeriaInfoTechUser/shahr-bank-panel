@@ -258,7 +258,10 @@
     "active": "فعال",
     "inactive": "غیرفعال",
     "yes": "بله",
-    "no": "خیر"
+    "no": "خیر",
+    "previous": "قبلی",
+    "next": "بعدی",
+    "select": "انتخاب کنید"
   },
   "login-history": {
     "title": "تاریخچه ورود",
@@ -1039,7 +1042,12 @@
     "wizard-step-confirm": "تأیید",
     "wizard-next": "مرحله بعد",
     "toolbar-export": "خروجی",
-    "title-placeholder": "عنوان گزارش..."
+    "title-placeholder": "عنوان گزارش...",
+    "view-report": "مشاهده گزارش",
+    "view-dashboard": "مشاهده داشبورد",
+    "edit-title": "ویرایش عنوان",
+    "update-success": "عنوان با موفقیت بروزرسانی شد",
+    "update-error": "خطا در بروزرسانی عنوان"
   },
   "compliance-page": {
     "col-code": "کد",

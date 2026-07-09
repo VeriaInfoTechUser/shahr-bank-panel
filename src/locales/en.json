@@ -239,7 +239,10 @@
     "active": "Active",
     "inactive": "Inactive",
     "yes": "Yes",
-    "no": "No"
+    "no": "No",
+    "previous": "Previous",
+    "next": "Next",
+    "select": "Select"
   },
   "login-history": {
     "title": "Login History",
@@ -1018,7 +1021,12 @@
     "wizard-step-confirm": "Confirm",
     "wizard-next": "Next",
     "toolbar-export": "Export",
-    "title-placeholder": "Report title..."
+    "title-placeholder": "Report title...",
+    "view-report": "View Report",
+    "view-dashboard": "View Dashboard",
+    "edit-title": "Edit Title",
+    "update-success": "Title updated successfully",
+    "update-error": "Error updating title"
   },
   "compliance-page": {
     "col-code": "Code",

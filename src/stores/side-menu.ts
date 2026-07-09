@@ -240,23 +240,6 @@ export const useSideMenuStore = defineStore("sideMenu", {
                 ],
             },
             {
-                icon: "FileBarChart",
-                pageName: "app-reports",
-                title: "menu.reports",
-                subMenu: [
-                    {
-                        icon: "FileText",
-                        pageName: "app-reports-baseline",
-                        title: "menu.reports-baseline",
-                    },
-                    {
-                        icon: "GitCompare",
-                        pageName: "app-reports-comparative",
-                        title: "menu.reports-comparative",
-                    },
-                ],
-            },
-            {
                 icon: "Database",
                 pageName: "app-data",
                 title: "menu.data",
@@ -285,6 +268,24 @@ export const useSideMenuStore = defineStore("sideMenu", {
                         icon: "Zap",
                         pageName: "app-data-executive-process",
                         title: "menu.data-executive-process",
+                    },
+                ],
+            },
+
+            {
+                icon: "FileBarChart",
+                pageName: "app-reports",
+                title: "menu.reports",
+                subMenu: [
+                    {
+                        icon: "FileText",
+                        pageName: "app-reports-baseline",
+                        title: "menu.reports-baseline",
+                    },
+                    {
+                        icon: "GitCompare",
+                        pageName: "app-reports-comparative",
+                        title: "menu.reports-comparative",
                     },
                 ],
             },

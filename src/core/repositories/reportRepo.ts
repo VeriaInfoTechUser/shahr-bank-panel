@@ -2,16 +2,18 @@ import { grcHttpRequest } from '../api/grcHttp';
 
 export interface ReportItem {
   id: string;
-  title: string;
+  slug: string;
   type: string;
-  frameworkSlug: string;
-  frameworkTitle?: string;
-  dateType?: string;
-  periodType: string;
-  startDate: string;
-  endDate: string;
-  status: string;
+  source: string;
+  status: number;
+  title: string;
+  reportType: string;
+  period: string;
+  frameworkSlugs: string[];
+  domainSlugs: string[];
+  metricSlugs: string[];
   createdAt: string;
+  updatedAt: string;
 }
 
 export class ReportRepo {
@@ -36,6 +38,14 @@ export class ReportRepo {
     return grcHttpRequest({
       method: 'POST',
       url: '/reports/sustainability',
+      data: payload,
+    });
+  }
+
+  async updateReport(slug: string, payload: { title: string }) {
+    return grcHttpRequest({
+      method: 'PUT',
+      url: `/reports/sustainability/${slug}`,
       data: payload,
     });
   }

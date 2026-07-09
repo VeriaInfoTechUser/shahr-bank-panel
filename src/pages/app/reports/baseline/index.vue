@@ -67,7 +67,7 @@ function dateTypeLabel(v: unknown) {
 }
 
 const fetchReports: FetchFn = async ({ page, limit, filters }) => {
-  const res = await reportRepo.getReportList({ page, limit, ...filters });
+  const res = await reportRepo.getBaselineList({ page, limit, ...filters });
   const list = res?.data?.list ?? [];
   const count = res?.data?.paginator?.count ?? 0;
   return { list: Array.isArray(list) ? list : [], count };

@@ -19,15 +19,25 @@ export interface ReportItem {
 }
 
 export class ReportRepo {
-  async getReportList(params?: Record<string, unknown>) {
+  private base = '/reports/sustainability';
+
+  async getBaselineList(params?: Record<string, unknown>) {
     return grcHttpRequest<{ result: boolean; data: { list: ReportItem[]; paginator: { count: number } } }>({
       method: 'GET',
-      url: '/reports/sustainability',
+      url: `${this.base}/baseline`,
       params,
     });
   }
 
-  async createReport(payload: {
+  async getComparativeList(params?: Record<string, unknown>) {
+    return grcHttpRequest<{ result: boolean; data: { list: ReportItem[]; paginator: { count: number } } }>({
+      method: 'GET',
+      url: `${this.base}/comparative`,
+      params,
+    });
+  }
+
+  async createBaseline(payload: {
     title: string;
     type: string;
     frameworkSlug: string;
@@ -39,7 +49,24 @@ export class ReportRepo {
   }) {
     return grcHttpRequest({
       method: 'POST',
-      url: '/reports/sustainability',
+      url: `${this.base}/baseline`,
+      data: payload,
+    });
+  }
+
+  async createComparative(payload: {
+    title: string;
+    type: string;
+    frameworkSlug: string;
+    frameworkTitle: string;
+    dateType: string;
+    periodType: string;
+    startDate: string;
+    endDate: string;
+  }) {
+    return grcHttpRequest({
+      method: 'POST',
+      url: `${this.base}/comparative`,
       data: payload,
     });
   }
@@ -47,7 +74,7 @@ export class ReportRepo {
   async updateReport(slug: string, payload: { title: string }) {
     return grcHttpRequest({
       method: 'PUT',
-      url: `/reports/sustainability/${slug}`,
+      url: `${this.base}/${slug}`,
       data: payload,
     });
   }
@@ -55,7 +82,7 @@ export class ReportRepo {
   async downloadReport(reportId: string): Promise<Blob> {
     const response = await grcHttpRequest<Blob>({
       method: 'GET',
-      url: `/reports/sustainability/${reportId}/download`,
+      url: `${this.base}/${reportId}/download`,
       responseType: 'blob',
     });
     return response;

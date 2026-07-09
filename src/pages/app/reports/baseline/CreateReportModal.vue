@@ -12,7 +12,10 @@ import { reportRepo } from '@/core/repositories/reportRepo';
 const MODAL_SKIN = 'rounded-xl border border-slate-200 bg-white shadow-xl dark:border-darkmode-600 dark:bg-darkmode-800';
 
 // ── Props / Emits ───────────────────────────────────────────────────────────
-const props = defineProps<{ show: boolean }>();
+const props = withDefaults(
+  defineProps<{ show: boolean; reportType?: 'baseline' | 'comparative' }>(),
+  { reportType: 'baseline' }
+);
 const emit = defineEmits<{
   (e: 'update:show', v: boolean): void;
   (e: 'close'): void;
@@ -97,7 +100,7 @@ async function submitReport() {
       const fwRes = await grcRepo.frameworkGet(selectedFramework.value);
       fwTitle = fwRes?.data?.title ?? selectedFramework.value;
     }
-    await reportRepo.createReport({
+    const payload = {
       title: reportTitle.value.trim(),
       type: selectedPeriod.value.type,
       frameworkSlug: selectedFramework.value,
@@ -106,7 +109,12 @@ async function submitReport() {
       periodType: selectedPeriod.value.type,
       startDate: selectedPeriod.value.startDate,
       endDate: selectedPeriod.value.endDate,
-    });
+    };
+    if (props.reportType === 'comparative') {
+      await reportRepo.createComparative(payload);
+    } else {
+      await reportRepo.createBaseline(payload);
+    }
     submitSuccess.value = true;
     emit('success');
     setTimeout(() => close(), 1200);

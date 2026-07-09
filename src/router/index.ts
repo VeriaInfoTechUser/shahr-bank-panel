@@ -57,6 +57,8 @@ import CapitalMetrics from "@/pages/app/capital/metrics/index.vue";
 import CapitalAsset from "@/pages/app/capital/asset/index.vue";
 import CapitalCategory from "@/pages/app/capital/category/index.vue";
 import CapitalMetricsDetail from "@/pages/app/capital/metrics/detail/index.vue";
+import ReportsBaseline from "@/pages/app/reports/baseline/index.vue";
+import ReportsComparative from "@/pages/app/reports/comparative/index.vue";
 import DataEntry from "@/pages/app/data/entry/index.vue";
 import DataRaw from "@/pages/app/data/raw/index.vue";
 import DataLog from "@/pages/app/data/log/index.vue";
@@ -528,6 +530,26 @@ const routes = [
                                 name: "app-capital-asset",
                                 component: CapitalAsset,
                                 meta: { breadcrumbLabel: 'menu.capital-asset' },
+                            },
+                        ],
+                    },
+                    {
+                        path: "reports",
+                        name: "app-reports",
+                        redirect: { name: "app-reports-baseline" },
+                        meta: { breadcrumbLabel: 'menu.reports' },
+                        children: [
+                            {
+                                path: "baseline",
+                                name: "app-reports-baseline",
+                                component: ReportsBaseline,
+                                meta: { breadcrumbLabel: 'menu.reports-baseline' },
+                            },
+                            {
+                                path: "comparative",
+                                name: "app-reports-comparative",
+                                component: ReportsComparative,
+                                meta: { breadcrumbLabel: 'menu.reports-comparative' },
                             },
                         ],
                     },

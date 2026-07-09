@@ -10,7 +10,7 @@
     <!-- ── Mode Tabs ─────────────────────────────────── -->
     <div class="dp-modes">
       <button
-          v-for="m in MODES" :key="m.value"
+          v-for="m in filteredModes" :key="m.value"
           class="dp-mode-btn" :class="{ active: mode === m.value }"
           @click="mode = m.value"
       >{{ m.label }}</button>
@@ -142,8 +142,12 @@ const PeriodType = {
 }
 
 // ── Props & Emits ────────────────────────────────────────────────────────────
-const props = defineProps({ modelValue: { type: Object, default: null } })
-const emit  = defineEmits(['update:modelValue'])
+const props = defineProps({
+  modelValue: { type: Object, default: null },
+  /** Allowed mode values. Defaults to all modes. E.g. ['month', 'year'] */
+  modes: { type: Array, default: () => ['day', 'week', 'month', 'season', 'year'] },
+})
+const emit  = defineEmits(['update:modelValue', 'calendarChange'])
 
 // ── Constants ────────────────────────────────────────────────────────────────
 const MODES = [
@@ -281,10 +285,22 @@ const todayJ = toJalali(todayG.gy, todayG.gm, todayG.gd)
 
 // ── State ────────────────────────────────────────────────────────────────────
 const cal       = ref('fa')          // 'fa' | 'en'
-const mode      = ref('day')
+const mode      = ref(props.modes[0] ?? 'day')
 const viewYear  = ref(todayJ.jy)     // stored in active calendar's unit
 const viewMonth = ref(todayJ.jm)
 const selRaw    = ref(null)          // internal selection (active-cal coords)
+
+// ── Filtered modes ──────────────────────────────────────────────────────────
+const filteredModes = computed(() =>
+  MODES.filter(m => props.modes.includes(m.value))
+)
+
+// Reset mode when allowed modes change and current mode is no longer valid
+watch(() => props.modes, (newModes) => {
+  if (!newModes.includes(mode.value)) {
+    mode.value = newModes[0] ?? 'day'
+  }
+})
 
 // FIX: clearing the selection on mode change wasn't reflected to the parent.
 // Now we also emit `null` so v-model never goes stale vs. the (now-empty) UI.
@@ -306,6 +322,7 @@ function switchCalendar(c) {
     viewMonth.value = j.jm
   }
   cal.value    = c
+  emit('calendarChange', c === 'fa' ? 'jalali' : 'gregorian')
   selRaw.value = null
   emit('update:modelValue', null)
 }

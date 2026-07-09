@@ -35,7 +35,7 @@ async function saveEditTitle() {
   if (!editingReport.value || !editTitle.value.trim()) return;
   editSaving.value = true;
   try {
-    await reportRepo.updateReport(editingReport.value.slug, { title: editTitle.value.trim() });
+    await reportRepo.updateComparative(editingReport.value.slug, { title: editTitle.value.trim() });
     showEditModal.value = false;
     table.invalidateListCache();
     void table.fetch();
@@ -99,15 +99,9 @@ const table = useDataTable({
       sortable: false,
     }),
     createColumn({
-      key: 'dateRange',
-      label: t('reports.col-date-range'),
+      key: 'reports',
+      label: t('reports.reports-to-compare'),
       sortable: false,
-      bodyCell: (row: Record<string, unknown>) => {
-        const s = String(row.startDate ?? '');
-        const e = String(row.endDate ?? '');
-        if (!s && !e) return '—';
-        return `${formatDate(s)} — ${formatDate(e)}`;
-      },
     }),
     createColumn({
       key: 'createdAt',
@@ -174,6 +168,20 @@ onMounted(() => {
           >
             {{ dateTypeLabel(row.dateType) }}
           </span>
+        </template>
+
+        <!-- Reports to compare -->
+        <template #cell-reports="{ row }">
+          <div class="flex flex-col gap-1.5">
+            <div>
+              <span class="text-xs font-medium text-slate-700 dark:text-slate-200">{{ row.reportATitle || '—' }}</span>
+              <span v-if="row.reportAStartDate" class="ms-1 text-[10px] font-light text-slate-400 dark:text-slate-500">{{ formatDate(row.reportAStartDate) }} — {{ formatDate(row.reportAEndDate) }}</span>
+            </div>
+            <div>
+              <span class="text-xs font-medium text-slate-700 dark:text-slate-200">{{ row.reportBTitle || '—' }}</span>
+              <span v-if="row.reportBStartDate" class="ms-1 text-[10px] font-light text-slate-400 dark:text-slate-500">{{ formatDate(row.reportBStartDate) }} — {{ formatDate(row.reportBEndDate) }}</span>
+            </div>
+          </div>
         </template>
 
         <!-- Actions -->

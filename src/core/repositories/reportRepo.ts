@@ -14,6 +14,14 @@ export interface ReportItem {
   periodType: string;
   startDate: string;
   endDate: string;
+  reportASlug: string;
+  reportATitle: string;
+  reportAStartDate: string;
+  reportAEndDate: string;
+  reportBSlug: string;
+  reportBTitle: string;
+  reportBStartDate: string;
+  reportBEndDate: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -56,7 +64,6 @@ export class ReportRepo {
 
   async createComparative(payload: {
     title: string;
-    type: string;
     frameworkSlug: string;
     frameworkTitle: string;
     dateType: string;

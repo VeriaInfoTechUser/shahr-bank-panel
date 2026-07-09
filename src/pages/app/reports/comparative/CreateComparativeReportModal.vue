@@ -78,12 +78,17 @@ async function onStep1Submit(values: Record<string, unknown>) {
     dateType: String(values.dateType ?? ''),
   };
   selectedFrameworkTitle.value = '';
-  await Promise.all([loadBaselineReports(), loadFrameworkTitle()]);
-  if (baselineReports.value.length < 2) {
-    toast(t('reports.not-enough-reports'), { type: 'warning' });
-    return;
+  stepLoading.value = true;
+  try {
+    await Promise.all([loadBaselineReports(), loadFrameworkTitle()]);
+    if (baselineReports.value.length < 2) {
+      toast(t('reports.not-enough-reports'), { type: 'warning' });
+      return;
+    }
+    currentStep.value = 2;
+  } finally {
+    stepLoading.value = false;
   }
-  currentStep.value = 2;
 }
 
 // ── Step 2 ──────────────────────────────────────────────────────────────────
@@ -164,20 +169,18 @@ const dateTypeLabel = computed(() => {
 });
 
 const submitError = ref('');
-const submitSuccess = ref(false);
+const stepLoading = ref(false);
 
 async function submitReport() {
   if (!step1Values.value.framework || !step2Values.value.reportA || !step2Values.value.reportB) return;
   saving.value = true;
   submitError.value = '';
-  submitSuccess.value = false;
   try {
     const fwTitle = selectedFrameworkTitle.value || step1Values.value.framework;
     const reportA = baselineReports.value.find(x => x.slug === step2Values.value.reportA);
     const reportB = baselineReports.value.find(x => x.slug === step2Values.value.reportB);
     await reportRepo.createComparative({
       title: step1Values.value.title,
-      type: 'comparative',
       frameworkSlug: step1Values.value.framework,
       frameworkTitle: fwTitle,
       dateType: step1Values.value.dateType,
@@ -191,11 +194,12 @@ async function submitReport() {
       reportBStartDate: reportB?.startDate ?? '',
       reportBEndDate: reportB?.endDate ?? '',
     });
-    submitSuccess.value = true;
     emit('success');
-    setTimeout(() => close(), 1200);
+    toast(t('reports.create-success'), { type: 'success' });
+    close();
   } catch {
     submitError.value = t('reports.create-error');
+    toast(t('reports.create-error'), { type: 'error' });
   } finally {
     saving.value = false;
   }
@@ -225,8 +229,8 @@ watch(() => props.show, (visible) => {
   selectedFrameworkTitle.value = '';
   baselineReports.value = [];
   saving.value = false;
+  stepLoading.value = false;
   submitError.value = '';
-  submitSuccess.value = false;
 });
 </script>
 
@@ -366,12 +370,8 @@ watch(() => props.show, (visible) => {
       </div>
 
       <!-- Feedback -->
-      <div v-if="submitSuccess || submitError" class="mt-4">
-        <div v-if="submitSuccess" class="flex items-center gap-2 rounded-lg border border-success/30 bg-success/10 px-3 py-2 text-sm font-medium text-success">
-          <Lucide icon="CheckCircle" class="h-4 w-4" />
-          {{ t('reports.create-success') }}
-        </div>
-        <div v-else-if="submitError" class="flex items-center gap-2 rounded-lg border border-danger/30 bg-danger/10 px-3 py-2 text-sm font-medium text-danger">
+      <div v-if="submitError" class="mt-4">
+        <div class="flex items-center gap-2 rounded-lg border border-danger/30 bg-danger/10 px-3 py-2 text-sm font-medium text-danger">
           <Lucide icon="XCircle" class="h-4 w-4" />
           {{ submitError }}
         </div>
@@ -386,7 +386,8 @@ watch(() => props.show, (visible) => {
         <Button v-if="currentStep > 1" type="button" variant="outline-secondary" size="sm" @click="goBack">
           {{ t('button.back') }}
         </Button>
-        <Button v-if="currentStep === 1" type="submit" variant="primary" size="sm" form="comparative-wizard-step1">
+        <Button v-if="currentStep === 1" type="submit" variant="primary" size="sm" form="comparative-wizard-step1" :disabled="stepLoading">
+          <Lucide v-if="stepLoading" icon="Loader2" class="me-1 h-3.5 w-3.5 animate-spin" />
           {{ t('reports.wizard-next') }}
         </Button>
         <Button v-else-if="currentStep === 2" type="submit" variant="primary" size="sm" form="comparative-wizard-step2">

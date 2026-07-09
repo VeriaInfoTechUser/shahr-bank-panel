@@ -71,18 +71,35 @@ export class ReportRepo {
     });
   }
 
-  async updateReport(slug: string, payload: { title: string }) {
+  async updateBaseline(slug: string, payload: { title: string }) {
     return grcHttpRequest({
       method: 'PUT',
-      url: `${this.base}/${slug}`,
+      url: `${this.base}/baseline/${slug}`,
       data: payload,
     });
   }
 
-  async downloadReport(reportId: string): Promise<Blob> {
+  async updateComparative(slug: string, payload: { title: string }) {
+    return grcHttpRequest({
+      method: 'PUT',
+      url: `${this.base}/comparative/${slug}`,
+      data: payload,
+    });
+  }
+
+  async downloadBaseline(reportId: string): Promise<Blob> {
     const response = await grcHttpRequest<Blob>({
       method: 'GET',
-      url: `${this.base}/${reportId}/download`,
+      url: `${this.base}/baseline/${reportId}/download`,
+      responseType: 'blob',
+    });
+    return response;
+  }
+
+  async downloadComparative(reportId: string): Promise<Blob> {
+    const response = await grcHttpRequest<Blob>({
+      method: 'GET',
+      url: `${this.base}/comparative/${reportId}/download`,
       responseType: 'blob',
     });
     return response;

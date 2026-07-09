@@ -182,7 +182,7 @@ onMounted(() => {
             <a
               href="#"
               class="inline-flex items-center gap-1 rounded px-2 py-1 text-[11px] font-medium text-primary transition-colors hover:bg-primary/10"
-              @click.prevent
+              @click.prevent="router.push({ name: 'app-reports-baseline-detail', params: { slug: row.slug } })"
             >
               <Lucide icon="Eye" class="h-3.5 w-3.5" />
               {{ t('reports.report') }}
@@ -190,7 +190,7 @@ onMounted(() => {
             <a
               href="#"
               class="inline-flex items-center gap-1 rounded px-2 py-1 text-[11px] font-medium text-primary transition-colors hover:bg-primary/10"
-              @click.prevent
+              @click.prevent="router.push({ name: 'app-reports-baseline-dashboard', params: { slug: row.slug } })"
             >
               <Lucide icon="LayoutDashboard" class="h-3.5 w-3.5" />
               {{ t('reports.dashboard') }}

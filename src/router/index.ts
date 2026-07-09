@@ -58,7 +58,11 @@ import CapitalAsset from "@/pages/app/capital/asset/index.vue";
 import CapitalCategory from "@/pages/app/capital/category/index.vue";
 import CapitalMetricsDetail from "@/pages/app/capital/metrics/detail/index.vue";
 import ReportsBaseline from "@/pages/app/reports/baseline/index.vue";
+import ReportsBaselineDetail from "@/pages/app/reports/baseline/detail/index.vue";
+import ReportsBaselineDashboard from "@/pages/app/reports/baseline/dashboard/index.vue";
 import ReportsComparative from "@/pages/app/reports/comparative/index.vue";
+import ReportsComparativeDetail from "@/pages/app/reports/comparative/detail/index.vue";
+import ReportsComparativeDashboard from "@/pages/app/reports/comparative/dashboard/index.vue";
 import DataEntry from "@/pages/app/data/entry/index.vue";
 import DataRaw from "@/pages/app/data/raw/index.vue";
 import DataLog from "@/pages/app/data/log/index.vue";
@@ -546,10 +550,34 @@ const routes = [
                                 meta: { breadcrumbLabel: 'menu.reports-baseline' },
                             },
                             {
+                                path: "baseline/:slug",
+                                name: "app-reports-baseline-detail",
+                                component: ReportsBaselineDetail,
+                                meta: { breadcrumbLabel: 'reports.baseline-report' },
+                            },
+                            {
+                                path: "baseline/dashboard/:slug",
+                                name: "app-reports-baseline-dashboard",
+                                component: ReportsBaselineDashboard,
+                                meta: { breadcrumbLabel: 'reports.baseline-dashboard' },
+                            },
+                            {
                                 path: "comparative",
                                 name: "app-reports-comparative",
                                 component: ReportsComparative,
                                 meta: { breadcrumbLabel: 'menu.reports-comparative' },
+                            },
+                            {
+                                path: "comparative/:slug",
+                                name: "app-reports-comparative-detail",
+                                component: ReportsComparativeDetail,
+                                meta: { breadcrumbLabel: 'reports.comparative-report' },
+                            },
+                            {
+                                path: "comparative/dashboard/:slug",
+                                name: "app-reports-comparative-dashboard",
+                                component: ReportsComparativeDashboard,
+                                meta: { breadcrumbLabel: 'reports.comparative-dashboard' },
                             },
                         ],
                     },

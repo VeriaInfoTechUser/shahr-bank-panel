@@ -3,15 +3,15 @@ import { computed, ref, watch } from 'vue';
 import { Form } from 'vee-validate';
 import * as yup from 'yup';
 import { useI18n } from 'vue-i18n';
+import { toast } from 'vue3-toastify';
 import BaseModal from '@/core/ui/base/BaseModal.vue';
 import BaseInput from '@/core/ui/base/BaseInput.vue';
 import BaseSelect from '@/core/ui/base/BaseSelect.vue';
 import BasePaginatedSelect from '@/core/ui/base/BasePaginatedSelect.vue';
-import DatePickerExtra from '@/components/DatePickerExtra.vue';
 import Button from '@/base-components/Button';
 import Lucide from '@/base-components/Lucide';
 import { grcRepo, type GrcEntity } from '@/core/repositories/grcRepo';
-import { reportRepo } from '@/core/repositories/reportRepo';
+import { reportRepo, type ReportItem } from '@/core/repositories/reportRepo';
 
 const MODAL_SKIN = 'rounded-xl border border-slate-200 bg-white shadow-xl dark:border-darkmode-600 dark:bg-darkmode-800';
 
@@ -33,13 +33,14 @@ const modalRootClass = computed(() => {
 
 const STEPS = [
   { key: 1, labelKey: 'reports.wizard-step-info', icon: 'FileText' },
-  { key: 2, labelKey: 'reports.wizard-step-period', icon: 'Calendar' },
+  { key: 2, labelKey: 'reports.wizard-step-select-reports', icon: 'List' },
   { key: 3, labelKey: 'reports.wizard-step-confirm', icon: 'CheckCircle' },
 ] as const;
 
 const currentStep = ref(1);
 const saving = ref(false);
 const step1FormKey = ref(0);
+const step2FormKey = ref(0);
 
 // ── Step 1 ──────────────────────────────────────────────────────────────────
 const step1Schema = yup.object({
@@ -66,38 +67,76 @@ async function fetchFrameworks({ page, limit, search }: { page: number; limit: n
 
 const step1Values = ref<{ title: string; framework: string; periodType: string }>({ title: '', framework: '', periodType: '' });
 
-function onStep1Submit(values: Record<string, unknown>) {
+async function onStep1Submit(values: Record<string, unknown>) {
   step1Values.value = {
     title: String(values.title ?? ''),
     framework: String(values.framework ?? ''),
     periodType: String(values.periodType ?? ''),
   };
   selectedFrameworkTitle.value = '';
+  await loadBaselineReports();
+  if (baselineReports.value.length < 2) {
+    toast(t('reports.not-enough-reports'), { type: 'warning' });
+    return;
+  }
   currentStep.value = 2;
 }
 
 // ── Step 2 ──────────────────────────────────────────────────────────────────
-const selectedPeriod = ref<{ type: string; startDate: string; endDate: string } | null>(null);
-const dateType = ref<'jalali' | 'gregorian'>('jalali');
+const step2Schema = yup.object({
+  reportA: yup.string().trim().required(t('reports.validation-report-a-required')),
+  reportB: yup.string().trim().required(t('reports.validation-report-b-required')),
+});
 
-function goToStep3() {
-  if (!selectedPeriod.value) return;
+const baselineReports = ref<ReportItem[]>([]);
+const reportsLoading = ref(false);
+
+async function loadBaselineReports() {
+  reportsLoading.value = true;
+  try {
+    const res = await reportRepo.getBaselineList({
+      page: 1,
+      limit: 200,
+      frameworkSlug: step1Values.value.framework,
+      periodType: step1Values.value.periodType,
+    });
+    baselineReports.value = res?.data?.list ?? [];
+  } catch {
+    baselineReports.value = [];
+  } finally {
+    reportsLoading.value = false;
+  }
+}
+
+const reportOptions = computed(() =>
+  baselineReports.value.map(r => ({ value: r.slug, label: r.title || r.slug }))
+);
+
+const step2Values = ref<{ reportA: string; reportB: string }>({ reportA: '', reportB: '' });
+
+function onStep2Submit(values: Record<string, unknown>) {
+  step2Values.value = {
+    reportA: String(values.reportA ?? ''),
+    reportB: String(values.reportB ?? ''),
+  };
   currentStep.value = 3;
+}
+
+function reportLabel(slug: string) {
+  return baselineReports.value.find(x => x.slug === slug)?.title || slug;
 }
 
 // ── Step 3 ──────────────────────────────────────────────────────────────────
 const periodLabel = computed(() => {
-  const p = selectedPeriod.value;
-  if (!p) return '';
-  const labels: Record<string, string> = { season: 'فصل / Quarter', month: 'ماه / Month', year: 'سال / Year' };
-  return `${labels[p.type] ?? p.type}  •  ${p.startDate} — ${p.endDate}`;
+  const labels: Record<string, string> = { YEARLY: 'سالانه', QUARTERLY: 'فصلی', MONTHLY: 'ماهانه' };
+  return labels[step1Values.value.periodType] ?? step1Values.value.periodType;
 });
 
 const submitError = ref('');
 const submitSuccess = ref(false);
 
 async function submitReport() {
-  if (!selectedPeriod.value || !step1Values.value.framework) return;
+  if (!step1Values.value.framework || !step2Values.value.reportA || !step2Values.value.reportB) return;
   saving.value = true;
   submitError.value = '';
   submitSuccess.value = false;
@@ -107,15 +146,13 @@ async function submitReport() {
       const fwRes = await grcRepo.frameworkGet(step1Values.value.framework);
       fwTitle = fwRes?.data?.title ?? step1Values.value.framework;
     }
-    await reportRepo.createBaseline({
+    await reportRepo.createComparative({
       title: step1Values.value.title,
-      type: selectedPeriod.value.type,
       frameworkSlug: step1Values.value.framework,
       frameworkTitle: fwTitle,
-      dateType: dateType.value,
-      periodType: selectedPeriod.value.type,
-      startDate: selectedPeriod.value.startDate,
-      endDate: selectedPeriod.value.endDate,
+      periodType: step1Values.value.periodType,
+      reportASlug: step2Values.value.reportA,
+      reportBSlug: step2Values.value.reportB,
     });
     submitSuccess.value = true;
     emit('success');
@@ -145,10 +182,11 @@ watch(() => props.show, (visible) => {
   if (!visible) return;
   currentStep.value = 1;
   step1FormKey.value++;
+  step2FormKey.value++;
   step1Values.value = { title: '', framework: '', periodType: '' };
+  step2Values.value = { reportA: '', reportB: '' };
   selectedFrameworkTitle.value = '';
-  selectedPeriod.value = null;
-  dateType.value = 'jalali';
+  baselineReports.value = [];
   saving.value = false;
   submitError.value = '';
   submitSuccess.value = false;
@@ -158,7 +196,7 @@ watch(() => props.show, (visible) => {
 <template>
   <BaseModal
     :visible="show"
-    :title="t('reports.wizard-title')"
+    :title="t('reports.comparative-wizard-title')"
     :root-class="modalRootClass"
     @update:visible="onDialogVisible"
   >
@@ -205,49 +243,38 @@ watch(() => props.show, (visible) => {
       <Form
         v-if="currentStep === 1"
         :key="'step1-' + step1FormKey"
-        id="report-wizard-step1"
+        id="comparative-wizard-step1"
         :validation-schema="step1Schema"
         :initial-values="{ title: '', framework: '', periodType: '' }"
         class="space-y-4"
         @submit="onStep1Submit"
       >
-        <BaseInput
-          name="title"
-          :label="t('reports.col-title')"
-          :placeholder="t('reports.title-placeholder')"
-          :required="true"
-        />
-        <BasePaginatedSelect
-          name="framework"
-          :label="t('menu.framework')"
-          :fetch-fn="fetchFrameworks"
-          :limit="10"
-          :search="true"
-          :required="true"
-          placeholder=""
-        />
-        <BaseSelect
-          name="periodType"
-          :label="t('reports.col-period')"
-          :options="periodTypeOptions"
-          :required="true"
-          placeholder=""
-        />
+        <BaseInput name="title" :label="t('reports.col-title')" :placeholder="t('reports.title-placeholder')" :required="true" />
+        <BasePaginatedSelect name="framework" :label="t('menu.framework')" :fetch-fn="fetchFrameworks" :limit="10" :search="true" :required="true" placeholder="" />
+        <BaseSelect name="periodType" :label="t('reports.col-period')" :options="periodTypeOptions" :required="true" placeholder="" />
       </Form>
 
       <!-- ═══ Step 2 ═══ -->
-      <div v-else-if="currentStep === 2">
-        <p class="mb-4 text-[11px] font-semibold uppercase tracking-[0.08em] text-slate-400 dark:text-slate-500">
-          {{ t('reports.wizard-step-period') }}
+      <Form
+        v-else-if="currentStep === 2"
+        :key="'step2-' + step2FormKey"
+        id="comparative-wizard-step2"
+        :validation-schema="step2Schema"
+        :initial-values="{ reportA: '', reportB: '' }"
+        class="space-y-4"
+        @submit="onStep2Submit"
+      >
+        <p class="text-[11px] font-semibold uppercase tracking-[0.08em] text-slate-400 dark:text-slate-500">
+          {{ t('reports.wizard-step-select-reports') }}
         </p>
-        <div class="flex justify-center">
-          <DatePickerExtra
-            v-model="selectedPeriod"
-            :modes="['season', 'month', 'year']"
-            @calendar-change="dateType = $event"
-          />
+        <div v-if="reportsLoading" class="flex items-center justify-center py-8">
+          <span class="inline-block h-5 w-5 animate-spin rounded-full border-2 border-slate-300 border-t-primary" />
         </div>
-      </div>
+        <template v-else>
+          <ComparativeReportSelect name="reportA" :label="t('reports.select-report-a')" :options="reportOptions" :exclude-slug="step2Values.reportB" :required="true" />
+          <ComparativeReportSelect name="reportB" :label="t('reports.select-report-b')" :options="reportOptions" :exclude-slug="step2Values.reportA" :required="true" />
+        </template>
+      </Form>
 
       <!-- ═══ Step 3 ═══ -->
       <div v-else-if="currentStep === 3">
@@ -257,10 +284,7 @@ watch(() => props.show, (visible) => {
         <div class="rounded-xl border border-slate-200 bg-slate-50 p-5 dark:border-darkmode-600 dark:bg-darkmode-700">
           <div class="mb-4">
             <span class="mb-1 block text-[11px] font-medium text-slate-400 dark:text-slate-500">{{ t('reports.col-title') }}</span>
-            <div class="flex items-center gap-2">
-              <Lucide icon="Type" class="h-4 w-4 text-primary" />
-              <span class="text-sm font-medium text-slate-700 dark:text-slate-200">{{ step1Values.title }}</span>
-            </div>
+            <span class="text-sm font-medium text-slate-700 dark:text-slate-200">{{ step1Values.title }}</span>
           </div>
           <div class="mb-4 h-px bg-slate-200 dark:bg-darkmode-600" />
           <div class="mb-4">
@@ -268,15 +292,24 @@ watch(() => props.show, (visible) => {
             <span class="text-sm font-medium text-slate-700 dark:text-slate-200">{{ selectedFrameworkTitle || step1Values.framework }}</span>
           </div>
           <div class="mb-4 h-px bg-slate-200 dark:bg-darkmode-600" />
+          <div class="mb-4">
+            <span class="mb-1 block text-[11px] font-medium text-slate-400 dark:text-slate-500">{{ t('reports.col-period') }}</span>
+            <span class="text-sm font-medium text-slate-700 dark:text-slate-200">{{ periodLabel }}</span>
+          </div>
+          <div class="mb-4 h-px bg-slate-200 dark:bg-darkmode-600" />
           <div>
-            <span class="mb-1 block text-[11px] font-medium text-slate-400 dark:text-slate-500">{{ t('reports.period') }}</span>
-            <div class="flex items-center gap-2">
-              <Lucide icon="Calendar" class="h-4 w-4 text-primary" />
-              <span class="text-sm font-medium text-slate-700 dark:text-slate-200">{{ periodLabel }}</span>
+            <span class="mb-1 block text-[11px] font-medium text-slate-400 dark:text-slate-500">{{ t('reports.reports-to-compare') }}</span>
+            <div class="flex items-center gap-3">
+              <div class="flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 dark:border-darkmode-600 dark:bg-darkmode-800">
+                <Lucide icon="FileText" class="h-4 w-4 text-primary" />
+                <span class="text-sm font-medium text-slate-700 dark:text-slate-200">{{ reportLabel(step2Values.reportA) }}</span>
+              </div>
+              <Lucide icon="ArrowLeftRight" class="h-4 w-4 shrink-0 text-slate-400" />
+              <div class="flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 dark:border-darkmode-600 dark:bg-darkmode-800">
+                <Lucide icon="FileText" class="h-4 w-4 text-primary" />
+                <span class="text-sm font-medium text-slate-700 dark:text-slate-200">{{ reportLabel(step2Values.reportB) }}</span>
+              </div>
             </div>
-            <span class="mt-1 inline-block rounded bg-slate-200 px-1.5 py-0.5 text-[10px] font-medium text-slate-600 dark:bg-darkmode-500 dark:text-slate-300">
-              {{ dateType === 'jalali' ? 'شمسی' : 'میلادی' }}
-            </span>
           </div>
         </div>
       </div>
@@ -302,10 +335,10 @@ watch(() => props.show, (visible) => {
         <Button v-if="currentStep > 1" type="button" variant="outline-secondary" size="sm" @click="goBack">
           {{ t('button.back') }}
         </Button>
-        <Button v-if="currentStep === 1" type="submit" variant="primary" size="sm" form="report-wizard-step1">
+        <Button v-if="currentStep === 1" type="submit" variant="primary" size="sm" form="comparative-wizard-step1">
           {{ t('reports.wizard-next') }}
         </Button>
-        <Button v-else-if="currentStep === 2" type="button" variant="primary" size="sm" :disabled="!selectedPeriod" @click="goToStep3">
+        <Button v-else-if="currentStep === 2" type="submit" variant="primary" size="sm" form="comparative-wizard-step2">
           {{ t('reports.wizard-next') }}
         </Button>
         <Button v-else type="button" variant="primary" size="sm" :disabled="saving" @click="submitReport">
@@ -317,6 +350,35 @@ watch(() => props.show, (visible) => {
     </template>
   </BaseModal>
 </template>
+
+<script lang="ts">
+import { computed, defineComponent, watch } from 'vue';
+import { useField } from 'vee-validate';
+import BaseSelect from '@/core/ui/base/BaseSelect.vue';
+
+const ComparativeReportSelect = defineComponent({
+  name: 'ComparativeReportSelect',
+  props: {
+    name: { type: String, required: true },
+    label: { type: String, default: '' },
+    options: { type: Array, default: () => [] },
+    excludeSlug: { type: String, default: '' },
+    required: { type: Boolean, default: false },
+  },
+  setup(props) {
+    const { value } = useField<string>(props.name);
+    const filteredOptions = computed(() => {
+      if (!props.excludeSlug) return props.options as { value: string; label: string }[];
+      return (props.options as { value: string; label: string }[]).filter(o => o.value !== props.excludeSlug);
+    });
+    watch(() => props.excludeSlug, (v) => { if (v && value.value === v) value.value = ''; });
+    return { value, filteredOptions };
+  },
+  template: `<BaseSelect :name="name" :label="label" :options="filteredOptions" :required="required" placeholder="" />`,
+});
+
+export default { components: { ComparativeReportSelect } };
+</script>
 
 <style>
 .report-wizard-modal {

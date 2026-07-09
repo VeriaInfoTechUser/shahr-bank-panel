@@ -10,8 +10,10 @@ import CreateReportModal from '../baseline/CreateReportModal.vue';
 import ComparativeBreadcrumbToolbar from './ComparativeBreadcrumbToolbar.vue';
 import { reportRepo, type ReportItem } from '@/core/repositories/reportRepo';
 import { useBreadcrumbSlot } from '@/composables/useBreadcrumb';
+import { useRouter } from 'vue-router';
 
 const { t } = useI18n();
+const router = useRouter();
 const { setContent: setBreadcrumbSlot } = useBreadcrumbSlot();
 
 // ── Modals ──────────────────────────────────────────────────────────────────
@@ -180,7 +182,7 @@ onMounted(() => {
             <a
               href="#"
               class="inline-flex items-center gap-1 rounded px-2 py-1 text-[11px] font-medium text-primary transition-colors hover:bg-primary/10"
-              @click.prevent
+              @click.prevent="router.push({ name: 'app-reports-comparative-detail', params: { slug: row.slug } })"
             >
               <Lucide icon="Eye" class="h-3.5 w-3.5" />
               {{ t('reports.report') }}
@@ -188,7 +190,7 @@ onMounted(() => {
             <a
               href="#"
               class="inline-flex items-center gap-1 rounded px-2 py-1 text-[11px] font-medium text-primary transition-colors hover:bg-primary/10"
-              @click.prevent
+              @click.prevent="router.push({ name: 'app-reports-comparative-dashboard', params: { slug: row.slug } })"
             >
               <Lucide icon="LayoutDashboard" class="h-3.5 w-3.5" />
               {{ t('reports.dashboard') }}

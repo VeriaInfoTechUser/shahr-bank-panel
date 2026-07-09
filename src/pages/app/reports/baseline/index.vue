@@ -66,8 +66,8 @@ function dateTypeLabel(v: unknown) {
   return t(`reports.date-type.${key}`, key);
 }
 
-const fetchReports: FetchFn = async ({ page, limit }) => {
-  const res = await reportRepo.getReportList({ page, limit });
+const fetchReports: FetchFn = async ({ page, limit, filters }) => {
+  const res = await reportRepo.getReportList({ page, limit, ...filters });
   const list = res?.data?.list ?? [];
   const count = res?.data?.paginator?.count ?? 0;
   return { list: Array.isArray(list) ? list : [], count };
@@ -83,11 +83,6 @@ const table = useDataTable({
       bodyCell: (row: Record<string, unknown>) => row.title ?? '—',
     }),
     createColumn({
-      key: 'periodType',
-      label: t('reports.col-period'),
-      sortable: false,
-    }),
-    createColumn({
       key: 'frameworkTitle',
       label: t('reports.col-framework'),
       sortable: false,
@@ -96,6 +91,11 @@ const table = useDataTable({
     createColumn({
       key: 'dateType',
       label: t('reports.col-date-type'),
+      sortable: false,
+    }),
+    createColumn({
+      key: 'periodType',
+      label: t('reports.col-period'),
       sortable: false,
     }),
     createColumn({

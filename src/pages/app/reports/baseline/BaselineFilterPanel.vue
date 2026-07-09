@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import type { Ref } from 'vue';
-import { computed, ref, toValue, watch } from 'vue';
+import { computed, onMounted, ref, toValue, watch } from 'vue';
 import { Form } from 'vee-validate';
 import { useI18n } from 'vue-i18n';
 import BaseInput from '@/core/ui/base/BaseInput.vue';
 import BaseMultiSelect from '@/core/ui/base/BaseMultiSelect.vue';
 import BaselineFilterAutoApply from './BaselineFilterAutoApply.vue';
+import { grcRepo, type GrcEntity } from '@/core/repositories/grcRepo';
 
 const props = withDefaults(
   defineProps<{
@@ -29,6 +30,20 @@ const emit = defineEmits<{
 const { t } = useI18n();
 const formKey = ref(0);
 const formId = 'baseline-filter-form';
+
+const frameworkOptions = ref<{ value: string; label: string }[]>([]);
+
+onMounted(async () => {
+  try {
+    const res = await grcRepo.frameworkList({ limit: 100 });
+    frameworkOptions.value = (res?.data?.list ?? []).map((fw: GrcEntity) => ({
+      value: fw.slug,
+      label: fw.title ?? fw.slug,
+    }));
+  } catch {
+    frameworkOptions.value = [];
+  }
+});
 
 const periodTypeOptions = computed(() => [
   { value: 'YEARLY', label: t('reports.period-type.yearly') },
@@ -108,7 +123,7 @@ function onAutoApply(payload: Record<string, unknown>) {
           name="frameworkSlug"
           compact-label
           :label="t('reports.col-framework')"
-          :options="[]"
+          :options="frameworkOptions"
           placeholder=""
         />
         <BaseMultiSelect

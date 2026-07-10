@@ -290,6 +290,18 @@ export const useSideMenuStore = defineStore("sideMenu", {
                 ],
             },
             {
+                icon: "BookOpen",
+                pageName: "app-knowledge",
+                title: "menu.knowledge",
+                subMenu: [
+                    {
+                        icon: "Files",
+                        pageName: "app-knowledge-documents",
+                        title: "menu.knowledge-documents",
+                    },
+                ],
+            },
+            {
                 icon: "Globe",
                 pageName: "app-esg",
                 title: "menu.esg",

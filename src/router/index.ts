@@ -68,6 +68,7 @@ import DataRaw from "@/pages/app/data/raw/index.vue";
 import DataLog from "@/pages/app/data/log/index.vue";
 import DataProcessing from "@/pages/app/data/processing/index.vue";
 import DataExecutiveProcess from "@/pages/app/data/executive-process/index.vue";
+import KnowledgeDocuments from "@/pages/app/knowledge/documents/index.vue";
 import SectionPlaceholderPage from "@/pages/app/shared/SectionPlaceholderPage.vue";
 import AuthLogin from "@/pages/auth/login/index.vue";
 
@@ -578,6 +579,20 @@ const routes = [
                                 name: "app-reports-comparative-dashboard",
                                 component: ReportsComparativeDashboard,
                                 meta: { breadcrumbLabel: 'reports.comparative-dashboard' },
+                            },
+                        ],
+                    },
+                    {
+                        path: "knowledge",
+                        name: "app-knowledge",
+                        redirect: { name: "app-knowledge-documents" },
+                        meta: { breadcrumbLabel: 'menu.knowledge' },
+                        children: [
+                            {
+                                path: "documents",
+                                name: "app-knowledge-documents",
+                                component: KnowledgeDocuments,
+                                meta: { breadcrumbLabel: 'menu.knowledge-documents' },
                             },
                         ],
                     },

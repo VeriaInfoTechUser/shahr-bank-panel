@@ -48,30 +48,53 @@ const table = useDataTable({
       bodyCell: (row: Record<string, unknown>) => row.title ?? '—',
     }),
     createColumn({
-      key: 'category',
-      label: t('documents.col-category'),
+      key: 'fileName',
+      label: t('documents.col-file-name'),
       sortable: false,
+      bodyCell: (row: Record<string, unknown>) => row.fileName ?? '—',
     }),
     createColumn({
-      key: 'type',
+      key: 'storagePath',
+      label: t('documents.col-storage-path'),
+      sortable: false,
+      bodyCell: (row: Record<string, unknown>) => row.storagePath ?? '—',
+    }),
+    createColumn({
+      key: 'mimeType',
       label: t('documents.col-type'),
       sortable: false,
     }),
     createColumn({
-      key: 'size',
+      key: 'fileSize',
       label: t('documents.col-size'),
       sortable: false,
+      bodyCell: (row: Record<string, unknown>) => {
+        const bytes = Number(row.fileSize ?? 0);
+        if (!bytes) return '—';
+        if (bytes < 1024) return `${bytes} B`;
+        if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+        return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+      },
     }),
     createColumn({
-      key: 'updatedAt',
-      label: t('documents.col-updated-at'),
+      key: 'chunkCount',
+      label: t('documents.col-chunks'),
       sortable: false,
-      bodyCell: (row: Record<string, unknown>) => formatDate(String(row.updatedAt ?? '')),
     }),
     createColumn({
       key: 'status',
       label: t('documents.col-status'),
       sortable: false,
+      bodyCell: (row: Record<string, unknown>) => {
+        const s = Number(row.status ?? 0);
+        return s === 1 ? t('documents.status-active') : t('documents.status-inactive');
+      },
+    }),
+    createColumn({
+      key: 'createdAt',
+      label: t('documents.col-created-at'),
+      sortable: false,
+      bodyCell: (row: Record<string, unknown>) => formatDate(String(row.createdAt ?? '')),
     }),
   ],
   selectable: false,
@@ -107,17 +130,7 @@ onMounted(() => {
         :empty-message="t('documents.empty')"
         :actions="true"
         :show-search="false"
-      >
-        <!-- Status badge -->
-        <template #cell-status="{ row }">
-          <span
-            class="inline-block rounded px-2 py-0.5 text-xs font-medium"
-            :class="row.status === 'active' ? 'bg-success/15 text-success' : 'bg-slate-100 text-slate-500 dark:bg-darkmode-600 dark:text-slate-400'"
-          >
-            {{ row.status === 'active' ? t('documents.status-active') : t('documents.status-inactive') }}
-          </span>
-        </template>
-      </BaseTable>
+      />
     </div>
 
     <!-- Create Modal -->

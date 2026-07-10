@@ -6,6 +6,7 @@ import { useI18n } from 'vue-i18n';
 import { toast } from 'vue3-toastify';
 import BaseModal from '@/core/ui/base/BaseModal.vue';
 import BaseInput from '@/core/ui/base/BaseInput.vue';
+import BaseMultiSelect from '@/core/ui/base/BaseMultiSelect.vue';
 import Button from '@/base-components/Button';
 import Lucide from '@/base-components/Lucide';
 import { grcHttp } from '@/core/api/grcHttp';
@@ -25,9 +26,19 @@ const { t } = useI18n();
 const saving = ref(false);
 const formKey = ref(0);
 
+const tagOptions = [
+  { value: 'legal', label: 'حقوقی' },
+  { value: 'compliance', label: 'تطبیق' },
+  { value: 'risk', label: 'ریسک' },
+  { value: 'governance', label: 'حاکمیت' },
+  { value: 'esg', label: 'پایداری' },
+  { value: 'policy', label: 'سیاست‌نامه' },
+];
+
 const formSchema = yup.object({
   title: yup.string().trim().required(t('documents.validation-title-required')),
   path: yup.string().trim().required(t('documents.validation-file-required')),
+  tags: yup.array().of(yup.string()).default([]),
 });
 
 async function onSubmit(values: Record<string, unknown>) {
@@ -35,7 +46,8 @@ async function onSubmit(values: Record<string, unknown>) {
   try {
     await grcHttp.post(endpoints.rag.documents.process, {
       title: String(values.title ?? ''),
-      path: String(values.path ?? ''),
+      filePath: String(values.path ?? ''),
+      tags: (values.tags ?? []) as string[],
     });
     toast(t('documents.form-add-success'), { type: 'success' });
     emit('success');
@@ -74,7 +86,7 @@ watch(() => props.show, (visible) => {
       :key="'form-' + formKey"
       id="create-document-form"
       :validation-schema="formSchema"
-      :initial-values="{ title: '', path: '' }"
+      :initial-values="{ title: '', path: '', tags: [] }"
       class="space-y-4"
       @submit="onSubmit"
     >
@@ -90,6 +102,12 @@ watch(() => props.show, (visible) => {
         :placeholder="t('documents.form-file')"
         :required="true"
         input-dir="ltr"
+      />
+      <BaseMultiSelect
+        name="tags"
+        :label="t('documents.form-tags')"
+        :options="tagOptions"
+        :placeholder="t('documents.form-tags-placeholder')"
       />
     </Form>
 

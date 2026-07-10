@@ -6,7 +6,7 @@ import BaseTable from '@core/ui/base/BaseTable.vue';
 import DocumentsBreadcrumbToolbar from './DocumentsBreadcrumbToolbar.vue';
 import CreateDocumentModal from './CreateDocumentModal.vue';
 import { useBreadcrumbSlot } from '@/composables/useBreadcrumb';
-import { http } from '@/core/api/http';
+import { grcHttp } from '@/core/api/grcHttp';
 import { endpoints } from '@/core/api/endpoints';
 
 const { t } = useI18n();
@@ -29,7 +29,7 @@ function formatDate(iso: string) {
 }
 
 const fetchDocuments: FetchFn = async ({ page, limit, filters }) => {
-  const res = await http.get(endpoints.rag.documents.process, {
+  const res = await grcHttp.get(endpoints.rag.documents.list, {
     params: { page, limit, ...filters },
   });
   const data = (res as Record<string, unknown>)?.data as Record<string, unknown> | undefined;

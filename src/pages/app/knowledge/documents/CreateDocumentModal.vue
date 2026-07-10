@@ -8,7 +8,7 @@ import BaseModal from '@/core/ui/base/BaseModal.vue';
 import BaseInput from '@/core/ui/base/BaseInput.vue';
 import Button from '@/base-components/Button';
 import Lucide from '@/base-components/Lucide';
-import { http } from '@/core/api/http';
+import { grcHttp } from '@/core/api/grcHttp';
 import { endpoints } from '@/core/api/endpoints';
 
 const MODAL_SKIN = 'rounded-xl border border-slate-200 bg-white shadow-xl dark:border-darkmode-600 dark:bg-darkmode-800';
@@ -33,7 +33,7 @@ const formSchema = yup.object({
 async function onSubmit(values: Record<string, unknown>) {
   saving.value = true;
   try {
-    await http.post(endpoints.rag.documents.process, {
+    await grcHttp.post(endpoints.rag.documents.process, {
       title: String(values.title ?? ''),
       path: String(values.path ?? ''),
     });
@@ -89,6 +89,7 @@ watch(() => props.show, (visible) => {
         :label="t('documents.form-file')"
         :placeholder="t('documents.form-file')"
         :required="true"
+        input-dir="ltr"
       />
     </Form>
 

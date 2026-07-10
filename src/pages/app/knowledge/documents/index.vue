@@ -1,19 +1,45 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { useDataTable, createColumn } from '@core';
+import { useDataTable, createColumn, type FetchFn } from '@core';
 import BaseTable from '@core/ui/base/BaseTable.vue';
 import DocumentsBreadcrumbToolbar from './DocumentsBreadcrumbToolbar.vue';
+import CreateDocumentModal from './CreateDocumentModal.vue';
 import { useBreadcrumbSlot } from '@/composables/useBreadcrumb';
+import { http } from '@/core/api/http';
+import { endpoints } from '@/core/api/endpoints';
 
 const { t } = useI18n();
 const { setContent: setBreadcrumbSlot } = useBreadcrumbSlot();
+
+// ── Modals ──────────────────────────────────────────────────────────────────
+const showCreateModal = ref(false);
 
 // ── Filters ─────────────────────────────────────────────────────────────────
 const showFilter = ref(false);
 
 // ── Table ───────────────────────────────────────────────────────────────────
+function formatDate(iso: string) {
+  if (!iso) return '—';
+  try {
+    return new Date(iso).toLocaleDateString('fa-IR');
+  } catch {
+    return iso;
+  }
+}
+
+const fetchDocuments: FetchFn = async ({ page, limit, filters }) => {
+  const res = await http.get(endpoints.rag.documents.process, {
+    params: { page, limit, ...filters },
+  });
+  const data = (res as Record<string, unknown>)?.data as Record<string, unknown> | undefined;
+  const list = (data?.list ?? []) as Record<string, unknown>[];
+  const count = (data?.paginator as Record<string, unknown>)?.count ?? 0;
+  return { list: Array.isArray(list) ? list : [], count: Number(count) };
+};
+
 const table = useDataTable({
+  fetchFn: fetchDocuments,
   columns: [
     createColumn({
       key: 'title',
@@ -40,15 +66,7 @@ const table = useDataTable({
       key: 'updatedAt',
       label: t('documents.col-updated-at'),
       sortable: false,
-      bodyCell: (row: Record<string, unknown>) => {
-        const iso = String(row.updatedAt ?? '');
-        if (!iso) return '—';
-        try {
-          return new Date(iso).toLocaleDateString('fa-IR');
-        } catch {
-          return iso;
-        }
-      },
+      bodyCell: (row: Record<string, unknown>) => formatDate(String(row.updatedAt ?? '')),
     }),
     createColumn({
       key: 'status',
@@ -62,9 +80,15 @@ const table = useDataTable({
   listCacheStaleTime: 0,
 });
 
+function onModalSuccess() {
+  table.invalidateListCache();
+  table.setPage(1);
+}
+
 onMounted(() => {
+  table.fetch();
   setBreadcrumbSlot(DocumentsBreadcrumbToolbar, {
-    onAdd: () => { /* TODO: open add modal */ },
+    onAdd: () => { showCreateModal.value = true; },
     onExport: () => table.exportCSV(),
     onFilter: () => { showFilter.value = !showFilter.value; },
     onClearFilters: () => table.clearFilters(),
@@ -95,5 +119,12 @@ onMounted(() => {
         </template>
       </BaseTable>
     </div>
+
+    <!-- Create Modal -->
+    <CreateDocumentModal
+      :show="showCreateModal"
+      @update:show="showCreateModal = $event"
+      @success="onModalSuccess"
+    />
   </div>
 </template>

@@ -127,4 +127,9 @@ export const endpoints = {
       },
     }
   },
+  rag: {
+    documents: {
+      process: 'rag/documents/process',
+    },
+  },
 };

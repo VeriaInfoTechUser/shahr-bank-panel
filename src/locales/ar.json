@@ -523,7 +523,9 @@
     "delete-confirm-message": "هل أنت متأكد أنك تريد حذف هذه الوثيقة؟",
     "delete-success": "تم حذف الوثيقة بنجاح.",
     "delete-error": "تعذّر حذف الوثيقة.",
-    "empty": "لم يتم رفع أي وثائق بعد"
+    "empty": "لم يتم رفع أي وثائق بعد",
+    "detail-title": "تفاصيل الوثيقة",
+    "detail-load-error": "تعذّر تحميل تفاصيل الوثيقة."
   },
   "settings-page": {
     "add-member": "إضافة جهة مرتبطة",

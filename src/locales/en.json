@@ -686,7 +686,9 @@
     "delete-confirm-message": "Are you sure you want to delete this document?",
     "delete-success": "Document deleted successfully.",
     "delete-error": "Could not delete the document.",
-    "empty": "No documents uploaded yet"
+    "empty": "No documents uploaded yet",
+    "detail-title": "Document Detail",
+    "detail-load-error": "Could not load document details."
   },
   "settings-page": {
     "add-member": "Add member",

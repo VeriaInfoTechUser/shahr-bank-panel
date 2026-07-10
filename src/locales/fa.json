@@ -707,7 +707,9 @@
     "delete-confirm-message": "آیا از حذف این سند اطمینان دارید؟",
     "delete-success": "سند با موفقیت حذف شد.",
     "delete-error": "حذف سند انجام نشد.",
-    "empty": "هنوز سندی بارگذاری نشده است"
+    "empty": "هنوز سندی بارگذاری نشده است",
+    "detail-title": "جزئیات سند",
+    "detail-load-error": "بارگذاری اطلاعات سند ممکن نشد."
   },
   "settings-page": {
     "add-member": "افزودن رابط",

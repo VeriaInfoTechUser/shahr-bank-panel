@@ -69,6 +69,7 @@ import DataLog from "@/pages/app/data/log/index.vue";
 import DataProcessing from "@/pages/app/data/processing/index.vue";
 import DataExecutiveProcess from "@/pages/app/data/executive-process/index.vue";
 import KnowledgeDocuments from "@/pages/app/knowledge/documents/index.vue";
+import KnowledgeDocumentDetail from "@/pages/app/knowledge/documents/detail/index.vue";
 import SectionPlaceholderPage from "@/pages/app/shared/SectionPlaceholderPage.vue";
 import AuthLogin from "@/pages/auth/login/index.vue";
 
@@ -593,6 +594,20 @@ const routes = [
                                 name: "app-knowledge-documents",
                                 component: KnowledgeDocuments,
                                 meta: { breadcrumbLabel: 'menu.knowledge-documents' },
+                            },
+                            {
+                                path: "documents/:slug",
+                                name: "app-knowledge-document-detail",
+                                component: KnowledgeDocumentDetail,
+                                meta: {
+                                    breadcrumbLabel: 'documents.detail-title',
+                                    breadcrumbPrefix: [
+                                        {
+                                            routeName: 'app-knowledge-documents',
+                                            labelKey: 'menu.knowledge-documents',
+                                        },
+                                    ],
+                                },
                             },
                         ],
                     },

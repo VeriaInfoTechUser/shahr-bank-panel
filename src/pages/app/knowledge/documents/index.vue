@@ -1,15 +1,18 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
+import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { useDataTable, createColumn, type FetchFn } from '@core';
 import BaseTable from '@core/ui/base/BaseTable.vue';
 import DocumentsBreadcrumbToolbar from './DocumentsBreadcrumbToolbar.vue';
 import CreateDocumentModal from './CreateDocumentModal.vue';
 import { useBreadcrumbSlot } from '@/composables/useBreadcrumb';
+import Lucide from '@/base-components/Lucide';
 import { grcHttp } from '@/core/api/grcHttp';
 import { endpoints } from '@/core/api/endpoints';
 
 const { t } = useI18n();
+const router = useRouter();
 const { setContent: setBreadcrumbSlot } = useBreadcrumbSlot();
 
 // ── Modals ──────────────────────────────────────────────────────────────────
@@ -32,9 +35,10 @@ const fetchDocuments: FetchFn = async ({ page, limit, filters }) => {
   const res = await grcHttp.get(endpoints.rag.documents.list, {
     params: { page, limit, ...filters },
   });
-  const data = (res as Record<string, unknown>)?.data as Record<string, unknown> | undefined;
-  const list = (data?.list ?? []) as Record<string, unknown>[];
-  const count = (data?.paginator as Record<string, unknown>)?.count ?? 0;
+  const body = (res as Record<string, unknown>)?.data as Record<string, unknown> | undefined;
+  const inner = body?.data as Record<string, unknown> | undefined;
+  const list = (inner?.list ?? []) as Record<string, unknown>[];
+  const count = (inner?.paginator as Record<string, unknown>)?.count ?? 0;
   return { list: Array.isArray(list) ? list : [], count: Number(count) };
 };
 
@@ -96,6 +100,11 @@ const table = useDataTable({
       sortable: false,
       bodyCell: (row: Record<string, unknown>) => formatDate(String(row.createdAt ?? '')),
     }),
+    createColumn({
+      key: 'actions',
+      label: t('documents.col-actions'),
+      sortable: false,
+    }),
   ],
   selectable: false,
   exportEnabled: true,
@@ -130,7 +139,20 @@ onMounted(() => {
         :empty-message="t('documents.empty')"
         :actions="true"
         :show-search="false"
-      />
+      >
+        <template #actions="{ row }">
+          <div class="flex items-center justify-center gap-2">
+            <a
+              href="#"
+              class="inline-flex items-center gap-1 rounded px-2 py-1 text-[11px] font-medium text-primary transition-colors hover:bg-primary/10"
+              @click.prevent="router.push({ name: 'app-knowledge-document-detail', params: { slug: row.slug } })"
+            >
+              <Lucide icon="Eye" class="h-3.5 w-3.5" />
+              {{ t('documents.detail-title') }}
+            </a>
+          </div>
+        </template>
+      </BaseTable>
     </div>
 
     <!-- Create Modal -->

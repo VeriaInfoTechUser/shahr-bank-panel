@@ -299,6 +299,11 @@ export const useSideMenuStore = defineStore("sideMenu", {
                         pageName: "app-knowledge-documents",
                         title: "menu.knowledge-documents",
                     },
+                    {
+                        icon: "Sparkles",
+                        pageName: "app-knowledge-semantic-search",
+                        title: "menu.knowledge-semantic-search",
+                    },
                 ],
             },
             {

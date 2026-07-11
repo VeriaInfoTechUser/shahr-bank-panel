@@ -133,6 +133,7 @@ export const endpoints = {
       get: 'rag/documents',
       chunks: 'rag/documents',
       process: 'rag/documents/process',
+      search: 'rag/search',
     },
   },
 };

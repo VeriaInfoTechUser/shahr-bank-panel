@@ -70,6 +70,7 @@ import DataProcessing from "@/pages/app/data/processing/index.vue";
 import DataExecutiveProcess from "@/pages/app/data/executive-process/index.vue";
 import KnowledgeDocuments from "@/pages/app/knowledge/documents/index.vue";
 import KnowledgeDocumentDetail from "@/pages/app/knowledge/documents/detail/index.vue";
+import KnowledgeSemanticSearch from "@/pages/app/knowledge/semantic-search/index.vue";
 import SectionPlaceholderPage from "@/pages/app/shared/SectionPlaceholderPage.vue";
 import AuthLogin from "@/pages/auth/login/index.vue";
 
@@ -594,6 +595,12 @@ const routes = [
                                 name: "app-knowledge-documents",
                                 component: KnowledgeDocuments,
                                 meta: { breadcrumbLabel: 'menu.knowledge-documents' },
+                            },
+                            {
+                                path: "semantic-search",
+                                name: "app-knowledge-semantic-search",
+                                component: KnowledgeSemanticSearch,
+                                meta: { breadcrumbLabel: 'menu.knowledge-semantic-search' },
                             },
                             {
                                 path: "documents/:slug",

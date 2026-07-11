@@ -1,14 +1,12 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
+import { computed, onMounted, ref } from 'vue';
+import { useRoute } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { grcHttp } from '@/core/api/grcHttp';
 import { endpoints } from '@/core/api/endpoints';
-import Button from '@/base-components/Button';
 import Lucide from '@/base-components/Lucide';
 
 const route = useRoute();
-const router = useRouter();
 const { t } = useI18n();
 
 const loading = ref(true);
@@ -16,6 +14,16 @@ const error = ref('');
 const doc = ref<Record<string, unknown> | null>(null);
 
 const slug = route.params.slug as string;
+
+const chunks = computed(() => {
+  const raw = doc.value?.chunks;
+  if (!Array.isArray(raw)) return [];
+  return raw as Record<string, unknown>[];
+});
+
+const content = computed(() => {
+  return chunks.value.map((c) => String(c.content ?? c.text ?? '')).join('\n\n');
+});
 
 function formatDate(iso: string) {
   if (!iso) return '—';
@@ -35,13 +43,9 @@ function formatSize(bytes: number) {
 
 onMounted(async () => {
   try {
-    const res = await grcHttp.get(endpoints.rag.documents.list, {
-      params: { slug },
-    });
-    const body = (res as Record<string, unknown>)?.data as Record<string, unknown> | undefined;
-    const inner = body?.data as Record<string, unknown> | undefined;
-    const list = (inner?.list ?? []) as Record<string, unknown>[];
-    doc.value = list[0] ?? null;
+    const res = await grcHttp.get(`${endpoints.rag.documents.get}/${slug}`);
+    const envelope = (res as Record<string, unknown>)?.data as Record<string, unknown> | undefined;
+    doc.value = (envelope?.data as Record<string, unknown>) ?? null;
   } catch {
     error.value = t('documents.detail-load-error');
   } finally {
@@ -51,93 +55,63 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="grid grid-cols-12 gap-2 p-2">
-    <div class="col-span-12 rounded-xl border border-slate-200/60 bg-white p-6 shadow-sm dark:border-darkmode-700/60 dark:bg-darkmode-800">
-      <!-- Header -->
-      <div class="mb-6 flex items-center justify-between">
-        <div class="flex items-center gap-3">
-          <Button
-            type="button"
-            variant="outline-secondary"
-            size="sm"
-            @click="router.push({ name: 'app-knowledge-documents' })"
-          >
-            <Lucide icon="ArrowRight" class="ms-1 h-4 w-4" />
-            {{ t('general.back') }}
-          </Button>
-          <h1 class="text-lg font-semibold text-slate-800 dark:text-slate-100">
-            {{ doc?.title ?? t('documents.detail-title') }}
-          </h1>
-        </div>
-      </div>
-
-      <!-- Loading -->
-      <div v-if="loading" class="py-12 text-center text-sm text-slate-500 dark:text-slate-400">
-        {{ t('general.loading') }}
-      </div>
-
-      <!-- Error -->
-      <div v-else-if="error" class="py-12 text-center text-sm text-danger">
-        {{ error }}
-      </div>
-
-      <!-- Empty -->
-      <div v-else-if="!doc" class="py-12 text-center text-sm text-slate-500 dark:text-slate-400">
-        {{ t('general.no-data') }}
-      </div>
-
-      <!-- Detail -->
-      <div v-else class="space-y-4">
-        <div class="grid grid-cols-2 gap-4 sm:grid-cols-3">
-          <div>
-            <span class="text-xs text-slate-500 dark:text-slate-400">{{ t('documents.col-title') }}</span>
-            <p class="mt-1 text-sm font-medium text-slate-800 dark:text-slate-100">{{ doc.title ?? '—' }}</p>
-          </div>
-          <div>
-            <span class="text-xs text-slate-500 dark:text-slate-400">{{ t('documents.col-file-name') }}</span>
-            <p class="mt-1 text-sm font-medium text-slate-800 dark:text-slate-100">{{ doc.fileName ?? '—' }}</p>
-          </div>
-          <div>
-            <span class="text-xs text-slate-500 dark:text-slate-400">{{ t('documents.col-type') }}</span>
-            <p class="mt-1 text-sm font-medium text-slate-800 dark:text-slate-100">{{ doc.mimeType ?? '—' }}</p>
-          </div>
-          <div>
-            <span class="text-xs text-slate-500 dark:text-slate-400">{{ t('documents.col-size') }}</span>
-            <p class="mt-1 text-sm font-medium text-slate-800 dark:text-slate-100">{{ formatSize(Number(doc.fileSize ?? 0)) }}</p>
-          </div>
-          <div>
-            <span class="text-xs text-slate-500 dark:text-slate-400">{{ t('documents.col-chunks') }}</span>
-            <p class="mt-1 text-sm font-medium text-slate-800 dark:text-slate-100">{{ doc.chunkCount ?? '—' }}</p>
-          </div>
-          <div>
-            <span class="text-xs text-slate-500 dark:text-slate-400">{{ t('documents.col-status') }}</span>
-            <p class="mt-1">
-              <span
-                class="inline-block rounded px-2 py-0.5 text-xs font-medium"
-                :class="Number(doc.status) === 1 ? 'bg-success/15 text-success' : 'bg-slate-100 text-slate-500 dark:bg-darkmode-600 dark:text-slate-400'"
-              >
-                {{ Number(doc.status) === 1 ? t('documents.status-active') : t('documents.status-inactive') }}
-              </span>
-            </p>
-          </div>
-        </div>
-
-        <div>
-          <span class="text-xs text-slate-500 dark:text-slate-400">{{ t('documents.col-storage-path') }}</span>
-          <p class="mt-1 break-all text-sm font-medium text-slate-800 dark:text-slate-100" dir="ltr">{{ doc.storagePath ?? '—' }}</p>
-        </div>
-
-        <div class="grid grid-cols-2 gap-4">
-          <div>
-            <span class="text-xs text-slate-500 dark:text-slate-400">{{ t('documents.col-created-at') }}</span>
-            <p class="mt-1 text-sm font-medium text-slate-800 dark:text-slate-100">{{ formatDate(String(doc.createdAt ?? '')) }}</p>
-          </div>
-          <div>
-            <span class="text-xs text-slate-500 dark:text-slate-400">{{ t('documents.col-updated-at') }}</span>
-            <p class="mt-1 text-sm font-medium text-slate-800 dark:text-slate-100">{{ formatDate(String(doc.updatedAt ?? '')) }}</p>
-          </div>
-        </div>
-      </div>
+  <div class="grid grid-cols-12 gap-4 p-2">
+    <!-- Loading -->
+    <div v-if="loading" class="col-span-12 py-16 text-center text-sm text-slate-500 dark:text-slate-400">
+      {{ t('general.loading') }}
     </div>
+
+    <!-- Error -->
+    <div v-else-if="error" class="col-span-12 py-16 text-center text-sm text-danger">
+      {{ error }}
+    </div>
+
+    <!-- Empty -->
+    <div v-else-if="!doc" class="col-span-12 py-16 text-center text-sm text-slate-500 dark:text-slate-400">
+      {{ t('general.no-data') }}
+    </div>
+
+    <!-- Content -->
+    <template v-else>
+      <!-- Metadata row -->
+      <div class="col-span-12 rounded-xl border border-slate-200/60 bg-white shadow-sm dark:border-darkmode-700/60 dark:bg-darkmode-800">
+        <div class="flex flex-wrap items-center gap-x-6 gap-y-2 px-5 py-3">
+          <span class="text-sm font-semibold text-slate-800 dark:text-slate-100">{{ doc.title }}</span>
+          <span class="inline-flex items-center gap-1 text-xs text-slate-500 dark:text-slate-400">
+            <Lucide icon="FileType" class="h-3 w-3" />
+            {{ doc.mimeType }}
+          </span>
+          <span class="inline-flex items-center gap-1 text-xs text-slate-500 dark:text-slate-400">
+            <Lucide icon="HardDrive" class="h-3 w-3" />
+            {{ formatSize(Number(doc.fileSize ?? 0)) }}
+          </span>
+          <span
+            class="inline-flex items-center gap-1 text-xs font-medium"
+            :class="Number(doc.status) === 1 ? 'text-success' : 'text-slate-500 dark:text-slate-400'"
+          >
+            <span class="h-1.5 w-1.5 rounded-full" :class="Number(doc.status) === 1 ? 'bg-success' : 'bg-slate-400'" />
+            {{ Number(doc.status) === 1 ? t('documents.status-active') : t('documents.status-inactive') }}
+          </span>
+          <span class="inline-flex items-center gap-1 text-xs text-slate-500 dark:text-slate-400">
+            <Lucide icon="Layers" class="h-3 w-3" />
+            {{ doc.chunkCount ?? 0 }} {{ t('documents.col-chunks') }}
+          </span>
+          <span class="inline-flex items-center gap-1 text-xs text-slate-500 dark:text-slate-400">
+            <Lucide icon="Calendar" class="h-3 w-3" />
+            {{ formatDate(String(doc.createdAt ?? '')) }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Markdown content -->
+      <div class="col-span-12 rounded-xl border border-slate-200/60 bg-white shadow-sm dark:border-darkmode-700/60 dark:bg-darkmode-800">
+        <div class="border-b border-slate-100 px-5 py-3 dark:border-darkmode-700">
+          <h3 class="text-sm font-semibold text-slate-700 dark:text-slate-200">{{ doc.fileName }}</h3>
+        </div>
+        <div class="prose prose-sm dark:prose-invert max-w-none p-5" dir="ltr">
+          <pre class="whitespace-pre-wrap break-words rounded-lg bg-slate-50 p-4 text-xs leading-relaxed text-slate-700 dark:bg-darkmode-700 dark:text-slate-300">{{ content }}</pre>
+        </div>
+      </div>
+    </template>
   </div>
 </template>

@@ -1,7 +1,10 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import { useI18n } from 'vue-i18n';
+import { useDataTable, createColumn, type FetchFn } from '@core';
+import BaseTable from '@core/ui/base/BaseTable.vue';
+import ChunkDetailModal from './ChunkDetailModal.vue';
 import { grcHttp } from '@/core/api/grcHttp';
 import { endpoints } from '@/core/api/endpoints';
 import Lucide from '@/base-components/Lucide';
@@ -15,15 +18,14 @@ const doc = ref<Record<string, unknown> | null>(null);
 
 const slug = route.params.slug as string;
 
-const chunks = computed(() => {
-  const raw = doc.value?.chunks;
-  if (!Array.isArray(raw)) return [];
-  return raw as Record<string, unknown>[];
-});
+// ── Chunk detail modal ──────────────────────────────────────────────────────
+const showChunkModal = ref(false);
+const selectedChunk = ref<Record<string, unknown> | null>(null);
 
-const content = computed(() => {
-  return chunks.value.map((c) => String(c.content ?? c.text ?? '')).join('\n\n');
-});
+function openChunk(row: Record<string, unknown>) {
+  selectedChunk.value = row;
+  showChunkModal.value = true;
+}
 
 function formatDate(iso: string) {
   if (!iso) return '—';
@@ -41,11 +43,55 @@ function formatSize(bytes: number) {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
+// ── Chunks table ────────────────────────────────────────────────────────────
+const fetchChunks: FetchFn = async ({ page, limit }) => {
+  const res = await grcHttp.get(`${endpoints.rag.documents.chunks}/${slug}/chunks`, {
+    params: { page, limit },
+  });
+  const envelope = (res as Record<string, unknown>)?.data as Record<string, unknown> | undefined;
+  const inner = envelope?.data as Record<string, unknown> | undefined;
+  const list = (inner?.list ?? []) as Record<string, unknown>[];
+  const count = (inner?.paginator as Record<string, unknown>)?.count ?? 0;
+  return { list: Array.isArray(list) ? list : [], count: Number(count) };
+};
+
+const table = useDataTable({
+  fetchFn: fetchChunks,
+  columns: [
+    createColumn({
+      key: 'index',
+      label: t('documents.chunk-index'),
+      sortable: false,
+      bodyCell: (row: Record<string, unknown>) => row.chunkIndex ?? row.id ?? '—',
+    }),
+    createColumn({
+      key: 'content',
+      label: t('documents.chunk-content'),
+      sortable: false,
+      bodyCell: (row: Record<string, unknown>) => {
+        const text = String(row.content ?? row.text ?? '');
+        return text.length > 120 ? text.slice(0, 120) + '…' : text || '—';
+      },
+    }),
+    createColumn({
+      key: 'detail',
+      label: '',
+      sortable: false,
+    }),
+  ],
+  selectable: false,
+  exportEnabled: false,
+  cacheKey: `chunks-${slug}`,
+  listCacheStaleTime: 0,
+});
+
+// ── Load document info ──────────────────────────────────────────────────────
 onMounted(async () => {
   try {
     const res = await grcHttp.get(`${endpoints.rag.documents.get}/${slug}`);
     const envelope = (res as Record<string, unknown>)?.data as Record<string, unknown> | undefined;
     doc.value = (envelope?.data as Record<string, unknown>) ?? null;
+    table.fetch();
   } catch {
     error.value = t('documents.detail-load-error');
   } finally {
@@ -103,14 +149,37 @@ onMounted(async () => {
         </div>
       </div>
 
-      <!-- Markdown content -->
-      <div class="col-span-12 rounded-xl border border-slate-200/60 bg-white shadow-sm dark:border-darkmode-700/60 dark:bg-darkmode-800">
-        <div class="border-b border-slate-100 px-5 py-3 dark:border-darkmode-700">
-          <h3 class="text-sm font-semibold text-slate-700 dark:text-slate-200">{{ doc.fileName }}</h3>
-        </div>
-        <div class="prose prose-sm dark:prose-invert max-w-none p-5" dir="ltr">
-          <pre class="whitespace-pre-wrap break-words rounded-lg bg-slate-50 p-4 text-xs leading-relaxed text-slate-700 dark:bg-darkmode-700 dark:text-slate-300">{{ content }}</pre>
-        </div>
+      <!-- Chunks table -->
+      <div class="col-span-12">
+        <BaseTable
+          :table="table"
+          :selectable="false"
+          :empty-message="t('documents.chunks-empty')"
+          :actions="false"
+          :show-search="false"
+        >
+          <template #cell-content="{ row }">
+            <span class="block max-w-[40rem] truncate text-xs text-slate-600 dark:text-slate-300" :title="String(row.content ?? row.text ?? '')">
+              {{ (() => { const t = String(row.content ?? row.text ?? ''); return t.length > 120 ? t.slice(0, 120) + '…' : t || '—'; })() }}
+            </span>
+          </template>
+          <template #cell-detail="{ row }">
+            <button
+              type="button"
+              class="inline-flex items-center gap-1 rounded bg-primary/10 px-2.5 py-1 text-[11px] font-medium text-primary transition-colors hover:bg-primary/20"
+              @click="openChunk(row)"
+            >
+              جزئیات
+            </button>
+          </template>
+        </BaseTable>
+
+        <!-- Chunk Detail Modal -->
+        <ChunkDetailModal
+          :visible="showChunkModal"
+          :chunk="selectedChunk"
+          @update:visible="showChunkModal = $event"
+        />
       </div>
     </template>
   </div>

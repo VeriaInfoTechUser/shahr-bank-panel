@@ -131,6 +131,7 @@ export const endpoints = {
     documents: {
       list: 'rag/documents',
       get: 'rag/documents',
+      chunks: 'rag/documents',
       process: 'rag/documents/process',
     },
   },

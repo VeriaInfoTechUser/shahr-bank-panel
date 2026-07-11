@@ -7,15 +7,15 @@ import { grcRepo } from '@/core/repositories/grcRepo';
 
 const { t } = useI18n();
 
-const fetchPrimary: FetchFn = async ({ page, limit, filters }) => {
-  const res = await grcRepo.calculationPrimaryList({ page, limit, ...(filters ?? {}) });
+const fetchSecondary: FetchFn = async ({ page, limit, filters }) => {
+  const res = await grcRepo.calculationSecondaryList({ page, limit, ...(filters ?? {}) });
   const list = res?.data?.list ?? [];
   const count = res?.data?.paginator?.count ?? 0;
   return { list: Array.isArray(list) ? list : [], count };
 };
 
 const table = useDataTable({
-  fetchFn: fetchPrimary,
+  fetchFn: fetchSecondary,
   columns: [
     createColumn({
       key: 'metric_name',
@@ -24,16 +24,16 @@ const table = useDataTable({
       bodyCell: (row) => row.metric_name ?? row.metric_slug ?? '—',
     }),
     createColumn({
-      key: 'asset_name',
-      label: t('job-log.asset-name'),
+      key: 'date_from',
+      label: t('job.date-from'),
       sortable: false,
-      bodyCell: (row) => row.asset_name ?? row.asset_slug ?? '—',
+      bodyCell: (row) => row.date_from ?? '—',
     }),
     createColumn({
-      key: 'date',
-      label: t('job.date'),
+      key: 'date_to',
+      label: t('job.date-to'),
       sortable: false,
-      bodyCell: (row) => row.date ?? '—',
+      bodyCell: (row) => row.date_to ?? '—',
     }),
     createColumn({
       key: 'period_type',
@@ -66,7 +66,7 @@ const table = useDataTable({
   ],
   selectable: false,
   exportEnabled: true,
-  cacheKey: 'calculation-primary-list',
+  cacheKey: 'calculation-secondary-list',
   listCacheStaleTime: 0,
 });
 

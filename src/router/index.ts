@@ -67,6 +67,7 @@ import DataEntry from "@/pages/app/data/entry/index.vue";
 import DataRaw from "@/pages/app/data/raw/index.vue";
 import DataLog from "@/pages/app/data/log/index.vue";
 import DataProcessing from "@/pages/app/data/processing/index.vue";
+import DataProcessingSecondary from "@/pages/app/data/processing-secondary/index.vue";
 import DataExecutiveProcess from "@/pages/app/data/executive-process/index.vue";
 import KnowledgeDocuments from "@/pages/app/knowledge/documents/index.vue";
 import KnowledgeDocumentDetail from "@/pages/app/knowledge/documents/detail/index.vue";
@@ -453,6 +454,12 @@ const routes = [
                                 name: "app-data-processing",
                                 component: DataProcessing,
                                 meta: { breadcrumbLabel: 'menu.data-processing' },
+                            },
+                            {
+                                path: "processing-secondary",
+                                name: "app-data-processing-secondary",
+                                component: DataProcessingSecondary,
+                                meta: { breadcrumbLabel: 'menu.data-processing-secondary' },
                             },
                             {
                                 path: "executive-process",

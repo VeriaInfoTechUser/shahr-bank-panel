@@ -419,6 +419,16 @@ export const grcRepo = {
     return grcHttpRequest({ method: 'GET', url: '/calculations/jobs', params });
   },
 
+  // Calculations Primary
+  calculationPrimaryList(params?: GrcListParams): Promise<GrcApiResponse<GrcPaginatedResponse>> {
+    return grcHttpRequest({ method: 'GET', url: '/calculations/primary', params });
+  },
+
+  // Calculations Secondary
+  calculationSecondaryList(params?: GrcListParams): Promise<GrcApiResponse<GrcPaginatedResponse>> {
+    return grcHttpRequest({ method: 'GET', url: '/calculations/secondary', params });
+  },
+
   calculationJobGet(id: string): Promise<GrcApiResponse<Record<string, unknown>>> {
     return grcHttpRequest({ method: 'GET', url: `/calculations/jobs/${id}` });
   },
@@ -437,5 +447,10 @@ export const grcRepo = {
 
   calculationJobExecute(slug: string): Promise<GrcApiResponse<Record<string, unknown>>> {
     return grcHttpRequest({ method: 'POST', url: `/calculations/jobs/${slug}/execute` });
+  },
+
+  // Calculations Logs
+  calculationLogList(params?: GrcListParams): Promise<GrcApiResponse<GrcPaginatedResponse>> {
+    return grcHttpRequest({ method: 'GET', url: '/calculations/logs', params });
   },
 };

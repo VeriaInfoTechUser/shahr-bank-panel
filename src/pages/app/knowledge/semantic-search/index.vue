@@ -19,13 +19,16 @@ const results = ref<SearchResult[]>([]);
 const selectedResult = ref<SearchResult | null>(null);
 
 interface SearchResult {
-  id: string;
-  score: number;
-  content: string;
-  chunkIndex?: number;
-  fileSlug?: string;
-  recordTitle?: string;
-  metadata?: Record<string, unknown>;
+  chunkSlug: string;
+  fileSlug: string;
+  recordTitle: string;
+  contentPreview: string;
+  score: number | null;
+  tags: string[];
+  blockIndex: number;
+  chunkIndex: number;
+  embeddingStatus: string;
+  source: 'vector' | 'text';
 }
 
 /* ---------------------------------------------------------------------- */
@@ -43,16 +46,34 @@ async function doSearch() {
     const res = await grcHttp.post(endpoints.rag.documents.search, { query: q, limit: 20 });
     const envelope = (res as Record<string, unknown>)?.data as Record<string, unknown> | undefined;
     const data = envelope?.data as Record<string, unknown> | undefined;
-    const list = (data?.results ?? data?.list ?? []) as Record<string, unknown>[];
-    results.value = list.map((r) => ({
-      id: String(r.id ?? r.chunkId ?? ''),
-      score: Number(r.score ?? 0),
-      content: String(r.content ?? r.text ?? ''),
-      chunkIndex: r.chunkIndex as number | undefined,
-      fileSlug: r.fileSlug as string | undefined,
-      recordTitle: r.recordTitle as string | undefined,
-      metadata: (r.metadata ?? {}) as Record<string, unknown>,
+
+    const vectorResults = ((data?.vectorResults ?? []) as Record<string, unknown>[]).map((r) => ({
+      chunkSlug: String(r.chunkSlug ?? ''),
+      fileSlug: String(r.fileSlug ?? ''),
+      recordTitle: String(r.recordTitle ?? ''),
+      contentPreview: String(r.contentPreview ?? ''),
+      score: r.score != null ? Number(r.score) : null,
+      tags: (r.tags ?? []) as string[],
+      blockIndex: Number(r.blockIndex ?? 0),
+      chunkIndex: Number(r.chunkIndex ?? 0),
+      embeddingStatus: String(r.embeddingStatus ?? ''),
+      source: 'vector' as const,
     }));
+
+    const textResults = ((data?.textResults ?? []) as Record<string, unknown>[]).map((r) => ({
+      chunkSlug: String(r.chunkSlug ?? ''),
+      fileSlug: String(r.fileSlug ?? ''),
+      recordTitle: String(r.recordTitle ?? ''),
+      contentPreview: String(r.contentPreview ?? ''),
+      score: r.score != null ? Number(r.score) : null,
+      tags: (r.tags ?? []) as string[],
+      blockIndex: Number(r.blockIndex ?? 0),
+      chunkIndex: Number(r.chunkIndex ?? 0),
+      embeddingStatus: String(r.embeddingStatus ?? ''),
+      source: 'text' as const,
+    }));
+
+    results.value = [...vectorResults, ...textResults];
     searched.value = true;
   } catch {
     toast(t('semantic-search.error'), { type: 'error' });
@@ -69,14 +90,16 @@ function onKeyDown(e: KeyboardEvent) {
 }
 
 function selectResult(r: SearchResult) {
-  selectedResult.value = selectedResult.value?.id === r.id ? null : r;
+  selectedResult.value = selectedResult.value?.chunkSlug === r.chunkSlug ? null : r;
 }
 
-function scorePercent(score: number) {
+function scorePercent(score: number | null) {
+  if (score == null) return null;
   return Math.round(score * 100);
 }
 
-function scoreColor(score: number) {
+function scoreColor(score: number | null) {
+  if (score == null) return 'text-slate-500 bg-slate-50 border-slate-200 dark:text-slate-400 dark:bg-darkmode-600 dark:border-darkmode-500';
   if (score >= 0.8) return 'text-emerald-600 bg-emerald-50 border-emerald-200 dark:text-emerald-400 dark:bg-emerald-500/10 dark:border-emerald-500/20';
   if (score >= 0.5) return 'text-amber-600 bg-amber-50 border-amber-200 dark:text-amber-400 dark:bg-amber-500/10 dark:border-amber-500/20';
   return 'text-slate-500 bg-slate-50 border-slate-200 dark:text-slate-400 dark:bg-darkmode-600 dark:border-darkmode-500';
@@ -91,12 +114,12 @@ function highlightQuery(text: string, q: string): string {
 /* ---------------------------------------------------------------------- */
 /* Copy                                                                    */
 /* ---------------------------------------------------------------------- */
-const copiedId = ref<string | null>(null);
-async function copyText(id: string, text: string) {
+const copiedSlug = ref<string | null>(null);
+async function copyText(slug: string, text: string) {
   try {
     await navigator.clipboard.writeText(text);
-    copiedId.value = id;
-    setTimeout(() => { if (copiedId.value === id) copiedId.value = null; }, 1500);
+    copiedSlug.value = slug;
+    setTimeout(() => { if (copiedSlug.value === slug) copiedSlug.value = null; }, 1500);
   } catch { /* ignore */ }
 }
 </script>
@@ -162,9 +185,9 @@ async function copyText(id: string, text: string) {
           <div class="divide-y divide-slate-100 dark:divide-darkmode-600">
             <div
               v-for="r in results"
-              :key="r.id"
+              :key="r.chunkSlug"
               class="cursor-pointer px-5 py-3.5 transition-all hover:bg-slate-50/80 dark:hover:bg-darkmode-700/50"
-              :class="selectedResult?.id === r.id ? 'bg-primary/5 border-e-2 border-e-primary dark:bg-primary/5' : ''"
+              :class="selectedResult?.chunkSlug === r.chunkSlug ? 'bg-primary/5 border-e-2 border-e-primary dark:bg-primary/5' : ''"
               @click="selectResult(r)"
             >
               <div class="flex items-start gap-3">
@@ -173,27 +196,30 @@ async function copyText(id: string, text: string) {
                   class="inline-flex flex-shrink-0 items-center rounded-lg border px-2 py-0.5 text-[11px] font-bold tabular-nums"
                   :class="scoreColor(r.score)"
                 >
-                  {{ scorePercent(r.score) }}%
+                  {{ scorePercent(r.score) != null ? scorePercent(r.score) + '%' : '—' }}
                 </span>
 
                 <!-- Content -->
                 <div class="min-w-0 flex-1">
                   <p
                     class="line-clamp-2 text-sm leading-relaxed text-slate-700 dark:text-slate-300"
-                    v-html="highlightQuery(r.content, query)"
+                    v-html="highlightQuery(r.contentPreview, query)"
                   />
                   <div class="mt-1.5 flex flex-wrap items-center gap-2">
                     <span v-if="r.recordTitle" class="inline-flex items-center gap-1 text-[11px] text-slate-400 dark:text-slate-500">
                       <Lucide icon="FileText" class="h-3 w-3" />
                       {{ r.recordTitle }}
                     </span>
-                    <span v-if="r.chunkIndex !== undefined" class="inline-flex items-center gap-1 text-[11px] text-slate-400 dark:text-slate-500">
+                    <span class="inline-flex items-center gap-1 text-[11px] text-slate-400 dark:text-slate-500">
                       <Lucide icon="Layers" class="h-3 w-3" />
                       #{{ r.chunkIndex }}
                     </span>
-                    <span v-if="r.fileSlug" class="inline-flex items-center gap-1 font-mono text-[11px] text-slate-400 dark:text-slate-500">
-                      <Lucide icon="File" class="h-3 w-3" />
-                      {{ r.fileSlug }}
+                    <span
+                      v-if="r.source === 'text'"
+                      class="inline-flex items-center gap-1 rounded bg-slate-100 px-1.5 py-0.5 text-[10px] font-medium text-slate-500 dark:bg-darkmode-600 dark:text-slate-400"
+                    >
+                      <Lucide icon="Type" class="h-2.5 w-2.5" />
+                      {{ t('semantic-search.source-text') }}
                     </span>
                   </div>
                 </div>
@@ -229,11 +255,16 @@ async function copyText(id: string, text: string) {
             </div>
 
             <div class="p-5">
-              <!-- Score -->
+              <!-- Score + source -->
               <div class="mb-4 flex items-center gap-2">
                 <span class="text-[11px] font-medium text-slate-400 dark:text-slate-500">{{ t('semantic-search.relevance') }}</span>
                 <span class="inline-flex items-center rounded-lg border px-2 py-0.5 text-[11px] font-bold tabular-nums" :class="scoreColor(selectedResult.score)">
-                  {{ scorePercent(selectedResult.score) }}%
+                  {{ scorePercent(selectedResult.score) != null ? scorePercent(selectedResult.score) + '%' : '—' }}
+                </span>
+                <span
+                  class="inline-flex items-center gap-1 rounded bg-slate-100 px-1.5 py-0.5 text-[10px] font-medium text-slate-500 dark:bg-darkmode-600 dark:text-slate-400"
+                >
+                  {{ selectedResult.source === 'vector' ? t('semantic-search.source-vector') : t('semantic-search.source-text') }}
                 </span>
               </div>
 
@@ -243,13 +274,21 @@ async function copyText(id: string, text: string) {
                   <span class="mb-0.5 block text-[11px] font-medium text-slate-400 dark:text-slate-500">{{ t('semantic-search.record') }}</span>
                   <span class="text-sm font-medium text-slate-700 dark:text-slate-200">{{ selectedResult.recordTitle }}</span>
                 </div>
-                <div v-if="selectedResult.fileSlug">
-                  <span class="mb-0.5 block text-[11px] font-medium text-slate-400 dark:text-slate-500">{{ t('semantic-search.file') }}</span>
-                  <span class="font-mono text-sm text-slate-700 dark:text-slate-200">{{ selectedResult.fileSlug }}</span>
-                </div>
-                <div v-if="selectedResult.chunkIndex !== undefined">
+                <div>
                   <span class="mb-0.5 block text-[11px] font-medium text-slate-400 dark:text-slate-500">{{ t('semantic-search.chunk-index') }}</span>
-                  <span class="text-sm font-medium text-slate-700 dark:text-slate-200">#{{ selectedResult.chunkIndex }}</span>
+                  <span class="text-sm font-medium text-slate-700 dark:text-slate-200">#{{ selectedResult.chunkIndex }} {{ t('semantic-search.block-label') }} {{ selectedResult.blockIndex }}</span>
+                </div>
+                <div v-if="selectedResult.tags?.length">
+                  <span class="mb-1 block text-[11px] font-medium text-slate-400 dark:text-slate-500">{{ t('semantic-search.tags') }}</span>
+                  <div class="flex flex-wrap gap-1">
+                    <span
+                      v-for="tag in selectedResult.tags"
+                      :key="tag"
+                      class="inline-flex items-center rounded-full border border-primary/15 bg-primary/5 px-2 py-0.5 text-[11px] font-medium text-primary dark:border-primary/20 dark:bg-primary/10 dark:text-primary"
+                    >
+                      {{ tag }}
+                    </span>
+                  </div>
                 </div>
               </div>
 
@@ -260,14 +299,14 @@ async function copyText(id: string, text: string) {
                   <button
                     type="button"
                     class="inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[11px] font-medium text-slate-400 transition-all hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-darkmode-600 dark:hover:text-slate-300"
-                    @click="copyText(selectedResult.id, selectedResult.content)"
+                    @click="copyText(selectedResult.chunkSlug, selectedResult.contentPreview)"
                   >
-                    <Lucide :icon="copiedId === selectedResult.id ? 'Check' : 'Copy'" class="h-3 w-3" :class="copiedId === selectedResult.id ? 'text-emerald-500' : ''" />
-                    {{ copiedId === selectedResult.id ? t('documents.copied') : t('documents.copy') }}
+                    <Lucide :icon="copiedSlug === selectedResult.chunkSlug ? 'Check' : 'Copy'" class="h-3 w-3" :class="copiedSlug === selectedResult.chunkSlug ? 'text-emerald-500' : ''" />
+                    {{ copiedSlug === selectedResult.chunkSlug ? t('documents.copied') : t('documents.copy') }}
                   </button>
                 </div>
                 <div class="max-h-60 overflow-y-auto rounded-xl border border-slate-150 bg-slate-50/80 p-3 dark:border-darkmode-500 dark:bg-darkmode-700/50">
-                  <pre class="whitespace-pre-wrap break-words text-xs leading-relaxed text-slate-700 dark:text-slate-300">{{ selectedResult.content }}</pre>
+                  <pre class="whitespace-pre-wrap break-words text-xs leading-relaxed text-slate-700 dark:text-slate-300">{{ selectedResult.contentPreview }}</pre>
                 </div>
               </div>
             </div>

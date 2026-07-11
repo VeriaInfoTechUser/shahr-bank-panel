@@ -730,7 +730,12 @@
     "chunk-index": "Chunk",
     "empty-title": "Search your knowledge base",
     "empty-hint": "Enter a natural language query to find semantically similar content across all indexed documents.",
-    "error": "Search failed. Please try again."
+    "error": "Search failed. Please try again.",
+    "select-result": "Select a result to view details",
+    "source-vector": "Vector",
+    "source-text": "Text",
+    "block-label": "Block",
+    "tags": "Tags"
   },
   "settings-page": {
     "add-member": "Add member",

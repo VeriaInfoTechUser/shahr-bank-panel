@@ -222,6 +222,7 @@ useEventListener(document, 'keydown', (e: KeyboardEvent) => {
           <RiskListFilterPanel
             :table="table"
             :toolbar-clear-tick="filterToolbarClearTick"
+            :show-only-filters="['title', 'riskType', 'categorySlug']"
             hide-state-filter
           />
         </div>

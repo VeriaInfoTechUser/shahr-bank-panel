@@ -4,9 +4,13 @@ import { computed, nextTick, onMounted, ref, toValue, watch } from 'vue';
 import { Form, useFormValues } from 'vee-validate';
 import { watchDebounced } from '@vueuse/core';
 import { useI18n } from 'vue-i18n';
+import Slider from 'primevue/slider';
 import BaseInput from '@/core/ui/base/BaseInput.vue';
 import BaseMultiSelect from '@/core/ui/base/BaseMultiSelect.vue';
 import { useRiskCategories } from './useRiskCategories';
+
+const SCORE_MIN = 0;
+const SCORE_MAX = 25;
 
 const props = defineProps<{
   table: {
@@ -16,6 +20,7 @@ const props = defineProps<{
   };
   toolbarClearTick: number;
   hideStateFilter?: boolean;
+  showOnlyFilters?: string[];
 }>();
 
 const { t } = useI18n();
@@ -35,6 +40,22 @@ const riskLevelOptions = computed(() => [
   { value: 'medium', label: t('risk.level-medium') },
   { value: 'high', label: t('risk.level-high') },
   { value: 'critical', label: t('risk.level-critical') },
+]);
+
+const impactOptions = computed(() => [
+  { value: 1, label: `1 - ${t('risk.impact-1')}` },
+  { value: 2, label: `2 - ${t('risk.impact-2')}` },
+  { value: 3, label: `3 - ${t('risk.impact-3')}` },
+  { value: 4, label: `4 - ${t('risk.impact-4')}` },
+  { value: 5, label: `5 - ${t('risk.impact-5')}` },
+]);
+
+const likelihoodOptions = computed(() => [
+  { value: 1, label: `1 - ${t('risk.likelihood-1')}` },
+  { value: 2, label: `2 - ${t('risk.likelihood-2')}` },
+  { value: 3, label: `3 - ${t('risk.likelihood-3')}` },
+  { value: 4, label: `4 - ${t('risk.likelihood-4')}` },
+  { value: 5, label: `5 - ${t('risk.likelihood-5')}` },
 ]);
 
 const statusOptions = computed(() => [
@@ -62,6 +83,8 @@ function apiFiltersToFormValues(f: Record<string, unknown> | undefined | null) {
     subCategorySlug: Array.isArray(x.subCategorySlug) ? (x.subCategorySlug as unknown[]).map(String) : [],
     riskType: Array.isArray(x.riskType) ? (x.riskType as unknown[]).map(String) : [],
     riskLevel: Array.isArray(x.riskLevel) ? (x.riskLevel as unknown[]).map(String) : [],
+    impact: Array.isArray(x.impact) ? (x.impact as unknown[]).map(Number) : [],
+    likelihood: Array.isArray(x.likelihood) ? (x.likelihood as unknown[]).map(Number) : [],
     state: Array.isArray(x.state) ? (x.state as unknown[]).map(String) : [],
   };
 }
@@ -82,6 +105,15 @@ function buildPayload(values: Record<string, unknown>): Record<string, unknown> 
   if (riskType?.length) o.riskType = riskType;
   const riskLevel = values.riskLevel as string[] | undefined;
   if (riskLevel?.length) o.riskLevel = riskLevel;
+  const impact = values.impact as number[] | undefined;
+  if (impact?.length) o.impact = impact;
+  const likelihood = values.likelihood as number[] | undefined;
+  if (likelihood?.length) o.likelihood = likelihood;
+  const [sMin, sMax] = scoreSliderModel.value;
+  if (sMin !== SCORE_MIN || sMax !== SCORE_MAX) {
+    o.minScore = sMin;
+    o.maxScore = sMax;
+  }
   const state = values.state as string[] | undefined;
   if (state?.length) o.state = state;
   return o;
@@ -117,11 +149,16 @@ const AutoApply = {
         subCategorySlug: Array.isArray(values.value?.subCategorySlug) ? [...(values.value.subCategorySlug as string[])] : [],
         riskType: Array.isArray(values.value?.riskType) ? [...(values.value.riskType as string[])] : [],
         riskLevel: Array.isArray(values.value?.riskLevel) ? [...(values.value.riskLevel as string[])] : [],
+        impact: Array.isArray(values.value?.impact) ? [...(values.value.impact as number[])] : [],
+        likelihood: Array.isArray(values.value?.likelihood) ? [...(values.value.likelihood as number[])] : [],
         state: Array.isArray(values.value?.state) ? [...(values.value.state as string[])] : [],
       }),
       () => emitPayload(),
       { deep: true }
     );
+
+    // Watch score slider changes (debounced to avoid rapid requests while dragging)
+    watchDebounced(scoreSliderModel, () => emitPayload(), { debounce: 400, deep: true });
 
     return () => null;
   },
@@ -138,10 +175,41 @@ watch(
     if (prev === undefined) return;
     formKey.value += 1;
     selectedCategorySlugs.value = [];
+    scoreSliderModel.value = [SCORE_MIN, SCORE_MAX];
   }
 );
 
 fetchTree();
+
+// --- Score range slider ---
+function clampScore(n: number): number {
+  if (!Number.isFinite(n)) return SCORE_MIN;
+  return Math.min(SCORE_MAX, Math.max(SCORE_MIN, Math.trunc(n)));
+}
+
+const scoreSliderModel = ref<[number, number]>([SCORE_MIN, SCORE_MAX]);
+
+function onScoreSliderChange(value: [number, number]) {
+  const lo = clampScore(value[0]);
+  const hi = clampScore(value[1]);
+  scoreSliderModel.value = [Math.min(lo, hi), Math.max(lo, hi)];
+}
+
+function scoreToPercent(v: number): number {
+  const c = clampScore(v);
+  if (SCORE_MAX === SCORE_MIN) return 0;
+  return ((c - SCORE_MIN) / (SCORE_MAX - SCORE_MIN)) * 100;
+}
+
+const scoreLo = computed(() => scoreSliderModel.value[0]);
+const scoreHi = computed(() => scoreSliderModel.value[1]);
+const scoreLoPct = computed(() => scoreToPercent(scoreLo.value));
+const scoreHiPct = computed(() => scoreToPercent(scoreHi.value));
+
+function shouldShowFilter(key: string): boolean {
+  if (props.showOnlyFilters) return props.showOnlyFilters.includes(key);
+  return true;
+}
 </script>
 
 <template>
@@ -158,12 +226,14 @@ fetchTree();
     >
       <AutoApply />
       <BaseInput
+        v-if="shouldShowFilter('title')"
         name="title"
         compact-label
         :label="t('risk.filter-search')"
         :placeholder="t('risk.filter-search-placeholder')"
       />
       <BaseMultiSelect
+        v-if="shouldShowFilter('categorySlug')"
         name="categorySlug"
         compact-label
         :label="t('risk.field-category')"
@@ -172,7 +242,7 @@ fetchTree();
         @change="onCategoryFilterChange"
       />
       <BaseMultiSelect
-        v-if="selectedCategorySlugs.length > 0"
+        v-if="shouldShowFilter('subCategorySlug') && selectedCategorySlugs.length > 0"
         name="subCategorySlug"
         compact-label
         :label="t('risk.field-sub-category')"
@@ -180,6 +250,7 @@ fetchTree();
         placeholder=""
       />
       <BaseMultiSelect
+        v-if="shouldShowFilter('riskType')"
         name="riskType"
         compact-label
         :label="t('risk.field-risk-type')"
@@ -187,6 +258,7 @@ fetchTree();
         placeholder=""
       />
       <BaseMultiSelect
+        v-if="shouldShowFilter('riskLevel')"
         name="riskLevel"
         compact-label
         :label="t('risk.field-risk-level')"
@@ -194,7 +266,67 @@ fetchTree();
         placeholder=""
       />
       <BaseMultiSelect
-        v-if="!hideStateFilter"
+        v-if="shouldShowFilter('impact')"
+        name="impact"
+        compact-label
+        :label="t('risk.col-impact')"
+        :options="impactOptions"
+        placeholder=""
+      />
+      <BaseMultiSelect
+        v-if="shouldShowFilter('likelihood')"
+        name="likelihood"
+        compact-label
+        :label="t('risk.col-likelihood')"
+        :options="likelihoodOptions"
+        placeholder=""
+      />
+      <div v-if="shouldShowFilter('minScore')" class="w-full pt-0.5">
+        <label class="mb-1 block text-[13px] font-medium text-slate-700 dark:text-slate-200">
+          {{ t('risk.col-inherent-score') }}
+        </label>
+        <div class="mt-3 px-0.5 pb-1" dir="ltr">
+          <div class="relative isolate w-full">
+            <Slider
+              v-model="scoreSliderModel"
+              class="relative z-0 w-full"
+              :min="SCORE_MIN"
+              :max="SCORE_MAX"
+              :step="1"
+              range
+              :aria-label="t('risk.col-inherent-score')"
+            />
+            <template v-if="scoreLo === scoreHi">
+              <span
+                class="pointer-events-none absolute top-1/2 z-20 flex h-6 w-6 shrink-0 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white/95 text-[11px] font-bold tabular-nums leading-none text-slate-900 shadow-md ring-1 ring-black/5 dark:border-darkmode-500 dark:bg-darkmode-700 dark:text-slate-50 dark:ring-white/10"
+                :style="{ left: `${scoreLoPct}%` }"
+              >
+                {{ scoreLo }}
+              </span>
+            </template>
+            <template v-else>
+              <span
+                class="pointer-events-none absolute top-1/2 z-20 flex h-6 w-6 shrink-0 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white/95 text-[11px] font-bold tabular-nums leading-none text-slate-900 shadow-md ring-1 ring-black/5 dark:border-darkmode-500 dark:bg-darkmode-700 dark:text-slate-50 dark:ring-white/10"
+                :style="{ left: `${scoreLoPct}%` }"
+              >
+                {{ scoreLo }}
+              </span>
+              <span
+                class="pointer-events-none absolute top-1/2 z-30 flex h-6 w-6 shrink-0 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white/95 text-[11px] font-bold tabular-nums leading-none text-slate-900 shadow-md ring-1 ring-black/5 dark:border-darkmode-500 dark:bg-darkmode-700 dark:text-slate-50 dark:ring-white/10"
+                :style="{ left: `${scoreHiPct}%` }"
+              >
+                {{ scoreHi }}
+              </span>
+            </template>
+          </div>
+          <div class="mt-1.5 flex w-full justify-between text-[11px] font-medium tabular-nums text-slate-500 dark:text-slate-400">
+            <span>{{ SCORE_MIN }}</span>
+            <span>{{ SCORE_MAX }}</span>
+          </div>
+        </div>
+      </div>
+      <BaseMultiSelect
+        v-if="shouldShowFilter('state') && !hideStateFilter"
         name="state"
         compact-label
         :label="t('risk.field-status')"

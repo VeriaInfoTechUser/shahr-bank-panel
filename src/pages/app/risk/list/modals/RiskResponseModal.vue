@@ -9,6 +9,7 @@ import BaseConfirmModal from '@/core/ui/base/BaseConfirmModal.vue';
 import Button from '@/base-components/Button';
 import Lucide from '@/base-components/Lucide';
 import { useGlobalModal } from '@/composables/useGlobalModal';
+import { grcRepo } from '@/core/repositories/grcRepo';
 import { ermRepo } from '@/core/repositories/ermRepo';
 import { useRisk, type Risk, type RiskTask } from '../useRisk';
 import { useRiskCategories } from '../useRiskCategories';
@@ -67,14 +68,9 @@ const opportunityStrategyOptions = computed(() => [
 ]);
 
 const strategyOptions = computed(() =>
-  risk.value?.riskType === 'opportunity' ? opportunityStrategyOptions.value : threatStrategyOptions.value
+    risk.value?.riskType === 'opportunity' ? opportunityStrategyOptions.value : threatStrategyOptions.value
 );
 
-const taskStateOptions = computed(() => [
-  { value: 'open', label: t('task.status.open') },
-  { value: 'in_progress', label: t('task.status.in_progress') },
-  { value: 'done', label: t('task.status.done') },
-]);
 
 const formKey = ref(0);
 const saving = ref(false);
@@ -88,9 +84,13 @@ const initialValues = ref<Record<string, unknown>>({});
 const accordionOpen = ref({ registration: false, analysis: false, response: true });
 const formRef = ref<InstanceType<typeof Form>>();
 
-const validationSchema = computed(() => yup.object({
-  treatmentStrategy: yup.string().required(t('validation.required')),
-}));
+const frameworkOptions = ref<{ value: string; label: string }[]>([]);
+const domainOptions = ref<{ value: string; label: string }[]>([]);
+const controlOptions = ref<{ value: string; label: string }[]>([]);
+const selectedFrameworkSlug = ref('');
+const selectedDomainSlug = ref('');
+
+const validationSchema = computed(() => yup.object({}));
 
 const statusBadgeClass = computed(() => 'inline-flex items-center justify-center rounded-md px-2 py-0.5 text-[10px] font-semibold leading-snug shadow-sm bg-orange-100 text-orange-800 border border-orange-200');
 
@@ -104,15 +104,15 @@ const riskTypeBadgeClass = computed(() => {
 
 function mapMembers(list: Record<string, unknown>[]) {
   return list
-    .map((m) => {
-      const id = m.id ?? m.user_id;
-      if (id == null) return null;
-      const label =
-        [m.name, m.full_name, m.email, m.mobile]
-          .find((x) => typeof x === 'string' && String(x).trim()) ?? String(id);
-      return { value: String(id), label: String(label).trim() };
-    })
-    .filter((x): x is { value: string; label: string } => x != null);
+      .map((m) => {
+        const id = m.id ?? m.user_id;
+        if (id == null) return null;
+        const label =
+            [m.name, m.full_name, m.email, m.mobile]
+                .find((x) => typeof x === 'string' && String(x).trim()) ?? String(id);
+        return { value: String(id), label: String(label).trim() };
+      })
+      .filter((x): x is { value: string; label: string } => x != null);
 }
 
 function toggleAccordion(section: 'registration' | 'analysis' | 'response') {
@@ -120,15 +120,70 @@ function toggleAccordion(section: 'registration' | 'analysis' | 'response') {
 }
 
 watch(
-  () => [props.show, props.riskId],
-  async ([show, id]) => {
-    if (show && id) {
-      await Promise.all([fetchTree(), loadMembers()]);
-      await loadRisk(id);
-    }
-  },
-  { immediate: true }
+    () => [props.show, props.riskId],
+    async ([show, id]) => {
+      if (show && id) {
+        await Promise.all([fetchTree(), loadMembers(), loadFrameworks()]);
+        await loadRisk(id);
+      }
+    },
+    { immediate: true }
 );
+
+async function loadFrameworks() {
+  try {
+    const res = await grcRepo.frameworkList({ limit: 100 });
+    const list = res?.data?.list ?? [];
+    frameworkOptions.value = list.map((f) => ({ value: f.slug, label: f.title ?? f.slug }));
+  } catch {
+    frameworkOptions.value = [];
+  }
+}
+
+async function loadDomains(frameworkSlug: string) {
+  if (!frameworkSlug) {
+    domainOptions.value = [];
+    return;
+  }
+  try {
+    const res = await grcRepo.domainList({ frameworkSlug, limit: 100 });
+    const list = res?.data?.list ?? [];
+    domainOptions.value = list.map((d) => ({ value: d.slug, label: d.title ?? d.slug }));
+  } catch {
+    domainOptions.value = [];
+  }
+}
+
+async function loadControls(domainSlug: string) {
+  if (!domainSlug) {
+    controlOptions.value = [];
+    return;
+  }
+  try {
+    const res = await grcRepo.controlList({ domainSlug, limit: 100 });
+    const list = res?.data?.list ?? [];
+    controlOptions.value = list.map((c) => ({ value: c.slug, label: c.title ?? c.slug }));
+  } catch {
+    controlOptions.value = [];
+  }
+}
+
+function onFrameworkChange(value: unknown) {
+  selectedFrameworkSlug.value = String(value ?? '');
+  selectedDomainSlug.value = '';
+  formRef.value?.setFieldValue('domainSlug', '');
+  formRef.value?.setFieldValue('controlSlug', '');
+  domainOptions.value = [];
+  controlOptions.value = [];
+  loadDomains(selectedFrameworkSlug.value);
+}
+
+function onDomainChange(value: unknown) {
+  selectedDomainSlug.value = String(value ?? '');
+  formRef.value?.setFieldValue('controlSlug', '');
+  controlOptions.value = [];
+  loadControls(selectedDomainSlug.value);
+}
 
 async function loadMembers() {
   try {
@@ -145,7 +200,6 @@ async function loadRisk(id: string) {
   if (!data) return;
   risk.value = data;
   selectedCategorySlug.value = data.categorySlug ?? '';
-  tasks.value = data.tasks ?? [];
 
   await nextTick();
   populateForm(data);
@@ -153,16 +207,33 @@ async function loadRisk(id: string) {
 }
 
 function populateForm(r: Risk) {
+  const fwSlug = r.frameworkSlug ?? '';
+  const domainSlug = r.domainSlug ?? '';
+  const ctrlSlug = r.controlSlug ?? '';
+  selectedFrameworkSlug.value = fwSlug;
+  selectedDomainSlug.value = domainSlug;
+
   initialValues.value = {
-    strategy: r.strategy ?? '',
-    treatmentStrategy: r.treatmentStrategy ?? '',
-    responseDescription: r.responseDescription ?? '',
-    framework: r.framework?.[0] ?? '',
-    control: r.control?.[0] ?? '',
-    impactFactor: r.impactFactor ?? r.impact ?? '',
+    strategy: r.strategy ?? r.treatmentStrategy ?? '',
+    frameworkSlug: fwSlug,
+    domainSlug: domainSlug,
+    controlSlug: ctrlSlug,
+    impact: r.impact ?? '',
     likelihood: r.likelihood ?? '',
-    analysisDescription: r.analysisDescription ?? '',
+    vulnerability: r.vulnerability ?? '',
+    threat: r.threat ?? '',
+    responseDescription: r.responseDescription ?? '',
   };
+
+  tasks.value = r.tasks ?? [];
+
+  if (fwSlug) {
+    loadDomains(fwSlug).then(() => {
+      if (domainSlug) {
+        loadControls(domainSlug);
+      }
+    });
+  }
 }
 
 function close() {
@@ -177,16 +248,28 @@ async function handleSave(values: Record<string, unknown>) {
   if (!risk.value) return;
   saving.value = true;
   try {
+    const frameworkSlug = String(values.frameworkSlug ?? '');
+    const domainSlug = String(values.domainSlug ?? '');
+    const controlSlug = String(values.controlSlug ?? '');
+
+    const frameworkTitle = frameworkOptions.value.find((f) => f.value === frameworkSlug)?.label ?? '';
+    const domainTitle = domainOptions.value.find((d) => d.value === domainSlug)?.label ?? '';
+    const controlTitle = controlOptions.value.find((c) => c.value === controlSlug)?.label ?? '';
+
     const data = {
       strategy: values.strategy,
-      treatmentStrategy: values.treatmentStrategy,
+      treatmentStrategy: values.strategy,
       responseDescription: values.responseDescription || '',
-      framework: values.framework ? [values.framework] : [],
-      control: values.control ? [values.control] : [],
+      frameworkSlug,
+      frameworkTitle,
+      domainSlug,
+      domainTitle,
+      controlSlug,
+      controlTitle,
+      tasks: tasks.value,
+      impact: risk.value.impact ?? null,
+      likelihood: risk.value.likelihood ?? null,
     };
-    if (tasks.value.length > 0) {
-      await updateTasks(risk.value.slug, tasks.value);
-    }
     await updateRisk(risk.value.slug, data);
     toast(t('risk.save-success'), { type: 'success' });
     await loadRisk(risk.value.slug);
@@ -199,16 +282,12 @@ async function handleSave(values: Record<string, unknown>) {
   }
 }
 
-function onTasksUpdate(updated: RiskTask[]) {
-  tasks.value = updated;
-}
-
 const newTaskTitle = ref('');
 
 function addTask() {
   const title = newTaskTitle.value.trim();
   if (!title) return;
-  tasks.value = [...tasks.value, { title, state: 'open' as const }];
+  tasks.value = [...tasks.value, title];
   newTaskTitle.value = '';
 }
 
@@ -216,25 +295,65 @@ function removeTask(index: number) {
   tasks.value = tasks.value.filter((_, i) => i !== index);
 }
 
-function toggleTaskState(index: number) {
-  const current = tasks.value[index];
-  if (!current) return;
-  const next = current.state === 'open' ? 'in_progress' : current.state === 'in_progress' ? 'done' : 'open';
-  tasks.value = tasks.value.map((t, i) => i === index ? { ...t, state: next as RiskTask['state'] } : t);
-}
-
-function taskStateBadgeClass(state: string): string {
-  const base = 'inline-flex items-center justify-center rounded-md px-2 py-0.5 text-[9px] font-semibold leading-snug shadow-sm cursor-pointer select-none';
-  switch (state) {
-    case 'open': return `${base} bg-orange-100 text-orange-800 border border-orange-200`;
-    case 'in_progress': return `${base} bg-violet-100 text-violet-800 border border-violet-200`;
-    case 'done': return `${base} bg-sky-100 text-sky-800 border border-sky-200`;
-    default: return `${base} bg-slate-100 text-slate-600 border border-slate-200`;
-  }
-}
-
 function handleTransitionToMonitoring() {
   if (!risk.value) return;
+
+  // Clear previous errors
+  formRef.value?.setFieldError('frameworkSlug', undefined);
+  formRef.value?.setFieldError('domainSlug', undefined);
+  formRef.value?.setFieldError('controlSlug', undefined);
+  formRef.value?.setFieldError('responseDescription', undefined);
+
+  const values = formRef.value?.getValues();
+  const frameworkSlug = String(values?.frameworkSlug ?? '');
+  const domainSlug = String(values?.domainSlug ?? '');
+  const controlSlug = String(values?.controlSlug ?? '');
+  const responseDescription = String(values?.responseDescription ?? '').trim();
+
+  let hasError = false;
+
+  if (!frameworkSlug) {
+    formRef.value?.setFieldError('frameworkSlug', t('validation.required'));
+    hasError = true;
+  }
+  if (!domainSlug) {
+    formRef.value?.setFieldError('domainSlug', t('validation.required'));
+    hasError = true;
+  }
+  if (!controlSlug) {
+    formRef.value?.setFieldError('controlSlug', t('validation.required'));
+    hasError = true;
+  }
+  if (!responseDescription) {
+    formRef.value?.setFieldError('responseDescription', t('validation.required'));
+    hasError = true;
+  }
+  if (tasks.value.length === 0) {
+    toast(t('risk.error-tasks-required'), { type: 'error' });
+    hasError = true;
+  }
+
+  if (hasError) return;
+
+  const frameworkTitle = frameworkOptions.value.find((f) => f.value === frameworkSlug)?.label ?? '';
+  const domainTitle = domainOptions.value.find((d) => d.value === domainSlug)?.label ?? '';
+  const controlTitle = controlOptions.value.find((c) => c.value === controlSlug)?.label ?? '';
+
+  const payload = {
+    strategy: values?.strategy,
+    treatmentStrategy: values?.strategy,
+    responseDescription,
+    frameworkSlug,
+    frameworkTitle,
+    domainSlug,
+    domainTitle,
+    controlSlug,
+    controlTitle,
+    tasks: tasks.value,
+    impact: risk.value!.impact ?? null,
+    likelihood: risk.value!.likelihood ?? null,
+  };
+
   openModal({
     component: BaseConfirmModal,
     props: {
@@ -244,15 +363,7 @@ function handleTransitionToMonitoring() {
       onConfirmAction: async () => {
         transitioning.value = true;
         try {
-          const formValues = formRef.value?.values ?? {};
-          const body: Record<string, unknown> = {
-            responseDescription: formValues.responseDescription || '',
-            strategy: formValues.strategy || formValues.treatmentStrategy || '',
-            frameworkSlug: formValues.framework || '',
-            controlSlug: formValues.control || '',
-            tasks: tasks.value.map((t) => t.title),
-          };
-          const res = await transitionRisk(risk.value!.slug, 'monitoring', body);
+          const res = await transitionRisk(risk.value!.slug, 'monitoring', payload);
           if (!res) throw new Error(t('risk.transition-error'));
         } catch (err: unknown) {
           if (err instanceof Error) {
@@ -280,11 +391,11 @@ function handleTransitionToMonitoring() {
 
 <template>
   <BaseModal
-    :visible="show"
-    :title="risk?.title ?? t('risk.detail-title')"
-    size="lg"
-    :closable="true"
-    @update:visible="onDialogVisible"
+      :visible="show"
+      :title="risk?.title ?? t('risk.detail-title')"
+      size="lg"
+      :closable="true"
+      @update:visible="onDialogVisible"
   >
     <div v-if="apiLoading && !risk" class="flex items-center justify-center py-10">
       <span class="text-sm text-slate-500">{{ t('general.loading') }}</span>
@@ -297,136 +408,80 @@ function handleTransitionToMonitoring() {
       </div>
 
       <Form
-        id="risk-response-modal-form"
-        ref="formRef"
-        :key="formKey"
-        :validation-schema="validationSchema"
-        :initial-values="initialValues"
-        class="space-y-3"
-        @submit="handleSave"
+          id="risk-response-modal-form"
+          ref="formRef"
+          :key="formKey"
+          :validation-schema="validationSchema"
+          :initial-values="initialValues"
+          class="space-y-3"
+          @submit="handleSave"
       >
-        <div class="rounded-lg border border-slate-200 dark:border-darkmode-600">
-          <button
-            type="button"
-            class="flex w-full items-center justify-between px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-darkmode-700"
-            @click="toggleAccordion('registration')"
-          >
-            <span>{{ t('risk.section-registration') }}</span>
-            <Lucide :icon="accordionOpen.registration ? 'ChevronUp' : 'ChevronDown'" class="!h-4 !w-4 text-slate-400" />
-          </button>
-          <div v-if="accordionOpen.registration" class="border-t border-slate-200 px-4 py-3 dark:border-darkmode-600">
-            <div class="space-y-3">
-              <BaseInput name="title" :label="t('risk.field-title')" :disabled="true" />
-              <div class="grid grid-cols-1 gap-3 md:grid-cols-2 md:gap-x-4 md:gap-y-3">
-                <BaseSelect name="categorySlug" :label="t('risk.field-category')" :options="categoryOptions" :disabled="true" :filter="true" />
-                <BaseSelect name="subCategorySlug" :label="t('risk.field-sub-category')" :options="subCategoryOptions(selectedCategorySlug)" :disabled="true" :filter="true" />
-                <BaseSelect name="ownerId" :label="t('risk.field-owner')" :options="memberOptions" :disabled="true" :filter="true" />
-                <BaseSelect name="riskType" :label="t('risk.field-risk-type')" :options="riskTypeOptions" :disabled="true" />
-              </div>
-              <BaseInput name="registerDescription" :label="t('risk.field-register-description')" type="textarea" :rows="3" :disabled="true" />
-            </div>
+        <div class="space-y-3">
+          <div class="grid grid-cols-1 gap-3 md:grid-cols-2 md:gap-x-4 md:gap-y-3">
+            <BaseSelect name="strategy" :label="t('risk.field-treatment-strategy')" :options="strategyOptions" :required="true" />
+            <BaseSelect name="frameworkSlug" :label="t('risk.field-framework')" :options="frameworkOptions" :filter="true" @change="onFrameworkChange" />
+            <BaseSelect name="domainSlug" :label="t('risk.field-domain')" :options="domainOptions" :filter="true" :disabled="!selectedFrameworkSlug" @change="onDomainChange" />
+            <BaseSelect name="controlSlug" :label="t('risk.field-control')" :options="controlOptions" :filter="true" :disabled="!selectedDomainSlug" />
           </div>
-        </div>
+          <div class="space-y-2">
+            <label class="label min-h-0 py-1">
+              <span class="label-text text-sm font-normal leading-snug">{{ t('risk.field-tasks') }}</span>
+            </label>
+            <div class="flex gap-2">
+              <input
+                  v-model="newTaskTitle"
+                  type="text"
+                  class="input input-bordered flex-1 !h-8 !min-h-0 px-2.5 text-xs font-light leading-snug placeholder:text-slate-400"
+                  :placeholder="t('risk.task-add-placeholder')"
+                  @keydown.enter.prevent="addTask"
+              />
+              <Button type="button" variant="primary" size="sm" class="!h-8" :disabled="!newTaskTitle.trim()" @click="addTask">
+                <Lucide icon="Plus" class="!h-3.5 !w-3.5" />
+              </Button>
+            </div>
+            <div v-if="tasks.length > 0" class="space-y-1">
+              <div
+                  v-for="(task, index) in tasks"
+                  :key="index"
+                  class="flex items-center gap-2 rounded-md border border-slate-200 bg-white px-3 py-1.5 text-xs dark:border-darkmode-600 dark:bg-darkmode-800"
+              >
+                <span class="flex-1 text-slate-700 dark:text-slate-200">{{ task }}</span>
 
-        <div class="rounded-lg border border-slate-200 dark:border-darkmode-600">
-          <button
-            type="button"
-            class="flex w-full items-center justify-between px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-darkmode-700"
-            @click="toggleAccordion('analysis')"
-          >
-            <span>{{ t('risk.section-analysis') }}</span>
-            <Lucide :icon="accordionOpen.analysis ? 'ChevronUp' : 'ChevronDown'" class="!h-4 !w-4 text-slate-400" />
-          </button>
-          <div v-if="accordionOpen.analysis" class="border-t border-slate-200 px-4 py-3 dark:border-darkmode-600">
-            <div class="space-y-3">
-              <div class="grid grid-cols-1 gap-3 md:grid-cols-2 md:gap-x-4 md:gap-y-3">
-                <BaseSelect name="impactFactor" :label="t('risk.field-impact-factor')" :options="impactOptions" />
-                <BaseSelect name="likelihood" :label="t('risk.field-likelihood')" :options="likelihoodOptions" />
-              </div>
-              <BaseInput name="analysisDescription" :label="t('risk.field-analysis-description')" type="textarea" :rows="3" :placeholder="t('risk.field-analysis-description-placeholder')" />
-            </div>
-          </div>
-        </div>
-
-        <div class="rounded-lg border border-slate-200 dark:border-darkmode-600">
-          <button
-            type="button"
-            class="flex w-full items-center justify-between px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-darkmode-700"
-            @click="toggleAccordion('response')"
-          >
-            <span>{{ t('risk.section-response') }}</span>
-            <Lucide :icon="accordionOpen.response ? 'ChevronUp' : 'ChevronDown'" class="!h-4 !w-4 text-slate-400" />
-          </button>
-          <div v-if="accordionOpen.response" class="border-t border-slate-200 px-4 py-3 dark:border-darkmode-600">
-            <div class="space-y-3">
-              <div class="grid grid-cols-1 gap-3 md:grid-cols-2 md:gap-x-4 md:gap-y-3">
-                <BaseSelect name="strategy" :label="t('risk.field-treatment-strategy')" :options="strategyOptions" :required="true" />
-                <BaseInput name="framework" :label="t('risk.field-framework')" :placeholder="t('risk.field-framework-placeholder')" />
-                <BaseInput name="control" :label="t('risk.field-control')" :placeholder="t('risk.field-control-placeholder')" />
-              </div>
-              <BaseInput name="responseDescription" :label="t('risk.field-response-description')" type="textarea" :rows="3" :placeholder="t('risk.field-response-description-placeholder')" />
-              <div class="space-y-2">
-                <label class="label min-h-0 py-1">
-                  <span class="label-text text-sm font-normal leading-snug">{{ t('risk.field-tasks') }}</span>
-                </label>
-                <div class="flex gap-2">
-                  <input
-                    v-model="newTaskTitle"
-                    type="text"
-                    class="input input-bordered flex-1 !h-8 !min-h-0 px-2.5 text-xs font-light leading-snug placeholder:text-slate-400"
-                    :placeholder="t('risk.task-add-placeholder')"
-                    @keydown.enter.prevent="addTask"
-                  />
-                  <Button type="button" variant="primary" size="sm" class="!h-8" :disabled="!newTaskTitle.trim()" @click="addTask">
-                    <Lucide icon="Plus" class="!h-3.5 !w-3.5" />
-                  </Button>
-                </div>
-                <div v-if="tasks.length > 0" class="space-y-1">
-                  <div
-                    v-for="(task, index) in tasks"
-                    :key="index"
-                    class="flex items-center gap-2 rounded-md border border-slate-200 bg-white px-3 py-1.5 text-xs dark:border-darkmode-600 dark:bg-darkmode-800"
-                  >
-                    <span class="flex-1 text-slate-700 dark:text-slate-200">{{ task.title }}</span>
-                    <span :class="taskStateBadgeClass(task.state)" @click="toggleTaskState(index)">
-                      {{ t(`task.status.${task.state}`) }}
-                    </span>
-                    <button type="button" class="text-slate-400 hover:text-red-500 transition" :disabled="savingTasks" @click="removeTask(index)">
-                      <Lucide icon="Trash2" class="!h-3 !w-3" />
-                    </button>
-                  </div>
-                </div>
+                <button type="button" class="text-slate-400 hover:text-red-500 transition" :disabled="savingTasks" @click="removeTask(index)">
+                  <Lucide icon="Trash2" class="!h-3 !w-3" />
+                </button>
               </div>
             </div>
           </div>
+          <BaseInput name="responseDescription" :label="t('risk.field-response-description')" type="textarea" :rows="3" :placeholder="t('risk.field-response-description-placeholder')" />
         </div>
       </Form>
     </div>
     <template #footer>
       <div class="flex justify-end gap-2">
         <Button
-          type="submit"
-          variant="outline-secondary"
-          size="sm"
-          form="risk-response-modal-form"
-          :disabled="saving"
-        >
-          {{ t('risk.action.save-response') }}
-        </Button>
-        <Button
-          type="button"
-          variant="outline-secondary"
-          size="sm"
-          @click="close"
+            type="button"
+            variant="outline-secondary"
+            size="sm"
+            @click="close"
         >
           {{ t('general.close') }}
         </Button>
         <Button
-          type="button"
-          variant="primary"
-          size="sm"
-          :disabled="saving || transitioning"
-          @click="handleTransitionToMonitoring"
+            type="submit"
+            variant="outline-secondary"
+            size="sm"
+            form="risk-response-modal-form"
+            :disabled="saving"
+        >
+          {{ t('risk.action.save-response') }}
+        </Button>
+        <Button
+            type="button"
+            variant="primary"
+            size="sm"
+            :disabled="saving || transitioning"
+            @click="handleTransitionToMonitoring"
         >
           {{ t('risk.action-send-monitoring') }}
         </Button>

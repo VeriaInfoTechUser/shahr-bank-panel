@@ -41,10 +41,10 @@ const initialValues = ref<Record<string, unknown>>({});
 const formRef = ref<InstanceType<typeof Form>>();
 
 const validationSchema = computed(() => yup.object({
-  title: yup.string().trim().optional(),
-  riskType: yup.string().trim().optional(),
-  categorySlug: yup.string().trim().optional(),
-  subCategorySlug: yup.string().trim().optional(),
+  title: yup.string().trim().required(t('validation.required')),
+  riskType: yup.string().trim().required(t('validation.required')),
+  categorySlug: yup.string().trim().required(t('validation.required')),
+  subCategorySlug: yup.string().trim().required(t('validation.required')),
   ownerId: yup.string().trim().required(t('validation.required')),
   registerDescription: yup.string().trim().optional(),
 }));
@@ -66,26 +66,26 @@ const riskTypeBadgeClass = computed(() => {
 
 function mapMembers(list: Record<string, unknown>[]) {
   return list
-    .map((m) => {
-      const id = m.id ?? m.user_id;
-      if (id == null) return null;
-      const label =
-        [m.name, m.full_name, m.email, m.mobile]
-          .find((x) => typeof x === 'string' && String(x).trim()) ?? String(id);
-      return { value: String(id), label: String(label).trim() };
-    })
-    .filter((x): x is { value: string; label: string } => x != null);
+      .map((m) => {
+        const id = m.id ?? m.user_id;
+        if (id == null) return null;
+        const label =
+            [m.name, m.full_name, m.email, m.mobile]
+                .find((x) => typeof x === 'string' && String(x).trim()) ?? String(id);
+        return { value: String(id), label: String(label).trim() };
+      })
+      .filter((x): x is { value: string; label: string } => x != null);
 }
 
 watch(
-  () => [props.show, props.riskId],
-  async ([show, id]) => {
-    if (show && id) {
-      await Promise.all([fetchTree(), loadMembers()]);
-      await loadRisk(id);
-    }
-  },
-  { immediate: true }
+    () => [props.show, props.riskId],
+    async ([show, id]) => {
+      if (show && id) {
+        await Promise.all([fetchTree(), loadMembers()]);
+        await loadRisk(id);
+      }
+    },
+    { immediate: true }
 );
 
 async function loadMembers() {
@@ -147,6 +147,8 @@ async function handleSave(values: Record<string, unknown>) {
       subCategorySlug: subCatSlug,
       subCategoryTitle: getSubCategoryTitle(catSlug, subCatSlug),
       ownerId: values.ownerId,
+      impact: risk.value.impact ?? null,
+      likelihood: risk.value.likelihood ?? null,
     };
 
     await updateRisk(risk.value.slug, data);
@@ -184,18 +186,11 @@ function handleStartAnalysis() {
         onConfirmAction: async () => {
           registering.value = true;
           try {
-            const catSlug = String(values?.categorySlug ?? '');
-            const subCatSlug = String(values?.subCategorySlug ?? '');
-            const body: Record<string, unknown> = {
-              registerDescription: values.registerDescription,
-              title: values.title,
-              riskType: values.riskType,
-              categorySlug: catSlug,
-              categoryTitle: getCategoryTitle(catSlug),
-              subCategorySlug: subCatSlug,
-              subCategoryTitle: getSubCategoryTitle(catSlug, subCatSlug),
-            };
-            const res = await transitionRisk(risk.value!.slug, 'analysis', body);
+            const res = await transitionRisk(risk.value!.slug, 'analysis', {
+              ...values,
+              impact: risk.value!.impact ?? null,
+              likelihood: risk.value!.likelihood ?? null,
+            });
             if (!res) throw new Error(t('risk.transition-error'));
           } catch (err: unknown) {
             if (err instanceof Error) {
@@ -224,11 +219,11 @@ function handleStartAnalysis() {
 
 <template>
   <BaseModal
-    :visible="show"
-    :title="risk?.title ?? t('risk.detail-title')"
-    size="md"
-    :closable="true"
-    @update:visible="onDialogVisible"
+      :visible="show"
+      :title="risk?.title ?? t('risk.detail-title')"
+      size="md"
+      :closable="true"
+      @update:visible="onDialogVisible"
   >
     <div v-if="apiLoading && !risk" class="flex items-center justify-center py-10">
       <span class="text-sm text-slate-500">{{ t('general.loading') }}</span>
@@ -241,56 +236,53 @@ function handleStartAnalysis() {
       </div>
 
       <Form
-        id="risk-registered-modal-form"
-        ref="formRef"
-        :key="formKey"
-        :validation-schema="validationSchema"
-        :initial-values="initialValues"
-        class="space-y-3"
-        @submit="handleSave"
+          id="risk-registered-modal-form"
+          ref="formRef"
+          :key="formKey"
+          :validation-schema="validationSchema"
+          :initial-values="initialValues"
+          class="space-y-3"
+          @submit="handleSave"
       >
         <div class="space-y-3">
           <BaseInput
-            name="title"
-            :label="t('risk.field-title')"
-            :disabled="true"
-            :placeholder="t('risk.field-title-placeholder')"
+              name="title"
+              :label="t('risk.field-title')"
+              :placeholder="t('risk.field-title-placeholder')"
           />
           <div class="grid grid-cols-1 gap-3 md:grid-cols-2 md:gap-x-4 md:gap-y-3">
             <BaseSelect
-              name="categorySlug"
-              :label="t('risk.field-category')"
-              :options="categoryOptions"
-              :disabled="true"
-              :filter="true"
+                name="categorySlug"
+                :label="t('risk.field-category')"
+                :options="categoryOptions"
+                :filter="true"
+                @change="onCategoryChange"
             />
             <BaseSelect
-              name="subCategorySlug"
-              :label="t('risk.field-sub-category')"
-              :options="subCategoryOptions(selectedCategorySlug)"
-              :disabled="true"
-              :filter="true"
+                name="subCategorySlug"
+                :label="t('risk.field-sub-category')"
+                :options="subCategoryOptions(selectedCategorySlug)"
+                :filter="true"
             />
             <BaseSelect
-              name="ownerId"
-              :label="t('risk.field-owner')"
-              :options="memberOptions"
-              :required="true"
-              :filter="true"
+                name="ownerId"
+                :label="t('risk.field-owner')"
+                :options="memberOptions"
+                :required="true"
+                :filter="true"
             />
             <BaseSelect
-              name="riskType"
-              :label="t('risk.field-risk-type')"
-              :options="riskTypeOptions"
-              :disabled="true"
+                name="riskType"
+                :label="t('risk.field-risk-type')"
+                :options="riskTypeOptions"
             />
           </div>
           <BaseInput
-            name="registerDescription"
-            :label="t('risk.field-register-description')"
-            type="textarea"
-            :rows="3"
-            :placeholder="t('risk.field-register-description-placeholder')"
+              name="registerDescription"
+              :label="t('risk.field-register-description')"
+              type="textarea"
+              :rows="3"
+              :placeholder="t('risk.field-register-description-placeholder')"
           />
         </div>
       </Form>
@@ -298,28 +290,28 @@ function handleStartAnalysis() {
     <template #footer>
       <div class="flex justify-end gap-2">
         <Button
-          type="submit"
-          variant="outline-secondary"
-          size="sm"
-          form="risk-registered-modal-form"
-          :disabled="saving"
-        >
-          {{ t('title.update') }}
-        </Button>
-        <Button
-          type="button"
-          variant="outline-secondary"
-          size="sm"
-          @click="close"
+            type="button"
+            variant="outline-secondary"
+            size="sm"
+            @click="close"
         >
           {{ t('general.close') }}
         </Button>
         <Button
-          type="button"
-          variant="primary"
-          size="sm"
-          :disabled="saving || registering"
-          @click="handleStartAnalysis"
+            type="submit"
+            variant="outline-secondary"
+            size="sm"
+            form="risk-registered-modal-form"
+            :disabled="saving"
+        >
+          {{ t('title.update') }}
+        </Button>
+        <Button
+            type="button"
+            variant="primary"
+            size="sm"
+            :disabled="saving || registering"
+            @click="handleStartAnalysis"
         >
           {{ t('risk.action-start-analysis') }}
         </Button>

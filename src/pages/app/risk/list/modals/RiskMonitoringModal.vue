@@ -236,7 +236,13 @@ function handleCloseRisk() {
       onConfirmAction: async () => {
         transitioning.value = true;
         try {
-          const res = await transitionRisk(risk.value!.slug, 'closed');
+          const formValues = formRef.value?.values ?? {};
+          const body: Record<string, unknown> = {
+            monitoringDescription: formValues.monitoringDescription || '',
+            residualImpact: formValues.residualImpact ? Number(formValues.residualImpact) : undefined,
+            residualLikelihood: formValues.residualLikelihood ? Number(formValues.residualLikelihood) : undefined,
+          };
+          const res = await transitionRisk(risk.value!.slug, 'closed', body);
           if (!res) throw new Error(t('risk.transition-error'));
         } catch (err: unknown) {
           if (err instanceof Error) {

@@ -184,7 +184,18 @@ function handleStartAnalysis() {
         onConfirmAction: async () => {
           registering.value = true;
           try {
-            const res = await transitionRisk(risk.value!.slug, 'analysis', { registerDescription: values?.registerDescription });
+            const catSlug = String(values?.categorySlug ?? '');
+            const subCatSlug = String(values?.subCategorySlug ?? '');
+            const body: Record<string, unknown> = {
+              registerDescription: values.registerDescription,
+              title: values.title,
+              riskType: values.riskType,
+              categorySlug: catSlug,
+              categoryTitle: getCategoryTitle(catSlug),
+              subCategorySlug: subCatSlug,
+              subCategoryTitle: getSubCategoryTitle(catSlug, subCatSlug),
+            };
+            const res = await transitionRisk(risk.value!.slug, 'analysis', body);
             if (!res) throw new Error(t('risk.transition-error'));
           } catch (err: unknown) {
             if (err instanceof Error) {

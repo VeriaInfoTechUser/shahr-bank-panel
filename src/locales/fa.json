@@ -2762,6 +2762,7 @@
     "transition-confirm-message": "آیا از تغییر وضعیت به {status} اطمینان دارید؟",
     "warning-title": "هشدار",
     "warning-description-required": "باید {description} را وارد کنید قبل از ادامه.",
+    "warning-analysis-required": "باید ایمپکت و لاکلیهد را قبل از ارسال وارد کنید.",
     "toolbar-add": "ریسک جدید",
     "toolbar-export": "خروجی",
     "toolbar-filter": "فیلتر",

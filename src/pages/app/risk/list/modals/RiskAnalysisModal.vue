@@ -130,6 +130,27 @@ async function handleSave(values: Record<string, unknown>) {
 
 function handleTransitionToResponse() {
   if (!risk.value) return;
+  const formValues = formRef.value?.values ?? {};
+  if (!String(formValues.analysisDescription ?? '').trim()) {
+    openModal({
+      component: BaseConfirmModal,
+      props: {
+        title: t('risk.warning-title'),
+        message: t('risk.warning-description-required', { description: t('risk.field-analysis-description') }),
+      },
+    });
+    return;
+  }
+  if (!formValues.impactFactor || !formValues.likelihood) {
+    openModal({
+      component: BaseConfirmModal,
+      props: {
+        title: t('risk.warning-title'),
+        message: t('risk.warning-analysis-required'),
+      },
+    });
+    return;
+  }
   openModal({
     component: BaseConfirmModal,
     props: {
@@ -139,7 +160,12 @@ function handleTransitionToResponse() {
       onConfirmAction: async () => {
         transitioning.value = true;
         try {
-          const res = await transitionRisk(risk.value!.slug, 'response');
+          const body: Record<string, unknown> = {
+            analysisDescription: formValues.analysisDescription,
+            impact: Number(formValues.impactFactor),
+            likelihood: Number(formValues.likelihood),
+          };
+          const res = await transitionRisk(risk.value!.slug, 'response', body);
           if (!res) throw new Error(t('risk.transition-error'));
         } catch (err: unknown) {
           if (err instanceof Error) {

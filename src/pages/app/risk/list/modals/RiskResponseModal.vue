@@ -245,10 +245,13 @@ function handleTransitionToMonitoring() {
         transitioning.value = true;
         try {
           const formValues = formRef.value?.values ?? {};
-          const body: Record<string, unknown> = {};
-          if (formValues.impactFactor) body.impact = Number(formValues.impactFactor);
-          if (formValues.likelihood) body.likelihood = Number(formValues.likelihood);
-          if (formValues.analysisDescription) body.analysisDescription = formValues.analysisDescription;
+          const body: Record<string, unknown> = {
+            responseDescription: formValues.responseDescription || '',
+            strategy: formValues.strategy || formValues.treatmentStrategy || '',
+            frameworkSlug: formValues.framework || '',
+            controlSlug: formValues.control || '',
+            tasks: tasks.value.map((t) => t.title),
+          };
           const res = await transitionRisk(risk.value!.slug, 'monitoring', body);
           if (!res) throw new Error(t('risk.transition-error'));
         } catch (err: unknown) {

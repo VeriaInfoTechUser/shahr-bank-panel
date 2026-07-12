@@ -159,6 +159,9 @@ function populateForm(r: Risk) {
     responseDescription: r.responseDescription ?? '',
     framework: r.framework?.[0] ?? '',
     control: r.control?.[0] ?? '',
+    impactFactor: r.impactFactor ?? r.impact ?? '',
+    likelihood: r.likelihood ?? '',
+    analysisDescription: r.analysisDescription ?? '',
   };
 }
 
@@ -241,7 +244,12 @@ function handleTransitionToMonitoring() {
       onConfirmAction: async () => {
         transitioning.value = true;
         try {
-          const res = await transitionRisk(risk.value!.slug, 'monitoring');
+          const formValues = formRef.value?.values ?? {};
+          const body: Record<string, unknown> = {};
+          if (formValues.impactFactor) body.impact = Number(formValues.impactFactor);
+          if (formValues.likelihood) body.likelihood = Number(formValues.likelihood);
+          if (formValues.analysisDescription) body.analysisDescription = formValues.analysisDescription;
+          const res = await transitionRisk(risk.value!.slug, 'monitoring', body);
           if (!res) throw new Error(t('risk.transition-error'));
         } catch (err: unknown) {
           if (err instanceof Error) {
@@ -329,9 +337,10 @@ function handleTransitionToMonitoring() {
           <div v-if="accordionOpen.analysis" class="border-t border-slate-200 px-4 py-3 dark:border-darkmode-600">
             <div class="space-y-3">
               <div class="grid grid-cols-1 gap-3 md:grid-cols-2 md:gap-x-4 md:gap-y-3">
-                <BaseSelect name="impactFactor" :label="t('risk.field-impact-factor')" :options="impactOptions" :disabled="true" />
-                <BaseSelect name="likelihood" :label="t('risk.field-likelihood')" :options="likelihoodOptions" :disabled="true" />
+                <BaseSelect name="impactFactor" :label="t('risk.field-impact-factor')" :options="impactOptions" />
+                <BaseSelect name="likelihood" :label="t('risk.field-likelihood')" :options="likelihoodOptions" />
               </div>
+              <BaseInput name="analysisDescription" :label="t('risk.field-analysis-description')" type="textarea" :rows="3" :placeholder="t('risk.field-analysis-description-placeholder')" />
             </div>
           </div>
         </div>

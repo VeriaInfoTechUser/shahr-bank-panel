@@ -7,6 +7,7 @@ import { toast } from 'vue3-toastify';
 import BaseModal from '@/core/ui/base/BaseModal.vue';
 import BaseInput from '@/core/ui/base/BaseInput.vue';
 import Button from '@/base-components/Button';
+import Lucide from '@/base-components/Lucide';
 import { grcRepo } from '@/core/repositories/grcRepo';
 
 const props = withDefaults(
@@ -171,12 +172,19 @@ async function onSubmit(values: { title?: string; description?: string }) {
       ref="formRef"
       :validation-schema="validationSchema"
       :initial-values="initialValues"
-      class="space-y-2 py-1"
+      class="space-y-4"
       @submit="onSubmit"
     >
       <div data-autofocus-modal>
-        <div v-if="parentTitle" class="mb-2 text-sm text-slate-500">
-          {{ t('settings-page.category-parent-label') }}: <span class="font-medium text-slate-700 dark:text-slate-300">{{ parentTitle }}</span>
+        <div
+          v-if="parentTitle"
+          class="flex items-center gap-2 rounded-lg bg-primary/5 px-3 py-2 dark:bg-primary/10"
+        >
+          <Lucide icon="GitBranch" class="h-4 w-4 shrink-0 text-primary/60" />
+          <span class="text-xs text-slate-500 dark:text-slate-400">
+            {{ t('settings-page.category-parent-label') }}:
+          </span>
+          <span class="text-xs font-medium text-slate-700 dark:text-slate-300">{{ parentTitle }}</span>
         </div>
         <BaseInput
           name="title"
@@ -198,6 +206,7 @@ async function onSubmit(values: { title?: string; description?: string }) {
           type="button"
           variant="outline-secondary"
           size="sm"
+          class="!rounded-lg"
           :disabled="saving"
           @click="close"
         >
@@ -207,6 +216,7 @@ async function onSubmit(values: { title?: string; description?: string }) {
           type="submit"
           variant="primary"
           size="sm"
+          class="!rounded-lg !shadow-md !shadow-primary/20"
           form="category-form"
           :disabled="saving"
         >

@@ -58,7 +58,6 @@ async function onSubmit(values: Record<string, unknown>) {
     }
     await reportRepo.createBaseline({
       title,
-      type: selectedPeriod.value.type,
       frameworkSlug,
       frameworkTitle: fwTitle,
       dateType: dateType.value,
@@ -66,11 +65,9 @@ async function onSubmit(values: Record<string, unknown>) {
       startDate: selectedPeriod.value.startDate,
       endDate: selectedPeriod.value.endDate,
     });
-    toast(t('reports.create-success'), { type: 'success' });
     emit('success');
     close();
   } catch {
-    toast(t('reports.create-error'), { type: 'error' });
   } finally {
     saving.value = false;
   }

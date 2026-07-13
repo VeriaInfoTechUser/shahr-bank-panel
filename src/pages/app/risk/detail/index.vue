@@ -297,35 +297,23 @@ watch(slug, () => {
           <template v-if="activeTab === 'overview'">
             <!-- Stats Row -->
             <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              <div class="group relative overflow-hidden rounded-2xl border border-white/60 bg-white p-5 shadow-md transition-all duration-200 hover:shadow-lg hover:shadow-primary/5 dark:border-darkmode-700/40 dark:bg-darkmode-800">
-                <div class="absolute -right-4 -top-4 h-20 w-20 rounded-full bg-primary/5 transition-transform group-hover:scale-110 dark:bg-primary/10" />
-                <div class="relative">
-                  <div class="mb-2 text-xs font-medium text-slate-500 dark:text-slate-400">{{ t('risk.field-risk-level') }}</div>
-                  <span :class="riskLevelBadgeClass" class="!text-sm !px-3 !py-1">
-                    {{ risk.level ? t(`risk.level-${risk.level}`) : '—' }}
-                  </span>
-                </div>
+              <div class="rounded-2xl border border-white/60 bg-white p-5 shadow-md dark:border-darkmode-700/40 dark:bg-darkmode-800">
+                <div class="mb-2 text-xs font-medium text-slate-500 dark:text-slate-400">{{ t('risk.field-risk-level') }}</div>
+                <span :class="riskLevelBadgeClass" class="!text-sm !px-3 !py-1">
+                  {{ risk.level ? t(`risk.level-${risk.level}`) : '—' }}
+                </span>
               </div>
-              <div class="group relative overflow-hidden rounded-2xl border border-white/60 bg-white p-5 shadow-md transition-all duration-200 hover:shadow-lg hover:shadow-primary/5 dark:border-darkmode-700/40 dark:bg-darkmode-800">
-                <div class="absolute -right-4 -top-4 h-20 w-20 rounded-full bg-primary/5 transition-transform group-hover:scale-110 dark:bg-primary/10" />
-                <div class="relative">
-                  <div class="mb-2 text-xs font-medium text-slate-500 dark:text-slate-400">{{ t('risk.field-inherent-score') }}</div>
-                  <div class="text-3xl font-bold text-slate-800 dark:text-slate-100">{{ scoreDisplay }}</div>
-                </div>
+              <div class="rounded-2xl border border-white/60 bg-white p-5 shadow-md dark:border-darkmode-700/40 dark:bg-darkmode-800">
+                <div class="mb-2 text-xs font-medium text-slate-500 dark:text-slate-400">{{ t('risk.field-inherent-score') }}</div>
+                <div class="text-3xl font-bold text-slate-800 dark:text-slate-100">{{ scoreDisplay }}</div>
               </div>
-              <div class="group relative overflow-hidden rounded-2xl border border-white/60 bg-white p-5 shadow-md transition-all duration-200 hover:shadow-lg hover:shadow-primary/5 dark:border-darkmode-700/40 dark:bg-darkmode-800">
-                <div class="absolute -right-4 -top-4 h-20 w-20 rounded-full bg-primary/5 transition-transform group-hover:scale-110 dark:bg-primary/10" />
-                <div class="relative">
-                  <div class="mb-2 text-xs font-medium text-slate-500 dark:text-slate-400">{{ t('risk.field-impact') }} × {{ t('risk.field-likelihood') }}</div>
-                  <div class="text-3xl font-bold text-slate-800 dark:text-slate-100">{{ impactLikelihoodDisplay }}</div>
-                </div>
+              <div class="rounded-2xl border border-white/60 bg-white p-5 shadow-md dark:border-darkmode-700/40 dark:bg-darkmode-800">
+                <div class="mb-2 text-xs font-medium text-slate-500 dark:text-slate-400">{{ t('risk.field-impact') }} × {{ t('risk.field-likelihood') }}</div>
+                <div class="text-3xl font-bold text-slate-800 dark:text-slate-100">{{ impactLikelihoodDisplay }}</div>
               </div>
-              <div class="group relative overflow-hidden rounded-2xl border border-white/60 bg-white p-5 shadow-md transition-all duration-200 hover:shadow-lg hover:shadow-primary/5 dark:border-darkmode-700/40 dark:bg-darkmode-800">
-                <div class="absolute -right-4 -top-4 h-20 w-20 rounded-full bg-primary/5 transition-transform group-hover:scale-110 dark:bg-primary/10" />
-                <div class="relative">
-                  <div class="mb-2 text-xs font-medium text-slate-500 dark:text-slate-400">{{ t('risk.field-status') }}</div>
-                  <span :class="statusBadgeClass">{{ t(`risk.status-${risk.state}`) }}</span>
-                </div>
+              <div class="rounded-2xl border border-white/60 bg-white p-5 shadow-md dark:border-darkmode-700/40 dark:bg-darkmode-800">
+                <div class="mb-2 text-xs font-medium text-slate-500 dark:text-slate-400">{{ t('risk.field-status') }}</div>
+                <span :class="statusBadgeClass">{{ t(`risk.status-${risk.state}`) }}</span>
               </div>
             </div>
 

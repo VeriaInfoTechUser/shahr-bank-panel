@@ -62,8 +62,16 @@ async function loadMembers() {
   }
 }
 
+const ALL_RISK_STATES = ['registered', 'analysis', 'response', 'monitoring', 'closed'];
+
 const fetchRisks: FetchFn = async ({ page, limit, filters }) => {
-  const res = await grcRepo.riskList({ page, limit, ...(filters ?? {}) });
+  const stateFilter = filters?.state;
+  const hasStateFilter = Array.isArray(stateFilter) && stateFilter.length > 0;
+  const effectiveFilters = {
+    ...(filters ?? {}),
+    ...(hasStateFilter ? {} : { state: ALL_RISK_STATES }),
+  };
+  const res = await grcRepo.riskList({ page, limit, ...effectiveFilters });
   const list = res?.data?.list ?? [];
   const count = res?.data?.paginator?.count ?? 0;
   return { list: Array.isArray(list) ? list : [], count };
@@ -118,18 +126,11 @@ const table = useDataTable({
       bodyCell: (row) => (row.state as string) ?? '—',
     }),
     createColumn({
-      key: 'riskLevel',
-      label: t('risk.col-level'),
-      sortable: false,
-      slot: true,
-      bodyCell: (row) => (row.riskLevel as string) ?? '—',
-    }),
-    createColumn({
-      key: 'impactFactor',
+      key: 'impact',
       label: t('risk.col-impact'),
       sortable: false,
       bodyCell: (row) => {
-        const v = row.impactFactor;
+        const v = row.impact;
         return v != null ? String(v) : '—';
       },
     }),
@@ -139,6 +140,15 @@ const table = useDataTable({
       sortable: false,
       bodyCell: (row) => {
         const v = row.likelihood;
+        return v != null ? String(v) : '—';
+      },
+    }),
+    createColumn({
+      key: 'score',
+      label: t('risk.col-level'),
+      sortable: false,
+      bodyCell: (row) => {
+        const v = row.score;
         return v != null ? String(v) : '—';
       },
     }),
@@ -256,12 +266,6 @@ function onModalSuccess() {
         <template #cell-state="{ row }">
           <span :class="statusBadgeClass(row.state)">
             {{ t(`risk.status-${row.state}`) }}
-          </span>
-        </template>
-
-        <template #cell-riskLevel="{ row }">
-          <span :class="riskLevelBadgeClass(row.riskLevel)">
-            {{ row.riskLevel ? t(`risk.level-${row.riskLevel}`) : '—' }}
           </span>
         </template>
 

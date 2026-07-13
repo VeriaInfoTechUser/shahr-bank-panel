@@ -7,16 +7,16 @@ import Button from '@/base-components/Button';
 import Lucide from '@/base-components/Lucide';
 
 interface FrameworkMapping {
-  mapped_title: string;
-  framework_name: string;
-  mapped_control_id: string;
+  mappedTitle: string;
+  frameworkName: string;
+  mappedControlId: string;
 }
 
 interface CascadingEffect {
   description: string;
-  effect_direction: string;
-  target_metric_id: string;
-  relationship_type: string;
+  effectDirection: string;
+  targetMetricId: string;
+  relationshipType: string;
 }
 
 interface MetricInformation {
@@ -68,11 +68,6 @@ interface MetricDetail {
   information: MetricInformation;
 }
 
-interface DirectionBadge {
-  icon: string;
-  cls: string;
-}
-
 const route = useRoute();
 const router = useRouter();
 const { t } = useI18n();
@@ -104,207 +99,228 @@ function goBack(): void {
   router.push({ name: 'app-capital-metrics' });
 }
 
-function directionBadge(dir?: string): DirectionBadge {
-  if (dir === 'maximize') return { icon: 'TrendingUp', cls: 'bg-success/10 text-success' };
-  if (dir === 'minimize') return { icon: 'TrendingDown', cls: 'bg-danger/10 text-danger' };
-  return { icon: 'Minus', cls: 'bg-slate-100 text-slate-600 dark:bg-darkmode-700 dark:text-slate-300' };
-}
-
-function roleBadge(role?: string): string {
-  const map: Record<string, string> = {
-    CONTROL: 'bg-info/10 text-info',
-    OUTCOME: 'bg-primary/10 text-primary',
-    DRIVER: 'bg-warning/10 text-warning',
-  };
-  return map[role ?? ''] ?? 'bg-slate-100 text-slate-600 dark:bg-darkmode-700 dark:text-slate-300';
-}
-
 onMounted(() => {
   void fetchMetric();
 });
 </script>
 
 <template>
-  <div class="p-4">
+  <div class="min-h-screen bg-slate-50/50 dark:bg-darkmode-900">
     <!-- Loading -->
-    <div v-if="loading" class="flex items-center justify-center py-24">
-      <div class="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+    <div v-if="loading" class="flex items-center justify-center py-32">
+      <div class="flex flex-col items-center gap-3">
+        <div class="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+        <span class="text-xs text-slate-400">{{ t('general.loading') }}</span>
+      </div>
     </div>
 
     <!-- Empty -->
-    <div v-else-if="!info" class="py-24 text-center text-sm text-slate-400">
-      {{ t('general.no-data') }}
+    <div v-else-if="!info" class="flex items-center justify-center py-32">
+      <div class="text-center">
+        <Lucide icon="FileX" class="mx-auto mb-3 h-10 w-10 text-slate-300" />
+        <p class="text-sm text-slate-400">{{ t('general.no-data') }}</p>
+      </div>
     </div>
 
     <!-- Content -->
-    <div v-else class="space-y-4">
+    <div v-else class="mx-auto max-w-5xl space-y-5 px-1 pb-6 pt-4 md:px-2">
       <!-- Hero header -->
       <div
-          class="relative overflow-hidden rounded-2xl border border-slate-200/60 bg-gradient-to-br from-primary to-primary-muted p-6 text-white shadow-sm dark:border-darkmode-700/60"
+        class="relative overflow-hidden rounded-2xl border border-slate-200/60 bg-white shadow-sm dark:border-darkmode-700/60 dark:bg-darkmode-800"
       >
-        <div class="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10" />
-        <div class="absolute -bottom-16 -left-10 h-48 w-48 rounded-full bg-white/5" />
+        <div class="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/10" />
 
-        <div class="relative flex flex-wrap items-start justify-between gap-4">
-          <div class="min-w-0 flex-1">
-            <div class="flex flex-wrap items-center gap-2">
-              <span class="rounded-md bg-white/20 px-2 py-0.5 text-xs font-semibold backdrop-blur">
-                {{ info.number }}
-              </span>
-              <span class="rounded-md bg-white/15 px-2 py-0.5 text-xs">v{{ info.version }}</span>
-              <span
-                  class="rounded-md px-2 py-0.5 text-xs font-medium"
-                  :class="info.isActive ? 'bg-success/30 text-white' : 'bg-danger/30 text-white'"
-              >
-                {{ info.isActive ? t('general.active') : t('general.inactive') }}
-              </span>
-              <span class="rounded-md bg-white/15 px-2 py-0.5 text-xs">{{ info.metricType }}</span>
+        <div class="relative p-6">
+          <!-- Top row: breadcrumbs + back -->
+          <div class="mb-4 flex items-center justify-between">
+            <div class="flex items-center gap-2 text-xs text-slate-400">
+              <span>{{ info.categoryTitle }}</span>
+              <Lucide icon="ChevronLeft" class="h-3 w-3 rtl:rotate-180" />
+              <span>{{ info.categorySubTitle }}</span>
             </div>
-            <h1 class="mt-3 text-xl font-semibold leading-snug">{{ info.title }}</h1>
-            <p class="mt-2 text-sm text-white/80">
-              {{ info.categoryTitle }} <span class="mx-1 opacity-50">/</span> {{ info.categorySubTitle }}
-            </p>
-          </div>
-
-          <Button
+            <Button
               type="button"
               variant="outline-secondary"
               size="sm"
-              class="bg-white/95 text-primary hover:bg-white"
+              class="!h-8 !gap-1.5 !px-3 !text-xs"
               @click="goBack"
-          >
-            <Lucide icon="ArrowRight" class="h-4 w-4 ltr:hidden" />
-            <Lucide icon="ArrowLeft" class="h-4 w-4 rtl:hidden" />
-            {{ t('general.back') }}
-          </Button>
-        </div>
+            >
+              <Lucide icon="ArrowRight" class="h-3.5 w-3.5 ltr:hidden" />
+              <Lucide icon="ArrowLeft" class="h-3.5 w-3.5 rtl:hidden" />
+              {{ t('general.back') }}
+            </Button>
+          </div>
 
-        <!-- KPI strip -->
-        <div class="relative mt-6 grid grid-cols-2 gap-3 md:grid-cols-4">
-          <div class="rounded-xl bg-white/15 p-3 backdrop-blur">
-            <div class="text-[11px] uppercase tracking-wide text-white/70">
-              {{ t('capital-metrics-page.col-unit') }}
+          <!-- Title row -->
+          <div class="flex flex-wrap items-start gap-3">
+            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+              <Lucide icon="BarChart3" class="h-5 w-5" />
             </div>
-            <div class="mt-1 text-base font-semibold">{{ info.unit }}</div>
+            <div class="min-w-0 flex-1">
+              <div class="flex flex-wrap items-center gap-2">
+                <span
+                  class="inline-flex items-center rounded-lg bg-slate-100 px-2.5 py-1 font-mono text-xs font-bold text-slate-700 dark:bg-darkmode-700 dark:text-slate-200"
+                >
+                  {{ info.number }}
+                </span>
+                <span class="rounded-lg bg-slate-100 px-2 py-1 text-[11px] font-medium text-slate-500 dark:bg-darkmode-700 dark:text-slate-400">
+                  v{{ info.version }}
+                </span>
+                <span
+                  class="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-[11px] font-semibold"
+                  :class="info.isActive ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400' : 'bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400'"
+                >
+                  <span class="h-1.5 w-1.5 rounded-full" :class="info.isActive ? 'bg-emerald-500' : 'bg-red-500'" />
+                  {{ info.isActive ? t('general.active') : t('general.inactive') }}
+                </span>
+                <span class="rounded-lg bg-primary/10 px-2 py-1 text-[11px] font-medium text-primary">
+                  {{ info.metricType }}
+                </span>
+                <span class="rounded-lg bg-violet-50 px-2 py-1 text-[11px] font-medium text-violet-600 dark:bg-violet-500/10 dark:text-violet-400">
+                  {{ info.metricRole }}
+                </span>
+              </div>
+              <h1 class="mt-2.5 text-lg font-bold leading-snug text-slate-800 dark:text-slate-100">
+                {{ info.title }}
+              </h1>
+            </div>
           </div>
-          <div class="rounded-xl bg-white/15 p-3 backdrop-blur">
-            <div class="text-[11px] uppercase tracking-wide text-white/70">
-              {{ t('capital-metrics-page.annual-target') }}
+
+          <!-- KPI strip -->
+          <div class="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <div class="rounded-xl border border-slate-100 bg-slate-50/80 p-3.5 dark:border-darkmode-700 dark:bg-darkmode-900/50">
+              <div class="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wider text-slate-400">
+                <Lucide icon="Ruler" class="h-3 w-3" />
+                {{ t('capital-metrics-page.col-unit') }}
+              </div>
+              <div class="mt-1.5 text-sm font-bold text-slate-700 dark:text-slate-200">{{ info.unit }}</div>
             </div>
-            <div class="mt-1 text-base font-semibold">{{ info.annualTarget }}</div>
-          </div>
-          <div class="rounded-xl bg-white/15 p-3 backdrop-blur">
-            <div class="text-[11px] uppercase tracking-wide text-white/70">
-              {{ t('capital-metrics-page.target-year') }}
+            <div class="rounded-xl border border-slate-100 bg-slate-50/80 p-3.5 dark:border-darkmode-700 dark:bg-darkmode-900/50">
+              <div class="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wider text-slate-400">
+                <Lucide icon="Target" class="h-3 w-3" />
+                {{ t('capital-metrics-page.annual-target') }}
+              </div>
+              <div class="mt-1.5 text-sm font-bold text-slate-700 dark:text-slate-200">{{ info.annualTarget }}</div>
             </div>
-            <div class="mt-1 text-base font-semibold">{{ info.targetYear }}</div>
-          </div>
-          <div class="rounded-xl bg-white/15 p-3 backdrop-blur">
-            <div class="text-[11px] uppercase tracking-wide text-white/70">
-              {{ t('capital-metrics-page.col-direction') }}
+            <div class="rounded-xl border border-slate-100 bg-slate-50/80 p-3.5 dark:border-darkmode-700 dark:bg-darkmode-900/50">
+              <div class="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wider text-slate-400">
+                <Lucide icon="Calendar" class="h-3 w-3" />
+                {{ t('capital-metrics-page.target-year') }}
+              </div>
+              <div class="mt-1.5 text-sm font-bold text-slate-700 dark:text-slate-200">{{ info.targetYear }}</div>
             </div>
-            <div class="mt-1 flex items-center gap-1 text-base font-semibold">
-              <Lucide :icon="(directionBadge(info.direction).icon as any)" class="h-4 w-4" />
-              {{ info.direction }}
+            <div class="rounded-xl border border-slate-100 bg-slate-50/80 p-3.5 dark:border-darkmode-700 dark:bg-darkmode-900/50">
+              <div class="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wider text-slate-400">
+                <Lucide icon="Compass" class="h-3 w-3" />
+                {{ t('capital-metrics-page.col-direction') }}
+              </div>
+              <div class="mt-1.5 flex items-center gap-1.5 text-sm font-bold text-slate-700 dark:text-slate-200">
+                <Lucide
+                  :icon="info.direction === 'maximize' ? 'TrendingUp' : info.direction === 'minimize' ? 'TrendingDown' : 'Minus'"
+                  class="h-4 w-4"
+                  :class="info.direction === 'maximize' ? 'text-emerald-500' : info.direction === 'minimize' ? 'text-red-500' : 'text-slate-400'"
+                />
+                {{ info.direction }}
+              </div>
             </div>
           </div>
         </div>
       </div>
 
       <!-- Description -->
-      <section
-          class="rounded-2xl border border-slate-200/60 bg-white p-6 shadow-sm dark:border-darkmode-700/60 dark:bg-darkmode-800"
-      >
+      <section class="rounded-2xl border border-slate-200/60 bg-white p-5 shadow-sm dark:border-darkmode-700/60 dark:bg-darkmode-800">
         <div class="mb-3 flex items-center gap-2">
-          <Lucide icon="FileText" class="h-4 w-4 text-primary" />
-          <h2 class="text-sm font-semibold text-slate-700 dark:text-slate-200">
-            {{ t('capital-metrics-page.description') }}
-          </h2>
+          <div class="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10">
+            <Lucide icon="FileText" class="h-3.5 w-3.5 text-primary" />
+          </div>
+          <h2 class="text-sm font-bold text-slate-700 dark:text-slate-200">{{ t('capital-metrics-page.description') }}</h2>
         </div>
         <p class="text-sm leading-7 text-slate-600 dark:text-slate-300">{{ info.description }}</p>
       </section>
 
       <!-- Main grid -->
-      <div class="grid grid-cols-12 gap-4">
+      <div class="grid grid-cols-12 gap-5">
         <!-- Left column -->
-        <div class="col-span-12 space-y-4 lg:col-span-8">
+        <div class="col-span-12 space-y-5 lg:col-span-8">
           <!-- Formula -->
-          <section
-              class="rounded-2xl border border-slate-200/60 bg-white p-6 shadow-sm dark:border-darkmode-700/60 dark:bg-darkmode-800"
-          >
+          <section class="rounded-2xl border border-slate-200/60 bg-white p-5 shadow-sm dark:border-darkmode-700/60 dark:bg-darkmode-800">
             <div class="mb-3 flex items-center gap-2">
-              <Lucide icon="Sigma" class="h-4 w-4 text-primary" />
-              <h2 class="text-sm font-semibold text-slate-700 dark:text-slate-200">
-                {{ t('capital-metrics-page.col-formula') }}
-              </h2>
+              <div class="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10">
+                <Lucide icon="Sigma" class="h-3.5 w-3.5 text-primary" />
+              </div>
+              <h2 class="text-sm font-bold text-slate-700 dark:text-slate-200">{{ t('capital-metrics-page.col-formula') }}</h2>
             </div>
             <pre
-                dir="ltr"
-                class="overflow-x-auto rounded-lg bg-slate-50 p-4 text-sm font-mono text-slate-700 dark:bg-darkmode-900 dark:text-slate-200"
+              dir="ltr"
+              class="overflow-x-auto rounded-xl border border-slate-100 bg-slate-50/80 p-4 font-mono text-sm text-slate-600 dark:border-darkmode-700 dark:bg-darkmode-900/50 dark:text-slate-300"
             >{{ info.formula }}</pre>
           </section>
 
           <!-- Thresholds -->
-          <section
-              class="rounded-2xl border border-slate-200/60 bg-white p-6 shadow-sm dark:border-darkmode-700/60 dark:bg-darkmode-800"
-          >
+          <section class="rounded-2xl border border-slate-200/60 bg-white p-5 shadow-sm dark:border-darkmode-700/60 dark:bg-darkmode-800">
             <div class="mb-4 flex items-center gap-2">
-              <Lucide icon="AlertTriangle" class="h-4 w-4 text-primary" />
-              <h2 class="text-sm font-semibold text-slate-700 dark:text-slate-200">
-                {{ t('capital-metrics-page.thresholds') }}
-              </h2>
+              <div class="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10">
+                <Lucide icon="AlertTriangle" class="h-3.5 w-3.5 text-primary" />
+              </div>
+              <h2 class="text-sm font-bold text-slate-700 dark:text-slate-200">{{ t('capital-metrics-page.thresholds') }}</h2>
             </div>
             <div class="grid grid-cols-1 gap-3 md:grid-cols-3">
-              <div class="rounded-xl border border-success/20 bg-success/5 p-4">
-                <div class="text-xs font-medium text-success">{{ t('capital-metrics-page.target') }}</div>
-                <div class="mt-1 text-lg font-semibold text-slate-800 dark:text-slate-100">
-                  {{ info.annualTarget }}
+              <div class="group rounded-xl border border-emerald-200/60 bg-emerald-50/50 p-4 transition-colors hover:border-emerald-300/60 dark:border-emerald-500/20 dark:bg-emerald-500/5">
+                <div class="flex items-center gap-2">
+                  <span class="flex h-6 w-6 items-center justify-center rounded-md bg-emerald-100 dark:bg-emerald-500/20">
+                    <Lucide icon="CheckCircle2" class="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
+                  </span>
+                  <span class="text-xs font-semibold text-emerald-600 dark:text-emerald-400">{{ t('capital-metrics-page.target') }}</span>
                 </div>
+                <div class="mt-2.5 text-base font-bold text-slate-800 dark:text-slate-100">{{ info.annualTarget }}</div>
               </div>
-              <div class="rounded-xl border border-warning/20 bg-warning/5 p-4">
-                <div class="text-xs font-medium text-warning">{{ t('capital-metrics-page.warning') }}</div>
-                <div class="mt-1 text-lg font-semibold text-slate-800 dark:text-slate-100">
-                  {{ info.warningThreshold }}
+              <div class="group rounded-xl border border-amber-200/60 bg-amber-50/50 p-4 transition-colors hover:border-amber-300/60 dark:border-amber-500/20 dark:bg-amber-500/5">
+                <div class="flex items-center gap-2">
+                  <span class="flex h-6 w-6 items-center justify-center rounded-md bg-amber-100 dark:bg-amber-500/20">
+                    <Lucide icon="AlertCircle" class="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" />
+                  </span>
+                  <span class="text-xs font-semibold text-amber-600 dark:text-amber-400">{{ t('capital-metrics-page.warning') }}</span>
                 </div>
+                <div class="mt-2.5 text-base font-bold text-slate-800 dark:text-slate-100">{{ info.warningThreshold }}</div>
               </div>
-              <div class="rounded-xl border border-danger/20 bg-danger/5 p-4">
-                <div class="text-xs font-medium text-danger">{{ t('capital-metrics-page.critical') }}</div>
-                <div class="mt-1 text-lg font-semibold text-slate-800 dark:text-slate-100">
-                  {{ info.criticalThreshold }}
+              <div class="group rounded-xl border border-red-200/60 bg-red-50/50 p-4 transition-colors hover:border-red-300/60 dark:border-red-500/20 dark:bg-red-500/5">
+                <div class="flex items-center gap-2">
+                  <span class="flex h-6 w-6 items-center justify-center rounded-md bg-red-100 dark:bg-red-500/20">
+                    <Lucide icon="XCircle" class="h-3.5 w-3.5 text-red-600 dark:text-red-400" />
+                  </span>
+                  <span class="text-xs font-semibold text-red-600 dark:text-red-400">{{ t('capital-metrics-page.critical') }}</span>
                 </div>
+                <div class="mt-2.5 text-base font-bold text-slate-800 dark:text-slate-100">{{ info.criticalThreshold }}</div>
               </div>
             </div>
           </section>
 
           <!-- Framework mappings -->
           <section
-              v-if="info.frameworkMappings && info.frameworkMappings.length > 0"
-              class="rounded-2xl border border-slate-200/60 bg-white p-6 shadow-sm dark:border-darkmode-700/60 dark:bg-darkmode-800"
+            v-if="info.frameworkMappings && info.frameworkMappings.length > 0"
+            class="rounded-2xl border border-slate-200/60 bg-white p-5 shadow-sm dark:border-darkmode-700/60 dark:bg-darkmode-800"
           >
             <div class="mb-4 flex items-center gap-2">
-              <Lucide icon="Layers" class="h-4 w-4 text-primary" />
-              <h2 class="text-sm font-semibold text-slate-700 dark:text-slate-200">
-                {{ t('capital-metrics-page.framework-mappings') }}
-              </h2>
+              <div class="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10">
+                <Lucide icon="Layers" class="h-3.5 w-3.5 text-primary" />
+              </div>
+              <h2 class="text-sm font-bold text-slate-700 dark:text-slate-200">{{ t('capital-metrics-page.framework-mappings') }}</h2>
             </div>
-            <div class="space-y-2">
+            <div class="space-y-2.5">
               <div
-                  v-for="(m, i) in info.frameworkMappings"
-                  :key="i"
-                  class="flex flex-wrap items-start justify-between gap-2 rounded-xl border border-slate-200/60 p-3 dark:border-darkmode-700/60"
+                v-for="(m, i) in info.frameworkMappings"
+                :key="i"
+                class="flex items-start gap-3 rounded-xl border border-slate-100 p-3.5 transition-colors hover:border-slate-200 dark:border-darkmode-700 dark:hover:border-darkmode-600"
               >
+                <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                  <Lucide icon="Link" class="h-4 w-4" />
+                </div>
                 <div class="min-w-0 flex-1">
                   <div class="flex flex-wrap items-center gap-2">
-                    <span class="rounded bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary">
-                      {{ m.framework_name }}
-                    </span>
-                    <span
-                        class="rounded bg-slate-100 px-2 py-0.5 text-xs text-slate-600 dark:bg-darkmode-700 dark:text-slate-300"
-                    >
-                      {{ m.mapped_control_id }}
-                    </span>
+                    <span class="rounded-lg bg-primary/10 px-2 py-0.5 text-xs font-bold text-primary">{{ m.frameworkName }}</span>
+                    <span class="rounded-lg bg-slate-100 px-2 py-0.5 font-mono text-xs font-semibold text-slate-600 dark:bg-darkmode-700 dark:text-slate-300">{{ m.mappedControlId }}</span>
                   </div>
-                  <div class="mt-1 text-sm text-slate-700 dark:text-slate-200">{{ m.mapped_title }}</div>
+                  <div v-if="m.mappedTitle" class="mt-1.5 text-sm text-slate-600 dark:text-slate-300">{{ m.mappedTitle }}</div>
                 </div>
               </div>
             </div>
@@ -312,205 +328,180 @@ onMounted(() => {
 
           <!-- Cascading effects -->
           <section
-              v-if="info.cascadingEffectsAndRisks && info.cascadingEffectsAndRisks.length > 0"
-              class="rounded-2xl border border-slate-200/60 bg-white p-6 shadow-sm dark:border-darkmode-700/60 dark:bg-darkmode-800"
+            v-if="info.cascadingEffectsAndRisks && info.cascadingEffectsAndRisks.length > 0"
+            class="rounded-2xl border border-slate-200/60 bg-white p-5 shadow-sm dark:border-darkmode-700/60 dark:bg-darkmode-800"
           >
             <div class="mb-4 flex items-center gap-2">
-              <Lucide icon="GitBranch" class="h-4 w-4 text-primary" />
-              <h2 class="text-sm font-semibold text-slate-700 dark:text-slate-200">
-                {{ t('capital-metrics-page.cascading-effects') }}
-              </h2>
+              <div class="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10">
+                <Lucide icon="GitBranch" class="h-3.5 w-3.5 text-primary" />
+              </div>
+              <h2 class="text-sm font-bold text-slate-700 dark:text-slate-200">{{ t('capital-metrics-page.cascading-effects') }}</h2>
             </div>
             <div class="space-y-3">
               <div
-                  v-for="(e, i) in info.cascadingEffectsAndRisks"
-                  :key="i"
-                  class="rounded-xl border border-slate-200/60 p-4 dark:border-darkmode-700/60"
+                v-for="(e, i) in info.cascadingEffectsAndRisks"
+                :key="i"
+                class="rounded-xl border border-slate-100 p-4 dark:border-darkmode-700"
               >
                 <div class="flex flex-wrap items-center gap-2">
-                  <span class="rounded bg-danger/10 px-2 py-0.5 text-xs font-medium text-danger">
-                    {{ e.relationship_type }}
+                  <span class="inline-flex items-center gap-1 rounded-lg bg-violet-50 px-2 py-0.5 text-xs font-semibold text-violet-600 dark:bg-violet-500/10 dark:text-violet-400">
+                    <Lucide icon="ArrowRightLeft" class="h-3 w-3" />
+                    {{ e.relationshipType }}
                   </span>
-                  <span class="rounded bg-warning/10 px-2 py-0.5 text-xs font-medium text-warning">
-                    {{ e.effect_direction }}
+                  <span class="inline-flex items-center gap-1 rounded-lg bg-amber-50 px-2 py-0.5 text-xs font-semibold text-amber-600 dark:bg-amber-500/10 dark:text-amber-400">
+                    <Lucide icon="Zap" class="h-3 w-3" />
+                    {{ e.effectDirection }}
                   </span>
-                  <span class="text-xs text-slate-500 dark:text-slate-400">→ {{ e.target_metric_id }}</span>
+                  <span class="flex items-center gap-1 rounded-lg bg-slate-100 px-2 py-0.5 font-mono text-xs font-medium text-slate-500 dark:bg-darkmode-700 dark:text-slate-400">
+                    <Lucide icon="ArrowRight" class="h-3 w-3" />
+                    {{ e.targetMetricId }}
+                  </span>
                 </div>
-                <p class="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">{{ e.description }}</p>
+                <p class="mt-2.5 text-sm leading-6 text-slate-600 dark:text-slate-300">{{ e.description }}</p>
               </div>
             </div>
           </section>
 
           <!-- Sustainability goal -->
-          <section
-              class="rounded-2xl border border-slate-200/60 bg-white p-6 shadow-sm dark:border-darkmode-700/60 dark:bg-darkmode-800"
-          >
+          <section class="rounded-2xl border border-slate-200/60 bg-white p-5 shadow-sm dark:border-darkmode-700/60 dark:bg-darkmode-800">
             <div class="mb-3 flex items-center gap-2">
-              <Lucide icon="Target" class="h-4 w-4 text-primary" />
-              <h2 class="text-sm font-semibold text-slate-700 dark:text-slate-200">
-                {{ t('capital-metrics-page.sustainability-goal') }}
-              </h2>
+              <div class="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-50 dark:bg-emerald-500/10">
+                <Lucide icon="Leaf" class="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
+              </div>
+              <h2 class="text-sm font-bold text-slate-700 dark:text-slate-200">{{ t('capital-metrics-page.sustainability-goal') }}</h2>
             </div>
             <p class="text-sm leading-7 text-slate-600 dark:text-slate-300">{{ info.sustainabilityGoal }}</p>
           </section>
         </div>
 
         <!-- Sidebar -->
-        <aside class="col-span-12 space-y-4 lg:col-span-4">
+        <aside class="col-span-12 space-y-5 lg:col-span-4">
           <!-- Classification -->
-          <section
-              class="rounded-2xl border border-slate-200/60 bg-white p-6 shadow-sm dark:border-darkmode-700/60 dark:bg-darkmode-800"
-          >
-            <h2 class="mb-4 text-sm font-semibold text-slate-700 dark:text-slate-200">
-              {{ t('capital-metrics-page.classification') }}
-            </h2>
-            <dl class="space-y-3 text-sm">
-              <div class="flex items-center justify-between">
-                <dt class="text-slate-500 dark:text-slate-400">{{ t('capital-metrics-page.metric-role') }}</dt>
-                <dd>
-                  <span class="rounded px-2 py-0.5 text-xs font-medium" :class="roleBadge(info.metricRole)">
-                    {{ info.metricRole }}
-                  </span>
-                </dd>
+          <section class="rounded-2xl border border-slate-200/60 bg-white p-5 shadow-sm dark:border-darkmode-700/60 dark:bg-darkmode-800">
+            <div class="mb-4 flex items-center gap-2">
+              <div class="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10">
+                <Lucide icon="Tag" class="h-3.5 w-3.5 text-primary" />
               </div>
-              <div class="flex items-center justify-between">
-                <dt class="text-slate-500 dark:text-slate-400">{{ t('capital-metrics-page.metric-type') }}</dt>
-                <dd class="font-medium text-slate-700 dark:text-slate-200">{{ info.metricType }}</dd>
+              <h2 class="text-sm font-bold text-slate-700 dark:text-slate-200">{{ t('capital-metrics-page.classification') }}</h2>
+            </div>
+            <div class="space-y-3">
+              <div class="flex items-center justify-between rounded-lg bg-slate-50/80 px-3 py-2.5 dark:bg-darkmode-900/50">
+                <span class="text-xs text-slate-500 dark:text-slate-400">{{ t('capital-metrics-page.metric-role') }}</span>
+                <span class="rounded-lg bg-violet-50 px-2 py-0.5 text-xs font-bold text-violet-600 dark:bg-violet-500/10 dark:text-violet-400">{{ info.metricRole }}</span>
               </div>
-              <div class="flex items-center justify-between">
-                <dt class="text-slate-500 dark:text-slate-400">{{ t('capital-metrics-page.data-type') }}</dt>
-                <dd class="font-medium text-slate-700 dark:text-slate-200">{{ info.dataType }}</dd>
+              <div class="flex items-center justify-between rounded-lg bg-slate-50/80 px-3 py-2.5 dark:bg-darkmode-900/50">
+                <span class="text-xs text-slate-500 dark:text-slate-400">{{ t('capital-metrics-page.metric-type') }}</span>
+                <span class="text-xs font-semibold text-slate-700 dark:text-slate-200">{{ info.metricType }}</span>
               </div>
-              <div class="flex items-center justify-between">
-                <dt class="text-slate-500 dark:text-slate-400">
-                  {{ t('capital-metrics-page.calculation-type') }}
-                </dt>
-                <dd class="font-medium text-slate-700 dark:text-slate-200">{{ info.calculationType }}</dd>
+              <div class="flex items-center justify-between rounded-lg bg-slate-50/80 px-3 py-2.5 dark:bg-darkmode-900/50">
+                <span class="text-xs text-slate-500 dark:text-slate-400">{{ t('capital-metrics-page.data-type') }}</span>
+                <span class="rounded-lg bg-slate-100 px-2 py-0.5 font-mono text-xs font-semibold text-slate-600 dark:bg-darkmode-700 dark:text-slate-300">{{ info.dataType }}</span>
               </div>
-              <div class="flex items-center justify-between">
-                <dt class="text-slate-500 dark:text-slate-400">
-                  {{ t('capital-metrics-page.resilience-test') }}
-                </dt>
-                <dd class="font-medium text-slate-700 dark:text-slate-200">
-                  {{ info.adaptiveResilienceTestType }}
-                </dd>
+              <div class="flex items-center justify-between rounded-lg bg-slate-50/80 px-3 py-2.5 dark:bg-darkmode-900/50">
+                <span class="text-xs text-slate-500 dark:text-slate-400">{{ t('capital-metrics-page.calculation-type') }}</span>
+                <span class="text-xs font-semibold text-slate-700 dark:text-slate-200">{{ info.calculationType }}</span>
               </div>
-            </dl>
+              <div class="flex items-center justify-between rounded-lg bg-slate-50/80 px-3 py-2.5 dark:bg-darkmode-900/50">
+                <span class="text-xs text-slate-500 dark:text-slate-400">{{ t('capital-metrics-page.resilience-test') }}</span>
+                <span class="text-xs font-semibold text-slate-700 dark:text-slate-200">{{ info.adaptiveResilienceTestType }}</span>
+              </div>
+            </div>
           </section>
 
           <!-- Data ownership -->
-          <section
-              class="rounded-2xl border border-slate-200/60 bg-white p-6 shadow-sm dark:border-darkmode-700/60 dark:bg-darkmode-800"
-          >
-            <h2 class="mb-4 text-sm font-semibold text-slate-700 dark:text-slate-200">
-              {{ t('capital-metrics-page.data-ownership') }}
-            </h2>
-            <dl class="space-y-3 text-sm">
-              <div class="flex items-start justify-between gap-2">
-                <dt class="text-slate-500 dark:text-slate-400">{{ t('capital-metrics-page.data-owner') }}</dt>
-                <dd class="text-end font-medium text-slate-700 dark:text-slate-200">{{ info.dataOwner }}</dd>
+          <section class="rounded-2xl border border-slate-200/60 bg-white p-5 shadow-sm dark:border-darkmode-700/60 dark:bg-darkmode-800">
+            <div class="mb-4 flex items-center gap-2">
+              <div class="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10">
+                <Lucide icon="User" class="h-3.5 w-3.5 text-primary" />
               </div>
-              <div class="flex items-start justify-between gap-2">
-                <dt class="text-slate-500 dark:text-slate-400">{{ t('capital-metrics-page.data-source') }}</dt>
-                <dd class="text-end font-medium text-slate-700 dark:text-slate-200">{{ info.dataSource }}</dd>
+              <h2 class="text-sm font-bold text-slate-700 dark:text-slate-200">{{ t('capital-metrics-page.data-ownership') }}</h2>
+            </div>
+            <div class="space-y-3">
+              <div class="flex items-start justify-between gap-3 rounded-lg bg-slate-50/80 px-3 py-2.5 dark:bg-darkmode-900/50">
+                <span class="text-xs text-slate-500 dark:text-slate-400">{{ t('capital-metrics-page.data-owner') }}</span>
+                <span class="text-end text-xs font-semibold text-slate-700 dark:text-slate-200">{{ info.dataOwner }}</span>
               </div>
-              <div class="flex items-start justify-between gap-2">
-                <dt class="text-slate-500 dark:text-slate-400">
-                  {{ t('capital-metrics-page.source-asset') }}
-                </dt>
-                <dd class="text-end font-medium text-slate-700 dark:text-slate-200">
-                  {{ info.sourceAssetType }}
-                </dd>
+              <div class="flex items-start justify-between gap-3 rounded-lg bg-slate-50/80 px-3 py-2.5 dark:bg-darkmode-900/50">
+                <span class="text-xs text-slate-500 dark:text-slate-400">{{ t('capital-metrics-page.data-source') }}</span>
+                <span class="text-end text-xs font-semibold text-slate-700 dark:text-slate-200">{{ info.dataSource }}</span>
               </div>
-              <div class="flex items-center justify-between">
-                <dt class="text-slate-500 dark:text-slate-400">
-                  {{ t('capital-metrics-page.has-sub-assets') }}
-                </dt>
-                <dd>
-                  <span
-                      class="rounded px-2 py-0.5 text-xs font-medium"
-                      :class="
-                      info.hasSubAssets
-                        ? 'bg-success/10 text-success'
-                        : 'bg-slate-100 text-slate-600 dark:bg-darkmode-700 dark:text-slate-300'
-                    "
-                  >
-                    {{ info.hasSubAssets ? t('general.yes') : t('general.no') }}
-                  </span>
-                </dd>
+              <div class="flex items-start justify-between gap-3 rounded-lg bg-slate-50/80 px-3 py-2.5 dark:bg-darkmode-900/50">
+                <span class="text-xs text-slate-500 dark:text-slate-400">{{ t('capital-metrics-page.source-asset') }}</span>
+                <span class="text-end text-xs font-semibold text-slate-700 dark:text-slate-200">{{ info.sourceAssetType }}</span>
               </div>
-            </dl>
+              <div class="flex items-center justify-between rounded-lg bg-slate-50/80 px-3 py-2.5 dark:bg-darkmode-900/50">
+                <span class="text-xs text-slate-500 dark:text-slate-400">{{ t('capital-metrics-page.has-sub-assets') }}</span>
+                <span
+                  class="inline-flex items-center gap-1 rounded-lg px-2 py-0.5 text-xs font-semibold"
+                  :class="info.hasSubAssets ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400' : 'bg-slate-100 text-slate-500 dark:bg-darkmode-700 dark:text-slate-400'"
+                >
+                  <span class="h-1.5 w-1.5 rounded-full" :class="info.hasSubAssets ? 'bg-emerald-500' : 'bg-slate-400'" />
+                  {{ info.hasSubAssets ? t('general.yes') : t('general.no') }}
+                </span>
+              </div>
+            </div>
           </section>
 
           <!-- Reporting -->
-          <section
-              class="rounded-2xl border border-slate-200/60 bg-white p-6 shadow-sm dark:border-darkmode-700/60 dark:bg-darkmode-800"
-          >
-            <h2 class="mb-4 text-sm font-semibold text-slate-700 dark:text-slate-200">
-              {{ t('capital-metrics-page.reporting') }}
-            </h2>
-            <dl class="space-y-3 text-sm">
-              <div class="flex items-center justify-between">
-                <dt class="text-slate-500 dark:text-slate-400">
-                  {{ t('capital-metrics-page.reporting-period') }}
-                </dt>
-                <dd class="font-medium text-slate-700 dark:text-slate-200">{{ info.reportingPeriod }}</dd>
+          <section class="rounded-2xl border border-slate-200/60 bg-white p-5 shadow-sm dark:border-darkmode-700/60 dark:bg-darkmode-800">
+            <div class="mb-4 flex items-center gap-2">
+              <div class="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10">
+                <Lucide icon="Clock" class="h-3.5 w-3.5 text-primary" />
               </div>
-              <div class="flex items-center justify-between">
-                <dt class="text-slate-500 dark:text-slate-400">
-                  {{ t('capital-metrics-page.collection-frequency') }}
-                </dt>
-                <dd class="font-medium text-slate-700 dark:text-slate-200">{{ info.collectionFrequency }}</dd>
+              <h2 class="text-sm font-bold text-slate-700 dark:text-slate-200">{{ t('capital-metrics-page.reporting') }}</h2>
+            </div>
+            <div class="space-y-3">
+              <div class="flex items-center justify-between rounded-lg bg-slate-50/80 px-3 py-2.5 dark:bg-darkmode-900/50">
+                <span class="text-xs text-slate-500 dark:text-slate-400">{{ t('capital-metrics-page.reporting-period') }}</span>
+                <span class="text-xs font-semibold text-slate-700 dark:text-slate-200">{{ info.reportingPeriod }}</span>
               </div>
-              <div class="flex items-center justify-between">
-                <dt class="text-slate-500 dark:text-slate-400">
-                  {{ t('capital-metrics-page.spatial-aggregation') }}
-                </dt>
-                <dd class="font-medium text-slate-700 dark:text-slate-200">{{ info.spatialAggregation }}</dd>
+              <div class="flex items-center justify-between rounded-lg bg-slate-50/80 px-3 py-2.5 dark:bg-darkmode-900/50">
+                <span class="text-xs text-slate-500 dark:text-slate-400">{{ t('capital-metrics-page.collection-frequency') }}</span>
+                <span class="text-xs font-semibold text-slate-700 dark:text-slate-200">{{ info.collectionFrequency }}</span>
               </div>
-              <div class="flex items-center justify-between">
-                <dt class="text-slate-500 dark:text-slate-400">
-                  {{ t('capital-metrics-page.temporal-aggregation') }}
-                </dt>
-                <dd class="font-medium text-slate-700 dark:text-slate-200">{{ info.temporalAggregation }}</dd>
+              <div class="flex items-center justify-between rounded-lg bg-slate-50/80 px-3 py-2.5 dark:bg-darkmode-900/50">
+                <span class="text-xs text-slate-500 dark:text-slate-400">{{ t('capital-metrics-page.spatial-aggregation') }}</span>
+                <span class="text-xs font-semibold text-slate-700 dark:text-slate-200">{{ info.spatialAggregation }}</span>
               </div>
-              <div class="flex items-start justify-between gap-2">
-                <dt class="text-slate-500 dark:text-slate-400">
-                  {{ t('capital-metrics-page.dynamic-aggregation') }}
-                </dt>
-                <dd class="text-end font-medium text-slate-700 dark:text-slate-200">
-                  {{ info.dynamicAggregationRule }}
-                </dd>
+              <div class="flex items-center justify-between rounded-lg bg-slate-50/80 px-3 py-2.5 dark:bg-darkmode-900/50">
+                <span class="text-xs text-slate-500 dark:text-slate-400">{{ t('capital-metrics-page.temporal-aggregation') }}</span>
+                <span class="text-xs font-semibold text-slate-700 dark:text-slate-200">{{ info.temporalAggregation }}</span>
               </div>
-            </dl>
+              <div class="flex items-start justify-between gap-3 rounded-lg bg-slate-50/80 px-3 py-2.5 dark:bg-darkmode-900/50">
+                <span class="text-xs text-slate-500 dark:text-slate-400">{{ t('capital-metrics-page.dynamic-aggregation') }}</span>
+                <span class="text-end text-xs font-semibold text-slate-700 dark:text-slate-200">{{ info.dynamicAggregationRule }}</span>
+              </div>
+            </div>
           </section>
 
           <!-- Industries -->
-          <section
-              class="rounded-2xl border border-slate-200/60 bg-white p-6 shadow-sm dark:border-darkmode-700/60 dark:bg-darkmode-800"
-          >
-            <h2 class="mb-3 text-sm font-semibold text-slate-700 dark:text-slate-200">
-              {{ t('capital-metrics-page.col-industries') }}
-            </h2>
-            <div class="flex flex-wrap gap-2">
+          <section class="rounded-2xl border border-slate-200/60 bg-white p-5 shadow-sm dark:border-darkmode-700/60 dark:bg-darkmode-800">
+            <div class="mb-3 flex items-center gap-2">
+              <div class="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10">
+                <Lucide icon="Factory" class="h-3.5 w-3.5 text-primary" />
+              </div>
+              <h2 class="text-sm font-bold text-slate-700 dark:text-slate-200">{{ t('capital-metrics-page.col-industries') }}</h2>
+            </div>
+            <div class="flex flex-wrap gap-1.5">
               <span
-                  v-for="industry in info.industries"
-                  :key="industry"
-                  class="rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary"
+                v-for="industry in info.industries"
+                :key="industry"
+                class="rounded-lg bg-primary/10 px-2.5 py-1 text-xs font-semibold text-primary"
               >
                 {{ industry }}
               </span>
             </div>
 
             <template v-if="info.associatedIndustries && info.associatedIndustries.length > 0">
-              <h3 class="mb-2 mt-4 text-xs font-semibold text-slate-500 dark:text-slate-400">
+              <div class="my-3 h-px bg-slate-100 dark:bg-darkmode-700" />
+              <h3 class="mb-2 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
                 {{ t('capital-metrics-page.associated-industries') }}
               </h3>
-              <div class="flex flex-wrap gap-2">
+              <div class="flex flex-wrap gap-1.5">
                 <span
-                    v-for="ind in info.associatedIndustries"
-                    :key="ind"
-                    class="rounded-full bg-slate-100 px-3 py-1 text-xs text-slate-600 dark:bg-darkmode-700 dark:text-slate-300"
+                  v-for="ind in info.associatedIndustries"
+                  :key="ind"
+                  class="rounded-lg bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600 dark:bg-darkmode-700 dark:text-slate-300"
                 >
                   {{ ind }}
                 </span>

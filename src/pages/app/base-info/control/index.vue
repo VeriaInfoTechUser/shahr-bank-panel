@@ -32,16 +32,28 @@ const table = useDataTable({
   fetchFn: fetchControls,
   columns: [
     createColumn({
-      key: 'slug',
-      label: t('title.id'),
-      sortable: false,
-      bodyCell: (row) => row.slug ?? '—',
-    }),
-    createColumn({
       key: 'title',
       label: t('title.title'),
       sortable: false,
       bodyCell: (row) => row.title ?? '—',
+    }),
+    createColumn({
+      key: 'frameworkTitle',
+      label: t('control.framework-title'),
+      sortable: false,
+      bodyCell: (row) => {
+        const val = row.frameworkTitle;
+        return Array.isArray(val) ? val.join(', ') : (val ?? '—');
+      },
+    }),
+    createColumn({
+      key: 'domainTitle',
+      label: t('control.domain-title'),
+      sortable: false,
+      bodyCell: (row) => {
+        const val = row.domainTitle;
+        return Array.isArray(val) ? val.join(', ') : (val ?? '—');
+      },
     }),
     createColumn({
       key: 'status',

@@ -38,6 +38,15 @@ const table = useDataTable({
       bodyCell: (row) => row.title ?? '—',
     }),
     createColumn({
+      key: 'frameworkTitle',
+      label: t('domain.framework-title'),
+      sortable: false,
+      bodyCell: (row) => {
+        const val = row.frameworkTitle;
+        return Array.isArray(val) ? val.join(', ') : (val ?? '—');
+      },
+    }),
+    createColumn({
       key: 'status',
       label: t('title.status'),
       sortable: false,

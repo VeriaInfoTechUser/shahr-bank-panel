@@ -22,8 +22,12 @@ type Tab = 'chunk' | 'meta' | 'vector';
 const activeTab = ref<Tab>('chunk');
 
 const meta = computed(() => (props.chunk?.metadata as Record<string, unknown>) ?? {});
-const vector = computed(() => (props.chunk?.vector as Record<string, unknown>) ?? {});
-const hasVector = computed(() => Object.keys(vector.value).length > 0);
+const vector = computed(() => {
+  const v = props.chunk?.vector;
+  if (Array.isArray(v)) return v as number[];
+  return [];
+});
+const hasVector = computed(() => vector.value.length > 0);
 
 /* ---------------------------------------------------------------------- */
 /* Status presentation                                                    */
@@ -75,30 +79,26 @@ const chunkFields = computed<Field[]>(() => [
   { label: t('documents.chunk-updated'), value: formatDate(String(props.chunk?.updatedAt ?? '')), icon: 'Clock' },
 ]);
 
-function buildRecordFields(source: Record<string, unknown>): Field[] {
-  return [
-    { label: 'Record Title', value: source.recordTitle, icon: 'FileText' },
-    { label: 'Record Slug', value: source.recordSlug, dir: 'ltr', mono: true, icon: 'Link' },
-    { label: 'Record Type', value: source.recordType, icon: 'Tag' },
-    { label: 'User ID', value: source.userId ?? '—', dir: 'ltr', mono: true, icon: 'User' },
-    { label: 'Tenant ID', value: source.tenantId ?? '—', dir: 'ltr', mono: true, icon: 'Building' },
-    { label: 'Block Index', value: source.blockIndex, icon: 'Box' },
-    { label: 'Chunk Index', value: source.chunkIndex, icon: 'Layers' },
-    { label: 'Total Blocks', value: source.totalBlocks, icon: 'Package' },
-    { label: 'Total Chunks', value: source.totalChunks, icon: 'Stack' },
-    { label: 'Total Characters', value: source.totalCharacters, icon: 'Type' },
-    { label: 'Prev Chunk Slug', value: source.prevChunkSlug, dir: 'ltr', mono: true, icon: 'ArrowLeft' },
-  ];
-}
-
-const metaFields = computed<Field[]>(() => buildRecordFields(meta.value));
-
-const vectorFields = computed<Field[]>(() => [
-  { label: 'Embedding Model', value: vector.value.embedding_model, dir: 'ltr', mono: true, icon: 'Cpu' },
-  ...buildRecordFields(vector.value),
-  { label: 'Time Created', value: vector.value.timeCreate ? new Date(Number(vector.value.timeCreate) * 1000).toLocaleString('fa-IR') : '—', icon: 'Calendar' },
-  { label: 'Time Updated', value: vector.value.timeUpdate ? new Date(Number(vector.value.timeUpdate) * 1000).toLocaleString('fa-IR') : '—', icon: 'Clock' },
+const metaFields = computed<Field[]>(() => [
+  { label: 'Record Title', value: meta.value.recordTitle, icon: 'FileText' },
+  { label: 'Record Slug', value: meta.value.recordSlug, dir: 'ltr', mono: true, icon: 'Link' },
+  { label: 'Record Type', value: meta.value.recordType, icon: 'Tag' },
+  { label: 'User ID', value: meta.value.userId ?? '—', dir: 'ltr', mono: true, icon: 'User' },
+  { label: 'Tenant ID', value: meta.value.tenantId ?? '—', dir: 'ltr', mono: true, icon: 'Building' },
+  { label: 'Block Index', value: meta.value.blockIndex, icon: 'Box' },
+  { label: 'Chunk Index', value: meta.value.chunkIndex, icon: 'Layers' },
+  { label: 'Total Blocks', value: meta.value.totalBlocks, icon: 'Package' },
+  { label: 'Total Chunks', value: meta.value.totalChunks, icon: 'Stack' },
+  { label: 'Total Characters', value: meta.value.totalCharacters, icon: 'Type' },
+  { label: 'Prev Chunk Slug', value: meta.value.prevChunkSlug ?? '—', dir: 'ltr', mono: true, icon: 'ArrowLeft' },
 ]);
+
+const vectorPreview = computed(() => {
+  if (!hasVector.value) return '';
+  const arr = vector.value;
+  if (arr.length <= 20) return arr.join(', ');
+  return arr.slice(0, 20).join(', ') + ` ... (${arr.length} values)`;
+});
 
 const tabs = computed(() => [
   { key: 'chunk' as Tab, label: t('documents.chunk-fields'), icon: 'Box' as const },
@@ -152,15 +152,12 @@ watch(() => props.chunk?.id, () => {
     @update:visible="emit('update:visible', $event)"
   >
     <div v-if="chunk" class="flex max-h-[80vh] flex-col">
-      <!-- ── Header ──────────────────────────────────────────────────── -->
+      <!-- Header -->
       <div class="border-b border-slate-100 px-6 pb-4 pt-5 dark:border-darkmode-600">
         <div class="flex items-start gap-4">
-          <!-- Icon -->
           <div class="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary ring-1 ring-primary/10">
             <Lucide icon="Hash" class="h-5 w-5" />
           </div>
-
-          <!-- Title + subtitle -->
           <div class="min-w-0 flex-1">
             <div class="flex items-center gap-3">
               <h3 class="text-base font-semibold text-slate-800 dark:text-slate-100">
@@ -193,7 +190,7 @@ watch(() => props.chunk?.id, () => {
         </div>
       </div>
 
-      <!-- ── Content preview ─────────────────────────────────────────── -->
+      <!-- Content preview -->
       <div class="px-6 pt-4">
         <div class="flex items-center justify-between">
           <h4 class="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
@@ -224,7 +221,7 @@ watch(() => props.chunk?.id, () => {
         </div>
       </div>
 
-      <!-- ── Tabs ─────────────────────────────────────────────────────── -->
+      <!-- Tabs -->
       <div class="mt-4 px-6">
         <nav class="flex gap-0.5 border-b border-slate-100 dark:border-darkmode-600">
           <button
@@ -248,80 +245,106 @@ watch(() => props.chunk?.id, () => {
         </nav>
       </div>
 
-      <!-- ── Tab content ─────────────────────────────────────────────── -->
+      <!-- Tab content -->
       <div class="flex-1 overflow-y-auto px-6 py-4">
-        <div class="grid grid-cols-2 gap-2.5 sm:grid-cols-3">
-          <div
-            v-for="f in activeTab === 'chunk' ? chunkFields : activeTab === 'meta' ? metaFields : vectorFields"
-            :key="f.label"
-            class="group relative rounded-xl border border-slate-100 bg-white px-3.5 py-3 transition-all hover:border-slate-200 hover:shadow-sm dark:border-darkmode-600 dark:bg-darkmode-700 dark:hover:border-darkmode-500"
-          >
-            <div class="flex items-center gap-1.5">
-              <Lucide v-if="f.icon" :icon="f.icon" class="h-3 w-3 text-slate-350 dark:text-darkmode-400" />
-              <span class="text-[11px] font-medium text-slate-400 dark:text-slate-500">{{ f.label }}</span>
-            </div>
-            <p
-              class="mt-1 truncate text-xs font-medium text-slate-800 dark:text-slate-100"
-              :class="{ 'font-mono text-[11px]': f.mono }"
-              :dir="f.dir"
+        <!-- Chunk & Meta tabs: field grid -->
+        <template v-if="activeTab !== 'vector'">
+          <div class="grid grid-cols-2 gap-2.5 sm:grid-cols-3">
+            <div
+              v-for="f in activeTab === 'chunk' ? chunkFields : metaFields"
+              :key="f.label"
+              class="group relative rounded-xl border border-slate-100 bg-white px-3.5 py-3 transition-all hover:border-slate-200 hover:shadow-sm dark:border-darkmode-600 dark:bg-darkmode-700 dark:hover:border-darkmode-500"
             >
-              {{ displayValue(f.value) }}
-            </p>
-            <button
-              v-if="f.value !== undefined && f.value !== null && f.value !== '—'"
-              type="button"
-              class="absolute end-2 top-2 rounded-md p-1 text-slate-300 opacity-0 shadow-sm transition-all hover:bg-slate-100 hover:text-slate-600 group-hover:opacity-100 dark:hover:bg-darkmode-600 dark:hover:text-slate-300"
-              @click="copyValue(f.label, f.value)"
-            >
-              <transition
-                enter-active-class="transition-all duration-150"
-                leave-active-class="transition-all duration-100"
-                enter-from-class="scale-75 opacity-0"
-                leave-to-class="scale-75 opacity-0"
-                mode="out-in"
+              <div class="flex items-center gap-1.5">
+                <Lucide v-if="f.icon" :icon="f.icon" class="h-3 w-3 text-slate-350 dark:text-darkmode-400" />
+                <span class="text-[11px] font-medium text-slate-400 dark:text-slate-500">{{ f.label }}</span>
+              </div>
+              <p
+                class="mt-1 truncate text-xs font-medium text-slate-800 dark:text-slate-100"
+                :class="{ 'font-mono text-[11px]': f.mono }"
+                :dir="f.dir"
               >
-                <Lucide
-                  :key="copiedField === f.label ? 'check' : 'copy'"
-                  :icon="copiedField === f.label ? 'Check' : 'Copy'"
-                  class="h-3 w-3"
-                  :class="copiedField === f.label ? 'text-emerald-500' : ''"
-                />
-              </transition>
-            </button>
+                {{ displayValue(f.value) }}
+              </p>
+              <button
+                v-if="f.value !== undefined && f.value !== null && f.value !== '—'"
+                type="button"
+                class="absolute end-2 top-2 rounded-md p-1 text-slate-300 opacity-0 shadow-sm transition-all hover:bg-slate-100 hover:text-slate-600 group-hover:opacity-100 dark:hover:bg-darkmode-600 dark:hover:text-slate-300"
+                @click="copyValue(f.label, f.value)"
+              >
+                <transition
+                  enter-active-class="transition-all duration-150"
+                  leave-active-class="transition-all duration-100"
+                  enter-from-class="scale-75 opacity-0"
+                  leave-to-class="scale-75 opacity-0"
+                  mode="out-in"
+                >
+                  <Lucide
+                    :key="copiedField === f.label ? 'check' : 'copy'"
+                    :icon="copiedField === f.label ? 'Check' : 'Copy'"
+                    class="h-3 w-3"
+                    :class="copiedField === f.label ? 'text-emerald-500' : ''"
+                  />
+                </transition>
+              </button>
+            </div>
           </div>
-        </div>
+        </template>
 
-        <!-- Vector text (only inside vector tab) -->
-        <div v-if="activeTab === 'vector' && vector.text" class="mt-4">
-          <div class="flex items-center justify-between">
-            <span class="text-[11px] font-medium text-slate-400 dark:text-slate-500">Text (stored in Qdrant payload)</span>
-            <button
-              type="button"
-              class="inline-flex items-center gap-1 rounded-md px-2 py-1 text-[11px] font-medium text-slate-400 transition-all hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-darkmode-600 dark:hover:text-slate-300"
-              @click="copyValue('vector-text', vector.text)"
-            >
-              <Lucide :icon="copiedField === 'vector-text' ? 'Check' : 'Copy'" class="h-3 w-3" :class="copiedField === 'vector-text' ? 'text-emerald-500' : ''" />
-              {{ copiedField === 'vector-text' ? t('documents.copied') : t('documents.copy') }}
-            </button>
-          </div>
-          <div class="mt-2 max-h-40 overflow-y-auto rounded-xl border border-slate-150 bg-slate-50/80 p-3 scrollbar-thin dark:border-darkmode-500 dark:bg-darkmode-700/50">
-            <pre class="whitespace-pre-wrap break-words text-xs leading-relaxed text-slate-700 dark:text-slate-300">{{ vector.text }}</pre>
-          </div>
-        </div>
+        <!-- Vector tab: embedding array -->
+        <template v-if="activeTab === 'vector'">
+          <div v-if="hasVector" class="space-y-4">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="text-xs font-semibold text-slate-700 dark:text-slate-200">
+                  {{ vector.length }} {{ t('documents.chunk-vector-dimensions') }}
+                </span>
+                <span class="rounded-lg bg-slate-100 px-2 py-0.5 font-mono text-[11px] text-slate-500 dark:bg-darkmode-700 dark:text-slate-400">
+                  {{ vector.length }}D
+                </span>
+              </div>
+              <button
+                type="button"
+                class="inline-flex items-center gap-1 rounded-md px-2 py-1 text-[11px] font-medium text-slate-400 transition-all hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-darkmode-600 dark:hover:text-slate-300"
+                @click="copyValue('vector', JSON.stringify(vector))"
+              >
+                <Lucide :icon="copiedField === 'vector' ? 'Check' : 'Copy'" class="h-3 w-3" :class="copiedField === 'vector' ? 'text-emerald-500' : ''" />
+                {{ copiedField === 'vector' ? t('documents.copied') : t('documents.copy') }}
+              </button>
+            </div>
 
-        <!-- Empty vector state -->
-        <div
-          v-if="activeTab === 'vector' && !hasVector"
-          class="flex flex-col items-center justify-center gap-3 py-12 text-center"
-        >
-          <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-100 text-slate-300 dark:bg-darkmode-600 dark:text-slate-500">
-            <Lucide icon="CpuOff" class="h-6 w-6" />
+            <!-- Vector preview -->
+            <div class="rounded-xl border border-slate-150 bg-slate-50/80 p-4 dark:border-darkmode-500 dark:bg-darkmode-700/50">
+              <p class="text-[11px] font-medium text-slate-400 dark:text-slate-500">{{ t('documents.chunk-vector-preview') }}</p>
+              <pre class="mt-2 whitespace-pre-wrap break-words font-mono text-xs leading-relaxed text-slate-600 dark:text-slate-300">{{ vectorPreview }}</pre>
+            </div>
+
+            <!-- Full vector (collapsed) -->
+            <details class="group">
+              <summary class="flex cursor-pointer items-center gap-2 text-xs font-medium text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200">
+                <Lucide icon="ChevronRight" class="h-3.5 w-3.5 transition-transform group-open:rotate-90" />
+                {{ t('documents.chunk-vector-show-all') }}
+              </summary>
+              <div class="mt-2 max-h-64 overflow-y-auto rounded-xl border border-slate-150 bg-slate-50/80 p-4 scrollbar-thin dark:border-darkmode-500 dark:bg-darkmode-700/50">
+                <pre class="whitespace-pre-wrap break-words font-mono text-[11px] leading-relaxed text-slate-600 dark:text-slate-300">{{ JSON.stringify(vector) }}</pre>
+              </div>
+            </details>
           </div>
-          <div>
-            <p class="text-sm font-medium text-slate-500 dark:text-slate-400">{{ t('documents.chunk-vector-empty') }}</p>
-            <p class="mt-0.5 text-xs text-slate-400 dark:text-slate-500">{{ t('documents.chunk-vector-empty-hint') }}</p>
+
+          <!-- Empty vector state -->
+          <div
+            v-else
+            class="flex flex-col items-center justify-center gap-3 py-12 text-center"
+          >
+            <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-100 text-slate-300 dark:bg-darkmode-600 dark:text-slate-500">
+              <Lucide icon="CpuOff" class="h-6 w-6" />
+            </div>
+            <div>
+              <p class="text-sm font-medium text-slate-500 dark:text-slate-400">{{ t('documents.chunk-vector-empty') }}</p>
+              <p class="mt-0.5 text-xs text-slate-400 dark:text-slate-500">{{ t('documents.chunk-vector-empty-hint') }}</p>
+            </div>
           </div>
-        </div>
+        </template>
       </div>
     </div>
   </BaseModal>

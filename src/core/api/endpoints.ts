@@ -2,6 +2,7 @@ export const endpoints = {
   auth: {
     login: 'user/authentication/login',
     logout: 'user/authentication/logout',
+    verify: 'auth/verify',
   },
   user: {
     profile: {

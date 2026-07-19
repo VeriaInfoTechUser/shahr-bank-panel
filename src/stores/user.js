@@ -34,8 +34,6 @@ export const useUserStore = defineStore('user', () => {
     setCurrentUser(payload);
     currentUser.value = payload;
     loginError.value = null;
-    // Show login history modal after successful login
-    showLoginHistoryModal.value = true;
   }
 
   function setLogout() {
@@ -177,6 +175,7 @@ export const useUserStore = defineStore('user', () => {
     currentUser,
     loginError,
     setUser,
+    setLogout,
     requestNotificationCount,
     setShowLog,
     showLog,

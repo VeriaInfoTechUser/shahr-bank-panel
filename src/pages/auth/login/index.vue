@@ -12,6 +12,7 @@ import { useI18n } from "vue-i18n";
 import { useValidationCache } from "@/composables/useValidationCache.js";
 import { useMutation } from "@/core/composables/useMutation";
 import { authRepo } from "@/core/repositories/authRepo";
+import { ApiError } from "@/core/api/apiError";
 
 const { t: $t } = useI18n();
 const route = useRoute();
@@ -28,9 +29,23 @@ const loginMutation = useMutation({
       credential: vals.credential,
     });
   },
-  onSuccess: (data) => {
+  onSuccess: async (data) => {
     if (data?.data) {
       userStore.setUser(data.data);
+
+      try {
+        await authRepo.verify();
+      } catch (err) {
+        userStore.setLogout();
+        if (err instanceof ApiError && err.code === 401) {
+          errorMessage.value = 'احراز هویت نامعتبر است.';
+          return;
+        }
+        errorMessage.value = 'احراز هویت ناموفق بود.';
+        return;
+      }
+
+      userStore.setShowLoginHistoryModal(true);
       const redirectPath = (typeof route.query.redirect === 'string' ? route.query.redirect : Array.isArray(route.query.redirect) ? route.query.redirect[0] : null) || '/';
       router.push(redirectPath);
     } else if (data?.result === false && data?.error?.message) {

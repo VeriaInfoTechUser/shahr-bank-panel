@@ -120,7 +120,7 @@ onMounted(() => {
                   {{ t('menu.sustainability-fundamental-capitals') }}
                 </h1>
                 <p class="text-sm text-slate-500 dark:text-slate-400">
-                  {{ tree.length }} {{ tree.length === 1 ? t('sustainability-fundamental-capitals-page.count-singular') : t('sustainability-fundamental-capitals-page.count-plural') }}
+                  {{ t('sustainability-fundamental-capitals-page.description') }}
                 </p>
               </div>
             </div>

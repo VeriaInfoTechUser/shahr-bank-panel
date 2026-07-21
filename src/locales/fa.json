@@ -1128,12 +1128,13 @@
     "filter-badge-remove-aria": "حذف فیلتر {{label}}"
   },
   "sustainability-fundamental-capitals-page": {
+    "description": "مدیریت سرمایه‌های بنیادی سازمان",
     "edit": "ویرایش ساختار",
     "add-child": "افزودن زیرمجموعه",
     "add-root": "افزودن ساختار",
     "parent-label": "والد",
     "col-title": "عنوان",
-    "col-number": "شماره",
+    "col-summary": "خلاصه",
     "col-description": "توضیحات",
     "validation-title": "عنوان را وارد کنید.",
     "add-success": "ساختار با موفقیت ایجاد شد.",

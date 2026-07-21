@@ -1107,12 +1107,13 @@
     "filter-badge-remove-aria": "Remove filter {{label}}"
   },
   "sustainability-fundamental-capitals-page": {
+    "description": "Manage organization's fundamental capitals",
     "edit": "Edit Structure",
     "add-child": "Add Child",
     "add-root": "Add Structure",
     "parent-label": "Parent",
     "col-title": "Title",
-    "col-number": "Number",
+    "col-summary": "Summary",
     "col-description": "Description",
     "validation-title": "Title is required.",
     "add-success": "Structure created successfully.",

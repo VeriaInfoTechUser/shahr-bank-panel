@@ -49,7 +49,7 @@ const modalTitle = computed(() => {
   return t('sustainability-fundamental-capitals-page.add-root');
 });
 
-const initialValues = ref({ title: '', description: '', number: '' });
+const initialValues = ref({ title: '', summary: '', description: '' });
 
 const validationSchema = computed(() =>
   yup.object({
@@ -57,8 +57,8 @@ const validationSchema = computed(() =>
       .string()
       .trim()
       .required(t('sustainability-fundamental-capitals-page.validation-title')),
+    summary: yup.string().trim().optional(),
     description: yup.string().trim().optional(),
-    number: yup.string().trim().optional(),
   })
 );
 
@@ -81,19 +81,18 @@ function descriptionFromRecord(rec: Record<string, unknown> | null | undefined):
   return '';
 }
 
-function numberFromRecord(rec: Record<string, unknown> | null | undefined): string {
+function summaryFromRecord(rec: Record<string, unknown> | null | undefined): string {
   if (!rec) return '';
-  const v = rec.number;
+  const v = rec.summary;
   if (typeof v === 'string' && v.trim()) return v;
-  if (typeof v === 'number' && !Number.isNaN(v)) return String(v);
   return '';
 }
 
 function seedForm() {
   initialValues.value = {
     title: titleFromRecord(props.record ?? null),
+    summary: summaryFromRecord(props.record ?? null),
     description: descriptionFromRecord(props.record ?? null),
-    number: numberFromRecord(props.record ?? null),
   };
   formKey.value += 1;
 }
@@ -117,18 +116,18 @@ function onDialogVisible(v: boolean) {
   if (!v) emit('close');
 }
 
-async function onSubmit(values: { title?: string; description?: string; number?: string }) {
+async function onSubmit(values: { title?: string; summary?: string; description?: string }) {
   const title = String(values.title ?? '').trim();
+  const summary = String(values.summary ?? '').trim();
   const description = String(values.description ?? '').trim();
-  const number = String(values.number ?? '').trim();
   saving.value = true;
   try {
     let result;
     if (isEdit.value && props.record) {
       const slug = String(props.record.slug ?? '');
-      result = await grcRepo.capitalUpdate(slug, { title, description, number });
+      result = await grcRepo.capitalUpdate(slug, { title, summary, description });
     } else {
-      const data: Record<string, unknown> = { title, description, number, status: 1 };
+      const data: Record<string, unknown> = { title, summary, description, status: 1 };
       if (props.parentSlug) {
         data.parentSlug = props.parentSlug;
       }
@@ -205,9 +204,9 @@ async function onSubmit(values: { title?: string; description?: string; number?:
           autofocus
         />
         <BaseInput
-          name="number"
-          :label="t('sustainability-fundamental-capitals-page.col-number')"
-          type="text"
+          name="summary"
+          :label="t('sustainability-fundamental-capitals-page.col-summary')"
+          type="textarea"
         />
         <BaseInput
           name="description"

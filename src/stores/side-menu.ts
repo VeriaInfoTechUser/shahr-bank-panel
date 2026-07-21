@@ -222,17 +222,6 @@ export const useSideMenuStore = defineStore("sideMenu", {
                 title: "menu.sustainability",
                 subMenu: [
                     {
-                        icon: "FolderTree",
-                        pageName: "app-sustainability-category",
-                        title: "menu.sustainability-category",
-                        requiredRole: "grc_admin",
-                    },
-                    {
-                        icon: "TrendingUp",
-                        pageName: "app-sustainability-metrics",
-                        title: "menu.sustainability-metrics",
-                    },
-                    {
                         icon: "Network",
                         pageName: "app-sustainability-fundamental-capitals",
                         title: "menu.sustainability-fundamental-capitals",

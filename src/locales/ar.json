@@ -864,12 +864,13 @@
     "filter-badge-remove-aria": "إزالة الفلتر {{label}}"
   },
   "sustainability-fundamental-capitals-page": {
+    "description": "إدارة الأساسيات الجوهرية للمؤسسة",
     "edit": "تعديل الهيكل",
     "add-child": "إضافة عنصر فرعي",
     "add-root": "إضافة هيكل",
     "parent-label": "الأصل",
     "col-title": "العنوان",
-    "col-number": "الرقم",
+    "col-summary": "ملخص",
     "col-description": "الوصف",
     "validation-title": "أدخل العنوان.",
     "add-success": "تم إنشاء الهيكل بنجاح.",

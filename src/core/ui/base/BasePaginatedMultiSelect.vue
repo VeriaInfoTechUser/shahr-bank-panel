@@ -52,12 +52,19 @@ const totalPages = computed(() => Math.max(1, Math.ceil(totalCount.value / props
 const hasPrev = computed(() => page.value > 1);
 const hasNext = computed(() => page.value < totalPages.value);
 
-const selectedLabels = computed(() => {
+const selectedItems = computed(() => {
   const selected = value.value ?? [];
-  return options.value.filter(o => selected.includes(String(o.value))).map(o => o.label);
+  return options.value.filter(o => selected.includes(String(o.value)));
 });
 
 const selectedCount = computed(() => (value.value ?? []).length);
+
+const displayLabels = computed(() => {
+  if (selectedItems.value.length <= 2) {
+    return selectedItems.value.map(o => o.label);
+  }
+  return [selectedItems.value[0].label, `+${selectedItems.value.length - 1}`];
+});
 
 const resolvedSearchPlaceholder = computed(() =>
   props.searchPlaceholder ?? t('general.select-filter-placeholder')
@@ -113,6 +120,15 @@ function clearAll() {
   handleChange([]);
   emit('update:modelValue', []);
   emit('change', []);
+}
+
+function removeItem(val: unknown, e: MouseEvent) {
+  e.stopPropagation();
+  const strVal = String(val);
+  const current = (value.value ?? []).filter(v => v !== strVal);
+  handleChange(current);
+  emit('update:modelValue', current);
+  emit('change', current);
 }
 
 // ── Search debounce ─────────────────────────────────────────────────────────
@@ -204,7 +220,7 @@ const labelTextClass = computed(() =>
       <button
         ref="triggerRef"
         type="button"
-        class="select select-bordered flex w-full items-center !h-8 !min-h-0 !px-2 !py-0 text-xs font-light leading-snug"
+        class="select select-bordered flex w-full items-center !min-h-0 !px-2 !py-1 text-xs font-light leading-snug"
         :class="[
           { 'select-error': errorMessage, 'opacity-50 cursor-not-allowed': disabled },
           selectedCount ? 'text-slate-700 dark:text-slate-200' : 'text-slate-400 dark:text-slate-500'
@@ -212,17 +228,29 @@ const labelTextClass = computed(() =>
         @click="toggle"
         @blur="handleBlur"
       >
-        <span class="min-w-0 flex-1 truncate text-start">
-          <template v-if="selectedCount">
-            {{ selectedCount }} {{ t('general.selected') }}
-          </template>
-          <template v-else>
-            {{ placeholder || t('general.select') }}
-          </template>
+        <span v-if="selectedCount" class="flex flex-wrap items-center gap-1 min-w-0 flex-1">
+          <span
+            v-for="item in displayLabels"
+            :key="item"
+            class="inline-flex items-center gap-0.5 rounded bg-primary/10 px-1.5 py-0.5 text-[10px] font-medium text-primary max-w-[120px]"
+          >
+            <span class="truncate">{{ item }}</span>
+            <button
+              v-if="!item.startsWith('+')"
+              type="button"
+              class="inline-flex h-3 w-3 items-center justify-center rounded-full hover:bg-primary/20"
+              @click.stop="removeItem(options.find(o => o.label === item)?.value, $event)"
+            >
+              <Lucide icon="X" class="h-2 w-2" />
+            </button>
+          </span>
+        </span>
+        <span v-else class="min-w-0 flex-1 truncate text-start">
+          {{ placeholder || t('general.select') }}
         </span>
         <Lucide
           icon="ChevronDown"
-          class="h-4 w-4 shrink-0 text-slate-400 transition-transform"
+          class="h-4 w-4 shrink-0 text-slate-400 transition-transform ms-1"
           :class="isOpen ? 'rotate-180' : ''"
         />
       </button>

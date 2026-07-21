@@ -6,6 +6,7 @@ import { useI18n } from 'vue-i18n';
 import { toast } from 'vue3-toastify';
 import BaseModal from '@/core/ui/base/BaseModal.vue';
 import BaseInput from '@/core/ui/base/BaseInput.vue';
+import BaseSelect from '@/core/ui/base/BaseSelect.vue';
 import Button from '@/base-components/Button';
 import Lucide from '@/base-components/Lucide';
 import { grcRepo } from '@/core/repositories/grcRepo';
@@ -49,50 +50,50 @@ const modalTitle = computed(() => {
   return t('sustainability-fundamental-capitals-page.add-root');
 });
 
-const initialValues = ref({ title: '', summary: '', description: '' });
+const capitalTypeOptions = [
+  { value: 'NAT', label: 'Natural (NAT)' },
+  { value: 'HUM', label: 'Human (HUM)' },
+  { value: 'SOC', label: 'Social (SOC)' },
+  { value: 'INS', label: 'Institutional (INS)' },
+  { value: 'TEC', label: 'Technological (TEC)' },
+  { value: 'FEC', label: 'Financial & Economic (FEC)' },
+];
+
+const initialValues = ref({
+  slug: '',
+  title: '',
+  titleEn: '',
+  capitalType: '',
+  industries: [] as string[],
+  description: '',
+});
 
 const validationSchema = computed(() =>
   yup.object({
+    slug: yup
+      .string()
+      .trim()
+      .required(t('sustainability-fundamental-capitals-page.validation-slug')),
     title: yup
       .string()
       .trim()
       .required(t('sustainability-fundamental-capitals-page.validation-title')),
-    summary: yup.string().trim().optional(),
+    titleEn: yup.string().trim().optional(),
+    capitalType: yup.string().trim().optional(),
+    industries: yup.array().optional(),
     description: yup.string().trim().optional(),
   })
 );
 
-function titleFromRecord(rec: Record<string, unknown> | null | undefined): string {
-  if (!rec) return '';
-  for (const key of ['title', 'name', 'label'] as const) {
-    const v = rec[key];
-    if (typeof v === 'string' && v.trim()) return v;
-    if (typeof v === 'number' && !Number.isNaN(v)) return String(v);
-  }
-  return '';
-}
-
-function descriptionFromRecord(rec: Record<string, unknown> | null | undefined): string {
-  if (!rec) return '';
-  for (const key of ['description', 'summary'] as const) {
-    const v = rec[key];
-    if (typeof v === 'string' && v.trim()) return v;
-  }
-  return '';
-}
-
-function summaryFromRecord(rec: Record<string, unknown> | null | undefined): string {
-  if (!rec) return '';
-  const v = rec.summary;
-  if (typeof v === 'string' && v.trim()) return v;
-  return '';
-}
-
 function seedForm() {
+  const rec = props.record;
   initialValues.value = {
-    title: titleFromRecord(props.record ?? null),
-    summary: summaryFromRecord(props.record ?? null),
-    description: descriptionFromRecord(props.record ?? null),
+    slug: rec ? String(rec.slug ?? '') : '',
+    title: rec ? String(rec.title ?? '') : '',
+    titleEn: rec ? String(rec.titleEn ?? '') : '',
+    capitalType: rec ? String(rec.capitalType ?? '') : '',
+    industries: rec && Array.isArray(rec.industries) ? (rec.industries as string[]) : [],
+    description: rec ? String(rec.description ?? '') : '',
   };
   formKey.value += 1;
 }
@@ -116,18 +117,37 @@ function onDialogVisible(v: boolean) {
   if (!v) emit('close');
 }
 
-async function onSubmit(values: { title?: string; summary?: string; description?: string }) {
+async function onSubmit(values: Record<string, unknown>) {
+  const slug = String(values.slug ?? '').trim();
   const title = String(values.title ?? '').trim();
-  const summary = String(values.summary ?? '').trim();
+  const titleEn = String(values.titleEn ?? '').trim();
+  const capitalType = String(values.capitalType ?? '').trim();
+  const industries = Array.isArray(values.industries) ? values.industries : [];
   const description = String(values.description ?? '').trim();
+
   saving.value = true;
   try {
     let result;
     if (isEdit.value && props.record) {
-      const slug = String(props.record.slug ?? '');
-      result = await grcRepo.capitalUpdate(slug, { title, summary, description });
+      const recordSlug = String(props.record.slug ?? '');
+      result = await grcRepo.capitalUpdate(recordSlug, {
+        slug,
+        title,
+        titleEn,
+        capitalType,
+        industries,
+        description,
+      });
     } else {
-      const data: Record<string, unknown> = { title, summary, description, status: 1 };
+      const data: Record<string, unknown> = {
+        slug,
+        title,
+        titleEn,
+        capitalType,
+        industries,
+        description,
+        status: 1,
+      };
       if (props.parentSlug) {
         data.parentSlug = props.parentSlug;
       }
@@ -197,16 +217,29 @@ async function onSubmit(values: { title?: string; summary?: string; description?
           <span class="text-xs font-medium text-slate-700 dark:text-slate-300">{{ parentTitle }}</span>
         </div>
         <BaseInput
-          name="title"
-          :label="t('sustainability-fundamental-capitals-page.col-title')"
+          name="slug"
+          :label="t('sustainability-fundamental-capitals-page.col-slug')"
           type="text"
           required
           autofocus
         />
         <BaseInput
-          name="summary"
-          :label="t('sustainability-fundamental-capitals-page.col-summary')"
-          type="textarea"
+          name="title"
+          :label="t('sustainability-fundamental-capitals-page.col-title')"
+          type="text"
+          required
+        />
+        <BaseInput
+          name="titleEn"
+          :label="t('sustainability-fundamental-capitals-page.col-title-en')"
+          type="text"
+        />
+        <BaseSelect
+          name="capitalType"
+          :label="t('sustainability-fundamental-capitals-page.col-capital-type')"
+          :options="capitalTypeOptions"
+          placeholder=""
+          filter
         />
         <BaseInput
           name="description"

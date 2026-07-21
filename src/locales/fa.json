@@ -1173,6 +1173,26 @@
     "edit-success": "حوزه با موفقیت ویرایش شد.",
     "edit-error": "خطا در ویرایش حوزه."
   },
+  "sustainability-component-page": {
+    "add": "افزودن مؤلفه",
+    "edit": "ویرایش مؤلفه",
+    "domain": "حوزه",
+    "capital": "سرمایه",
+    "col-slug": "شناسه",
+    "col-title": "عنوان",
+    "col-title-en": "عنوان انگلیسی",
+    "col-version": "نسخه",
+    "col-template": "قالب",
+    "col-definition-en": "تعریف انگلیسی",
+    "col-description": "توضیحات",
+    "validation-slug": "شناسه را وارد کنید.",
+    "validation-slug-pattern": "شناسه باید با حروف شروع شده و می‌تواند شامل اعداد و خط تیره باشد",
+    "validation-title": "عنوان را وارد کنید.",
+    "add-success": "مؤلفه با موفقیت ایجاد شد.",
+    "add-error": "خطا در ایجاد مؤلفه.",
+    "edit-success": "مؤلفه با موفقیت ویرایش شد.",
+    "edit-error": "خطا در ویرایش مؤلفه."
+  },
   "sustainability-claim-page": {
     "add": "افزودن ادعا",
     "edit": "ویرایش ادعا",

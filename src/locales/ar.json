@@ -909,6 +909,26 @@
     "edit-success": "تم تحديث المجال بنجاح.",
     "edit-error": "تعذّر تحديث المجال."
   },
+  "sustainability-component-page": {
+    "add": "إضافة مكون",
+    "edit": "تعديل المكون",
+    "domain": "المجال",
+    "capital": "رأس المال",
+    "col-slug": "المعرف",
+    "col-title": "العنوان",
+    "col-title-en": "العنوان (الإنجليزية)",
+    "col-version": "الإصدار",
+    "col-template": "القالب",
+    "col-definition-en": "التعريف (الإنجليزية)",
+    "col-description": "الوصف",
+    "validation-slug": "أدخل المعرف.",
+    "validation-slug-pattern": "يجب أن يبدأ المعرف بحرف ويمكن أن يحتوي على أحرف وأرقام وشرطات",
+    "validation-title": "أدخل العنوان.",
+    "add-success": "تم إنشاء المكون بنجاح.",
+    "add-error": "تعذّر إنشاء المكون.",
+    "edit-success": "تم تحديث المكون بنجاح.",
+    "edit-error": "تعذّر تحديث المكون."
+  },
   "sustainability-claim-page": {
     "add": "إضافة مطالبة",
     "edit": "تعديل المطالبة",

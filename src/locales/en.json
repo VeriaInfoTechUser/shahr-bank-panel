@@ -1152,6 +1152,26 @@
     "edit-success": "Domain updated successfully.",
     "edit-error": "Failed to update domain."
   },
+  "sustainability-component-page": {
+    "add": "Add Component",
+    "edit": "Edit Component",
+    "domain": "Domain",
+    "capital": "Capital",
+    "col-slug": "Slug",
+    "col-title": "Title",
+    "col-title-en": "Title (English)",
+    "col-version": "Version",
+    "col-template": "Template",
+    "col-definition-en": "Definition (English)",
+    "col-description": "Description",
+    "validation-slug": "Slug is required.",
+    "validation-slug-pattern": "Slug must start with a letter and can contain letters, numbers, and hyphens",
+    "validation-title": "Title is required.",
+    "add-success": "Component created successfully.",
+    "add-error": "Failed to create component.",
+    "edit-success": "Component updated successfully.",
+    "edit-error": "Failed to update component."
+  },
   "sustainability-claim-page": {
     "add": "Add Claim",
     "edit": "Edit Claim",

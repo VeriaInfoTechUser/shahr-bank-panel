@@ -9,6 +9,7 @@ import { grcRepo } from '@/core/repositories/grcRepo';
 import { useGlobalModal } from '@/composables/useGlobalModal';
 import StructureFormModal from './StructureFormModal.vue';
 import DomainFormModal from './DomainFormModal.vue';
+import ComponentFormModal from './ComponentFormModal.vue';
 
 interface CapitalNode {
   slug: string;
@@ -63,57 +64,63 @@ function onAddRoot() {
 function onAddChild(parentSlug: string, parentTitle: string, nodeType?: string, nodeData?: CapitalNode) {
   expanded.value.add(parentSlug);
 
-  // Build capital data from the parent node
-  // For domain creation, parentSlug/parentTitle come from the capital node
-  const capitalData = {
-    slug: nodeData?.slug ?? parentSlug,
-    title: nodeData?.title ?? parentTitle,
-    capitalType: nodeData?.capitalType,
-    parentSlug: nodeData?.parentSlug ?? nodeData?.slug ?? parentSlug,
-    parentTitle: nodeData?.parentTitle ?? nodeData?.title ?? parentTitle,
-  };
-
-  // nodeType comes directly from node.type field: "capital", "domain", "component", "capability"
+  // Build parent data based on node type
   if (nodeType === 'capital') {
     // Capital -> Add Domain
+    const capitalData = {
+      slug: nodeData?.slug ?? parentSlug,
+      title: nodeData?.title ?? parentTitle,
+      capitalType: nodeData?.capitalType,
+    };
     openModal({
       component: DomainFormModal,
-      props: {
-        capitalData,
-      },
+      props: { capitalData },
       onSuccess: () => {
         void fetchTree();
       },
     });
   } else if (nodeType === 'domain') {
     // Domain -> Add Component
+    const parentData = {
+      slug: nodeData?.slug ?? parentSlug,
+      title: nodeData?.title ?? parentTitle,
+      domainSlug: nodeData?.slug ?? parentSlug,
+      domainTitle: nodeData?.title ?? parentTitle,
+      capitalSlug: nodeData?.parentSlug ?? '',
+      capitalTitle: nodeData?.parentTitle ?? '',
+      capitalType: nodeData?.capitalType,
+    };
     openModal({
-      component: DomainFormModal,
-      props: {
-        capitalData,
-      },
+      component: ComponentFormModal,
+      props: { parentData },
       onSuccess: () => {
         void fetchTree();
       },
     });
   } else if (nodeType === 'component') {
-    // Component -> Add Capability
+    // Component -> Add Capability (use DomainFormModal for now)
+    const capitalData = {
+      slug: nodeData?.slug ?? parentSlug,
+      title: nodeData?.title ?? parentTitle,
+      capitalType: nodeData?.capitalType,
+    };
     openModal({
       component: DomainFormModal,
-      props: {
-        capitalData,
-      },
+      props: { capitalData },
       onSuccess: () => {
         void fetchTree();
       },
     });
   } else {
     // Default: open domain modal
+    const capitalData = {
+      slug: nodeData?.slug ?? parentSlug,
+      title: nodeData?.title ?? parentTitle,
+      capitalType: nodeData?.capitalType,
+    };
     openModal({
       component: DomainFormModal,
-      props: {
-        capitalData,
-      },
+      props: { capitalData },
       onSuccess: () => {
         void fetchTree();
       },
@@ -123,15 +130,6 @@ function onAddChild(parentSlug: string, parentTitle: string, nodeType?: string, 
 
 function onEdit(record: CapitalNode) {
   const nodeType = record.type || 'capital';
-
-  // Build capital data from the record for domain/component/capability modals
-  const capitalData = {
-    slug: record.slug,
-    title: record.title,
-    capitalType: record.capitalType,
-    parentSlug: record.parentSlug,
-    parentTitle: record.parentTitle,
-  };
 
   if (nodeType === 'capital') {
     // Capital -> Edit with StructureFormModal
@@ -144,24 +142,34 @@ function onEdit(record: CapitalNode) {
     });
   } else if (nodeType === 'domain') {
     // Domain -> Edit with DomainFormModal
+    const capitalData = {
+      slug: record.slug,
+      title: record.title,
+      capitalType: record.capitalType,
+      parentSlug: record.parentSlug,
+      parentTitle: record.parentTitle,
+    };
     openModal({
       component: DomainFormModal,
-      props: {
-        record,
-        capitalData,
-      },
+      props: { record, capitalData },
       onSuccess: () => {
         void fetchTree();
       },
     });
   } else if (nodeType === 'component') {
-    // Component -> Edit with DomainFormModal
+    // Component -> Edit with ComponentFormModal
+    const parentData = {
+      slug: record.slug,
+      title: record.title,
+      domainSlug: record.parentSlug,
+      domainTitle: record.parentTitle,
+      capitalSlug: record.parentSlug,
+      capitalTitle: record.parentTitle,
+      capitalType: record.capitalType,
+    };
     openModal({
-      component: DomainFormModal,
-      props: {
-        record,
-        capitalData,
-      },
+      component: ComponentFormModal,
+      props: { record, parentData },
       onSuccess: () => {
         void fetchTree();
       },

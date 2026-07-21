@@ -178,6 +178,18 @@ export const grcRepo = {
     return grcHttpRequest({ method: 'GET', url: '/context/components', params });
   },
 
+  componentCreate(data: Record<string, unknown>): Promise<GrcApiResponse<GrcEntity>> {
+    return grcHttpRequest({ method: 'POST', url: '/context/components', data });
+  },
+
+  componentUpdate(slug: string, data: Record<string, unknown>): Promise<GrcApiResponse<GrcEntity>> {
+    return grcHttpRequest({ method: 'PUT', url: `/context/components/${slug}`, data });
+  },
+
+  componentDelete(slug: string): Promise<GrcApiResponse<null>> {
+    return grcHttpRequest({ method: 'DELETE', url: `/context/components/${slug}` });
+  },
+
   // Capabilities
   capabilityList(params?: GrcListParams): Promise<GrcApiResponse<GrcPaginatedResponse>> {
     return grcHttpRequest({ method: 'GET', url: '/context/capabilities', params });

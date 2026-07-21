@@ -234,10 +234,11 @@ function renderChart() {
       </div>`;
     })
     .onNodeClick((event: any, node: any) => {
+      if (!node?.data?.id) return;
       if (node.data.id === ROOT_ID) return;
 
-      // Expand/collapse on click
-      if (node.children?.length) {
+      // Expand children on click
+      if (node.data._directSubordinates > 0) {
         chart?.expand(node.data.id);
       }
 

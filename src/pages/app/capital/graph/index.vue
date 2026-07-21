@@ -1,22 +1,18 @@
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount, watch, nextTick } from 'vue';
+import { ref, onMounted, onBeforeUnmount, nextTick } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { OrgChart } from 'd3-org-chart';
 import { grcRepo } from '@/core/repositories/grcRepo';
 
 const { t } = useI18n();
 
-interface TreeNode {
+interface ApiNode {
+  id: string | number;
   slug: string;
-  title: string;
-  titleEn?: string;
   type: string;
-  children?: TreeNode[];
-  domains?: TreeNode[];
-  components?: TreeNode[];
-  capabilities?: TreeNode[];
-  claims?: TreeNode[];
-  indicators?: TreeNode[];
+  title: string;
+  parentSlug?: string | null;
+  children?: ApiNode[];
   [key: string]: unknown;
 }
 
@@ -24,16 +20,13 @@ interface FlatNode {
   id: string;
   parentId: string | null;
   title: string;
-  titleEn?: string;
   type: string;
-  depth: number;
-  raw: TreeNode;
 }
 
 const chartContainer = ref<HTMLDivElement | null>(null);
 const loading = ref(false);
 const error = ref('');
-const treeData = ref<TreeNode[]>([]);
+const treeData = ref<ApiNode[]>([]);
 let chart: InstanceType<typeof OrgChart> | null = null;
 
 const TYPE_COLORS: Record<string, { bg: string; border: string; text: string }> = {
@@ -45,21 +38,19 @@ const TYPE_COLORS: Record<string, { bg: string; border: string; text: string }> 
   indicator:  { bg: 'bg-cyan-50 dark:bg-cyan-900/30', border: 'border-cyan-300 dark:border-cyan-700', text: 'text-cyan-700 dark:text-cyan-300' },
 };
 
-function flattenTree(nodes: TreeNode[], parentId: string | null = null, depth = 0): FlatNode[] {
+const ROOT_ID = '__capital_root__';
+
+function flattenAllNodes(nodes: ApiNode[]): FlatNode[] {
   const result: FlatNode[] = [];
   for (const node of nodes) {
     result.push({
       id: node.slug,
-      parentId,
+      parentId: node.parentSlug ?? null,
       title: node.title ?? node.slug,
-      titleEn: node.titleEn,
       type: node.type ?? 'unknown',
-      depth,
-      raw: node,
     });
-    const children = node.domains ?? node.components ?? node.capabilities ?? node.claims ?? node.indicators ?? node.children ?? [];
-    if (children.length > 0) {
-      result.push(...flattenTree(children, node.slug, depth + 1));
+    if (node.children?.length) {
+      result.push(...flattenAllNodes(node.children));
     }
   }
   return result;
@@ -76,7 +67,7 @@ async function fetchData() {
   try {
     const res = await grcRepo.capitalTree({ level: 6 });
     if (res?.result && Array.isArray(res.data)) {
-      treeData.value = res.data as TreeNode[];
+      treeData.value = res.data as ApiNode[];
     } else {
       treeData.value = [];
     }
@@ -87,50 +78,87 @@ async function fetchData() {
   }
 }
 
+function buildChartData(): FlatNode[] {
+  if (treeData.value.length === 0) return [];
+
+  const allNodes = flattenAllNodes(treeData.value);
+
+  const root: FlatNode = {
+    id: ROOT_ID,
+    parentId: null,
+    title: 'پایداری',
+    type: 'root',
+  };
+
+  const nodesWithRoot: FlatNode[] = allNodes.map((n) => ({
+    ...n,
+    parentId: n.parentId === null ? ROOT_ID : n.parentId,
+  }));
+
+  return [root, ...nodesWithRoot];
+}
+
 function renderChart() {
-  if (!chartContainer.value || treeData.value.length === 0) return;
+  if (!chartContainer.value) return;
 
-  const flat = flattenTree(treeData.value);
+  const flat = buildChartData();
+  if (flat.length === 0) return;
 
-  if (!chart) {
-    chart = new OrgChart(flat)
-      .container(chartContainer.value)
-      .nodeWidth(() => 220)
-      .nodeHeight(() => 80)
-      .compact(false)
-      .nodeContent((node: FlatNode) => {
-        const colors = TYPE_COLORS[node.type] ?? TYPE_COLORS.capital;
-        const title = node.title ?? node.id;
-        const truncated = title.length > 28 ? title.slice(0, 26) + '…' : title;
+  if (chart) {
+    chart.data(flat).render();
+    return;
+  }
+
+  chart = new OrgChart()
+    .container(chartContainer.value)
+    .data(flat)
+    .nodeWidth(() => 220)
+    .nodeHeight(() => 80)
+    .compact(false)
+    .nodeContent((node: FlatNode) => {
+      if (node.id === ROOT_ID) {
         return `
-          <div class="flex flex-col items-center justify-center w-full h-full rounded-lg border ${colors.border} ${colors.bg} px-3 py-2 cursor-pointer select-none"
+          <div class="flex flex-col items-center justify-center w-full h-full rounded-lg border border-slate-300 dark:border-slate-600 bg-slate-100 dark:bg-slate-800 px-3 py-2 cursor-pointer select-none"
                style="font-family: 'IRANSans', 'Vazirmatn', Tahoma, sans-serif;"
                dir="rtl">
-            <div class="w-full truncate text-center text-[11px] font-semibold text-slate-800 dark:text-slate-100 leading-tight">
-              ${truncated}
+            <div class="w-full truncate text-center text-[11px] font-bold text-slate-700 dark:text-slate-200 leading-tight">
+              ${node.title}
             </div>
-            <div class="mt-1 inline-block rounded-full px-2 py-0.5 text-[9px] font-medium ${colors.text} ${colors.bg} border ${colors.border}">
-              ${typeLabel(node.type)}
+            <div class="mt-1 inline-block rounded-full px-2 py-0.5 text-[9px] font-medium text-slate-500 dark:text-slate-400">
+              ${flat.length - 1} سرمایه
             </div>
           </div>
         `;
-      })
-      .onNodeClick((_event: unknown, node: FlatNode) => {
-        if (chart && node.id) {
-          const data = chart.data();
-          const datum = data.find((d: FlatNode) => d.id === node.id);
-          if (datum) {
-            if (datum._children) {
-              datum._children = null;
-            }
-          }
+      }
+      const colors = TYPE_COLORS[node.type] ?? TYPE_COLORS.capital;
+      const title = node.title ?? node.id;
+      const truncated = title.length > 28 ? title.slice(0, 26) + '…' : title;
+      return `
+        <div class="flex flex-col items-center justify-center w-full h-full rounded-lg border ${colors.border} ${colors.bg} px-3 py-2 cursor-pointer select-none"
+             style="font-family: 'IRANSans', 'Vazirmatn', Tahoma, sans-serif;"
+             dir="rtl">
+          <div class="w-full truncate text-center text-[11px] font-semibold text-slate-800 dark:text-slate-100 leading-tight">
+            ${truncated}
+          </div>
+          <div class="mt-1 inline-block rounded-full px-2 py-0.5 text-[9px] font-medium ${colors.text} ${colors.bg} border ${colors.border}">
+            ${typeLabel(node.type)}
+          </div>
+        </div>
+      `;
+    })
+    .onNodeClick((_event: unknown, node: FlatNode) => {
+      if (!chart || node.id === ROOT_ID) return;
+      const data = chart.data();
+      const datum = data.find((d: FlatNode) => d.id === node.id);
+      if (datum) {
+        if (datum._children) {
+          datum._children = null;
         }
-      })
-      .render();
-    chart.collapseAll();
-  } else {
-    chart.data(flat).render();
-  }
+      }
+    })
+    .render();
+
+  chart.collapseAll();
 }
 
 function collapseAll() {
@@ -140,16 +168,6 @@ function collapseAll() {
 function expandAll() {
   chart?.expandAll();
 }
-
-watch(treeData, () => {
-  void nextTick(() => {
-    if (chart) {
-      chart.data(flattenTree(treeData.value)).render();
-    } else {
-      renderChart();
-    }
-  });
-});
 
 onMounted(async () => {
   await fetchData();
@@ -235,7 +253,6 @@ onBeforeUnmount(() => {
 </template>
 
 <style scoped>
-/* d3-org-chart container */
 :deep(.org-chart) {
   display: flex;
   justify-content: center;

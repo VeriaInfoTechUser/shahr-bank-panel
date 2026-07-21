@@ -26,7 +26,7 @@ const expanded = ref<Set<string>>(new Set());
 async function fetchTree() {
   loading.value = true;
   try {
-    const res = await grcRepo.capitalTree();
+    const res = await grcRepo.capitalTree({ level: 4 });
     if (res?.result && Array.isArray(res.data)) {
       tree.value = res.data as CapitalNode[];
     }
@@ -196,7 +196,12 @@ onMounted(() => {
                   </div>
 
                   <div class="min-w-0 flex-1">
-                    <span class="block truncate text-sm font-medium text-slate-700 group-hover/tree:text-slate-900 dark:text-slate-200 dark:group-hover/tree:text-slate-100">
+                    <span
+                      class="block truncate text-sm font-medium transition-colors"
+                      :class="expanded.has(node.slug)
+                        ? 'text-blue-700 dark:text-blue-300'
+                        : 'text-slate-700 group-hover/tree:text-slate-900 dark:text-slate-200 dark:group-hover/tree:text-slate-100'"
+                    >
                       {{ node.title }}
                     </span>
                     <span v-if="node.description" class="mt-0.5 block truncate text-xs text-slate-400 dark:text-slate-500">
@@ -263,7 +268,12 @@ onMounted(() => {
                         </div>
 
                         <div class="min-w-0 flex-1">
-                          <span class="block truncate text-sm text-slate-600 group-hover/child:text-slate-800 dark:text-slate-300 dark:group-hover/child:text-slate-100">
+                          <span
+                            class="block truncate text-sm transition-colors"
+                            :class="expanded.has(child.slug)
+                              ? 'font-medium text-emerald-700 dark:text-emerald-300'
+                              : 'text-slate-600 group-hover/child:text-slate-800 dark:text-slate-300 dark:group-hover/child:text-slate-100'"
+                          >
                             {{ child.title }}
                           </span>
                           <span v-if="child.description" class="mt-0.5 block truncate text-xs text-slate-400 dark:text-slate-500">
@@ -305,13 +315,36 @@ onMounted(() => {
                         class="ml-8 mt-1 space-y-0.5 border-l-2 border-primary/10 pl-3 dark:border-primary/20"
                       >
                         <li v-for="grandchild in child.children" :key="grandchild.slug">
-                          <div class="group/grandchild flex items-center gap-3 rounded-lg px-3 py-2 transition-colors hover:bg-slate-50 dark:hover:bg-darkmode-700/50">
-                            <div class="flex h-5 w-5 shrink-0 items-center justify-center">
-                              <div class="h-1.5 w-1.5 rounded-full bg-slate-300 dark:bg-darkmode-500" />
+                          <div
+                            class="group/grandchild flex items-center gap-3 rounded-lg px-3 py-2 transition-colors"
+                            :class="[
+                              grandchild.children?.length ? 'cursor-pointer' : '',
+                              expanded.has(grandchild.slug) ? 'bg-slate-50/80 dark:bg-darkmode-700/30' : 'hover:bg-slate-50 dark:hover:bg-darkmode-700/50'
+                            ]"
+                            @click="grandchild.children?.length ? toggle(grandchild.slug) : undefined"
+                          >
+                            <div
+                              class="flex h-5 w-5 shrink-0 items-center justify-center rounded transition-colors"
+                              :class="grandchild.children?.length
+                                ? 'bg-primary/8 group-hover/grandchild:bg-primary/12 dark:bg-primary/15 dark:group-hover/grandchild:bg-primary/20'
+                                : ''"
+                            >
+                              <Lucide
+                                v-if="grandchild.children?.length"
+                                icon="ChevronRight"
+                                class="h-3.5 w-3.5 text-primary/70 transition-transform duration-200"
+                                :class="{ 'rotate-90': expanded.has(grandchild.slug) }"
+                              />
+                              <div v-else class="h-1.5 w-1.5 rounded-full bg-slate-300 dark:bg-darkmode-500" />
                             </div>
 
                             <div class="min-w-0 flex-1">
-                              <span class="block truncate text-sm text-slate-500 group-hover/grandchild:text-slate-700 dark:text-slate-400 dark:group-hover/grandchild:text-slate-200">
+                              <span
+                                class="block truncate text-sm transition-colors"
+                                :class="expanded.has(grandchild.slug)
+                                  ? 'font-medium text-violet-700 dark:text-violet-300'
+                                  : 'text-slate-500 group-hover/grandchild:text-slate-700 dark:text-slate-400 dark:group-hover/grandchild:text-slate-200'"
+                              >
                                 {{ grandchild.title }}
                               </span>
                               <span v-if="grandchild.description" class="mt-0.5 block truncate text-xs text-slate-400 dark:text-slate-500">
@@ -320,6 +353,14 @@ onMounted(() => {
                             </div>
 
                             <div class="flex shrink-0 items-center gap-1 opacity-0 transition-opacity duration-150 group-hover/grandchild:opacity-100">
+                              <button
+                                type="button"
+                                class="flex h-6 w-6 items-center justify-center rounded-md text-slate-400 transition-colors hover:bg-primary/10 hover:text-primary dark:hover:bg-primary/20"
+                                :title="t('capital-structure-page.add-child')"
+                                @click.stop="onAddChild(grandchild.slug, grandchild.title)"
+                              >
+                                <Lucide icon="Plus" class="h-3 w-3" />
+                              </button>
                               <button
                                 type="button"
                                 class="flex h-6 w-6 items-center justify-center rounded-md text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-darkmode-600 dark:hover:text-slate-300"
@@ -338,6 +379,48 @@ onMounted(() => {
                               </button>
                             </div>
                           </div>
+
+                          <!-- Great-grandchildren (level 4) -->
+                          <ul
+                            v-if="grandchild.children?.length && expanded.has(grandchild.slug)"
+                            class="ml-6 mt-1 space-y-0.5 border-l-2 border-slate-200/60 pl-3 dark:border-darkmode-600/60"
+                          >
+                            <li v-for="greatGrandchild in grandchild.children" :key="greatGrandchild.slug">
+                              <div class="group/ggchild flex items-center gap-2 rounded-md px-2 py-1.5 transition-colors hover:bg-slate-50/80 dark:hover:bg-darkmode-700/30">
+                                <div class="flex h-4 w-4 shrink-0 items-center justify-center">
+                                  <div class="h-1 w-1 rounded-full bg-slate-300/70 dark:bg-darkmode-500/70" />
+                                </div>
+
+                                <div class="min-w-0 flex-1">
+                                  <span class="block truncate text-xs text-amber-600 dark:text-amber-400">
+                                    {{ greatGrandchild.title }}
+                                  </span>
+                                  <span v-if="greatGrandchild.description" class="mt-0.5 block truncate text-[10px] text-slate-400/70 dark:text-slate-500/70">
+                                    {{ greatGrandchild.description }}
+                                  </span>
+                                </div>
+
+                                <div class="flex shrink-0 items-center gap-0.5 opacity-0 transition-opacity duration-150 group-hover/ggchild:opacity-100">
+                                  <button
+                                    type="button"
+                                    class="flex h-5 w-5 items-center justify-center rounded text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-darkmode-600 dark:hover:text-slate-300"
+                                    :title="t('title.update')"
+                                    @click.stop="onEdit(greatGrandchild)"
+                                  >
+                                    <Lucide icon="Pencil" class="h-3 w-3" />
+                                  </button>
+                                  <button
+                                    type="button"
+                                    class="flex h-5 w-5 items-center justify-center rounded text-slate-400 transition-colors hover:bg-danger/10 hover:text-danger dark:hover:bg-danger/20"
+                                    :title="t('general.delete')"
+                                    @click.stop="onDelete(greatGrandchild)"
+                                  >
+                                    <Lucide icon="Trash2" class="h-3 w-3" />
+                                  </button>
+                                </div>
+                              </div>
+                            </li>
+                          </ul>
                         </li>
                       </ul>
                     </li>

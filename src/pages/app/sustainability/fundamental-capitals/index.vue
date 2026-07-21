@@ -10,6 +10,7 @@ import { useGlobalModal } from '@/composables/useGlobalModal';
 import StructureFormModal from './StructureFormModal.vue';
 import DomainFormModal from './DomainFormModal.vue';
 import ComponentFormModal from './ComponentFormModal.vue';
+import CapabilityFormModal from './CapabilityFormModal.vue';
 
 interface CapitalNode {
   slug: string;
@@ -98,15 +99,21 @@ function onAddChild(parentSlug: string, parentTitle: string, nodeType?: string, 
       },
     });
   } else if (nodeType === 'component') {
-    // Component -> Add Capability (use DomainFormModal for now)
-    const capitalData = {
+    // Component -> Add Capability
+    const parentData = {
       slug: nodeData?.slug ?? parentSlug,
       title: nodeData?.title ?? parentTitle,
+      componentSlug: nodeData?.slug ?? parentSlug,
+      componentTitle: nodeData?.title ?? parentTitle,
+      domainSlug: nodeData?.parentSlug ?? '',
+      domainTitle: nodeData?.parentTitle ?? '',
+      capitalSlug: nodeData?.parentSlug ?? '',
+      capitalTitle: nodeData?.parentTitle ?? '',
       capitalType: nodeData?.capitalType,
     };
     openModal({
-      component: DomainFormModal,
-      props: { capitalData },
+      component: CapabilityFormModal,
+      props: { parentData },
       onSuccess: () => {
         void fetchTree();
       },
@@ -175,13 +182,21 @@ function onEdit(record: CapitalNode) {
       },
     });
   } else if (nodeType === 'capability') {
-    // Capability -> Edit with DomainFormModal
+    // Capability -> Edit with CapabilityFormModal
+    const parentData = {
+      slug: record.slug,
+      title: record.title,
+      componentSlug: record.parentSlug,
+      componentTitle: record.parentTitle,
+      domainSlug: record.parentSlug,
+      domainTitle: record.parentTitle,
+      capitalSlug: record.parentSlug,
+      capitalTitle: record.parentTitle,
+      capitalType: record.capitalType,
+    };
     openModal({
-      component: DomainFormModal,
-      props: {
-        record,
-        capitalData,
-      },
+      component: CapabilityFormModal,
+      props: { record, parentData },
       onSuccess: () => {
         void fetchTree();
       },

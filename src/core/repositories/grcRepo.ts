@@ -195,6 +195,18 @@ export const grcRepo = {
     return grcHttpRequest({ method: 'GET', url: '/context/capabilities', params });
   },
 
+  capabilityCreate(data: Record<string, unknown>): Promise<GrcApiResponse<GrcEntity>> {
+    return grcHttpRequest({ method: 'POST', url: '/context/capabilities', data });
+  },
+
+  capabilityUpdate(slug: string, data: Record<string, unknown>): Promise<GrcApiResponse<GrcEntity>> {
+    return grcHttpRequest({ method: 'PUT', url: `/context/capabilities/${slug}`, data });
+  },
+
+  capabilityDelete(slug: string): Promise<GrcApiResponse<null>> {
+    return grcHttpRequest({ method: 'DELETE', url: `/context/capabilities/${slug}` });
+  },
+
   // Controls
   controlList(params?: GrcListParams): Promise<GrcApiResponse<GrcPaginatedResponse>> {
     return grcHttpRequest({ method: 'GET', url: '/context/controls', params });

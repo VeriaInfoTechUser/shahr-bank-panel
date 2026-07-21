@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
+import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue';
 import { useField } from 'vee-validate';
 import { useI18n } from 'vue-i18n';
 import { watchDebounced } from '@vueuse/core';
@@ -105,10 +105,23 @@ watchDebounced(
   { debounce: 400 }
 );
 
-// ── Open / Close ────────────────────────────────────────────────────────────
+// ── Position ────────────────────────────────────────────────────────────────
 const triggerRef = ref<HTMLElement | null>(null);
 const panelRef = ref<HTMLElement | null>(null);
 const searchInputRef = ref<HTMLInputElement | null>(null);
+const posStyle = ref<Record<string, string>>({});
+
+function calcPosition() {
+  if (!triggerRef.value) return;
+  const r = triggerRef.value.getBoundingClientRect();
+  posStyle.value = {
+    position: 'fixed',
+    zIndex: '9999',
+    left: `${r.left}px`,
+    top: `${r.bottom + 2}px`,
+    width: `${r.width}px`,
+  };
+}
 
 function toggle() {
   if (props.disabled) return;
@@ -116,6 +129,14 @@ function toggle() {
   if (isOpen.value) {
     searchText.value = '';
     loadPage(1);
+    nextTick(() => {
+      calcPosition();
+      // Focus without scrolling
+      const el = searchInputRef.value;
+      if (el) {
+        el.focus({ preventScroll: true });
+      }
+    });
   }
 }
 
@@ -129,12 +150,20 @@ function onClickOutside(e: MouseEvent) {
   }
 }
 
+function onScroll() {
+  if (isOpen.value) calcPosition();
+}
+
 onMounted(() => {
   document.addEventListener('mousedown', onClickOutside);
+  window.addEventListener('scroll', onScroll, true);
+  window.addEventListener('resize', onScroll);
 });
 
 onUnmounted(() => {
   document.removeEventListener('mousedown', onClickOutside);
+  window.removeEventListener('scroll', onScroll, true);
+  window.removeEventListener('resize', onScroll);
 });
 
 const labelTextClass = computed(() =>
@@ -173,17 +202,13 @@ const labelTextClass = computed(() =>
         />
       </button>
 
-      <!-- Panel -->
+      <!-- Panel (Teleported to body) -->
       <Teleport to="body">
         <div
           v-if="isOpen"
           ref="panelRef"
-          class="fixed z-[1200] mt-1 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl dark:border-darkmode-600 dark:bg-darkmode-800"
-          :style="{
-            width: triggerRef ? `${triggerRef.offsetWidth}px` : '100%',
-            insetInlineStart: triggerRef ? `${triggerRef.getBoundingClientRect().left}px` : '0',
-            top: triggerRef ? `${triggerRef.getBoundingClientRect().bottom + 4}px` : '0',
-          }"
+          :style="posStyle"
+          class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl dark:border-darkmode-600 dark:bg-darkmode-800"
         >
           <!-- Search input -->
           <div v-if="search" class="border-b border-slate-100 px-3 py-2 dark:border-darkmode-600">
@@ -193,7 +218,7 @@ const labelTextClass = computed(() =>
                 ref="searchInputRef"
                 v-model="searchText"
                 type="text"
-                class="w-full rounded-md border border-slate-200 bg-slate-50 py-1.5 pe-2.5 ps-8 text-xs text-slate-700 placeholder-slate-400 outline-none transition-colors focus:border-primary focus:bg-white dark:border-darkmode-600 dark:bg-darkmode-700 dark:text-slate-200 dark:placeholder-slate-500 dark:focus:border-primary"
+                class="w-full rounded-md border border-slate-200 bg-slate-50 py-1.5 pe-2.5 ps-8 text-xs text-slate-700 placeholder-slate-400 outline-none transition-colors focus:border-primary focus:bg-white dark:border-darkmode-600 dark:bg-darkmode-700 dark:text-slate-200 dark:placeholder-slate-500"
                 :placeholder="resolvedSearchPlaceholder"
               />
             </div>

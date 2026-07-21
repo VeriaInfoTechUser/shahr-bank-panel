@@ -47,10 +47,7 @@ const table = useDataTable({
       key: 'capital',
       label: t('sustainability-claim-page.col-capital'),
       sortable: false,
-      bodyCell: (row) => {
-        const info = row.information as Record<string, unknown> | undefined;
-        return info ? pickStr(info, 'capitalTitle') : '—';
-      },
+      bodyCell: (row) => pickStr(row, 'capitalTitle'),
     }),
     createColumn({
       key: 'domain',
@@ -59,22 +56,22 @@ const table = useDataTable({
       bodyCell: (row) => pickStr(row, 'domainTitle'),
     }),
     createColumn({
+      key: 'component',
+      label: t('sustainability-claim-page.col-component'),
+      sortable: false,
+      bodyCell: (row) => pickStr(row, 'componentTitle'),
+    }),
+    createColumn({
       key: 'capability',
       label: t('sustainability-claim-page.col-capability'),
       sortable: false,
-      bodyCell: (row) => {
-        const info = row.information as Record<string, unknown> | undefined;
-        return info ? pickStr(info, 'capabilityTitle') : '—';
-      },
+      bodyCell: (row) => pickStr(row, 'capabilityTitle'),
     }),
     createColumn({
       key: 'claimType',
       label: t('sustainability-claim-page.col-claim-type'),
       sortable: false,
-      bodyCell: (row) => {
-        const info = row.information as Record<string, unknown> | undefined;
-        return info ? pickStr(info, 'claimTypeName') : '—';
-      },
+      bodyCell: (row) => pickStr(row, 'claimType'),
     }),
   ],
   selectable: false,

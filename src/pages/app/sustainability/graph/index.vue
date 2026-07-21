@@ -36,45 +36,56 @@ const treeData = ref<ApiNode[]>([]);
 let chart: InstanceType<typeof OrgChart> | null = null;
 
 const selectedNode = ref<any>(null);
-const searchQuery = ref('');
 const breadcrumb = ref<string[]>([]);
 
 const ROOT_ID = '__sustainability_root__';
 
-const TYPE_CONFIG: Record<string, { bg: string; text: string; border: string; svg: string }> = {
+const TYPE_CONFIG: Record<string, { bg: string; text: string; border: string; icon: string }> = {
   capital: {
     bg: 'bg-blue-50',
     text: 'text-blue-700',
     border: 'border-blue-300',
-    svg: '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v12"/><path d="M8 10h8"/></svg>'
+    icon: 'Coins',
   },
   domain: {
     bg: 'bg-emerald-50',
     text: 'text-emerald-700',
     border: 'border-emerald-300',
-    svg: '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"/></svg>'
+    icon: 'FolderOpen',
   },
   component: {
     bg: 'bg-violet-50',
     text: 'text-violet-700',
     border: 'border-violet-300',
-    svg: '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>'
+    icon: 'Settings',
   },
   capability: {
     bg: 'bg-amber-50',
     text: 'text-amber-700',
     border: 'border-amber-300',
-    svg: '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>'
+    icon: 'Target',
   },
   sustainability: {
     bg: 'bg-slate-100',
     text: 'text-slate-700',
     border: 'border-slate-300',
-    svg: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 8c.7-1 1-2.2 1-3.5C18 2.5 16 1 14 1c-1.3 0-2.5.5-3.3 1.3C9.5 1.5 8.3 1 7 1 5 1 3 2.5 3 4.5 3 5.8 3.3 7 4 8"/><path d="M10 21c0-1.7 1.3-3 3-3s3 1.3 3 3-1.3 3-3 3-3-1.3-3-3z"/><path d="M12 15V3"/><path d="M6 9l6-1 6 1"/></svg>'
+    icon: 'Leaf',
   },
 };
 
 const typeLabel = (type: string) => t(`sustainability-graph-page.type-${type}` as any);
+
+const LUCIDE_SVGS: Record<string, string> = {
+  Coins: '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="6"/><path d="M18.09 10.37A6 6 0 1 1 10.34 18"/><path d="M7 6h1v4"/><path d="m16.71 13.88.7.71-2.82 2.82"/></svg>',
+  FolderOpen: '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 14 1.5-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.54 6a2 2 0 0 1-1.95 1.5H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H18a2 2 0 0 1 2 2v2"/></svg>',
+  Settings: '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>',
+  Target: '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>',
+  Leaf: '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.9C15.5 4.9 17 3.5 19 2c1 2 2 4.5 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>',
+};
+
+function getIconSvg(iconName: string): string {
+  return LUCIDE_SVGS[iconName] || '';
+}
 
 const stats = computed(() => {
   const counts: Record<string, number> = { capital: 0, domain: 0, component: 0, capability: 0 };
@@ -187,7 +198,7 @@ function renderChart() {
         return `
         <div class="flex items-center gap-3 w-full h-full rounded-xl border-2 border-emerald-400 bg-gradient-to-br from-emerald-50 to-white dark:from-emerald-900/30 dark:to-slate-800 shadow-lg px-4 py-3 cursor-pointer">
           <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-100 dark:bg-emerald-800/50">
-            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 8c.7-1 1-2.2 1-3.5C18 2.5 16 1 14 1c-1.3 0-2.5.5-3.3 1.3C9.5 1.5 8.3 1 7 1 5 1 3 2.5 3 4.5 3 5.8 3.3 7 4 8"/><path d="M10 21c0-1.7 1.3-3 3-3s3 1.3 3 3-1.3 3-3 3-3-1.3-3-3z"/><path d="M12 15V3"/><path d="M6 9l6-1 6 1"/></svg>
+            <span class="text-emerald-600">${getIconSvg('Leaf')}</span>
           </div>
           <div>
             <div class="font-bold text-base text-slate-800 dark:text-slate-100">${data.title}</div>
@@ -198,12 +209,13 @@ function renderChart() {
 
       const cfg = TYPE_CONFIG[data.type] || TYPE_CONFIG.sustainability;
       const truncated = data.title.length > 30 ? data.title.slice(0, 27) + '…' : data.title;
+      const iconSvg = getIconSvg(cfg.icon);
 
       return `
       <div class="node-card group relative flex flex-col w-full h-full rounded-xl border ${cfg.border} bg-white dark:bg-slate-800 shadow-sm hover:shadow-lg transition-all duration-200 overflow-hidden cursor-pointer">
         <div class="flex items-center gap-3 p-3">
           <div class="flex h-9 w-9 items-center justify-center rounded-lg ${cfg.bg} dark:bg-slate-700 flex-shrink-0">
-            <span class="${cfg.text}">${cfg.svg}</span>
+            <span class="${cfg.text}">${iconSvg}</span>
           </div>
           <div class="flex-1 min-w-0">
             <div class="font-medium text-xs leading-tight text-slate-800 dark:text-slate-100 line-clamp-2">
@@ -216,13 +228,19 @@ function renderChart() {
         </div>
         ${data.childrenCount ? `
         <div class="border-t border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 px-3 py-1.5 text-[10px] font-medium text-slate-500 flex items-center gap-1">
-          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <span class="text-slate-400">#</span>
           ${data.childrenCount}
         </div>` : ''}
       </div>`;
     })
     .onNodeClick((event: any, node: any) => {
       if (node.data.id === ROOT_ID) return;
+
+      // Expand/collapse on click
+      if (node.children?.length) {
+        chart?.expand(node.data.id);
+      }
+
       const fullNode = getNodeFullData(node.data.id);
       if (fullNode) {
         selectedNode.value = { ...node.data, ...fullNode };
@@ -250,16 +268,6 @@ async function exportPNG() {
   }
 }
 
-const performSearch = () => {
-  if (!chart || !searchQuery.value.trim()) return;
-  const query = searchQuery.value.toLowerCase().trim();
-  const data = chart.data();
-  const match = data.find((n: any) => n.title?.toLowerCase().includes(query));
-  if (match) {
-    chart.centerNode(match.id);
-  }
-};
-
 onMounted(async () => {
   await fetchData();
   await nextTick();
@@ -284,41 +292,6 @@ onBeforeUnmount(() => {
           <div>
             <h1 class="text-lg font-bold text-slate-900 dark:text-white">{{ t('menu.sustainability-graph') }}</h1>
             <p class="text-xs text-slate-500">{{ t('sustainability-graph-page.description') }}</p>
-          </div>
-        </div>
-
-        <div class="flex items-center gap-6 text-xs">
-          <div class="flex items-center gap-2">
-            <span class="h-2.5 w-2.5 rounded-full bg-blue-500"></span>
-            <span class="text-slate-600 dark:text-slate-400">{{ t('sustainability-graph-page.type-capital') }}</span>
-            <span class="font-semibold text-blue-600">{{ stats.capital }}</span>
-          </div>
-          <div class="flex items-center gap-2">
-            <span class="h-2.5 w-2.5 rounded-full bg-emerald-500"></span>
-            <span class="text-slate-600 dark:text-slate-400">{{ t('sustainability-graph-page.type-domain') }}</span>
-            <span class="font-semibold text-emerald-600">{{ stats.domain }}</span>
-          </div>
-          <div class="flex items-center gap-2">
-            <span class="h-2.5 w-2.5 rounded-full bg-violet-500"></span>
-            <span class="text-slate-600 dark:text-slate-400">{{ t('sustainability-graph-page.type-component') }}</span>
-            <span class="font-semibold text-violet-600">{{ stats.component }}</span>
-          </div>
-          <div class="flex items-center gap-2">
-            <span class="h-2.5 w-2.5 rounded-full bg-amber-500"></span>
-            <span class="text-slate-600 dark:text-slate-400">{{ t('sustainability-graph-page.type-capability') }}</span>
-            <span class="font-semibold text-amber-600">{{ stats.capability }}</span>
-          </div>
-        </div>
-
-        <div class="flex items-center gap-2">
-          <div class="relative">
-            <Lucide icon="Search" class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-            <input
-              v-model="searchQuery"
-              @keyup.enter="performSearch"
-              :placeholder="t('sustainability-graph-page.search-placeholder')"
-              class="w-64 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 pl-9 pr-4 py-2 text-sm focus:outline-none focus:border-primary dark:text-slate-200"
-            />
           </div>
         </div>
       </div>
@@ -394,7 +367,11 @@ onBeforeUnmount(() => {
                   class="flex h-10 w-10 items-center justify-center rounded-xl flex-shrink-0"
                   :class="TYPE_CONFIG[selectedNode.type]?.bg || 'bg-slate-100'"
                 >
-                  <span :class="TYPE_CONFIG[selectedNode.type]?.text || 'text-slate-700'" v-html="TYPE_CONFIG[selectedNode.type]?.svg"></span>
+                  <Lucide
+                    :icon="TYPE_CONFIG[selectedNode.type]?.icon || 'Circle'"
+                    class="h-5 w-5"
+                    :class="TYPE_CONFIG[selectedNode.type]?.text || 'text-slate-700'"
+                  />
                 </div>
                 <div class="min-w-0">
                   <h2 class="text-sm font-semibold text-slate-900 dark:text-slate-100 line-clamp-2">{{ selectedNode.title }}</h2>

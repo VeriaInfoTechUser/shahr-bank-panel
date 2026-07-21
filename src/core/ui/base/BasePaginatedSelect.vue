@@ -142,12 +142,16 @@ function toggle() {
 
 function onClickOutside(e: MouseEvent) {
   const target = e.target as Node;
-  if (
-    panelRef.value && !panelRef.value.contains(target) &&
-    triggerRef.value && !triggerRef.value.contains(target)
-  ) {
-    isOpen.value = false;
+  // Check if click is inside the panel (teleported to body) or trigger
+  if (panelRef.value?.contains(target) || triggerRef.value?.contains(target)) {
+    return;
   }
+  isOpen.value = false;
+}
+
+function onPanelMouseDown(e: MouseEvent) {
+  // Stop propagation so onClickOutside doesn't fire when clicking inside the panel
+  e.stopPropagation();
 }
 
 function onScroll() {
@@ -208,7 +212,8 @@ const labelTextClass = computed(() =>
           v-if="isOpen"
           ref="panelRef"
           :style="posStyle"
-          class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl dark:border-darkmode-600 dark:bg-darkmode-800"
+          class="base-paginated-select-panel overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl dark:border-darkmode-600 dark:bg-darkmode-800"
+          @mousedown="onPanelMouseDown"
         >
           <!-- Search input -->
           <div v-if="search" class="border-b border-slate-100 px-3 py-2 dark:border-darkmode-600">
@@ -225,7 +230,7 @@ const labelTextClass = computed(() =>
           </div>
 
           <!-- Loading -->
-          <div v-if="loading" class="flex items-center justify-center py-6">
+          <div v-if="loading" class="flex items-center justify-center" style="min-height: 12rem;">
             <span class="inline-block h-5 w-5 animate-spin rounded-full border-2 border-slate-300 border-t-primary" />
           </div>
 

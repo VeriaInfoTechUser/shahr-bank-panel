@@ -93,6 +93,7 @@ watch(filterOpen, (open) => {
             filterToolbarClusterRef,
             '.base-select-overlay-panel',
             '.base-multiselect-overlay-panel',
+            '.base-paginated-select-panel',
             '.p-select-overlay',
             '.p-multiselect-overlay',
           ],

@@ -1,10 +1,21 @@
-export const INDICATOR_FILTER_PARAM_ORDER = ['title', 'status'] as const;
+export const INDICATOR_FILTER_PARAM_ORDER = [
+  'title',
+  'capitalSlug',
+  'domainSlug',
+  'componentSlug',
+  'capabilitySlug',
+  'indicatorType',
+] as const;
 
 export type IndicatorFilterParamKey = (typeof INDICATOR_FILTER_PARAM_ORDER)[number];
 
 export const INDICATOR_FILTER_PARAM_LABEL_KEYS: Record<IndicatorFilterParamKey, string> = {
   title: 'sustainability-indicator-page.filter-field-title',
-  status: 'sustainability-indicator-page.filter-field-status',
+  capitalSlug: 'sustainability-indicator-page.col-capital',
+  domainSlug: 'sustainability-indicator-page.col-domain',
+  componentSlug: 'sustainability-indicator-page.col-component',
+  capabilitySlug: 'sustainability-indicator-page.col-capability',
+  indicatorType: 'sustainability-indicator-page.col-indicator-type',
 };
 
 export function isIndicatorFilterValueSet(value: unknown): boolean {

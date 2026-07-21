@@ -38,16 +38,46 @@ const table = useDataTable({
   fetchFn: fetchIndicators,
   columns: [
     createColumn({
-      key: 'slug',
-      label: t('sustainability-indicator-page.col-slug'),
+      key: 'capital',
+      label: t('sustainability-indicator-page.col-capital'),
       sortable: false,
-      bodyCell: (row) => pickStr(row, 'slug'),
+      bodyCell: (row) => {
+        const info = row.information as Record<string, unknown> | undefined;
+        return info ? pickStr(info, 'capitalTitle') : '—';
+      },
     }),
     createColumn({
-      key: 'title',
-      label: t('sustainability-indicator-page.col-title'),
+      key: 'domain',
+      label: t('sustainability-indicator-page.col-domain'),
       sortable: false,
-      bodyCell: (row) => pickStr(row, 'title'),
+      bodyCell: (row) => pickStr(row, 'domainTitle'),
+    }),
+    createColumn({
+      key: 'capability',
+      label: t('sustainability-indicator-page.col-capability'),
+      sortable: false,
+      bodyCell: (row) => {
+        const info = row.information as Record<string, unknown> | undefined;
+        return info ? pickStr(info, 'capabilityTitle') : '—';
+      },
+    }),
+    createColumn({
+      key: 'claim',
+      label: t('sustainability-indicator-page.col-claim'),
+      sortable: false,
+      bodyCell: (row) => {
+        const info = row.information as Record<string, unknown> | undefined;
+        return info ? pickStr(info, 'claimTitle') : '—';
+      },
+    }),
+    createColumn({
+      key: 'component',
+      label: t('sustainability-indicator-page.col-component'),
+      sortable: false,
+      bodyCell: (row) => {
+        const info = row.information as Record<string, unknown> | undefined;
+        return info ? pickStr(info, 'componentTitle') : '—';
+      },
     }),
     createColumn({
       key: 'indicatorType',
@@ -57,6 +87,12 @@ const table = useDataTable({
         const info = row.information as Record<string, unknown> | undefined;
         return info ? pickStr(info, 'indicatorType') : '—';
       },
+    }),
+    createColumn({
+      key: 'title',
+      label: t('sustainability-indicator-page.col-title'),
+      sortable: false,
+      bodyCell: (row) => pickStr(row, 'title'),
     }),
     createColumn({
       key: 'unit',
@@ -74,21 +110,6 @@ const table = useDataTable({
       bodyCell: (row) => {
         const info = row.information as Record<string, unknown> | undefined;
         return info ? pickStr(info, 'direction') : '—';
-      },
-    }),
-    createColumn({
-      key: 'domain',
-      label: t('sustainability-indicator-page.col-domain'),
-      sortable: false,
-      bodyCell: (row) => pickStr(row, 'domainTitle'),
-    }),
-    createColumn({
-      key: 'capital',
-      label: t('sustainability-indicator-page.col-capital'),
-      sortable: false,
-      bodyCell: (row) => {
-        const info = row.information as Record<string, unknown> | undefined;
-        return info ? pickStr(info, 'capitalTitle') : '—';
       },
     }),
   ],

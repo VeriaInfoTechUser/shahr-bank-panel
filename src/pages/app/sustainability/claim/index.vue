@@ -38,16 +38,28 @@ const table = useDataTable({
   fetchFn: fetchClaims,
   columns: [
     createColumn({
-      key: 'slug',
-      label: t('sustainability-claim-page.col-slug'),
+      key: 'capital',
+      label: t('sustainability-claim-page.col-capital'),
       sortable: false,
-      bodyCell: (row) => pickStr(row, 'slug'),
+      bodyCell: (row) => {
+        const info = row.information as Record<string, unknown> | undefined;
+        return info ? pickStr(info, 'capitalTitle') : '—';
+      },
     }),
     createColumn({
-      key: 'title',
-      label: t('sustainability-claim-page.col-title'),
+      key: 'domain',
+      label: t('sustainability-claim-page.col-domain'),
       sortable: false,
-      bodyCell: (row) => pickStr(row, 'title'),
+      bodyCell: (row) => pickStr(row, 'domainTitle'),
+    }),
+    createColumn({
+      key: 'capability',
+      label: t('sustainability-claim-page.col-capability'),
+      sortable: false,
+      bodyCell: (row) => {
+        const info = row.information as Record<string, unknown> | undefined;
+        return info ? pickStr(info, 'capabilityTitle') : '—';
+      },
     }),
     createColumn({
       key: 'claimType',
@@ -59,28 +71,10 @@ const table = useDataTable({
       },
     }),
     createColumn({
-      key: 'domain',
-      label: t('sustainability-claim-page.col-domain'),
+      key: 'title',
+      label: t('sustainability-claim-page.col-title'),
       sortable: false,
-      bodyCell: (row) => pickStr(row, 'domainTitle'),
-    }),
-    createColumn({
-      key: 'capital',
-      label: t('sustainability-claim-page.col-capital'),
-      sortable: false,
-      bodyCell: (row) => {
-        const info = row.information as Record<string, unknown> | undefined;
-        return info ? pickStr(info, 'capitalTitle') : '—';
-      },
-    }),
-    createColumn({
-      key: 'capability',
-      label: t('sustainability-claim-page.col-capability'),
-      sortable: false,
-      bodyCell: (row) => {
-        const info = row.information as Record<string, unknown> | undefined;
-        return info ? pickStr(info, 'capabilityTitle') : '—';
-      },
+      bodyCell: (row) => pickStr(row, 'title'),
     }),
   ],
   selectable: false,

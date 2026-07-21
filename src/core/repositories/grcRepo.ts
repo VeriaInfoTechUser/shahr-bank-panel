@@ -294,6 +294,65 @@ export const grcRepo = {
     return grcHttpRequest({ method: 'DELETE', url: `/context/categories/${slug}` });
   },
 
+  // Capital Structure (tree)
+  capitalTree(params?: GrcListParams): Promise<GrcApiResponse<Record<string, unknown>[]>> {
+    return grcHttpRequest({ method: 'GET', url: '/context/capitals/tree', params });
+  },
+
+  capitalCreate(data: Record<string, unknown>): Promise<GrcApiResponse<GrcEntity>> {
+    return grcHttpRequest({ method: 'POST', url: '/context/capitals', data });
+  },
+
+  capitalUpdate(slug: string, data: Record<string, unknown>): Promise<GrcApiResponse<GrcEntity>> {
+    return grcHttpRequest({ method: 'PUT', url: `/context/capitals/${slug}`, data });
+  },
+
+  capitalDelete(slug: string): Promise<GrcApiResponse<null>> {
+    return grcHttpRequest({ method: 'DELETE', url: `/context/capitals/${slug}` });
+  },
+
+  // Claims
+  claimList(params?: GrcListParams): Promise<GrcApiResponse<GrcPaginatedResponse>> {
+    return grcHttpRequest({ method: 'GET', url: '/context/claims', params });
+  },
+
+  claimGet(slug: string): Promise<GrcApiResponse<GrcEntity>> {
+    return grcHttpRequest({ method: 'GET', url: `/context/claims/${slug}` });
+  },
+
+  claimCreate(data: Record<string, unknown>): Promise<GrcApiResponse<GrcEntity>> {
+    return grcHttpRequest({ method: 'POST', url: '/context/claims', data });
+  },
+
+  claimUpdate(slug: string, data: Record<string, unknown>): Promise<GrcApiResponse<GrcEntity>> {
+    return grcHttpRequest({ method: 'PUT', url: `/context/claims/${slug}`, data });
+  },
+
+  claimDelete(slug: string): Promise<GrcApiResponse<null>> {
+    return grcHttpRequest({ method: 'DELETE', url: `/context/claims/${slug}` });
+  },
+
+  // Indicators
+  indicatorList(params?: GrcListParams): Promise<GrcApiResponse<GrcPaginatedResponse>> {
+    return grcHttpRequest({ method: 'GET', url: '/context/indicators', params });
+  },
+
+  indicatorGet(slug: string): Promise<GrcApiResponse<GrcEntity>> {
+    return grcHttpRequest({ method: 'GET', url: `/context/indicators/${slug}` });
+  },
+
+  indicatorCreate(data: Record<string, unknown>): Promise<GrcApiResponse<GrcEntity>> {
+    return grcHttpRequest({ method: 'POST', url: '/context/indicators', data });
+  },
+
+  indicatorUpdate(slug: string, data: Record<string, unknown>): Promise<GrcApiResponse<GrcEntity>> {
+    return grcHttpRequest({ method: 'PUT', url: `/context/indicators/${slug}`, data });
+  },
+
+  indicatorDelete(slug: string): Promise<GrcApiResponse<null>> {
+    return grcHttpRequest({ method: 'DELETE', url: `/context/indicators/${slug}` });
+  },
+
   // Types
   typeList(params?: GrcListParams): Promise<GrcApiResponse<GrcPaginatedResponse>> {
     return grcHttpRequest({ method: 'GET', url: '/governance/types', params });

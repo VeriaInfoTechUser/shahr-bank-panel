@@ -1,32 +1,193 @@
 <script setup lang="ts">
+import { ref } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { useDataTable, createColumn, type FetchFn } from '@core';
+import BaseTable from '@core/ui/base/BaseTable.vue';
+import BaseConfirmModal from '@/core/ui/base/BaseConfirmModal.vue';
+import { grcRepo } from '@/core/repositories/grcRepo';
+import { useBreadcrumbSlot } from '@/composables/useBreadcrumb';
+import { useGlobalModal } from '@/composables/useGlobalModal';
+import Button from '@/base-components/Button';
 import Lucide from '@/base-components/Lucide';
+import IndicatorFormModal from './IndicatorFormModal.vue';
+import IndicatorBreadcrumbToolbar from './IndicatorBreadcrumbToolbar.vue';
 
 const { t } = useI18n();
+const { setContent: setBreadcrumbSlot } = useBreadcrumbSlot();
+const { openModal } = useGlobalModal();
+
+const showAddModal = ref(false);
+const showEditModal = ref(false);
+const selectedIndicator = ref<Record<string, unknown> | null>(null);
+
+function pickStr(row: Record<string, unknown>, ...keys: string[]) {
+  for (const k of keys) {
+    const v = row[k];
+    if (v == null) continue;
+    if (typeof v === 'string' && v.trim()) return v;
+    if (typeof v === 'number' && !Number.isNaN(v)) return String(v);
+  }
+  return '—';
+}
+
+const fetchIndicators: FetchFn = async ({ page, limit, filters }) => {
+  const res = await grcRepo.indicatorList({ page, limit, ...(filters ?? {}) });
+  const list = res?.data?.list ?? [];
+  const count = res?.data?.paginator?.count ?? 0;
+  return { list: Array.isArray(list) ? list : [], count };
+};
+
+const table = useDataTable({
+  fetchFn: fetchIndicators,
+  columns: [
+    createColumn({
+      key: 'slug',
+      label: t('capital-indicator-page.col-slug'),
+      sortable: false,
+      bodyCell: (row) => pickStr(row, 'slug'),
+    }),
+    createColumn({
+      key: 'title',
+      label: t('capital-indicator-page.col-title'),
+      sortable: false,
+      bodyCell: (row) => pickStr(row, 'title', 'name'),
+    }),
+    createColumn({
+      key: 'number',
+      label: t('capital-indicator-page.col-number'),
+      sortable: false,
+      bodyCell: (row) => pickStr(row, 'number'),
+    }),
+    createColumn({
+      key: 'status',
+      label: t('capital-indicator-page.col-status'),
+      sortable: false,
+      bodyCell: (row) => row.status === 1 ? t('capital-indicator-page.status-active') : t('capital-indicator-page.status-inactive'),
+    }),
+    createColumn({
+      key: 'description',
+      label: t('capital-indicator-page.col-description'),
+      sortable: false,
+      bodyCell: (row) => pickStr(row, 'description', 'summary'),
+    }),
+  ],
+  selectable: false,
+  exportEnabled: true,
+  cacheKey: 'capital-indicators-list',
+  listCacheStaleTime: 0,
+});
+
+function onExportIndicators() {
+  table.exportCSV();
+}
+
+function onAddIndicator() {
+  showAddModal.value = true;
+}
+
+function onEditIndicator(row: Record<string, unknown>) {
+  selectedIndicator.value = row;
+  showEditModal.value = true;
+}
+
+function onDeleteIndicator(row: Record<string, unknown>) {
+  openModal({
+    component: BaseConfirmModal,
+    props: {
+      titleKey: 'capital-indicator-page.delete-title',
+      messageKey: 'capital-indicator-page.delete-message',
+      messageParams: { title: pickStr(row, 'title', 'slug') },
+      confirmVariant: 'danger' as const,
+      onConfirmAction: async () => {
+        const slug = String(row.slug ?? '');
+        if (!slug) {
+          const msg = t('capital-indicator-page.delete-error');
+          throw new Error(msg);
+        }
+        const res = await grcRepo.indicatorDelete(slug);
+        if (!res?.result) {
+          const msg = String(res?.error ?? t('capital-indicator-page.delete-error'));
+          throw new Error(msg);
+        }
+      },
+    },
+    onSuccess: () => {
+      table.invalidateListCache();
+      void table.fetch();
+    },
+  });
+}
+
+function onModalSuccess() {
+  table.invalidateListCache();
+  table.setPage(1);
+}
+
+import { onMounted } from 'vue';
+
+onMounted(() => {
+  table.invalidateListCache();
+  table.fetch();
+  setBreadcrumbSlot(IndicatorBreadcrumbToolbar, {
+    onAdd: onAddIndicator,
+    onExport: onExportIndicators,
+    table,
+  });
+});
 </script>
 
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-slate-50 via-slate-50/80 to-primary-muted/10 p-6 dark:from-darkmode-900 dark:via-darkmode-800 dark:to-primary-muted/5">
-    <div class="mx-auto max-w-5xl">
-      <div class="overflow-hidden rounded-2xl border border-white/60 bg-white shadow-lg shadow-primary/5 dark:border-darkmode-700/40 dark:bg-darkmode-800 dark:shadow-black/10">
-        <div class="border-b border-slate-100 bg-gradient-to-r from-primary/5 via-transparent to-primary-muted/10 px-6 py-4 dark:border-darkmode-700/50 dark:from-primary/10 dark:to-primary-muted/5">
-          <div class="flex items-center gap-3">
-            <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 dark:bg-primary/20">
-              <Lucide icon="BarChart3" class="h-5 w-5 text-primary" />
-            </div>
-            <div>
-              <h1 class="text-lg font-semibold text-slate-800 dark:text-slate-100">
-                {{ t('menu.capital-indicator') }}
-              </h1>
-            </div>
+  <div class="grid grid-cols-12 gap-2 p-2">
+    <div class="col-span-12">
+      <BaseTable
+        :table="table"
+        :selectable="false"
+        :export-enabled="table.exportEnabled"
+        :empty-message="t('general.no-data')"
+        :actions="true"
+        :show-search="false"
+      >
+        <template #actions="{ row }">
+          <div class="flex items-center justify-center gap-3">
+            <Button
+              type="button"
+              variant="outline-secondary"
+              size="sm"
+              class="!h-7 !w-7 !px-0 !py-0"
+              :aria-label="t('title.update')"
+              :title="t('title.update')"
+              @click.stop="onEditIndicator(row)"
+            >
+              <Lucide icon="Pencil" class="!h-3.5 !w-3.5" />
+            </Button>
+            <Button
+              type="button"
+              variant="outline-danger"
+              size="sm"
+              class="!h-7 !w-7 !px-0 !py-0"
+              :aria-label="t('general.delete')"
+              :title="t('general.delete')"
+              @click.stop="onDeleteIndicator(row)"
+            >
+              <Lucide icon="Trash2" class="!h-3.5 !w-3.5" />
+            </Button>
           </div>
-        </div>
-        <div class="flex flex-col items-center justify-center py-16">
-          <p class="text-sm text-slate-500 dark:text-slate-400">
-            {{ t('general.no-data') }}
-          </p>
-        </div>
-      </div>
+        </template>
+      </BaseTable>
     </div>
+
+    <IndicatorFormModal
+      :show="showAddModal"
+      @update:show="showAddModal = $event"
+      @success="onModalSuccess"
+    />
+
+    <IndicatorFormModal
+      v-if="selectedIndicator"
+      :show="showEditModal"
+      :record="selectedIndicator"
+      @update:show="showEditModal = $event"
+      @success="onModalSuccess"
+    />
   </div>
 </template>

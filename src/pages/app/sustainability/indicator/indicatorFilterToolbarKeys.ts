@@ -4,6 +4,7 @@ export const INDICATOR_FILTER_PARAM_ORDER = [
   'domainSlug',
   'componentSlug',
   'capabilitySlug',
+  'claimSlug',
   'indicatorType',
 ] as const;
 
@@ -15,6 +16,7 @@ export const INDICATOR_FILTER_PARAM_LABEL_KEYS: Record<IndicatorFilterParamKey, 
   domainSlug: 'sustainability-indicator-page.col-domain',
   componentSlug: 'sustainability-indicator-page.col-component',
   capabilitySlug: 'sustainability-indicator-page.col-capability',
+  claimSlug: 'sustainability-indicator-page.col-claim',
   indicatorType: 'sustainability-indicator-page.col-indicator-type',
 };
 

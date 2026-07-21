@@ -5,7 +5,7 @@ import { Form } from 'vee-validate';
 import { useI18n } from 'vue-i18n';
 import BaseInput from '@/core/ui/base/BaseInput.vue';
 import BaseMultiSelect from '@/core/ui/base/BaseMultiSelect.vue';
-import BasePaginatedSelect from '@/core/ui/base/BasePaginatedSelect.vue';
+import BasePaginatedMultiSelect from '@/core/ui/base/BasePaginatedMultiSelect.vue';
 import { grcRepo } from '@/core/repositories/grcRepo';
 import ClaimFilterAutoApply from './ClaimFilterAutoApply.vue';
 
@@ -102,15 +102,11 @@ function apiFiltersToFormValues(f: Record<string, unknown> | undefined | null) {
   const x = f ?? {};
   return {
     title: String(x.title ?? ''),
-    capitalSlug: String(x.capitalSlug ?? ''),
-    domainSlug: String(x.domainSlug ?? ''),
-    componentSlug: String(x.componentSlug ?? ''),
-    capabilitySlug: String(x.capabilitySlug ?? ''),
-    claimType: Array.isArray(x.claimType)
-      ? (x.claimType as unknown[]).map(String)
-      : x.claimType != null
-        ? [String(x.claimType)]
-        : [],
+    capitalSlug: Array.isArray(x.capitalSlug) ? x.capitalSlug.map(String) : x.capitalSlug ? [String(x.capitalSlug)] : [],
+    domainSlug: Array.isArray(x.domainSlug) ? x.domainSlug.map(String) : x.domainSlug ? [String(x.domainSlug)] : [],
+    componentSlug: Array.isArray(x.componentSlug) ? x.componentSlug.map(String) : x.componentSlug ? [String(x.componentSlug)] : [],
+    capabilitySlug: Array.isArray(x.capabilitySlug) ? x.capabilitySlug.map(String) : x.capabilitySlug ? [String(x.capabilitySlug)] : [],
+    claimType: Array.isArray(x.claimType) ? x.claimType.map(String) : x.claimType ? [String(x.claimType)] : [],
   };
 }
 
@@ -130,18 +126,16 @@ function buildPayload(values: Record<string, unknown>): Record<string, unknown> 
   const o: Record<string, unknown> = {};
   const title = String(values.title ?? '').trim();
   if (title) o.title = title;
-  const capitalSlug = String(values.capitalSlug ?? '').trim();
-  if (capitalSlug) o.capitalSlug = capitalSlug;
-  const domainSlug = String(values.domainSlug ?? '').trim();
-  if (domainSlug) o.domainSlug = domainSlug;
-  const componentSlug = String(values.componentSlug ?? '').trim();
-  if (componentSlug) o.componentSlug = componentSlug;
-  const capabilitySlug = String(values.capabilitySlug ?? '').trim();
-  if (capabilitySlug) o.capabilitySlug = capabilitySlug;
+  const capitalSlug = values.capitalSlug as string[] | undefined;
+  if (capitalSlug?.length) o.capitalSlug = capitalSlug.length === 1 ? capitalSlug[0] : capitalSlug;
+  const domainSlug = values.domainSlug as string[] | undefined;
+  if (domainSlug?.length) o.domainSlug = domainSlug.length === 1 ? domainSlug[0] : domainSlug;
+  const componentSlug = values.componentSlug as string[] | undefined;
+  if (componentSlug?.length) o.componentSlug = componentSlug.length === 1 ? componentSlug[0] : componentSlug;
+  const capabilitySlug = values.capabilitySlug as string[] | undefined;
+  if (capabilitySlug?.length) o.capabilitySlug = capabilitySlug.length === 1 ? capabilitySlug[0] : capabilitySlug;
   const claimType = values.claimType as string[] | undefined;
-  if (claimType?.length) {
-    o.claimType = claimType.length === 1 ? claimType[0] : claimType;
-  }
+  if (claimType?.length) o.claimType = claimType.length === 1 ? claimType[0] : claimType;
   return o;
 }
 
@@ -173,7 +167,7 @@ function onAutoApply(payload: Record<string, unknown>) {
           compact-label
           :label="t('sustainability-claim-page.filter-field-title')"
         />
-        <BasePaginatedSelect
+        <BasePaginatedMultiSelect
           name="capitalSlug"
           compact-label
           :label="t('sustainability-claim-page.col-capital')"
@@ -182,7 +176,7 @@ function onAutoApply(payload: Record<string, unknown>) {
           :search="true"
           placeholder=""
         />
-        <BasePaginatedSelect
+        <BasePaginatedMultiSelect
           name="domainSlug"
           compact-label
           :label="t('sustainability-claim-page.col-domain')"
@@ -191,7 +185,7 @@ function onAutoApply(payload: Record<string, unknown>) {
           :search="true"
           placeholder=""
         />
-        <BasePaginatedSelect
+        <BasePaginatedMultiSelect
           name="componentSlug"
           compact-label
           :label="t('sustainability-claim-page.col-component')"
@@ -200,7 +194,7 @@ function onAutoApply(payload: Record<string, unknown>) {
           :search="true"
           placeholder=""
         />
-        <BasePaginatedSelect
+        <BasePaginatedMultiSelect
           name="capabilitySlug"
           compact-label
           :label="t('sustainability-claim-page.col-capability')"

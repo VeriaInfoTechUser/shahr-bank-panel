@@ -209,6 +209,8 @@
     "code": "Code",
     "description": "Description",
     "no-data": "No data found.",
+    "selected": "selected",
+    "clear": "Clear",
     "back": "Back",
     "loading": "Loading...",
     "select-filter-placeholder": "Search…",

@@ -73,7 +73,8 @@ const validationSchema = computed(() =>
     slug: yup
       .string()
       .trim()
-      .required(t('sustainability-fundamental-capitals-page.validation-slug')),
+      .required(t('sustainability-fundamental-capitals-page.validation-slug'))
+      .matches(/^[A-Za-z][A-Za-z0-9]*(-[A-Za-z0-9]+)*$/, t('sustainability-fundamental-capitals-page.validation-slug-pattern')),
     title: yup
       .string()
       .trim()

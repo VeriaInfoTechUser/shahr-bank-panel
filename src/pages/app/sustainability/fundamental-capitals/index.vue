@@ -15,6 +15,8 @@ interface CapitalNode {
   title: string;
   type?: string;
   capitalType?: string;
+  parentSlug?: string;
+  parentTitle?: string;
   number?: string;
   description?: string;
   children?: CapitalNode[];
@@ -62,10 +64,13 @@ function onAddChild(parentSlug: string, parentTitle: string, nodeType?: string, 
   expanded.value.add(parentSlug);
 
   // Build capital data from the parent node
+  // For domain creation, parentSlug/parentTitle come from the capital node
   const capitalData = {
     slug: nodeData?.slug ?? parentSlug,
     title: nodeData?.title ?? parentTitle,
     capitalType: nodeData?.capitalType,
+    parentSlug: nodeData?.parentSlug ?? nodeData?.slug ?? parentSlug,
+    parentTitle: nodeData?.parentTitle ?? nodeData?.title ?? parentTitle,
   };
 
   // nodeType comes directly from node.type field: "capital", "domain", "component", "capability"
@@ -117,13 +122,72 @@ function onAddChild(parentSlug: string, parentTitle: string, nodeType?: string, 
 }
 
 function onEdit(record: CapitalNode) {
-  openModal({
-    component: StructureFormModal,
-    props: { record },
-    onSuccess: () => {
-      void fetchTree();
-    },
-  });
+  const nodeType = record.type || 'capital';
+
+  // Build capital data from the record for domain/component/capability modals
+  const capitalData = {
+    slug: record.slug,
+    title: record.title,
+    capitalType: record.capitalType,
+    parentSlug: record.parentSlug,
+    parentTitle: record.parentTitle,
+  };
+
+  if (nodeType === 'capital') {
+    // Capital -> Edit with StructureFormModal
+    openModal({
+      component: StructureFormModal,
+      props: { record },
+      onSuccess: () => {
+        void fetchTree();
+      },
+    });
+  } else if (nodeType === 'domain') {
+    // Domain -> Edit with DomainFormModal
+    openModal({
+      component: DomainFormModal,
+      props: {
+        record,
+        capitalData,
+      },
+      onSuccess: () => {
+        void fetchTree();
+      },
+    });
+  } else if (nodeType === 'component') {
+    // Component -> Edit with DomainFormModal
+    openModal({
+      component: DomainFormModal,
+      props: {
+        record,
+        capitalData,
+      },
+      onSuccess: () => {
+        void fetchTree();
+      },
+    });
+  } else if (nodeType === 'capability') {
+    // Capability -> Edit with DomainFormModal
+    openModal({
+      component: DomainFormModal,
+      props: {
+        record,
+        capitalData,
+      },
+      onSuccess: () => {
+        void fetchTree();
+      },
+    });
+  } else {
+    // Default: use StructureFormModal
+    openModal({
+      component: StructureFormModal,
+      props: { record },
+      onSuccess: () => {
+        void fetchTree();
+      },
+    });
+  }
 }
 
 function onDelete(record: CapitalNode) {

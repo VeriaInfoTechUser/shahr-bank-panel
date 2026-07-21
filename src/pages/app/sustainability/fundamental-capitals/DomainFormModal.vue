@@ -13,6 +13,8 @@ interface CapitalData {
   slug: string;
   title: string;
   capitalType?: string;
+  parentSlug?: string;
+  parentTitle?: string;
 }
 
 const props = withDefaults(
@@ -65,7 +67,8 @@ const validationSchema = computed(() =>
     slug: yup
       .string()
       .trim()
-      .required(t('sustainability-domain-page.validation-slug')),
+      .required(t('sustainability-domain-page.validation-slug'))
+      .matches(/^[A-Za-z][A-Za-z0-9]*(-[A-Za-z0-9]+)*$/, t('sustainability-domain-page.validation-slug-pattern')),
     title: yup
       .string()
       .trim()
@@ -146,6 +149,9 @@ async function onSubmit(values: Record<string, unknown>) {
         description,
         capitalSlug: capitalData?.slug ?? '',
         capitalType: capitalData?.capitalType ?? '',
+        parentSlug: capitalData?.parentSlug ?? capitalData?.slug ?? '',
+        parentTitle: capitalData?.parentTitle ?? capitalData?.title ?? '',
+        parentSource: 'capital',
         status: 1,
       });
     }

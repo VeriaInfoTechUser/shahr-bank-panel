@@ -1106,7 +1106,7 @@
     "toolbar-filter": "Filter",
     "toolbar-clear-filters": "Clear Filters",
     "toolbar-export": "Export",
-    "filter-badge-remove-aria": "Remove filter {{label}}"
+    "filter-badge-remove-aria": "Remove filter {label}"
   },
   "sustainability-fundamental-capitals-page": {
     "description": "Manage organization's fundamental capitals",
@@ -1163,7 +1163,7 @@
     "filter-panel-title": "Claims Filter",
     "filter-field-title": "Title",
     "filter-field-status": "Status",
-    "filter-badge-remove-aria": "Remove filter {{label}}"
+    "filter-badge-remove-aria": "Remove filter {label}"
   },
   "sustainability-indicator-page": {
     "add": "Add Indicator",
@@ -1197,7 +1197,7 @@
     "filter-panel-title": "Indicators Filter",
     "filter-field-title": "Title",
     "filter-field-status": "Status",
-    "filter-badge-remove-aria": "Remove filter {{label}}"
+    "filter-badge-remove-aria": "Remove filter {label}"
   },
   "sustainability-graph-page": {
     "loading": "Loading graph...",

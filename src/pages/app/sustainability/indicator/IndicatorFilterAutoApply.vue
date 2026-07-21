@@ -26,14 +26,23 @@ function emitIfReady() {
   emit('apply', payload);
 }
 
+// Debounced watch for text input
 watchDebounced(
   () => String(values.value.title ?? ''),
   () => emitIfReady(),
   { debounce: 450 }
 );
 
+// Immediate watch for all select fields
 watch(
-  () => values.value.status,
+  () => ({
+    capitalSlug: Array.isArray(values.value.capitalSlug) ? [...values.value.capitalSlug] : values.value.capitalSlug,
+    domainSlug: Array.isArray(values.value.domainSlug) ? [...values.value.domainSlug] : values.value.domainSlug,
+    componentSlug: Array.isArray(values.value.componentSlug) ? [...values.value.componentSlug] : values.value.componentSlug,
+    capabilitySlug: Array.isArray(values.value.capabilitySlug) ? [...values.value.capabilitySlug] : values.value.capabilitySlug,
+    claimSlug: Array.isArray(values.value.claimSlug) ? [...values.value.claimSlug] : values.value.claimSlug,
+    indicatorType: Array.isArray(values.value.indicatorType) ? [...values.value.indicatorType] : values.value.indicatorType,
+  }),
   () => emitIfReady(),
   { deep: true }
 );

@@ -1127,7 +1127,7 @@
     "toolbar-filter": "فیلتر",
     "toolbar-clear-filters": "پاک کردن فیلترها",
     "toolbar-export": "خروجی",
-    "filter-badge-remove-aria": "حذف فیلتر {{label}}"
+    "filter-badge-remove-aria": "حذف فیلتر {label}"
   },
   "sustainability-fundamental-capitals-page": {
     "description": "مدیریت سرمایه‌های بنیادی سازمان",
@@ -1184,7 +1184,7 @@
     "filter-panel-title": "فیلتر ادعاها",
     "filter-field-title": "عنوان",
     "filter-field-status": "وضعیت",
-    "filter-badge-remove-aria": "حذف فیلتر {{label}}"
+    "filter-badge-remove-aria": "حذف فیلتر {label}"
   },
   "sustainability-indicator-page": {
     "add": "افزودن شاخص",
@@ -1218,7 +1218,7 @@
     "filter-panel-title": "فیلتر شاخص‌ها",
     "filter-field-title": "عنوان",
     "filter-field-status": "وضعیت",
-    "filter-badge-remove-aria": "حذف فیلتر {{label}}"
+    "filter-badge-remove-aria": "حذف فیلتر {label}"
   },
   "sustainability-graph-page": {
     "loading": "در حال بارگذاری گراف...",

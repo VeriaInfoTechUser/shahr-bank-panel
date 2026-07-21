@@ -863,7 +863,7 @@
     "toolbar-filter": "فلتر",
     "toolbar-clear-filters": "مسح الفلاتر",
     "toolbar-export": "تصدير",
-    "filter-badge-remove-aria": "إزالة الفلتر {{label}}"
+    "filter-badge-remove-aria": "إزالة الفلتر {label}"
   },
   "sustainability-fundamental-capitals-page": {
     "description": "إدارة الأساسيات الجوهرية للمؤسسة",
@@ -920,7 +920,7 @@
     "filter-panel-title": "فلتر المطالبات",
     "filter-field-title": "العنوان",
     "filter-field-status": "الحالة",
-    "filter-badge-remove-aria": "إزالة الفلتر {{label}}"
+    "filter-badge-remove-aria": "إزالة الفلتر {label}"
   },
   "sustainability-indicator-page": {
     "add": "إضافة مؤشر",
@@ -954,7 +954,7 @@
     "filter-panel-title": "فلتر المؤشرات",
     "filter-field-title": "العنوان",
     "filter-field-status": "الحالة",
-    "filter-badge-remove-aria": "إزالة الفلتر {{label}}"
+    "filter-badge-remove-aria": "إزالة الفلتر {label}"
   },
   "sustainability-graph-page": {
     "loading": "جارٍ تحميل الرسم البياني...",

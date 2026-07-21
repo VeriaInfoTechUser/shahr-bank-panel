@@ -233,6 +233,21 @@ export const useSideMenuStore = defineStore("sideMenu", {
                         title: "menu.capital-metrics",
                     },
                     {
+                        icon: "Network",
+                        pageName: "app-capital-structure",
+                        title: "menu.capital-structure",
+                    },
+                    {
+                        icon: "FileCheck",
+                        pageName: "app-capital-claim",
+                        title: "menu.capital-claim",
+                    },
+                    {
+                        icon: "BarChart3",
+                        pageName: "app-capital-indicator",
+                        title: "menu.capital-indicator",
+                    },
+                    {
                         icon: "Briefcase",
                         pageName: "app-capital-asset",
                         title: "menu.capital-asset",

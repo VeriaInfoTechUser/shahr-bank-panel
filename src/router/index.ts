@@ -57,6 +57,9 @@ import CapitalMetrics from "@/pages/app/capital/metrics/index.vue";
 import CapitalAsset from "@/pages/app/capital/asset/index.vue";
 import CapitalCategory from "@/pages/app/capital/category/index.vue";
 import CapitalMetricsDetail from "@/pages/app/capital/metrics/detail/index.vue";
+import CapitalStructure from "@/pages/app/capital/structure/index.vue";
+import CapitalClaim from "@/pages/app/capital/claim/index.vue";
+import CapitalIndicator from "@/pages/app/capital/indicator/index.vue";
 import ReportsBaseline from "@/pages/app/reports/baseline/index.vue";
 import ReportsBaselineDetail from "@/pages/app/reports/baseline/detail/index.vue";
 import ReportsBaselineDashboard from "@/pages/app/reports/baseline/dashboard/index.vue";
@@ -518,6 +521,24 @@ const routes = [
                                 name: "app-capital-category",
                                 component: CapitalCategory,
                                 meta: { breadcrumbLabel: 'menu.capital-category', requiredRole: 'grc_admin' },
+                            },
+                            {
+                                path: "structure",
+                                name: "app-capital-structure",
+                                component: CapitalStructure,
+                                meta: { breadcrumbLabel: 'menu.capital-structure' },
+                            },
+                            {
+                                path: "claim",
+                                name: "app-capital-claim",
+                                component: CapitalClaim,
+                                meta: { breadcrumbLabel: 'menu.capital-claim' },
+                            },
+                            {
+                                path: "indicator",
+                                name: "app-capital-indicator",
+                                component: CapitalIndicator,
+                                meta: { breadcrumbLabel: 'menu.capital-indicator' },
                             },
                             {
                                 path: "metrics",

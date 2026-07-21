@@ -450,15 +450,15 @@
     "esg-social": "الاجتماعي",
     "esg-environment": "البيئة",
     "esg-report": "التقرير",
-    "capital": "رأس المال",
-    "capital-metrics": "المؤشرات",
-    "capital-metrics-detail": "تفاصيل المقياس",
-    "capital-asset": "الأصول",
-    "capital-category": "الفئات",
-    "capital-structure": "الهيكل",
-    "capital-claim": "المطالبة",
-    "capital-indicator": "المؤشر",
-    "capital-graph": "الرسم البياني",
+    "sustainability": "الاستدامة",
+    "sustainability-metrics": "المؤشرات",
+    "sustainability-metrics-detail": "تفاصيل المقياس",
+    "sustainability-asset": "الأصول",
+    "sustainability-category": "الفئات",
+    "sustainability-fundamental-capitals": "الأساسيات",
+    "sustainability-claim": "المطالبة",
+    "sustainability-indicator": "المؤشر",
+    "sustainability-graph": "شجرة الاستدامة",
     "reports": "التقارير",
     "reports-baseline": "تقرير المرجعية",
     "reports-comparative": "تقرير المقارنة",
@@ -814,7 +814,7 @@
     "status-active": "نشط",
     "status-inactive": "غير نشط"
   },
-  "capital-metrics-page": {
+  "sustainability-metrics-page": {
     "col-number": "الرقم",
     "col-metric-type": "نوع المقياس",
     "col-unit": "الوحدة",
@@ -863,7 +863,7 @@
     "toolbar-export": "تصدير",
     "filter-badge-remove-aria": "إزالة الفلتر {{label}}"
   },
-  "capital-structure-page": {
+  "sustainability-fundamental-capitals-page": {
     "edit": "تعديل الهيكل",
     "add-child": "إضافة عنصر فرعي",
     "add-root": "إضافة هيكل",
@@ -883,7 +883,7 @@
     "count-singular": "عنصر",
     "count-plural": "عناصر"
   },
-  "capital-claim-page": {
+  "sustainability-claim-page": {
     "add": "إضافة مطالبة",
     "edit": "تعديل المطالبة",
     "col-slug": "المعرف",
@@ -911,7 +911,7 @@
     "filter-field-status": "الحالة",
     "filter-badge-remove-aria": "إزالة الفلتر {{label}}"
   },
-  "capital-indicator-page": {
+  "sustainability-indicator-page": {
     "add": "إضافة مؤشر",
     "edit": "تعديل المؤشر",
     "col-slug": "المعرف",
@@ -939,14 +939,14 @@
     "filter-field-status": "الحالة",
     "filter-badge-remove-aria": "إزالة الفلتر {{label}}"
   },
-  "capital-graph-page": {
+  "sustainability-graph-page": {
     "loading": "جارٍ تحميل الرسم البياني...",
     "error-title": "خطأ في التحميل",
     "error-message": "تعذّر تحميل بيانات الرسم البياني.",
     "retry": "إعادة المحاولة",
     "collapse-all": "طي الكل",
     "expand-all": "توسيع الكل",
-    "type-capital": "رأس المال",
+    "type-sustainability": "الاستدامة",
     "type-domain": "المجال",
     "type-component": "المكون",
     "type-capability": "القدرة",

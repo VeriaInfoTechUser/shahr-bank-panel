@@ -53,14 +53,14 @@ import EsgGovernance from "@/pages/app/esg/governance/index.vue";
 import EsgSocial from "@/pages/app/esg/social/index.vue";
 import EsgEnvironment from "@/pages/app/esg/environment/index.vue";
 import EsgReport from "@/pages/app/esg/report/index.vue";
-import CapitalMetrics from "@/pages/app/capital/metrics/index.vue";
-import CapitalAsset from "@/pages/app/capital/asset/index.vue";
-import CapitalCategory from "@/pages/app/capital/category/index.vue";
-import CapitalMetricsDetail from "@/pages/app/capital/metrics/detail/index.vue";
-import CapitalStructure from "@/pages/app/capital/structure/index.vue";
-import CapitalClaim from "@/pages/app/capital/claim/index.vue";
-import CapitalIndicator from "@/pages/app/capital/indicator/index.vue";
-import CapitalGraph from "@/pages/app/capital/graph/index.vue";
+import SustainabilityMetrics from "@/pages/app/sustainability/metrics/index.vue";
+import SustainabilityAsset from "@/pages/app/sustainability/asset/index.vue";
+import SustainabilityCategory from "@/pages/app/sustainability/category/index.vue";
+import SustainabilityMetricsDetail from "@/pages/app/sustainability/metrics/detail/index.vue";
+import SustainabilityFundamentalCapitals from "@/pages/app/sustainability/fundamental-capitals/index.vue";
+import SustainabilityClaim from "@/pages/app/sustainability/claim/index.vue";
+import SustainabilityIndicator from "@/pages/app/sustainability/indicator/index.vue";
+import SustainabilityGraph from "@/pages/app/sustainability/graph/index.vue";
 import ReportsBaseline from "@/pages/app/reports/baseline/index.vue";
 import ReportsBaselineDetail from "@/pages/app/reports/baseline/detail/index.vue";
 import ReportsBaselineDashboard from "@/pages/app/reports/baseline/dashboard/index.vue";
@@ -512,66 +512,66 @@ const routes = [
                         ],
                     },
                     {
-                        path: "capital",
-                        name: "app-capital",
-                        redirect: { name: "app-capital-category" },
-                        meta: { breadcrumbLabel: 'menu.capital' },
+                        path: "sustainability",
+                        name: "app-sustainability",
+                        redirect: { name: "app-sustainability-category" },
+                        meta: { breadcrumbLabel: 'menu.sustainability' },
                         children: [
                             {
                                 path: "category",
-                                name: "app-capital-category",
-                                component: CapitalCategory,
-                                meta: { breadcrumbLabel: 'menu.capital-category', requiredRole: 'grc_admin' },
+                                name: "app-sustainability-category",
+                                component: SustainabilityCategory,
+                                meta: { breadcrumbLabel: 'menu.sustainability-category', requiredRole: 'grc_admin' },
                             },
                             {
-                                path: "structure",
-                                name: "app-capital-structure",
-                                component: CapitalStructure,
-                                meta: { breadcrumbLabel: 'menu.capital-structure' },
+                                path: "fundamental-capitals",
+                                name: "app-sustainability-fundamental-capitals",
+                                component: SustainabilityFundamentalCapitals,
+                                meta: { breadcrumbLabel: 'menu.sustainability-fundamental-capitals' },
                             },
                             {
                                 path: "claim",
-                                name: "app-capital-claim",
-                                component: CapitalClaim,
-                                meta: { breadcrumbLabel: 'menu.capital-claim' },
+                                name: "app-sustainability-claim",
+                                component: SustainabilityClaim,
+                                meta: { breadcrumbLabel: 'menu.sustainability-claim' },
                             },
                             {
                                 path: "indicator",
-                                name: "app-capital-indicator",
-                                component: CapitalIndicator,
-                                meta: { breadcrumbLabel: 'menu.capital-indicator' },
+                                name: "app-sustainability-indicator",
+                                component: SustainabilityIndicator,
+                                meta: { breadcrumbLabel: 'menu.sustainability-indicator' },
                             },
                             {
                                 path: "graph",
-                                name: "app-capital-graph",
-                                component: CapitalGraph,
-                                meta: { breadcrumbLabel: 'menu.capital-graph' },
+                                name: "app-sustainability-graph",
+                                component: SustainabilityGraph,
+                                meta: { breadcrumbLabel: 'menu.sustainability-graph' },
                             },
                             {
                                 path: "metrics",
-                                name: "app-capital-metrics",
-                                component: CapitalMetrics,
-                                meta: { breadcrumbLabel: 'menu.capital-metrics' },
+                                name: "app-sustainability-metrics",
+                                component: SustainabilityMetrics,
+                                meta: { breadcrumbLabel: 'menu.sustainability-metrics' },
                             },
                             {
                                 path: "metrics/:slug",
-                                name: "app-capital-metrics-detail",
-                                component: CapitalMetricsDetail,
+                                name: "app-sustainability-metrics-detail",
+                                component: SustainabilityMetricsDetail,
                                 meta: {
-                                    breadcrumbLabel: 'menu.capital-metrics-detail',
+                                    breadcrumbLabel: 'menu.sustainability-metrics-detail',
                                     breadcrumbPrefix: [
                                         {
-                                            routeName: 'app-capital-metrics',
-                                            labelKey: 'menu.capital-metrics',
+                                            routeName: 'app-sustainability-metrics',
+                                            labelKey: 'menu.sustainability-metrics',
                                         },
                                     ],
                                 },
                             },
                             {
                                 path: "asset",
-                                name: "app-capital-asset",
-                                component: CapitalAsset,
-                                meta: { breadcrumbLabel: 'menu.capital-asset' },
+                                name: "app-sustainability-asset",
+                                component: SustainabilityAsset,
+                                meta: { breadcrumbLabel: 'menu.sustainability-asset' },
                             },
                         ],
                     },

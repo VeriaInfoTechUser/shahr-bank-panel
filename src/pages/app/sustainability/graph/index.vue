@@ -30,7 +30,7 @@ const treeData = ref<ApiNode[]>([]);
 let chart: InstanceType<typeof OrgChart> | null = null;
 
 const TYPE_COLORS: Record<string, { bg: string; border: string; text: string }> = {
-  capital:    { bg: 'bg-blue-50 dark:bg-blue-900/30',  border: 'border-blue-300 dark:border-blue-700',  text: 'text-blue-700 dark:text-blue-300' },
+  sustainability:    { bg: 'bg-blue-50 dark:bg-blue-900/30',  border: 'border-blue-300 dark:border-blue-700',  text: 'text-blue-700 dark:text-blue-300' },
   domain:     { bg: 'bg-emerald-50 dark:bg-emerald-900/30', border: 'border-emerald-300 dark:border-emerald-700', text: 'text-emerald-700 dark:text-emerald-300' },
   component:  { bg: 'bg-violet-50 dark:bg-violet-900/30', border: 'border-violet-300 dark:border-violet-700', text: 'text-violet-700 dark:text-violet-300' },
   capability: { bg: 'bg-amber-50 dark:bg-amber-900/30', border: 'border-amber-300 dark:border-amber-700', text: 'text-amber-700 dark:text-amber-300' },
@@ -38,7 +38,7 @@ const TYPE_COLORS: Record<string, { bg: string; border: string; text: string }> 
   indicator:  { bg: 'bg-cyan-50 dark:bg-cyan-900/30', border: 'border-cyan-300 dark:border-cyan-700', text: 'text-cyan-700 dark:text-cyan-300' },
 };
 
-const ROOT_ID = '__capital_root__';
+const ROOT_ID = '__sustainability_root__';
 
 function flattenAllNodes(nodes: ApiNode[]): FlatNode[] {
   const result: FlatNode[] = [];
@@ -57,7 +57,7 @@ function flattenAllNodes(nodes: ApiNode[]): FlatNode[] {
 }
 
 function typeLabel(type: string): string {
-  const key = `capital-graph-page.type-${type}` as const;
+  const key = `sustainability-graph-page.type-${type}` as const;
   return t(key);
 }
 
@@ -72,7 +72,7 @@ async function fetchData() {
       treeData.value = [];
     }
   } catch {
-    error.value = t('capital-graph-page.error-message');
+    error.value = t('sustainability-graph-page.error-message');
   } finally {
     loading.value = false;
   }
@@ -130,7 +130,7 @@ function renderChart() {
           </div>
         `;
       }
-      const colors = TYPE_COLORS[node.type] ?? TYPE_COLORS.capital;
+      const colors = TYPE_COLORS[node.type] ?? TYPE_COLORS.sustainability;
       const title = node.title ?? node.id;
       const truncated = title.length > 28 ? title.slice(0, 26) + '…' : title;
       return `
@@ -202,7 +202,7 @@ onBeforeUnmount(() => {
                 </svg>
               </div>
               <span class="text-sm font-semibold text-slate-700 dark:text-slate-200">
-                {{ t('menu.capital-graph') }}
+                {{ t('menu.sustainability-graph') }}
               </span>
             </div>
             <div v-if="!loading && !error" class="flex items-center gap-1.5">
@@ -211,14 +211,14 @@ onBeforeUnmount(() => {
                 class="inline-flex h-7 items-center gap-1 rounded-md border border-slate-200 bg-white px-2 text-[11px] font-medium text-slate-600 transition hover:bg-slate-50 dark:border-darkmode-600 dark:bg-darkmode-800 dark:text-slate-300 dark:hover:bg-darkmode-700"
                 @click="collapseAll"
               >
-                {{ t('capital-graph-page.collapse-all') }}
+                {{ t('sustainability-graph-page.collapse-all') }}
               </button>
               <button
                 type="button"
                 class="inline-flex h-7 items-center gap-1 rounded-md border border-slate-200 bg-white px-2 text-[11px] font-medium text-slate-600 transition hover:bg-slate-50 dark:border-darkmode-600 dark:bg-darkmode-800 dark:text-slate-300 dark:hover:bg-darkmode-700"
                 @click="expandAll"
               >
-                {{ t('capital-graph-page.expand-all') }}
+                {{ t('sustainability-graph-page.expand-all') }}
               </button>
             </div>
           </div>
@@ -227,18 +227,18 @@ onBeforeUnmount(() => {
         <!-- Content -->
         <div v-if="loading" class="flex flex-col items-center justify-center py-20">
           <div class="h-8 w-8 animate-spin rounded-full border-[3px] border-primary/20 border-t-primary" />
-          <span class="mt-3 text-xs text-slate-500 dark:text-slate-400">{{ t('capital-graph-page.loading') }}</span>
+          <span class="mt-3 text-xs text-slate-500 dark:text-slate-400">{{ t('sustainability-graph-page.loading') }}</span>
         </div>
 
         <div v-else-if="error" class="flex flex-col items-center justify-center py-20">
-          <span class="text-sm text-danger">{{ t('capital-graph-page.error-title') }}</span>
+          <span class="text-sm text-danger">{{ t('sustainability-graph-page.error-title') }}</span>
           <span class="mt-1 text-xs text-slate-500 dark:text-slate-400">{{ error }}</span>
           <button
             type="button"
             class="mt-3 inline-flex h-8 items-center gap-1 rounded-md border border-primary bg-primary px-3 text-xs font-medium text-white transition hover:opacity-90"
             @click="fetchData"
           >
-            {{ t('capital-graph-page.retry') }}
+            {{ t('sustainability-graph-page.retry') }}
           </button>
         </div>
 

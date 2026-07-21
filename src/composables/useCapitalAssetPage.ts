@@ -7,8 +7,8 @@ import { grcRepo } from '@/core/repositories/grcRepo';
 import { useBreadcrumbSlot } from '@/composables/useBreadcrumb';
 import { useGlobalModal } from '@/composables/useGlobalModal';
 import GovernanceExportToolbar from '@/pages/app/governance/GovernanceExportToolbar.vue';
-import AssetFormModal from '@/pages/app/capital/asset/AssetFormModal.vue';
-import { sourceAssetTypes } from '@/pages/app/capital/source-asset-types';
+import AssetFormModal from '@/pages/app/sustainability/asset/AssetFormModal.vue';
+import { sourceAssetTypes } from '@/pages/app/sustainability/source-asset-types';
 
 function pickStr(row: Record<string, unknown>, ...keys: string[]) {
   for (const k of keys) {
@@ -107,20 +107,20 @@ export function useCapitalAssetPage() {
     openModal({
       component: BaseConfirmModal,
       props: {
-        title: t('governance-page.delete-title', { entity: t('menu.capital-asset') }),
-        message: t('governance-page.delete-message', { entity: t('menu.capital-asset') }),
+        title: t('governance-page.delete-title', { entity: t('menu.sustainability-asset') }),
+        message: t('governance-page.delete-message', { entity: t('menu.sustainability-asset') }),
         confirmVariant: 'danger' as const,
         onConfirmAction: async () => {
           const slug = String(row.slug ?? '');
           if (!slug) {
-            const msg = t('governance-page.delete-error', { entity: t('menu.capital-asset') });
+            const msg = t('governance-page.delete-error', { entity: t('menu.sustainability-asset') });
             toast(msg, { type: 'error' });
             throw new Error(msg);
           }
           const res = await grcRepo.governanceDelete(slug);
           if (!res?.result) {
             const msg = String(
-              res?.error ?? t('governance-page.delete-error', { entity: t('menu.capital-asset') })
+              res?.error ?? t('governance-page.delete-error', { entity: t('menu.sustainability-asset') })
             );
             toast(msg, { type: 'error' });
             throw new Error(msg);
@@ -140,7 +140,7 @@ export function useCapitalAssetPage() {
       onExport: () => table.exportCSV(),
       onAdd,
       addLabelKey: 'governance-page.add-entity',
-      addLabelParams: { entity: t('menu.capital-asset') },
+      addLabelParams: { entity: t('menu.sustainability-asset') },
     });
   });
 

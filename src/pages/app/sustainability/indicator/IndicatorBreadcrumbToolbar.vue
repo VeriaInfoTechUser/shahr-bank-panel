@@ -116,8 +116,8 @@ useEventListener(document, 'keydown', (e: KeyboardEvent) => {
     <button
       type="button"
       class="inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-md border border-primary bg-primary text-white shadow-sm transition hover:opacity-90 dark:border-primary dark:bg-primary dark:hover:opacity-90"
-      :aria-label="t('capital-indicator-page.toolbar-add')"
-      :title="t('capital-indicator-page.toolbar-add')"
+      :aria-label="t('sustainability-indicator-page.toolbar-add')"
+      :title="t('sustainability-indicator-page.toolbar-add')"
       @click="props.onAdd?.()"
     >
       <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -128,8 +128,8 @@ useEventListener(document, 'keydown', (e: KeyboardEvent) => {
     <button
       type="button"
       class="inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-md border border-slate-200 bg-white text-slate-600 shadow-sm transition hover:bg-slate-50 hover:text-slate-800 dark:border-darkmode-600 dark:bg-darkmode-800 dark:text-slate-300 dark:hover:bg-darkmode-700 dark:hover:text-slate-100"
-      :aria-label="t('capital-indicator-page.toolbar-export')"
-      :title="t('capital-indicator-page.toolbar-export')"
+      :aria-label="t('sustainability-indicator-page.toolbar-export')"
+      :title="t('sustainability-indicator-page.toolbar-export')"
       @click="props.onExport?.()"
     >
       <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -148,9 +148,9 @@ useEventListener(document, 'keydown', (e: KeyboardEvent) => {
           ref="filterBtnRef"
           type="button"
           class="inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-md border border-slate-200 bg-white text-slate-600 shadow-sm transition hover:bg-slate-50 hover:text-primary dark:border-darkmode-600 dark:bg-darkmode-800 dark:text-slate-300 dark:hover:bg-darkmode-700 dark:hover:text-primary"
-          :aria-label="t('capital-indicator-page.toolbar-filter')"
+          :aria-label="t('sustainability-indicator-page.toolbar-filter')"
           :aria-expanded="filterOpen"
-          :title="t('capital-indicator-page.toolbar-filter')"
+          :title="t('sustainability-indicator-page.toolbar-filter')"
           @click="toggleFilter"
         >
           <Lucide icon="Filter" class="h-4 w-4" />
@@ -159,11 +159,11 @@ useEventListener(document, 'keydown', (e: KeyboardEvent) => {
           v-if="hasActiveFilters"
           type="button"
           class="inline-flex h-8 max-w-[min(100%,12rem)] shrink-0 items-center rounded-md border border-slate-200 bg-white px-2 text-xs font-medium text-slate-600 shadow-sm transition hover:bg-slate-50 hover:text-primary dark:border-darkmode-600 dark:bg-darkmode-800 dark:text-slate-300 dark:hover:bg-darkmode-700 dark:hover:text-primary"
-          :aria-label="t('capital-indicator-page.toolbar-clear-filters')"
-          :title="t('capital-indicator-page.toolbar-clear-filters')"
+          :aria-label="t('sustainability-indicator-page.toolbar-clear-filters')"
+          :title="t('sustainability-indicator-page.toolbar-clear-filters')"
           @click="clearFiltersFromToolbar"
         >
-          <span class="truncate">{{ t('capital-indicator-page.toolbar-clear-filters') }}</span>
+          <span class="truncate">{{ t('sustainability-indicator-page.toolbar-clear-filters') }}</span>
         </button>
       </div>
       <div
@@ -187,10 +187,10 @@ useEventListener(document, 'keydown', (e: KeyboardEvent) => {
               type="button"
               class="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-slate-500 transition hover:bg-slate-200 hover:text-slate-900 dark:hover:bg-darkmode-600 dark:hover:text-slate-100"
               :aria-label="
-                t('capital-indicator-page.filter-badge-remove-aria', { label: t(INDICATOR_FILTER_PARAM_LABEL_KEYS[key]) })
+                t('sustainability-indicator-page.filter-badge-remove-aria', { label: t(INDICATOR_FILTER_PARAM_LABEL_KEYS[key]) })
               "
               :title="
-                t('capital-indicator-page.filter-badge-remove-aria', { label: t(INDICATOR_FILTER_PARAM_LABEL_KEYS[key]) })
+                t('sustainability-indicator-page.filter-badge-remove-aria', { label: t(INDICATOR_FILTER_PARAM_LABEL_KEYS[key]) })
               "
               @click.stop="removeFilterParam(key)"
             >
@@ -218,7 +218,7 @@ useEventListener(document, 'keydown', (e: KeyboardEvent) => {
           :style="popoverStyle"
           role="dialog"
           aria-modal="true"
-          :aria-label="t('capital-indicator-page.filter-panel-title')"
+          :aria-label="t('sustainability-indicator-page.filter-panel-title')"
           @click.stop
         >
           <IndicatorFilterPanel

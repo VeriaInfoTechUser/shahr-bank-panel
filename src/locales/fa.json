@@ -635,15 +635,15 @@
     "esg-social": "اجتماعی",
     "esg-environment": "محیط زیست",
     "esg-report": "گزارش",
-    "capital": "سرمایه",
-    "capital-metrics": "شاخص‌ها",
-    "capital-metrics-detail": "جزئیات شاخص",
-    "capital-asset": "دارایی",
-    "capital-category": "دسته‌بندی",
-    "capital-structure": "ساختار",
-    "capital-claim": "ادعا",
-    "capital-indicator": "شاخص",
-    "capital-graph": "گراف",
+    "sustainability": "پایداری",
+    "sustainability-metrics": "شاخص‌ها",
+    "sustainability-metrics-detail": "جزئیات شاخص",
+    "sustainability-asset": "دارایی",
+    "sustainability-category": "دسته‌بندی",
+    "sustainability-fundamental-capitals": "سرمایه‌های بنیادی",
+    "sustainability-claim": "ادعا",
+    "sustainability-indicator": "شاخص",
+    "sustainability-graph": "درخت پایداری",
     "reports": "گزارش‌ها",
     "reports-baseline": "گزارش مبنا",
     "reports-comparative": "گزارش مقایسه‌ای",
@@ -1078,7 +1078,7 @@
     "status-active": "فعال",
     "status-inactive": "غیرفعال"
   },
-  "capital-metrics-page": {
+  "sustainability-metrics-page": {
     "col-number": "شماره",
     "col-metric-type": "نوع شاخص",
     "col-unit": "واحد",
@@ -1127,7 +1127,7 @@
     "toolbar-export": "خروجی",
     "filter-badge-remove-aria": "حذف فیلتر {{label}}"
   },
-  "capital-structure-page": {
+  "sustainability-fundamental-capitals-page": {
     "edit": "ویرایش ساختار",
     "add-child": "افزودن زیرمجموعه",
     "add-root": "افزودن ساختار",
@@ -1147,7 +1147,7 @@
     "count-singular": "مورد",
     "count-plural": "مورد"
   },
-  "capital-claim-page": {
+  "sustainability-claim-page": {
     "add": "افزودن ادعا",
     "edit": "ویرایش ادعا",
     "col-slug": "شناسه",
@@ -1175,7 +1175,7 @@
     "filter-field-status": "وضعیت",
     "filter-badge-remove-aria": "حذف فیلتر {{label}}"
   },
-  "capital-indicator-page": {
+  "sustainability-indicator-page": {
     "add": "افزودن شاخص",
     "edit": "ویرایش شاخص",
     "col-slug": "شناسه",
@@ -1203,14 +1203,14 @@
     "filter-field-status": "وضعیت",
     "filter-badge-remove-aria": "حذف فیلتر {{label}}"
   },
-  "capital-graph-page": {
+  "sustainability-graph-page": {
     "loading": "در حال بارگذاری گراف...",
     "error-title": "خطا در بارگذاری",
     "error-message": "امکان بارگذاری داده‌های گراف وجود ندارد.",
     "retry": "تلاش مجدد",
     "collapse-all": "بستن همه",
     "expand-all": "باز کردن همه",
-    "type-capital": "سرمایه",
+    "type-sustainability": "پایداری",
     "type-domain": "حوزه",
     "type-component": "مؤلفه",
     "type-capability": "توانمندی",

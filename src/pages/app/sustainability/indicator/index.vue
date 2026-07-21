@@ -42,38 +42,38 @@ const table = useDataTable({
   columns: [
     createColumn({
       key: 'slug',
-      label: t('capital-indicator-page.col-slug'),
+      label: t('sustainability-indicator-page.col-slug'),
       sortable: false,
       bodyCell: (row) => pickStr(row, 'slug'),
     }),
     createColumn({
       key: 'title',
-      label: t('capital-indicator-page.col-title'),
+      label: t('sustainability-indicator-page.col-title'),
       sortable: false,
       bodyCell: (row) => pickStr(row, 'title', 'name'),
     }),
     createColumn({
       key: 'number',
-      label: t('capital-indicator-page.col-number'),
+      label: t('sustainability-indicator-page.col-number'),
       sortable: false,
       bodyCell: (row) => pickStr(row, 'number'),
     }),
     createColumn({
       key: 'status',
-      label: t('capital-indicator-page.col-status'),
+      label: t('sustainability-indicator-page.col-status'),
       sortable: false,
-      bodyCell: (row) => row.status === 1 ? t('capital-indicator-page.status-active') : t('capital-indicator-page.status-inactive'),
+      bodyCell: (row) => row.status === 1 ? t('sustainability-indicator-page.status-active') : t('sustainability-indicator-page.status-inactive'),
     }),
     createColumn({
       key: 'description',
-      label: t('capital-indicator-page.col-description'),
+      label: t('sustainability-indicator-page.col-description'),
       sortable: false,
       bodyCell: (row) => pickStr(row, 'description', 'summary'),
     }),
   ],
   selectable: false,
   exportEnabled: true,
-  cacheKey: 'capital-indicators-list',
+  cacheKey: 'sustainability-indicators-list',
   listCacheStaleTime: 0,
 });
 
@@ -94,19 +94,19 @@ function onDeleteIndicator(row: Record<string, unknown>) {
   openModal({
     component: BaseConfirmModal,
     props: {
-      titleKey: 'capital-indicator-page.delete-title',
-      messageKey: 'capital-indicator-page.delete-message',
+      titleKey: 'sustainability-indicator-page.delete-title',
+      messageKey: 'sustainability-indicator-page.delete-message',
       messageParams: { title: pickStr(row, 'title', 'slug') },
       confirmVariant: 'danger' as const,
       onConfirmAction: async () => {
         const slug = String(row.slug ?? '');
         if (!slug) {
-          const msg = t('capital-indicator-page.delete-error');
+          const msg = t('sustainability-indicator-page.delete-error');
           throw new Error(msg);
         }
         const res = await grcRepo.indicatorDelete(slug);
         if (!res?.result) {
-          const msg = String(res?.error ?? t('capital-indicator-page.delete-error'));
+          const msg = String(res?.error ?? t('sustainability-indicator-page.delete-error'));
           throw new Error(msg);
         }
       },

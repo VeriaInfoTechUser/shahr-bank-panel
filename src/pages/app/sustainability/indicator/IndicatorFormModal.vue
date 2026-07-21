@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, nextTick, ref, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { Form } from 'vee-validate';
 import * as yup from 'yup';
 import { useI18n } from 'vue-i18n';
@@ -7,20 +7,15 @@ import { toast } from 'vue3-toastify';
 import BaseModal from '@/core/ui/base/BaseModal.vue';
 import BaseInput from '@/core/ui/base/BaseInput.vue';
 import Button from '@/base-components/Button';
-import Lucide from '@/base-components/Lucide';
 import { grcRepo } from '@/core/repositories/grcRepo';
 
 const props = withDefaults(
   defineProps<{
     show: boolean;
     record?: Record<string, unknown> | null;
-    parentSlug?: string | null;
-    parentTitle?: string | null;
   }>(),
   {
     record: null,
-    parentSlug: null,
-    parentTitle: null,
   }
 );
 
@@ -44,30 +39,35 @@ const isEdit = computed(() => {
 });
 
 const modalTitle = computed(() => {
-  if (isEdit.value) return t('capital-structure-page.edit');
-  if (props.parentSlug) return t('capital-structure-page.add-child');
-  return t('capital-structure-page.add-root');
+  return isEdit.value ? t('sustainability-indicator-page.edit') : t('sustainability-indicator-page.add');
 });
 
-const initialValues = ref({ title: '', description: '', number: '' });
+const initialValues = ref({ slug: '', title: '', description: '', number: '' });
 
 const validationSchema = computed(() =>
   yup.object({
-    title: yup
+    slug: yup
       .string()
       .trim()
-      .required(t('capital-structure-page.validation-title')),
+      .required(t('sustainability-indicator-page.validation-slug')),
+    title: yup.string().trim().optional(),
     description: yup.string().trim().optional(),
     number: yup.string().trim().optional(),
   })
 );
 
+function slugFromRecord(rec: Record<string, unknown> | null | undefined): string {
+  if (!rec) return '';
+  const v = rec.slug;
+  if (typeof v === 'string' && v.trim()) return v;
+  return '';
+}
+
 function titleFromRecord(rec: Record<string, unknown> | null | undefined): string {
   if (!rec) return '';
-  for (const key of ['title', 'name', 'label'] as const) {
+  for (const key of ['title', 'name'] as const) {
     const v = rec[key];
     if (typeof v === 'string' && v.trim()) return v;
-    if (typeof v === 'number' && !Number.isNaN(v)) return String(v);
   }
   return '';
 }
@@ -85,12 +85,12 @@ function numberFromRecord(rec: Record<string, unknown> | null | undefined): stri
   if (!rec) return '';
   const v = rec.number;
   if (typeof v === 'string' && v.trim()) return v;
-  if (typeof v === 'number' && !Number.isNaN(v)) return String(v);
   return '';
 }
 
 function seedForm() {
   initialValues.value = {
+    slug: slugFromRecord(props.record ?? null),
     title: titleFromRecord(props.record ?? null),
     description: descriptionFromRecord(props.record ?? null),
     number: numberFromRecord(props.record ?? null),
@@ -117,7 +117,8 @@ function onDialogVisible(v: boolean) {
   if (!v) emit('close');
 }
 
-async function onSubmit(values: { title?: string; description?: string; number?: string }) {
+async function onSubmit(values: { slug?: string; title?: string; description?: string; number?: string }) {
+  const slug = String(values.slug ?? '').trim();
   const title = String(values.title ?? '').trim();
   const description = String(values.description ?? '').trim();
   const number = String(values.number ?? '').trim();
@@ -125,21 +126,17 @@ async function onSubmit(values: { title?: string; description?: string; number?:
   try {
     let result;
     if (isEdit.value && props.record) {
-      const slug = String(props.record.slug ?? '');
-      result = await grcRepo.capitalUpdate(slug, { title, description, number });
+      const existingSlug = String(props.record.slug ?? '');
+      result = await grcRepo.indicatorUpdate(existingSlug, { slug, title, description, number });
     } else {
-      const data: Record<string, unknown> = { title, description, number, status: 1 };
-      if (props.parentSlug) {
-        data.parentSlug = props.parentSlug;
-      }
-      result = await grcRepo.capitalCreate(data);
+      result = await grcRepo.indicatorCreate({ slug, title, description, number, status: 1 });
     }
 
     if (result?.result) {
       toast(
         isEdit.value
-          ? t('capital-structure-page.edit-success')
-          : t('capital-structure-page.add-success'),
+          ? t('sustainability-indicator-page.edit-success')
+          : t('sustainability-indicator-page.add-success'),
         { type: 'success' }
       );
       emit('success');
@@ -149,8 +146,8 @@ async function onSubmit(values: { title?: string; description?: string; number?:
         String(
           result?.error ??
             (isEdit.value
-              ? t('capital-structure-page.edit-error')
-              : t('capital-structure-page.add-error'))
+              ? t('sustainability-indicator-page.edit-error')
+              : t('sustainability-indicator-page.add-error'))
         ),
         { type: 'error' }
       );
@@ -160,8 +157,8 @@ async function onSubmit(values: { title?: string; description?: string; number?:
       e instanceof Error
         ? e.message
         : isEdit.value
-          ? t('capital-structure-page.edit-error')
-          : t('capital-structure-page.add-error'),
+          ? t('sustainability-indicator-page.edit-error')
+          : t('sustainability-indicator-page.add-error'),
       { type: 'error' }
     );
   } finally {
@@ -178,7 +175,7 @@ async function onSubmit(values: { title?: string; description?: string; number?:
     @update:visible="onDialogVisible"
   >
     <Form
-      id="structure-form"
+      id="indicator-form"
       :key="formKey"
       ref="formRef"
       :validation-schema="validationSchema"
@@ -187,31 +184,27 @@ async function onSubmit(values: { title?: string; description?: string; number?:
       @submit="onSubmit"
     >
       <div data-autofocus-modal>
-        <div
-          v-if="parentTitle"
-          class="flex items-center gap-2 rounded-lg bg-primary/5 px-3 py-2 dark:bg-primary/10"
-        >
-          <Lucide icon="GitBranch" class="h-4 w-4 shrink-0 text-primary/60" />
-          <span class="text-xs text-slate-500 dark:text-slate-400">
-            {{ t('capital-structure-page.parent-label') }}:
-          </span>
-          <span class="text-xs font-medium text-slate-700 dark:text-slate-300">{{ parentTitle }}</span>
-        </div>
         <BaseInput
-          name="title"
-          :label="t('capital-structure-page.col-title')"
+          name="slug"
+          :label="t('sustainability-indicator-page.col-slug')"
           type="text"
           required
           autofocus
+          :disabled="isEdit"
+        />
+        <BaseInput
+          name="title"
+          :label="t('sustainability-indicator-page.col-title')"
+          type="text"
         />
         <BaseInput
           name="number"
-          :label="t('capital-structure-page.col-number')"
+          :label="t('sustainability-indicator-page.col-number')"
           type="text"
         />
         <BaseInput
           name="description"
-          :label="t('capital-structure-page.col-description')"
+          :label="t('sustainability-indicator-page.col-description')"
           type="textarea"
         />
       </div>
@@ -233,7 +226,7 @@ async function onSubmit(values: { title?: string; description?: string; number?:
           variant="primary"
           size="sm"
           class="!rounded-lg !shadow-md !shadow-primary/20"
-          form="structure-form"
+          form="indicator-form"
           :disabled="saving"
         >
           {{ isEdit ? t('rule.form-edit-submit') : t('rule.form-submit') }}

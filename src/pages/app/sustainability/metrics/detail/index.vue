@@ -96,7 +96,7 @@ async function fetchMetric(): Promise<void> {
 }
 
 function goBack(): void {
-  router.push({ name: 'app-capital-metrics' });
+  router.push({ name: 'app-sustainability-metrics' });
 }
 
 onMounted(() => {
@@ -191,28 +191,28 @@ onMounted(() => {
             <div class="rounded-xl border border-slate-100 bg-slate-50/80 p-3.5 dark:border-darkmode-700 dark:bg-darkmode-900/50">
               <div class="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wider text-slate-400">
                 <Lucide icon="Ruler" class="h-3 w-3" />
-                {{ t('capital-metrics-page.col-unit') }}
+                {{ t('sustainability-metrics-page.col-unit') }}
               </div>
               <div class="mt-1.5 text-sm font-bold text-slate-700 dark:text-slate-200">{{ info.unit }}</div>
             </div>
             <div class="rounded-xl border border-slate-100 bg-slate-50/80 p-3.5 dark:border-darkmode-700 dark:bg-darkmode-900/50">
               <div class="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wider text-slate-400">
                 <Lucide icon="Target" class="h-3 w-3" />
-                {{ t('capital-metrics-page.annual-target') }}
+                {{ t('sustainability-metrics-page.annual-target') }}
               </div>
               <div class="mt-1.5 text-sm font-bold text-slate-700 dark:text-slate-200">{{ info.annualTarget }}</div>
             </div>
             <div class="rounded-xl border border-slate-100 bg-slate-50/80 p-3.5 dark:border-darkmode-700 dark:bg-darkmode-900/50">
               <div class="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wider text-slate-400">
                 <Lucide icon="Calendar" class="h-3 w-3" />
-                {{ t('capital-metrics-page.target-year') }}
+                {{ t('sustainability-metrics-page.target-year') }}
               </div>
               <div class="mt-1.5 text-sm font-bold text-slate-700 dark:text-slate-200">{{ info.targetYear }}</div>
             </div>
             <div class="rounded-xl border border-slate-100 bg-slate-50/80 p-3.5 dark:border-darkmode-700 dark:bg-darkmode-900/50">
               <div class="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wider text-slate-400">
                 <Lucide icon="Compass" class="h-3 w-3" />
-                {{ t('capital-metrics-page.col-direction') }}
+                {{ t('sustainability-metrics-page.col-direction') }}
               </div>
               <div class="mt-1.5 flex items-center gap-1.5 text-sm font-bold text-slate-700 dark:text-slate-200">
                 <Lucide
@@ -233,7 +233,7 @@ onMounted(() => {
           <div class="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10">
             <Lucide icon="FileText" class="h-3.5 w-3.5 text-primary" />
           </div>
-          <h2 class="text-sm font-bold text-slate-700 dark:text-slate-200">{{ t('capital-metrics-page.description') }}</h2>
+          <h2 class="text-sm font-bold text-slate-700 dark:text-slate-200">{{ t('sustainability-metrics-page.description') }}</h2>
         </div>
         <p class="text-sm leading-7 text-slate-600 dark:text-slate-300">{{ info.description }}</p>
       </section>
@@ -248,7 +248,7 @@ onMounted(() => {
               <div class="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10">
                 <Lucide icon="Sigma" class="h-3.5 w-3.5 text-primary" />
               </div>
-              <h2 class="text-sm font-bold text-slate-700 dark:text-slate-200">{{ t('capital-metrics-page.col-formula') }}</h2>
+              <h2 class="text-sm font-bold text-slate-700 dark:text-slate-200">{{ t('sustainability-metrics-page.col-formula') }}</h2>
             </div>
             <pre
               dir="ltr"
@@ -262,7 +262,7 @@ onMounted(() => {
               <div class="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10">
                 <Lucide icon="AlertTriangle" class="h-3.5 w-3.5 text-primary" />
               </div>
-              <h2 class="text-sm font-bold text-slate-700 dark:text-slate-200">{{ t('capital-metrics-page.thresholds') }}</h2>
+              <h2 class="text-sm font-bold text-slate-700 dark:text-slate-200">{{ t('sustainability-metrics-page.thresholds') }}</h2>
             </div>
             <div class="grid grid-cols-1 gap-3 md:grid-cols-3">
               <div class="group rounded-xl border border-emerald-200/60 bg-emerald-50/50 p-4 transition-colors hover:border-emerald-300/60 dark:border-emerald-500/20 dark:bg-emerald-500/5">
@@ -270,7 +270,7 @@ onMounted(() => {
                   <span class="flex h-6 w-6 items-center justify-center rounded-md bg-emerald-100 dark:bg-emerald-500/20">
                     <Lucide icon="CheckCircle2" class="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
                   </span>
-                  <span class="text-xs font-semibold text-emerald-600 dark:text-emerald-400">{{ t('capital-metrics-page.target') }}</span>
+                  <span class="text-xs font-semibold text-emerald-600 dark:text-emerald-400">{{ t('sustainability-metrics-page.target') }}</span>
                 </div>
                 <div class="mt-2.5 text-base font-bold text-slate-800 dark:text-slate-100">{{ info.annualTarget }}</div>
               </div>
@@ -279,7 +279,7 @@ onMounted(() => {
                   <span class="flex h-6 w-6 items-center justify-center rounded-md bg-amber-100 dark:bg-amber-500/20">
                     <Lucide icon="AlertCircle" class="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" />
                   </span>
-                  <span class="text-xs font-semibold text-amber-600 dark:text-amber-400">{{ t('capital-metrics-page.warning') }}</span>
+                  <span class="text-xs font-semibold text-amber-600 dark:text-amber-400">{{ t('sustainability-metrics-page.warning') }}</span>
                 </div>
                 <div class="mt-2.5 text-base font-bold text-slate-800 dark:text-slate-100">{{ info.warningThreshold }}</div>
               </div>
@@ -288,7 +288,7 @@ onMounted(() => {
                   <span class="flex h-6 w-6 items-center justify-center rounded-md bg-red-100 dark:bg-red-500/20">
                     <Lucide icon="XCircle" class="h-3.5 w-3.5 text-red-600 dark:text-red-400" />
                   </span>
-                  <span class="text-xs font-semibold text-red-600 dark:text-red-400">{{ t('capital-metrics-page.critical') }}</span>
+                  <span class="text-xs font-semibold text-red-600 dark:text-red-400">{{ t('sustainability-metrics-page.critical') }}</span>
                 </div>
                 <div class="mt-2.5 text-base font-bold text-slate-800 dark:text-slate-100">{{ info.criticalThreshold }}</div>
               </div>
@@ -304,7 +304,7 @@ onMounted(() => {
               <div class="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10">
                 <Lucide icon="Layers" class="h-3.5 w-3.5 text-primary" />
               </div>
-              <h2 class="text-sm font-bold text-slate-700 dark:text-slate-200">{{ t('capital-metrics-page.framework-mappings') }}</h2>
+              <h2 class="text-sm font-bold text-slate-700 dark:text-slate-200">{{ t('sustainability-metrics-page.framework-mappings') }}</h2>
             </div>
             <div class="space-y-2.5">
               <div
@@ -335,7 +335,7 @@ onMounted(() => {
               <div class="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10">
                 <Lucide icon="GitBranch" class="h-3.5 w-3.5 text-primary" />
               </div>
-              <h2 class="text-sm font-bold text-slate-700 dark:text-slate-200">{{ t('capital-metrics-page.cascading-effects') }}</h2>
+              <h2 class="text-sm font-bold text-slate-700 dark:text-slate-200">{{ t('sustainability-metrics-page.cascading-effects') }}</h2>
             </div>
             <div class="space-y-3">
               <div
@@ -368,7 +368,7 @@ onMounted(() => {
               <div class="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-50 dark:bg-emerald-500/10">
                 <Lucide icon="Leaf" class="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
               </div>
-              <h2 class="text-sm font-bold text-slate-700 dark:text-slate-200">{{ t('capital-metrics-page.sustainability-goal') }}</h2>
+              <h2 class="text-sm font-bold text-slate-700 dark:text-slate-200">{{ t('sustainability-metrics-page.sustainability-goal') }}</h2>
             </div>
             <p class="text-sm leading-7 text-slate-600 dark:text-slate-300">{{ info.sustainabilityGoal }}</p>
           </section>
@@ -382,27 +382,27 @@ onMounted(() => {
               <div class="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10">
                 <Lucide icon="Tag" class="h-3.5 w-3.5 text-primary" />
               </div>
-              <h2 class="text-sm font-bold text-slate-700 dark:text-slate-200">{{ t('capital-metrics-page.classification') }}</h2>
+              <h2 class="text-sm font-bold text-slate-700 dark:text-slate-200">{{ t('sustainability-metrics-page.classification') }}</h2>
             </div>
             <div class="space-y-3">
               <div class="flex items-center justify-between rounded-lg bg-slate-50/80 px-3 py-2.5 dark:bg-darkmode-900/50">
-                <span class="text-xs text-slate-500 dark:text-slate-400">{{ t('capital-metrics-page.metric-role') }}</span>
+                <span class="text-xs text-slate-500 dark:text-slate-400">{{ t('sustainability-metrics-page.metric-role') }}</span>
                 <span class="rounded-lg bg-violet-50 px-2 py-0.5 text-xs font-bold text-violet-600 dark:bg-violet-500/10 dark:text-violet-400">{{ info.metricRole }}</span>
               </div>
               <div class="flex items-center justify-between rounded-lg bg-slate-50/80 px-3 py-2.5 dark:bg-darkmode-900/50">
-                <span class="text-xs text-slate-500 dark:text-slate-400">{{ t('capital-metrics-page.metric-type') }}</span>
+                <span class="text-xs text-slate-500 dark:text-slate-400">{{ t('sustainability-metrics-page.metric-type') }}</span>
                 <span class="text-xs font-semibold text-slate-700 dark:text-slate-200">{{ info.metricType }}</span>
               </div>
               <div class="flex items-center justify-between rounded-lg bg-slate-50/80 px-3 py-2.5 dark:bg-darkmode-900/50">
-                <span class="text-xs text-slate-500 dark:text-slate-400">{{ t('capital-metrics-page.data-type') }}</span>
+                <span class="text-xs text-slate-500 dark:text-slate-400">{{ t('sustainability-metrics-page.data-type') }}</span>
                 <span class="rounded-lg bg-slate-100 px-2 py-0.5 font-mono text-xs font-semibold text-slate-600 dark:bg-darkmode-700 dark:text-slate-300">{{ info.dataType }}</span>
               </div>
               <div class="flex items-center justify-between rounded-lg bg-slate-50/80 px-3 py-2.5 dark:bg-darkmode-900/50">
-                <span class="text-xs text-slate-500 dark:text-slate-400">{{ t('capital-metrics-page.calculation-type') }}</span>
+                <span class="text-xs text-slate-500 dark:text-slate-400">{{ t('sustainability-metrics-page.calculation-type') }}</span>
                 <span class="text-xs font-semibold text-slate-700 dark:text-slate-200">{{ info.calculationType }}</span>
               </div>
               <div class="flex items-center justify-between rounded-lg bg-slate-50/80 px-3 py-2.5 dark:bg-darkmode-900/50">
-                <span class="text-xs text-slate-500 dark:text-slate-400">{{ t('capital-metrics-page.resilience-test') }}</span>
+                <span class="text-xs text-slate-500 dark:text-slate-400">{{ t('sustainability-metrics-page.resilience-test') }}</span>
                 <span class="text-xs font-semibold text-slate-700 dark:text-slate-200">{{ info.adaptiveResilienceTestType }}</span>
               </div>
             </div>
@@ -414,23 +414,23 @@ onMounted(() => {
               <div class="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10">
                 <Lucide icon="User" class="h-3.5 w-3.5 text-primary" />
               </div>
-              <h2 class="text-sm font-bold text-slate-700 dark:text-slate-200">{{ t('capital-metrics-page.data-ownership') }}</h2>
+              <h2 class="text-sm font-bold text-slate-700 dark:text-slate-200">{{ t('sustainability-metrics-page.data-ownership') }}</h2>
             </div>
             <div class="space-y-3">
               <div class="flex items-start justify-between gap-3 rounded-lg bg-slate-50/80 px-3 py-2.5 dark:bg-darkmode-900/50">
-                <span class="text-xs text-slate-500 dark:text-slate-400">{{ t('capital-metrics-page.data-owner') }}</span>
+                <span class="text-xs text-slate-500 dark:text-slate-400">{{ t('sustainability-metrics-page.data-owner') }}</span>
                 <span class="text-end text-xs font-semibold text-slate-700 dark:text-slate-200">{{ info.dataOwner }}</span>
               </div>
               <div class="flex items-start justify-between gap-3 rounded-lg bg-slate-50/80 px-3 py-2.5 dark:bg-darkmode-900/50">
-                <span class="text-xs text-slate-500 dark:text-slate-400">{{ t('capital-metrics-page.data-source') }}</span>
+                <span class="text-xs text-slate-500 dark:text-slate-400">{{ t('sustainability-metrics-page.data-source') }}</span>
                 <span class="text-end text-xs font-semibold text-slate-700 dark:text-slate-200">{{ info.dataSource }}</span>
               </div>
               <div class="flex items-start justify-between gap-3 rounded-lg bg-slate-50/80 px-3 py-2.5 dark:bg-darkmode-900/50">
-                <span class="text-xs text-slate-500 dark:text-slate-400">{{ t('capital-metrics-page.source-asset') }}</span>
+                <span class="text-xs text-slate-500 dark:text-slate-400">{{ t('sustainability-metrics-page.source-asset') }}</span>
                 <span class="text-end text-xs font-semibold text-slate-700 dark:text-slate-200">{{ info.sourceAssetType }}</span>
               </div>
               <div class="flex items-center justify-between rounded-lg bg-slate-50/80 px-3 py-2.5 dark:bg-darkmode-900/50">
-                <span class="text-xs text-slate-500 dark:text-slate-400">{{ t('capital-metrics-page.has-sub-assets') }}</span>
+                <span class="text-xs text-slate-500 dark:text-slate-400">{{ t('sustainability-metrics-page.has-sub-assets') }}</span>
                 <span
                   class="inline-flex items-center gap-1 rounded-lg px-2 py-0.5 text-xs font-semibold"
                   :class="info.hasSubAssets ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400' : 'bg-slate-100 text-slate-500 dark:bg-darkmode-700 dark:text-slate-400'"
@@ -448,27 +448,27 @@ onMounted(() => {
               <div class="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10">
                 <Lucide icon="Clock" class="h-3.5 w-3.5 text-primary" />
               </div>
-              <h2 class="text-sm font-bold text-slate-700 dark:text-slate-200">{{ t('capital-metrics-page.reporting') }}</h2>
+              <h2 class="text-sm font-bold text-slate-700 dark:text-slate-200">{{ t('sustainability-metrics-page.reporting') }}</h2>
             </div>
             <div class="space-y-3">
               <div class="flex items-center justify-between rounded-lg bg-slate-50/80 px-3 py-2.5 dark:bg-darkmode-900/50">
-                <span class="text-xs text-slate-500 dark:text-slate-400">{{ t('capital-metrics-page.reporting-period') }}</span>
+                <span class="text-xs text-slate-500 dark:text-slate-400">{{ t('sustainability-metrics-page.reporting-period') }}</span>
                 <span class="text-xs font-semibold text-slate-700 dark:text-slate-200">{{ info.reportingPeriod }}</span>
               </div>
               <div class="flex items-center justify-between rounded-lg bg-slate-50/80 px-3 py-2.5 dark:bg-darkmode-900/50">
-                <span class="text-xs text-slate-500 dark:text-slate-400">{{ t('capital-metrics-page.collection-frequency') }}</span>
+                <span class="text-xs text-slate-500 dark:text-slate-400">{{ t('sustainability-metrics-page.collection-frequency') }}</span>
                 <span class="text-xs font-semibold text-slate-700 dark:text-slate-200">{{ info.collectionFrequency }}</span>
               </div>
               <div class="flex items-center justify-between rounded-lg bg-slate-50/80 px-3 py-2.5 dark:bg-darkmode-900/50">
-                <span class="text-xs text-slate-500 dark:text-slate-400">{{ t('capital-metrics-page.spatial-aggregation') }}</span>
+                <span class="text-xs text-slate-500 dark:text-slate-400">{{ t('sustainability-metrics-page.spatial-aggregation') }}</span>
                 <span class="text-xs font-semibold text-slate-700 dark:text-slate-200">{{ info.spatialAggregation }}</span>
               </div>
               <div class="flex items-center justify-between rounded-lg bg-slate-50/80 px-3 py-2.5 dark:bg-darkmode-900/50">
-                <span class="text-xs text-slate-500 dark:text-slate-400">{{ t('capital-metrics-page.temporal-aggregation') }}</span>
+                <span class="text-xs text-slate-500 dark:text-slate-400">{{ t('sustainability-metrics-page.temporal-aggregation') }}</span>
                 <span class="text-xs font-semibold text-slate-700 dark:text-slate-200">{{ info.temporalAggregation }}</span>
               </div>
               <div class="flex items-start justify-between gap-3 rounded-lg bg-slate-50/80 px-3 py-2.5 dark:bg-darkmode-900/50">
-                <span class="text-xs text-slate-500 dark:text-slate-400">{{ t('capital-metrics-page.dynamic-aggregation') }}</span>
+                <span class="text-xs text-slate-500 dark:text-slate-400">{{ t('sustainability-metrics-page.dynamic-aggregation') }}</span>
                 <span class="text-end text-xs font-semibold text-slate-700 dark:text-slate-200">{{ info.dynamicAggregationRule }}</span>
               </div>
             </div>
@@ -480,7 +480,7 @@ onMounted(() => {
               <div class="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10">
                 <Lucide icon="Factory" class="h-3.5 w-3.5 text-primary" />
               </div>
-              <h2 class="text-sm font-bold text-slate-700 dark:text-slate-200">{{ t('capital-metrics-page.col-industries') }}</h2>
+              <h2 class="text-sm font-bold text-slate-700 dark:text-slate-200">{{ t('sustainability-metrics-page.col-industries') }}</h2>
             </div>
             <div class="flex flex-wrap gap-1.5">
               <span
@@ -495,7 +495,7 @@ onMounted(() => {
             <template v-if="info.associatedIndustries && info.associatedIndustries.length > 0">
               <div class="my-3 h-px bg-slate-100 dark:bg-darkmode-700" />
               <h3 class="mb-2 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
-                {{ t('capital-metrics-page.associated-industries') }}
+                {{ t('sustainability-metrics-page.associated-industries') }}
               </h3>
               <div class="flex flex-wrap gap-1.5">
                 <span

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue';
+import { computed, nextTick, ref, watch } from 'vue';
 import { Form } from 'vee-validate';
 import * as yup from 'yup';
 import { useI18n } from 'vue-i18n';
@@ -7,15 +7,20 @@ import { toast } from 'vue3-toastify';
 import BaseModal from '@/core/ui/base/BaseModal.vue';
 import BaseInput from '@/core/ui/base/BaseInput.vue';
 import Button from '@/base-components/Button';
+import Lucide from '@/base-components/Lucide';
 import { grcRepo } from '@/core/repositories/grcRepo';
 
 const props = withDefaults(
   defineProps<{
     show: boolean;
     record?: Record<string, unknown> | null;
+    parentSlug?: string | null;
+    parentTitle?: string | null;
   }>(),
   {
     record: null,
+    parentSlug: null,
+    parentTitle: null,
   }
 );
 
@@ -39,35 +44,30 @@ const isEdit = computed(() => {
 });
 
 const modalTitle = computed(() => {
-  return isEdit.value ? t('capital-claim-page.edit') : t('capital-claim-page.add');
+  if (isEdit.value) return t('sustainability-fundamental-capitals-page.edit');
+  if (props.parentSlug) return t('sustainability-fundamental-capitals-page.add-child');
+  return t('sustainability-fundamental-capitals-page.add-root');
 });
 
-const initialValues = ref({ slug: '', title: '', description: '', number: '' });
+const initialValues = ref({ title: '', description: '', number: '' });
 
 const validationSchema = computed(() =>
   yup.object({
-    slug: yup
+    title: yup
       .string()
       .trim()
-      .required(t('capital-claim-page.validation-slug')),
-    title: yup.string().trim().optional(),
+      .required(t('sustainability-fundamental-capitals-page.validation-title')),
     description: yup.string().trim().optional(),
     number: yup.string().trim().optional(),
   })
 );
 
-function slugFromRecord(rec: Record<string, unknown> | null | undefined): string {
-  if (!rec) return '';
-  const v = rec.slug;
-  if (typeof v === 'string' && v.trim()) return v;
-  return '';
-}
-
 function titleFromRecord(rec: Record<string, unknown> | null | undefined): string {
   if (!rec) return '';
-  for (const key of ['title', 'name'] as const) {
+  for (const key of ['title', 'name', 'label'] as const) {
     const v = rec[key];
     if (typeof v === 'string' && v.trim()) return v;
+    if (typeof v === 'number' && !Number.isNaN(v)) return String(v);
   }
   return '';
 }
@@ -85,12 +85,12 @@ function numberFromRecord(rec: Record<string, unknown> | null | undefined): stri
   if (!rec) return '';
   const v = rec.number;
   if (typeof v === 'string' && v.trim()) return v;
+  if (typeof v === 'number' && !Number.isNaN(v)) return String(v);
   return '';
 }
 
 function seedForm() {
   initialValues.value = {
-    slug: slugFromRecord(props.record ?? null),
     title: titleFromRecord(props.record ?? null),
     description: descriptionFromRecord(props.record ?? null),
     number: numberFromRecord(props.record ?? null),
@@ -117,8 +117,7 @@ function onDialogVisible(v: boolean) {
   if (!v) emit('close');
 }
 
-async function onSubmit(values: { slug?: string; title?: string; description?: string; number?: string }) {
-  const slug = String(values.slug ?? '').trim();
+async function onSubmit(values: { title?: string; description?: string; number?: string }) {
   const title = String(values.title ?? '').trim();
   const description = String(values.description ?? '').trim();
   const number = String(values.number ?? '').trim();
@@ -126,17 +125,21 @@ async function onSubmit(values: { slug?: string; title?: string; description?: s
   try {
     let result;
     if (isEdit.value && props.record) {
-      const existingSlug = String(props.record.slug ?? '');
-      result = await grcRepo.claimUpdate(existingSlug, { slug, title, description, number });
+      const slug = String(props.record.slug ?? '');
+      result = await grcRepo.capitalUpdate(slug, { title, description, number });
     } else {
-      result = await grcRepo.claimCreate({ slug, title, description, number, status: 1 });
+      const data: Record<string, unknown> = { title, description, number, status: 1 };
+      if (props.parentSlug) {
+        data.parentSlug = props.parentSlug;
+      }
+      result = await grcRepo.capitalCreate(data);
     }
 
     if (result?.result) {
       toast(
         isEdit.value
-          ? t('capital-claim-page.edit-success')
-          : t('capital-claim-page.add-success'),
+          ? t('sustainability-fundamental-capitals-page.edit-success')
+          : t('sustainability-fundamental-capitals-page.add-success'),
         { type: 'success' }
       );
       emit('success');
@@ -146,8 +149,8 @@ async function onSubmit(values: { slug?: string; title?: string; description?: s
         String(
           result?.error ??
             (isEdit.value
-              ? t('capital-claim-page.edit-error')
-              : t('capital-claim-page.add-error'))
+              ? t('sustainability-fundamental-capitals-page.edit-error')
+              : t('sustainability-fundamental-capitals-page.add-error'))
         ),
         { type: 'error' }
       );
@@ -157,8 +160,8 @@ async function onSubmit(values: { slug?: string; title?: string; description?: s
       e instanceof Error
         ? e.message
         : isEdit.value
-          ? t('capital-claim-page.edit-error')
-          : t('capital-claim-page.add-error'),
+          ? t('sustainability-fundamental-capitals-page.edit-error')
+          : t('sustainability-fundamental-capitals-page.add-error'),
       { type: 'error' }
     );
   } finally {
@@ -175,7 +178,7 @@ async function onSubmit(values: { slug?: string; title?: string; description?: s
     @update:visible="onDialogVisible"
   >
     <Form
-      id="claim-form"
+      id="fundamental-capitals-form"
       :key="formKey"
       ref="formRef"
       :validation-schema="validationSchema"
@@ -184,27 +187,31 @@ async function onSubmit(values: { slug?: string; title?: string; description?: s
       @submit="onSubmit"
     >
       <div data-autofocus-modal>
+        <div
+          v-if="parentTitle"
+          class="flex items-center gap-2 rounded-lg bg-primary/5 px-3 py-2 dark:bg-primary/10"
+        >
+          <Lucide icon="GitBranch" class="h-4 w-4 shrink-0 text-primary/60" />
+          <span class="text-xs text-slate-500 dark:text-slate-400">
+            {{ t('sustainability-fundamental-capitals-page.parent-label') }}:
+          </span>
+          <span class="text-xs font-medium text-slate-700 dark:text-slate-300">{{ parentTitle }}</span>
+        </div>
         <BaseInput
-          name="slug"
-          :label="t('capital-claim-page.col-slug')"
+          name="title"
+          :label="t('sustainability-fundamental-capitals-page.col-title')"
           type="text"
           required
           autofocus
-          :disabled="isEdit"
-        />
-        <BaseInput
-          name="title"
-          :label="t('capital-claim-page.col-title')"
-          type="text"
         />
         <BaseInput
           name="number"
-          :label="t('capital-claim-page.col-number')"
+          :label="t('sustainability-fundamental-capitals-page.col-number')"
           type="text"
         />
         <BaseInput
           name="description"
-          :label="t('capital-claim-page.col-description')"
+          :label="t('sustainability-fundamental-capitals-page.col-description')"
           type="textarea"
         />
       </div>
@@ -226,7 +233,7 @@ async function onSubmit(values: { slug?: string; title?: string; description?: s
           variant="primary"
           size="sm"
           class="!rounded-lg !shadow-md !shadow-primary/20"
-          form="claim-form"
+          form="fundamental-capitals-form"
           :disabled="saving"
         >
           {{ isEdit ? t('rule.form-edit-submit') : t('rule.form-submit') }}

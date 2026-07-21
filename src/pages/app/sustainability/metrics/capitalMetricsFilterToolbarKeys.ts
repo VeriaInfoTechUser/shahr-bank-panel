@@ -3,9 +3,9 @@ export const CAPITAL_METRICS_FILTER_PARAM_ORDER = ['title', 'industries', 'metri
 export type CapitalMetricsFilterParamKey = (typeof CAPITAL_METRICS_FILTER_PARAM_ORDER)[number];
 
 export const CAPITAL_METRICS_FILTER_PARAM_LABEL_KEYS: Record<CapitalMetricsFilterParamKey, string> = {
-  title: 'capital-metrics-page.filter-field-title',
-  industries: 'capital-metrics-page.col-industries',
-  metricRole: 'capital-metrics-page.col-metric-role',
+  title: 'sustainability-metrics-page.filter-field-title',
+  industries: 'sustainability-metrics-page.col-industries',
+  metricRole: 'sustainability-metrics-page.col-metric-role',
 };
 
 export function isCapitalMetricsFilterValueSet(value: unknown): boolean {

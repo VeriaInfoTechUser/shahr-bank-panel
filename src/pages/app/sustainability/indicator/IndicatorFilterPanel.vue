@@ -5,7 +5,7 @@ import { Form } from 'vee-validate';
 import { useI18n } from 'vue-i18n';
 import BaseInput from '@/core/ui/base/BaseInput.vue';
 import BaseMultiSelect from '@/core/ui/base/BaseMultiSelect.vue';
-import CapitalMetricsFilterAutoApply from './CapitalMetricsFilterAutoApply.vue';
+import IndicatorFilterAutoApply from './IndicatorFilterAutoApply.vue';
 
 const props = withDefaults(
   defineProps<{
@@ -28,29 +28,22 @@ const emit = defineEmits<{
 
 const { t } = useI18n();
 const formKey = ref(0);
-const formId = 'capital-metrics-filter-form';
+const formId = 'indicator-filter-form';
 
-const industryOptions = computed(() => [
-  { value: 'نفت و گاز', label: 'نفت و گاز' },
-  { value: 'خودرو', label: 'خودرو' },
-  { value: 'فولاد و معدن', label: 'فولاد و معدن' },
-  { value: 'بانک', label: 'بانک' },
-  { value: 'بیمه', label: 'بیمه' },
-]);
-
-const metricRoleOptions = computed(() => [
-  { value: 'CONTROL', label: 'CONTROL' },
-  { value: 'PI', label: 'PI' },
-  { value: 'KPI', label: 'KPI' },
-  { value: 'KRI', label: 'KRI' },
+const statusOptions = computed(() => [
+  { value: '1', label: t('sustainability-indicator-page.status-active') },
+  { value: '0', label: t('sustainability-indicator-page.status-inactive') },
 ]);
 
 function apiFiltersToFormValues(f: Record<string, unknown> | undefined | null) {
   const x = f ?? {};
   return {
     title: String(x.title ?? ''),
-    industries: Array.isArray(x.industries) ? (x.industries as unknown[]).map(String) : [],
-    metricRole: Array.isArray(x.metricRole) ? (x.metricRole as unknown[]).map(String) : [],
+    status: Array.isArray(x.status)
+      ? (x.status as unknown[]).map(String)
+      : x.status != null
+        ? [String(x.status)]
+        : [],
   };
 }
 
@@ -70,10 +63,10 @@ function buildPayload(values: Record<string, unknown>): Record<string, unknown> 
   const o: Record<string, unknown> = {};
   const title = String(values.title ?? '').trim();
   if (title) o.title = title;
-  const industries = values.industries as string[] | undefined;
-  if (industries?.length) o.industries = industries;
-  const metricRole = values.metricRole as string[] | undefined;
-  if (metricRole?.length) o.metricRole = metricRole;
+  const status = values.status as string[] | undefined;
+  if (status?.length) {
+    o.status = status.length === 1 ? Number(status[0]) : status;
+  }
   return o;
 }
 
@@ -95,28 +88,21 @@ function onAutoApply(payload: Record<string, unknown>) {
       :initial-values="formInitialValues"
       as="div"
     >
-      <CapitalMetricsFilterAutoApply
+      <IndicatorFilterAutoApply
         :build-payload="buildPayload"
         @apply="onAutoApply"
       />
-      <div class="grid grid-cols-1 gap-3 md:grid-cols-1">
+      <div class="grid grid-cols-1 gap-3">
         <BaseInput
           name="title"
           compact-label
-          :label="t('capital-metrics-page.filter-field-title')"
+          :label="t('sustainability-indicator-page.filter-field-title')"
         />
         <BaseMultiSelect
-          name="industries"
+          name="status"
           compact-label
-          :label="t('capital-metrics-page.col-industries')"
-          :options="industryOptions"
-          placeholder=""
-        />
-        <BaseMultiSelect
-          name="metricRole"
-          compact-label
-          :label="t('capital-metrics-page.col-metric-role')"
-          :options="metricRoleOptions"
+          :label="t('sustainability-indicator-page.filter-field-status')"
+          :options="statusOptions"
           placeholder=""
         />
       </div>

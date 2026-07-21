@@ -10,7 +10,7 @@ import BaseSelect from '@/core/ui/base/BaseSelect.vue';
 import BaseMultiSelect from '@/core/ui/base/BaseMultiSelect.vue';
 import Button from '@/base-components/Button';
 import { grcRepo } from '@/core/repositories/grcRepo';
-import { sourceAssetTypes } from '@/pages/app/capital/source-asset-types';
+import { sourceAssetTypes } from '@/pages/app/sustainability/source-asset-types';
 
 const props = withDefaults(
   defineProps<{
@@ -57,8 +57,8 @@ const isEdit = computed(() => {
 
 const modalTitle = computed(() =>
   isEdit.value
-    ? t('governance-page.edit-entity', { entity: t('menu.capital-asset') })
-    : t('governance-page.add-entity', { entity: t('menu.capital-asset') })
+    ? t('governance-page.edit-entity', { entity: t('menu.sustainability-asset') })
+    : t('governance-page.add-entity', { entity: t('menu.sustainability-asset') })
 );
 
 const assetTypeOptions = computed(() =>
@@ -236,8 +236,8 @@ async function onSubmit(values: {
     if (result?.result) {
       toast(
         isEdit.value
-          ? t('governance-page.edit-success', { entity: t('menu.capital-asset') })
-          : t('governance-page.add-success', { entity: t('menu.capital-asset') }),
+          ? t('governance-page.edit-success', { entity: t('menu.sustainability-asset') })
+          : t('governance-page.add-success', { entity: t('menu.sustainability-asset') }),
         { type: 'success' }
       );
       emit('success');
@@ -247,8 +247,8 @@ async function onSubmit(values: {
         String(
           result?.error ??
             (isEdit.value
-              ? t('governance-page.edit-error', { entity: t('menu.capital-asset') })
-              : t('governance-page.add-error', { entity: t('menu.capital-asset') }))
+              ? t('governance-page.edit-error', { entity: t('menu.sustainability-asset') })
+              : t('governance-page.add-error', { entity: t('menu.sustainability-asset') }))
         ),
         { type: 'error' }
       );
@@ -258,8 +258,8 @@ async function onSubmit(values: {
       e instanceof Error
         ? e.message
         : isEdit.value
-          ? t('governance-page.edit-error', { entity: t('menu.capital-asset') })
-          : t('governance-page.add-error', { entity: t('menu.capital-asset') }),
+          ? t('governance-page.edit-error', { entity: t('menu.sustainability-asset') })
+          : t('governance-page.add-error', { entity: t('menu.sustainability-asset') }),
       { type: 'error' }
     );
   } finally {

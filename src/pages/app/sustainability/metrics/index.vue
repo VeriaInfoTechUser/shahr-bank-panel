@@ -36,7 +36,7 @@ const table = useDataTable({
   columns: [
     createColumn({
       key: 'number',
-      label: t('capital-metrics-page.col-number'),
+      label: t('sustainability-metrics-page.col-number'),
       sortable: false,
       bodyCell: (row) => pickStr(row, 'number'),
     }),
@@ -48,29 +48,29 @@ const table = useDataTable({
     }),
     createColumn({
       key: 'categoryTitle',
-      label: t('capital-metrics-page.col-category'),
+      label: t('sustainability-metrics-page.col-category'),
       sortable: false,
       bodyCell: (row) => pickStr(row, 'categoryTitle'),
     }),
     createColumn({
       key: 'categorySubTitle',
-      label: t('capital-metrics-page.col-subcategory'),
+      label: t('sustainability-metrics-page.col-subcategory'),
       sortable: false,
       bodyCell: (row) => pickStr(row, 'categorySubTitle'),
     }),
     createColumn({
       key: 'industries',
-      label: t('capital-metrics-page.col-industries'),
+      label: t('sustainability-metrics-page.col-industries'),
       sortable: false,
     }),
     createColumn({
       key: 'metricRole',
-      label: t('capital-metrics-page.col-metric-role'),
+      label: t('sustainability-metrics-page.col-metric-role'),
       sortable: false,
     }),
     createColumn({
       key: 'calculationType',
-      label: t('capital-metrics-page.col-calculation-type'),
+      label: t('sustainability-metrics-page.col-calculation-type'),
       sortable: false,
       bodyCell: (row) => {
         const v = row.calculationType;
@@ -80,12 +80,12 @@ const table = useDataTable({
     }),
     createColumn({
       key: 'hasSubAssets',
-      label: t('capital-metrics-page.has-sub-assets'),
+      label: t('sustainability-metrics-page.has-sub-assets'),
       sortable: false,
     }),
     createColumn({
       key: 'sourceAssetType',
-      label: t('capital-metrics-page.col-source-asset'),
+      label: t('sustainability-metrics-page.col-source-asset'),
       sortable: false,
       bodyCell: (row) => {
         const v = row.sourceAssetType;
@@ -96,7 +96,7 @@ const table = useDataTable({
   ],
   selectable: false,
   exportEnabled: true,
-  cacheKey: 'capital-metrics-list',
+  cacheKey: 'sustainability-metrics-list',
   listCacheStaleTime: 0,
 });
 
@@ -114,7 +114,7 @@ function metricRoleClass(role: unknown): string {
 function goToDetail(row: Record<string, unknown>) {
   const slug = String(row.slug ?? '');
   if (slug) {
-    router.push({ name: 'app-capital-metrics-detail', params: { slug } });
+    router.push({ name: 'app-sustainability-metrics-detail', params: { slug } });
   }
 }
 
@@ -173,8 +173,8 @@ onMounted(() => {
               variant="outline-secondary"
               size="sm"
               class="!h-7 !w-7 !px-0 !py-0"
-              :aria-label="t('capital-metrics-page.view-detail')"
-              :title="t('capital-metrics-page.view-detail')"
+              :aria-label="t('sustainability-metrics-page.view-detail')"
+              :title="t('sustainability-metrics-page.view-detail')"
               @click.stop="goToDetail(row)"
             >
               <Lucide icon="Eye" class="!h-3.5 !w-3.5" />

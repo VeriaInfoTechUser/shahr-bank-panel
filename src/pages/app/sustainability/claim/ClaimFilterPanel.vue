@@ -5,7 +5,7 @@ import { Form } from 'vee-validate';
 import { useI18n } from 'vue-i18n';
 import BaseInput from '@/core/ui/base/BaseInput.vue';
 import BaseMultiSelect from '@/core/ui/base/BaseMultiSelect.vue';
-import IndicatorFilterAutoApply from './IndicatorFilterAutoApply.vue';
+import ClaimFilterAutoApply from './ClaimFilterAutoApply.vue';
 
 const props = withDefaults(
   defineProps<{
@@ -28,11 +28,11 @@ const emit = defineEmits<{
 
 const { t } = useI18n();
 const formKey = ref(0);
-const formId = 'indicator-filter-form';
+const formId = 'claim-filter-form';
 
 const statusOptions = computed(() => [
-  { value: '1', label: t('capital-indicator-page.status-active') },
-  { value: '0', label: t('capital-indicator-page.status-inactive') },
+  { value: '1', label: t('sustainability-claim-page.status-active') },
+  { value: '0', label: t('sustainability-claim-page.status-inactive') },
 ]);
 
 function apiFiltersToFormValues(f: Record<string, unknown> | undefined | null) {
@@ -88,7 +88,7 @@ function onAutoApply(payload: Record<string, unknown>) {
       :initial-values="formInitialValues"
       as="div"
     >
-      <IndicatorFilterAutoApply
+      <ClaimFilterAutoApply
         :build-payload="buildPayload"
         @apply="onAutoApply"
       />
@@ -96,12 +96,12 @@ function onAutoApply(payload: Record<string, unknown>) {
         <BaseInput
           name="title"
           compact-label
-          :label="t('capital-indicator-page.filter-field-title')"
+          :label="t('sustainability-claim-page.filter-field-title')"
         />
         <BaseMultiSelect
           name="status"
           compact-label
-          :label="t('capital-indicator-page.filter-field-status')"
+          :label="t('sustainability-claim-page.filter-field-status')"
           :options="statusOptions"
           placeholder=""
         />

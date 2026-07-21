@@ -4,14 +4,15 @@ import { computed, nextTick, onUnmounted, ref, toValue, watch } from 'vue';
 import { useElementBounding, onClickOutside, useEventListener } from '@vueuse/core';
 import { useI18n } from 'vue-i18n';
 import Lucide from '@/base-components/Lucide';
-import CapitalMetricsFilterPanel from './CapitalMetricsFilterPanel.vue';
+import ClaimFilterPanel from './ClaimFilterPanel.vue';
 import {
-  CAPITAL_METRICS_FILTER_PARAM_LABEL_KEYS,
-  getActiveCapitalMetricsFilterKeys,
-  type CapitalMetricsFilterParamKey,
-} from './capitalMetricsFilterToolbarKeys';
+  CLAIM_FILTER_PARAM_LABEL_KEYS,
+  getActiveClaimFilterKeys,
+  type ClaimFilterParamKey,
+} from './claimFilterToolbarKeys';
 
 const props = defineProps<{
+  onAdd?: () => void;
   onExport?: () => void;
   table: {
     replaceFilters: (f: Record<string, unknown>) => void;
@@ -27,8 +28,8 @@ const filterToolbarClearTick = ref(0);
 
 const hasActiveFilters = computed(() => Object.keys(toValue(props.table.filters) ?? {}).length > 0);
 
-const activeFilterKeys = computed((): CapitalMetricsFilterParamKey[] =>
-  getActiveCapitalMetricsFilterKeys(toValue(props.table.filters) ?? {})
+const activeFilterKeys = computed((): ClaimFilterParamKey[] =>
+  getActiveClaimFilterKeys(toValue(props.table.filters) ?? {})
 );
 
 function clearFiltersFromToolbar() {
@@ -36,7 +37,7 @@ function clearFiltersFromToolbar() {
   filterToolbarClearTick.value += 1;
 }
 
-function removeFilterParam(key: CapitalMetricsFilterParamKey) {
+function removeFilterParam(key: ClaimFilterParamKey) {
   const f = { ...(toValue(props.table.filters) ?? {}) };
   delete f[key];
   props.table.replaceFilters(f);
@@ -114,9 +115,21 @@ useEventListener(document, 'keydown', (e: KeyboardEvent) => {
   <div class="relative flex flex-shrink-0 flex-wrap items-center gap-1.5" dir="ltr">
     <button
       type="button"
+      class="inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-md border border-primary bg-primary text-white shadow-sm transition hover:opacity-90 dark:border-primary dark:bg-primary dark:hover:opacity-90"
+      :aria-label="t('sustainability-claim-page.toolbar-add')"
+      :title="t('sustainability-claim-page.toolbar-add')"
+      @click="props.onAdd?.()"
+    >
+      <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="12" y1="5" x2="12" y2="19" />
+        <line x1="5" y1="12" x2="19" y2="12" />
+      </svg>
+    </button>
+    <button
+      type="button"
       class="inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-md border border-slate-200 bg-white text-slate-600 shadow-sm transition hover:bg-slate-50 hover:text-slate-800 dark:border-darkmode-600 dark:bg-darkmode-800 dark:text-slate-300 dark:hover:bg-darkmode-700 dark:hover:text-slate-100"
-      :aria-label="t('capital-metrics-page.toolbar-export')"
-      :title="t('capital-metrics-page.toolbar-export')"
+      :aria-label="t('sustainability-claim-page.toolbar-export')"
+      :title="t('sustainability-claim-page.toolbar-export')"
       @click="props.onExport?.()"
     >
       <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -135,9 +148,9 @@ useEventListener(document, 'keydown', (e: KeyboardEvent) => {
           ref="filterBtnRef"
           type="button"
           class="inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-md border border-slate-200 bg-white text-slate-600 shadow-sm transition hover:bg-slate-50 hover:text-primary dark:border-darkmode-600 dark:bg-darkmode-800 dark:text-slate-300 dark:hover:bg-darkmode-700 dark:hover:text-primary"
-          :aria-label="t('capital-metrics-page.toolbar-filter')"
+          :aria-label="t('sustainability-claim-page.toolbar-filter')"
           :aria-expanded="filterOpen"
-          :title="t('capital-metrics-page.toolbar-filter')"
+          :title="t('sustainability-claim-page.toolbar-filter')"
           @click="toggleFilter"
         >
           <Lucide icon="Filter" class="h-4 w-4" />
@@ -146,11 +159,11 @@ useEventListener(document, 'keydown', (e: KeyboardEvent) => {
           v-if="hasActiveFilters"
           type="button"
           class="inline-flex h-8 max-w-[min(100%,12rem)] shrink-0 items-center rounded-md border border-slate-200 bg-white px-2 text-xs font-medium text-slate-600 shadow-sm transition hover:bg-slate-50 hover:text-primary dark:border-darkmode-600 dark:bg-darkmode-800 dark:text-slate-300 dark:hover:bg-darkmode-700 dark:hover:text-primary"
-          :aria-label="t('capital-metrics-page.toolbar-clear-filters')"
-          :title="t('capital-metrics-page.toolbar-clear-filters')"
+          :aria-label="t('sustainability-claim-page.toolbar-clear-filters')"
+          :title="t('sustainability-claim-page.toolbar-clear-filters')"
           @click="clearFiltersFromToolbar"
         >
-          <span class="truncate">{{ t('capital-metrics-page.toolbar-clear-filters') }}</span>
+          <span class="truncate">{{ t('sustainability-claim-page.toolbar-clear-filters') }}</span>
         </button>
       </div>
       <div
@@ -167,17 +180,17 @@ useEventListener(document, 'keydown', (e: KeyboardEvent) => {
             :key="key"
             class="inline-flex max-w-[11rem] items-center gap-0.5 rounded-full border border-slate-200 bg-slate-50 py-0.5 pl-2 pr-0.5 text-[11px] font-medium text-slate-700 shadow-sm dark:border-darkmode-600 dark:bg-darkmode-700/80 dark:text-slate-200"
           >
-            <span class="min-w-0 truncate" :title="t(CAPITAL_METRICS_FILTER_PARAM_LABEL_KEYS[key])">{{
-              t(CAPITAL_METRICS_FILTER_PARAM_LABEL_KEYS[key])
+            <span class="min-w-0 truncate" :title="t(CLAIM_FILTER_PARAM_LABEL_KEYS[key])">{{
+              t(CLAIM_FILTER_PARAM_LABEL_KEYS[key])
             }}</span>
             <button
               type="button"
               class="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-slate-500 transition hover:bg-slate-200 hover:text-slate-900 dark:hover:bg-darkmode-600 dark:hover:text-slate-100"
               :aria-label="
-                t('capital-metrics-page.filter-badge-remove-aria', { label: t(CAPITAL_METRICS_FILTER_PARAM_LABEL_KEYS[key]) })
+                t('sustainability-claim-page.filter-badge-remove-aria', { label: t(CLAIM_FILTER_PARAM_LABEL_KEYS[key]) })
               "
               :title="
-                t('capital-metrics-page.filter-badge-remove-aria', { label: t(CAPITAL_METRICS_FILTER_PARAM_LABEL_KEYS[key]) })
+                t('sustainability-claim-page.filter-badge-remove-aria', { label: t(CLAIM_FILTER_PARAM_LABEL_KEYS[key]) })
               "
               @click.stop="removeFilterParam(key)"
             >
@@ -189,7 +202,7 @@ useEventListener(document, 'keydown', (e: KeyboardEvent) => {
     </div>
 
     <Teleport to="body">
-      <Transition name="capital-metrics-filter-pop">
+      <Transition name="claim-filter-pop">
         <div
           v-if="filterOpen"
           class="fixed inset-0 z-[1099] bg-slate-900/10 dark:bg-black/25"
@@ -197,7 +210,7 @@ useEventListener(document, 'keydown', (e: KeyboardEvent) => {
           @click="closeFilter"
         />
       </Transition>
-      <Transition name="capital-metrics-filter-pop">
+      <Transition name="claim-filter-pop">
         <div
           v-if="filterOpen"
           ref="popoverRef"
@@ -205,10 +218,10 @@ useEventListener(document, 'keydown', (e: KeyboardEvent) => {
           :style="popoverStyle"
           role="dialog"
           aria-modal="true"
-          :aria-label="t('capital-metrics-page.filter-panel-title')"
+          :aria-label="t('sustainability-claim-page.filter-panel-title')"
           @click.stop
         >
-          <CapitalMetricsFilterPanel
+          <ClaimFilterPanel
             :table="table"
             :toolbar-clear-tick="filterToolbarClearTick"
           />
@@ -219,12 +232,12 @@ useEventListener(document, 'keydown', (e: KeyboardEvent) => {
 </template>
 
 <style scoped>
-.capital-metrics-filter-pop-enter-active,
-.capital-metrics-filter-pop-leave-active {
+.claim-filter-pop-enter-active,
+.claim-filter-pop-leave-active {
   transition: opacity 0.15s ease;
 }
-.capital-metrics-filter-pop-enter-from,
-.capital-metrics-filter-pop-leave-to {
+.claim-filter-pop-enter-from,
+.claim-filter-pop-leave-to {
   opacity: 0;
 }
 </style>

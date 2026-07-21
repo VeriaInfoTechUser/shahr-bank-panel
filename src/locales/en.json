@@ -614,15 +614,15 @@
     "esg-social": "Social",
     "esg-environment": "Environment",
     "esg-report": "Report",
-    "capital": "Capital",
-    "capital-metrics": "Metrics",
-    "capital-metrics-detail": "Metric Detail",
-    "capital-asset": "Asset",
-    "capital-category": "Category",
-    "capital-structure": "Structure",
-    "capital-claim": "Claim",
-    "capital-indicator": "Indicator",
-    "capital-graph": "Graph",
+    "sustainability": "Sustainability",
+    "sustainability-metrics": "Metrics",
+    "sustainability-metrics-detail": "Metric Detail",
+    "sustainability-asset": "Asset",
+    "sustainability-category": "Category",
+    "sustainability-fundamental-capitals": "Fundamental Capitals",
+    "sustainability-claim": "Claim",
+    "sustainability-indicator": "Indicator",
+    "sustainability-graph": "Sustainability Tree",
     "reports": "Reports",
     "reports-baseline": "Baseline Report",
     "reports-comparative": "Comparative Report",
@@ -1057,7 +1057,7 @@
     "status-active": "Active",
     "status-inactive": "Inactive"
   },
-  "capital-metrics-page": {
+  "sustainability-metrics-page": {
     "col-number": "Number",
     "col-metric-type": "Metric Type",
     "col-unit": "Unit",
@@ -1106,7 +1106,7 @@
     "toolbar-export": "Export",
     "filter-badge-remove-aria": "Remove filter {{label}}"
   },
-  "capital-structure-page": {
+  "sustainability-fundamental-capitals-page": {
     "edit": "Edit Structure",
     "add-child": "Add Child",
     "add-root": "Add Structure",
@@ -1126,7 +1126,7 @@
     "count-singular": "item",
     "count-plural": "items"
   },
-  "capital-claim-page": {
+  "sustainability-claim-page": {
     "add": "Add Claim",
     "edit": "Edit Claim",
     "col-slug": "Slug",
@@ -1154,7 +1154,7 @@
     "filter-field-status": "Status",
     "filter-badge-remove-aria": "Remove filter {{label}}"
   },
-  "capital-indicator-page": {
+  "sustainability-indicator-page": {
     "add": "Add Indicator",
     "edit": "Edit Indicator",
     "col-slug": "Slug",
@@ -1182,14 +1182,14 @@
     "filter-field-status": "Status",
     "filter-badge-remove-aria": "Remove filter {{label}}"
   },
-  "capital-graph-page": {
+  "sustainability-graph-page": {
     "loading": "Loading graph...",
     "error-title": "Error loading data",
     "error-message": "Unable to load graph data.",
     "retry": "Retry",
     "collapse-all": "Collapse All",
     "expand-all": "Expand All",
-    "type-capital": "Capital",
+    "type-sustainability": "Sustainability",
     "type-domain": "Domain",
     "type-component": "Component",
     "type-capability": "Capability",

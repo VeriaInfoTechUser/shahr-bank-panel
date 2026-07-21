@@ -39,7 +39,7 @@ const isEdit = computed(() => {
 });
 
 const modalTitle = computed(() => {
-  return isEdit.value ? t('capital-indicator-page.edit') : t('capital-indicator-page.add');
+  return isEdit.value ? t('sustainability-claim-page.edit') : t('sustainability-claim-page.add');
 });
 
 const initialValues = ref({ slug: '', title: '', description: '', number: '' });
@@ -49,7 +49,7 @@ const validationSchema = computed(() =>
     slug: yup
       .string()
       .trim()
-      .required(t('capital-indicator-page.validation-slug')),
+      .required(t('sustainability-claim-page.validation-slug')),
     title: yup.string().trim().optional(),
     description: yup.string().trim().optional(),
     number: yup.string().trim().optional(),
@@ -127,16 +127,16 @@ async function onSubmit(values: { slug?: string; title?: string; description?: s
     let result;
     if (isEdit.value && props.record) {
       const existingSlug = String(props.record.slug ?? '');
-      result = await grcRepo.indicatorUpdate(existingSlug, { slug, title, description, number });
+      result = await grcRepo.claimUpdate(existingSlug, { slug, title, description, number });
     } else {
-      result = await grcRepo.indicatorCreate({ slug, title, description, number, status: 1 });
+      result = await grcRepo.claimCreate({ slug, title, description, number, status: 1 });
     }
 
     if (result?.result) {
       toast(
         isEdit.value
-          ? t('capital-indicator-page.edit-success')
-          : t('capital-indicator-page.add-success'),
+          ? t('sustainability-claim-page.edit-success')
+          : t('sustainability-claim-page.add-success'),
         { type: 'success' }
       );
       emit('success');
@@ -146,8 +146,8 @@ async function onSubmit(values: { slug?: string; title?: string; description?: s
         String(
           result?.error ??
             (isEdit.value
-              ? t('capital-indicator-page.edit-error')
-              : t('capital-indicator-page.add-error'))
+              ? t('sustainability-claim-page.edit-error')
+              : t('sustainability-claim-page.add-error'))
         ),
         { type: 'error' }
       );
@@ -157,8 +157,8 @@ async function onSubmit(values: { slug?: string; title?: string; description?: s
       e instanceof Error
         ? e.message
         : isEdit.value
-          ? t('capital-indicator-page.edit-error')
-          : t('capital-indicator-page.add-error'),
+          ? t('sustainability-claim-page.edit-error')
+          : t('sustainability-claim-page.add-error'),
       { type: 'error' }
     );
   } finally {
@@ -175,7 +175,7 @@ async function onSubmit(values: { slug?: string; title?: string; description?: s
     @update:visible="onDialogVisible"
   >
     <Form
-      id="indicator-form"
+      id="claim-form"
       :key="formKey"
       ref="formRef"
       :validation-schema="validationSchema"
@@ -186,7 +186,7 @@ async function onSubmit(values: { slug?: string; title?: string; description?: s
       <div data-autofocus-modal>
         <BaseInput
           name="slug"
-          :label="t('capital-indicator-page.col-slug')"
+          :label="t('sustainability-claim-page.col-slug')"
           type="text"
           required
           autofocus
@@ -194,17 +194,17 @@ async function onSubmit(values: { slug?: string; title?: string; description?: s
         />
         <BaseInput
           name="title"
-          :label="t('capital-indicator-page.col-title')"
+          :label="t('sustainability-claim-page.col-title')"
           type="text"
         />
         <BaseInput
           name="number"
-          :label="t('capital-indicator-page.col-number')"
+          :label="t('sustainability-claim-page.col-number')"
           type="text"
         />
         <BaseInput
           name="description"
-          :label="t('capital-indicator-page.col-description')"
+          :label="t('sustainability-claim-page.col-description')"
           type="textarea"
         />
       </div>
@@ -226,7 +226,7 @@ async function onSubmit(values: { slug?: string; title?: string; description?: s
           variant="primary"
           size="sm"
           class="!rounded-lg !shadow-md !shadow-primary/20"
-          form="indicator-form"
+          form="claim-form"
           :disabled="saving"
         >
           {{ isEdit ? t('rule.form-edit-submit') : t('rule.form-submit') }}

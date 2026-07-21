@@ -80,20 +80,20 @@ function onDelete(record: CapitalNode) {
   openModal({
     component: BaseConfirmModal,
     props: {
-      title: t('capital-structure-page.delete-title'),
-      message: t('capital-structure-page.delete-message', { title: record.title }),
+      title: t('sustainability-fundamental-capitals-page.delete-title'),
+      message: t('sustainability-fundamental-capitals-page.delete-message', { title: record.title }),
       confirmVariant: 'danger' as const,
       onConfirmAction: async () => {
         const res = await grcRepo.capitalDelete(record.slug);
         if (!res?.result) {
-          const msg = String(res?.error ?? t('capital-structure-page.delete-error'));
+          const msg = String(res?.error ?? t('sustainability-fundamental-capitals-page.delete-error'));
           toast(msg, { type: 'error' });
           throw new Error(msg);
         }
       },
     },
     onSuccess: () => {
-      toast(t('capital-structure-page.delete-success'), { type: 'success' });
+      toast(t('sustainability-fundamental-capitals-page.delete-success'), { type: 'success' });
       void fetchTree();
     },
   });
@@ -117,10 +117,10 @@ onMounted(() => {
               </div>
               <div>
                 <h1 class="text-lg font-semibold text-slate-800 dark:text-slate-100">
-                  {{ t('menu.capital-structure') }}
+                  {{ t('menu.sustainability-fundamental-capitals') }}
                 </h1>
                 <p class="text-sm text-slate-500 dark:text-slate-400">
-                  {{ tree.length }} {{ tree.length === 1 ? t('capital-structure-page.count-singular') : t('capital-structure-page.count-plural') }}
+                  {{ tree.length }} {{ tree.length === 1 ? t('sustainability-fundamental-capitals-page.count-singular') : t('sustainability-fundamental-capitals-page.count-plural') }}
                 </p>
               </div>
             </div>
@@ -132,7 +132,7 @@ onMounted(() => {
               @click="onAddRoot"
             >
               <Lucide icon="Plus" class="!h-4 !w-4" />
-              {{ t('capital-structure-page.add-root') }}
+              {{ t('sustainability-fundamental-capitals-page.add-root') }}
             </Button>
           </div>
         </div>
@@ -213,7 +213,7 @@ onMounted(() => {
                     <button
                       type="button"
                       class="flex h-7 w-7 items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-primary/10 hover:text-primary dark:hover:bg-primary/20"
-                      :title="t('capital-structure-page.add-child')"
+                      :title="t('sustainability-fundamental-capitals-page.add-child')"
                       @click.stop="onAddChild(node.slug, node.title)"
                     >
                       <Lucide icon="Plus" class="h-3.5 w-3.5" />
@@ -285,7 +285,7 @@ onMounted(() => {
                           <button
                             type="button"
                             class="flex h-6 w-6 items-center justify-center rounded-md text-slate-400 transition-colors hover:bg-primary/10 hover:text-primary dark:hover:bg-primary/20"
-                            :title="t('capital-structure-page.add-child')"
+                            :title="t('sustainability-fundamental-capitals-page.add-child')"
                             @click.stop="onAddChild(child.slug, child.title)"
                           >
                             <Lucide icon="Plus" class="h-3 w-3" />
@@ -356,7 +356,7 @@ onMounted(() => {
                               <button
                                 type="button"
                                 class="flex h-6 w-6 items-center justify-center rounded-md text-slate-400 transition-colors hover:bg-primary/10 hover:text-primary dark:hover:bg-primary/20"
-                                :title="t('capital-structure-page.add-child')"
+                                :title="t('sustainability-fundamental-capitals-page.add-child')"
                                 @click.stop="onAddChild(grandchild.slug, grandchild.title)"
                               >
                                 <Lucide icon="Plus" class="h-3 w-3" />

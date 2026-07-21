@@ -42,38 +42,38 @@ const table = useDataTable({
   columns: [
     createColumn({
       key: 'slug',
-      label: t('capital-claim-page.col-slug'),
+      label: t('sustainability-claim-page.col-slug'),
       sortable: false,
       bodyCell: (row) => pickStr(row, 'slug'),
     }),
     createColumn({
       key: 'title',
-      label: t('capital-claim-page.col-title'),
+      label: t('sustainability-claim-page.col-title'),
       sortable: false,
       bodyCell: (row) => pickStr(row, 'title', 'name'),
     }),
     createColumn({
       key: 'number',
-      label: t('capital-claim-page.col-number'),
+      label: t('sustainability-claim-page.col-number'),
       sortable: false,
       bodyCell: (row) => pickStr(row, 'number'),
     }),
     createColumn({
       key: 'status',
-      label: t('capital-claim-page.col-status'),
+      label: t('sustainability-claim-page.col-status'),
       sortable: false,
-      bodyCell: (row) => row.status === 1 ? t('capital-claim-page.status-active') : t('capital-claim-page.status-inactive'),
+      bodyCell: (row) => row.status === 1 ? t('sustainability-claim-page.status-active') : t('sustainability-claim-page.status-inactive'),
     }),
     createColumn({
       key: 'description',
-      label: t('capital-claim-page.col-description'),
+      label: t('sustainability-claim-page.col-description'),
       sortable: false,
       bodyCell: (row) => pickStr(row, 'description', 'summary'),
     }),
   ],
   selectable: false,
   exportEnabled: true,
-  cacheKey: 'capital-claims-list',
+  cacheKey: 'sustainability-claims-list',
   listCacheStaleTime: 0,
 });
 
@@ -94,19 +94,19 @@ function onDeleteClaim(row: Record<string, unknown>) {
   openModal({
     component: BaseConfirmModal,
     props: {
-      titleKey: 'capital-claim-page.delete-title',
-      messageKey: 'capital-claim-page.delete-message',
+      titleKey: 'sustainability-claim-page.delete-title',
+      messageKey: 'sustainability-claim-page.delete-message',
       messageParams: { title: pickStr(row, 'title', 'slug') },
       confirmVariant: 'danger' as const,
       onConfirmAction: async () => {
         const slug = String(row.slug ?? '');
         if (!slug) {
-          const msg = t('capital-claim-page.delete-error');
+          const msg = t('sustainability-claim-page.delete-error');
           throw new Error(msg);
         }
         const res = await grcRepo.claimDelete(slug);
         if (!res?.result) {
-          const msg = String(res?.error ?? t('capital-claim-page.delete-error'));
+          const msg = String(res?.error ?? t('sustainability-claim-page.delete-error'));
           throw new Error(msg);
         }
       },

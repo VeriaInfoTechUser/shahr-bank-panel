@@ -3,8 +3,8 @@ export const INDICATOR_FILTER_PARAM_ORDER = ['title', 'status'] as const;
 export type IndicatorFilterParamKey = (typeof INDICATOR_FILTER_PARAM_ORDER)[number];
 
 export const INDICATOR_FILTER_PARAM_LABEL_KEYS: Record<IndicatorFilterParamKey, string> = {
-  title: 'capital-indicator-page.filter-field-title',
-  status: 'capital-indicator-page.filter-field-status',
+  title: 'sustainability-indicator-page.filter-field-title',
+  status: 'sustainability-indicator-page.filter-field-status',
 };
 
 export function isIndicatorFilterValueSet(value: unknown): boolean {

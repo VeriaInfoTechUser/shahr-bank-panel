@@ -27,7 +27,7 @@ const contentList = ref([]);
 const dataLoadingFlag = ref(true);
 const pageOptions = ref({
   count: 0,
-  limit: 10,
+  limit: 25,
   page: 1,
 });
 const showContentDialogFlag = shallowRef(false);

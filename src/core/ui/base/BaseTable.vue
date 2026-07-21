@@ -68,7 +68,7 @@ const props = withDefaults(
     loading: false,
     total: 0,
     page: 1,
-    limit: 10,
+    limit: 25,
     search: '',
     selected: () => [],
     selectable: false,
@@ -81,7 +81,7 @@ const props = withDefaults(
     showSearch: true,
     searchPlaceholder: 'Search...',
     stickyHeader: true,
-    rowsPerPageOptions: () => [10, 20, 50],
+    rowsPerPageOptions: () => [10, 25, 50],
     sortField: null,
     sortOrder: 1,
   }

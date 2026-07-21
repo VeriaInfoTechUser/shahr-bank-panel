@@ -11,7 +11,7 @@ const fetchError = ref(false)
 const currentProfileLogList = ref([]) 
 const pageOptions = ref({
   count: 1,
-  limit: 10,
+  limit: 25,
   page: 1
 })
 

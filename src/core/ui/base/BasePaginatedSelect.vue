@@ -24,7 +24,7 @@ const props = withDefaults(
     compactLabel?: boolean;
   }>(),
   {
-    limit: 10,
+    limit: 25,
     search: false,
     required: false,
     disabled: false,

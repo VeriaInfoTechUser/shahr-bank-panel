@@ -3,10 +3,8 @@ import { ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useDataTable, createColumn, type FetchFn } from '@core';
 import BaseTable from '@core/ui/base/BaseTable.vue';
-import BaseConfirmModal from '@/core/ui/base/BaseConfirmModal.vue';
 import { grcRepo } from '@/core/repositories/grcRepo';
 import { useBreadcrumbSlot } from '@/composables/useBreadcrumb';
-import { useGlobalModal } from '@/composables/useGlobalModal';
 import Button from '@/base-components/Button';
 import Lucide from '@/base-components/Lucide';
 import ClaimFormModal from './ClaimFormModal.vue';
@@ -14,7 +12,6 @@ import ClaimBreadcrumbToolbar from './ClaimBreadcrumbToolbar.vue';
 
 const { t } = useI18n();
 const { setContent: setBreadcrumbSlot } = useBreadcrumbSlot();
-const { openModal } = useGlobalModal();
 
 const showAddModal = ref(false);
 const showEditModal = ref(false);
@@ -50,25 +47,40 @@ const table = useDataTable({
       key: 'title',
       label: t('sustainability-claim-page.col-title'),
       sortable: false,
-      bodyCell: (row) => pickStr(row, 'title', 'name'),
+      bodyCell: (row) => pickStr(row, 'title'),
     }),
     createColumn({
-      key: 'number',
-      label: t('sustainability-claim-page.col-number'),
+      key: 'claimType',
+      label: t('sustainability-claim-page.col-claim-type'),
       sortable: false,
-      bodyCell: (row) => pickStr(row, 'number'),
+      bodyCell: (row) => {
+        const info = row.information as Record<string, unknown> | undefined;
+        return info ? pickStr(info, 'claimTypeName') : '—';
+      },
     }),
     createColumn({
-      key: 'status',
-      label: t('sustainability-claim-page.col-status'),
+      key: 'domain',
+      label: t('sustainability-claim-page.col-domain'),
       sortable: false,
-      bodyCell: (row) => row.status === 1 ? t('sustainability-claim-page.status-active') : t('sustainability-claim-page.status-inactive'),
+      bodyCell: (row) => pickStr(row, 'domainTitle'),
     }),
     createColumn({
-      key: 'description',
-      label: t('sustainability-claim-page.col-description'),
+      key: 'capital',
+      label: t('sustainability-claim-page.col-capital'),
       sortable: false,
-      bodyCell: (row) => pickStr(row, 'description', 'summary'),
+      bodyCell: (row) => {
+        const info = row.information as Record<string, unknown> | undefined;
+        return info ? pickStr(info, 'capitalTitle') : '—';
+      },
+    }),
+    createColumn({
+      key: 'capability',
+      label: t('sustainability-claim-page.col-capability'),
+      sortable: false,
+      bodyCell: (row) => {
+        const info = row.information as Record<string, unknown> | undefined;
+        return info ? pickStr(info, 'capabilityTitle') : '—';
+      },
     }),
   ],
   selectable: false,
@@ -88,34 +100,6 @@ function onAddClaim() {
 function onEditClaim(row: Record<string, unknown>) {
   selectedClaim.value = row;
   showEditModal.value = true;
-}
-
-function onDeleteClaim(row: Record<string, unknown>) {
-  openModal({
-    component: BaseConfirmModal,
-    props: {
-      titleKey: 'sustainability-claim-page.delete-title',
-      messageKey: 'sustainability-claim-page.delete-message',
-      messageParams: { title: pickStr(row, 'title', 'slug') },
-      confirmVariant: 'danger' as const,
-      onConfirmAction: async () => {
-        const slug = String(row.slug ?? '');
-        if (!slug) {
-          const msg = t('sustainability-claim-page.delete-error');
-          throw new Error(msg);
-        }
-        const res = await grcRepo.claimDelete(slug);
-        if (!res?.result) {
-          const msg = String(res?.error ?? t('sustainability-claim-page.delete-error'));
-          throw new Error(msg);
-        }
-      },
-    },
-    onSuccess: () => {
-      table.invalidateListCache();
-      void table.fetch();
-    },
-  });
 }
 
 function onModalSuccess() {
@@ -159,17 +143,6 @@ onMounted(() => {
               @click.stop="onEditClaim(row)"
             >
               <Lucide icon="Pencil" class="!h-3.5 !w-3.5" />
-            </Button>
-            <Button
-              type="button"
-              variant="outline-danger"
-              size="sm"
-              class="!h-7 !w-7 !px-0 !py-0"
-              :aria-label="t('general.delete')"
-              :title="t('general.delete')"
-              @click.stop="onDeleteClaim(row)"
-            >
-              <Lucide icon="Trash2" class="!h-3.5 !w-3.5" />
             </Button>
           </div>
         </template>

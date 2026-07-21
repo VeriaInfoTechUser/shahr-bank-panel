@@ -222,6 +222,11 @@ export const useSideMenuStore = defineStore("sideMenu", {
                 title: "menu.sustainability",
                 subMenu: [
                     {
+                        icon: "GitBranch",
+                        pageName: "app-sustainability-graph",
+                        title: "menu.sustainability-graph",
+                    },
+                    {
                         icon: "Network",
                         pageName: "app-sustainability-fundamental-capitals",
                         title: "menu.sustainability-fundamental-capitals",
@@ -240,11 +245,6 @@ export const useSideMenuStore = defineStore("sideMenu", {
                         icon: "Briefcase",
                         pageName: "app-sustainability-asset",
                         title: "menu.sustainability-asset",
-                    },
-                    {
-                        icon: "GitBranch",
-                        pageName: "app-sustainability-graph",
-                        title: "menu.sustainability-graph",
                     },
                 ],
             },

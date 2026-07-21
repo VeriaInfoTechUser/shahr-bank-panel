@@ -131,7 +131,6 @@ async function onSubmit(values: Record<string, unknown>) {
     if (isEdit.value && props.record) {
       const recordSlug = String(props.record.slug ?? '');
       result = await grcRepo.capitalUpdate(recordSlug, {
-        slug,
         title,
         titleEn,
         capitalType,
@@ -221,6 +220,7 @@ async function onSubmit(values: Record<string, unknown>) {
           :label="t('sustainability-fundamental-capitals-page.col-slug')"
           type="text"
           required
+          :disabled="isEdit"
           autofocus
         />
         <BaseInput

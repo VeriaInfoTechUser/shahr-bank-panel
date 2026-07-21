@@ -622,6 +622,7 @@
     "capital-structure": "Structure",
     "capital-claim": "Claim",
     "capital-indicator": "Indicator",
+    "capital-graph": "Graph",
     "reports": "Reports",
     "reports-baseline": "Baseline Report",
     "reports-comparative": "Comparative Report",
@@ -1180,6 +1181,20 @@
     "filter-field-title": "Title",
     "filter-field-status": "Status",
     "filter-badge-remove-aria": "Remove filter {{label}}"
+  },
+  "capital-graph-page": {
+    "loading": "Loading graph...",
+    "error-title": "Error loading data",
+    "error-message": "Unable to load graph data.",
+    "retry": "Retry",
+    "collapse-all": "Collapse All",
+    "expand-all": "Expand All",
+    "type-capital": "Capital",
+    "type-domain": "Domain",
+    "type-component": "Component",
+    "type-capability": "Capability",
+    "type-claim": "Claim",
+    "type-indicator": "Indicator"
   },
   "reports": {
     "period": "Time Period",

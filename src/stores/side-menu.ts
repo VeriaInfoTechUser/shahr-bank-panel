@@ -248,6 +248,11 @@ export const useSideMenuStore = defineStore("sideMenu", {
                         title: "menu.capital-indicator",
                     },
                     {
+                        icon: "GitBranch",
+                        pageName: "app-capital-graph",
+                        title: "menu.capital-graph",
+                    },
+                    {
                         icon: "Briefcase",
                         pageName: "app-capital-asset",
                         title: "menu.capital-asset",

@@ -458,6 +458,7 @@
     "capital-structure": "الهيكل",
     "capital-claim": "المطالبة",
     "capital-indicator": "المؤشر",
+    "capital-graph": "الرسم البياني",
     "reports": "التقارير",
     "reports-baseline": "تقرير المرجعية",
     "reports-comparative": "تقرير المقارنة",
@@ -937,6 +938,20 @@
     "filter-field-title": "العنوان",
     "filter-field-status": "الحالة",
     "filter-badge-remove-aria": "إزالة الفلتر {{label}}"
+  },
+  "capital-graph-page": {
+    "loading": "جارٍ تحميل الرسم البياني...",
+    "error-title": "خطأ في التحميل",
+    "error-message": "تعذّر تحميل بيانات الرسم البياني.",
+    "retry": "إعادة المحاولة",
+    "collapse-all": "طي الكل",
+    "expand-all": "توسيع الكل",
+    "type-capital": "رأس المال",
+    "type-domain": "المجال",
+    "type-component": "المكون",
+    "type-capability": "القدرة",
+    "type-claim": "المطالبة",
+    "type-indicator": "المؤشر"
   },
   "reports": {
     "period": "الفترة الزمنية",

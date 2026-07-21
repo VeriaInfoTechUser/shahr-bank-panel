@@ -643,6 +643,7 @@
     "capital-structure": "ساختار",
     "capital-claim": "ادعا",
     "capital-indicator": "شاخص",
+    "capital-graph": "گراف",
     "reports": "گزارش‌ها",
     "reports-baseline": "گزارش مبنا",
     "reports-comparative": "گزارش مقایسه‌ای",
@@ -1201,6 +1202,20 @@
     "filter-field-title": "عنوان",
     "filter-field-status": "وضعیت",
     "filter-badge-remove-aria": "حذف فیلتر {{label}}"
+  },
+  "capital-graph-page": {
+    "loading": "در حال بارگذاری گراف...",
+    "error-title": "خطا در بارگذاری",
+    "error-message": "امکان بارگذاری داده‌های گراف وجود ندارد.",
+    "retry": "تلاش مجدد",
+    "collapse-all": "بستن همه",
+    "expand-all": "باز کردن همه",
+    "type-capital": "سرمایه",
+    "type-domain": "حوزه",
+    "type-component": "مؤلفه",
+    "type-capability": "توانمندی",
+    "type-claim": "ادعا",
+    "type-indicator": "شاخص"
   },
   "reports": {
     "period": "دوره زمانی",

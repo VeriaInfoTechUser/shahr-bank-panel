@@ -60,6 +60,7 @@ import CapitalMetricsDetail from "@/pages/app/capital/metrics/detail/index.vue";
 import CapitalStructure from "@/pages/app/capital/structure/index.vue";
 import CapitalClaim from "@/pages/app/capital/claim/index.vue";
 import CapitalIndicator from "@/pages/app/capital/indicator/index.vue";
+import CapitalGraph from "@/pages/app/capital/graph/index.vue";
 import ReportsBaseline from "@/pages/app/reports/baseline/index.vue";
 import ReportsBaselineDetail from "@/pages/app/reports/baseline/detail/index.vue";
 import ReportsBaselineDashboard from "@/pages/app/reports/baseline/dashboard/index.vue";
@@ -539,6 +540,12 @@ const routes = [
                                 name: "app-capital-indicator",
                                 component: CapitalIndicator,
                                 meta: { breadcrumbLabel: 'menu.capital-indicator' },
+                            },
+                            {
+                                path: "graph",
+                                name: "app-capital-graph",
+                                component: CapitalGraph,
+                                meta: { breadcrumbLabel: 'menu.capital-graph' },
                             },
                             {
                                 path: "metrics",

@@ -1199,6 +1199,22 @@
     "filter-field-status": "Status",
     "filter-badge-remove-aria": "Remove filter {label}"
   },
+  "sustainability-asset-page": {
+    "col-title": "Title",
+    "col-capital": "Capital",
+    "col-domain": "Domain",
+    "col-component": "Component",
+    "col-capability": "Capability",
+    "col-claim": "Claim",
+    "col-indicator": "Indicator",
+    "col-asset-type": "Asset Type",
+    "filter-field-title": "Title",
+    "toolbar-export": "Export",
+    "toolbar-filter": "Filter",
+    "toolbar-clear-filters": "Clear Filters",
+    "filter-panel-title": "Assets Filter",
+    "filter-badge-remove-aria": "Remove filter {label}"
+  },
   "sustainability-graph-page": {
     "loading": "Loading graph...",
     "error-title": "Error loading data",

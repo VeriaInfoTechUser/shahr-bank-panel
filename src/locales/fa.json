@@ -1220,6 +1220,22 @@
     "filter-field-status": "وضعیت",
     "filter-badge-remove-aria": "حذف فیلتر {label}"
   },
+  "sustainability-asset-page": {
+    "col-title": "عنوان",
+    "col-capital": "سرمایه",
+    "col-domain": "حوزه",
+    "col-component": "مؤلفه",
+    "col-capability": "قابلیت",
+    "col-claim": "ادعا",
+    "col-indicator": "شاخص",
+    "col-asset-type": "نوع دارایی",
+    "filter-field-title": "عنوان",
+    "toolbar-export": "خروجی",
+    "toolbar-filter": "فیلتر",
+    "toolbar-clear-filters": "پاک کردن فیلترها",
+    "filter-panel-title": "فیلتر دارایی‌ها",
+    "filter-badge-remove-aria": "حذف فیلتر {label}"
+  },
   "sustainability-graph-page": {
     "loading": "در حال بارگذاری گراف...",
     "error-title": "خطا در بارگذاری",

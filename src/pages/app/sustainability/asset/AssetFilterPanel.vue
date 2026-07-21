@@ -4,10 +4,9 @@ import { computed, ref, toValue, watch } from 'vue';
 import { Form } from 'vee-validate';
 import { useI18n } from 'vue-i18n';
 import BaseInput from '@/core/ui/base/BaseInput.vue';
-import BaseMultiSelect from '@/core/ui/base/BaseMultiSelect.vue';
 import BasePaginatedMultiSelect from '@/core/ui/base/BasePaginatedMultiSelect.vue';
 import { grcRepo } from '@/core/repositories/grcRepo';
-import IndicatorFilterAutoApply from './IndicatorFilterAutoApply.vue';
+import AssetFilterAutoApply from './AssetFilterAutoApply.vue';
 
 const props = withDefaults(
   defineProps<{
@@ -30,14 +29,7 @@ const emit = defineEmits<{
 
 const { t } = useI18n();
 const formKey = ref(0);
-const formId = 'indicator-filter-form';
-
-const indicatorTypeOptions = computed(() => [
-  { value: 'KPI', label: 'KPI' },
-  { value: 'KRI', label: 'KRI' },
-  { value: 'KCI', label: 'KCI' },
-  { value: 'RES', label: 'RES' },
-]);
+const formId = 'asset-filter-form';
 
 async function fetchCapitals(params: { page: number; limit: number; search?: string }) {
   const res = await grcRepo.capitalTree({ ...params, level: 1 });
@@ -99,6 +91,18 @@ async function fetchClaims(params: { page: number; limit: number; search?: strin
   };
 }
 
+async function fetchIndicators(params: { page: number; limit: number; search?: string }) {
+  const res = await grcRepo.indicatorList(params);
+  const list = res?.data?.list ?? [];
+  return {
+    list: (Array.isArray(list) ? list : []).map((item: Record<string, unknown>) => ({
+      value: String(item.slug ?? ''),
+      label: String(item.title ?? ''),
+    })),
+    count: res?.data?.paginator?.count ?? 0,
+  };
+}
+
 function apiFiltersToFormValues(f: Record<string, unknown> | undefined | null) {
   const x = f ?? {};
   return {
@@ -108,7 +112,7 @@ function apiFiltersToFormValues(f: Record<string, unknown> | undefined | null) {
     componentSlug: Array.isArray(x.componentSlug) ? x.componentSlug.map(String) : x.componentSlug ? [String(x.componentSlug)] : [],
     capabilitySlug: Array.isArray(x.capabilitySlug) ? x.capabilitySlug.map(String) : x.capabilitySlug ? [String(x.capabilitySlug)] : [],
     claimSlug: Array.isArray(x.claimSlug) ? x.claimSlug.map(String) : x.claimSlug ? [String(x.claimSlug)] : [],
-    indicatorType: Array.isArray(x.indicatorType) ? x.indicatorType.map(String) : x.indicatorType ? [String(x.indicatorType)] : [],
+    indicatorSlug: Array.isArray(x.indicatorSlug) ? x.indicatorSlug.map(String) : x.indicatorSlug ? [String(x.indicatorSlug)] : [],
   };
 }
 
@@ -138,8 +142,8 @@ function buildPayload(values: Record<string, unknown>): Record<string, unknown> 
   if (capabilitySlug?.length) o.capabilitySlug = capabilitySlug.length === 1 ? capabilitySlug[0] : capabilitySlug;
   const claimSlug = values.claimSlug as string[] | undefined;
   if (claimSlug?.length) o.claimSlug = claimSlug.length === 1 ? claimSlug[0] : claimSlug;
-  const indicatorType = values.indicatorType as string[] | undefined;
-  if (indicatorType?.length) o.indicatorType = indicatorType.length === 1 ? indicatorType[0] : indicatorType;
+  const indicatorSlug = values.indicatorSlug as string[] | undefined;
+  if (indicatorSlug?.length) o.indicatorSlug = indicatorSlug.length === 1 ? indicatorSlug[0] : indicatorSlug;
   return o;
 }
 
@@ -161,7 +165,7 @@ function onAutoApply(payload: Record<string, unknown>) {
       :initial-values="formInitialValues"
       as="div"
     >
-      <IndicatorFilterAutoApply
+      <AssetFilterAutoApply
         :build-payload="buildPayload"
         @apply="onAutoApply"
       />
@@ -169,12 +173,12 @@ function onAutoApply(payload: Record<string, unknown>) {
         <BaseInput
           name="title"
           compact-label
-          :label="t('sustainability-indicator-page.filter-field-title')"
+          :label="t('sustainability-asset-page.filter-field-title')"
         />
         <BasePaginatedMultiSelect
           name="capitalSlug"
           compact-label
-          :label="t('sustainability-indicator-page.col-capital')"
+          :label="t('sustainability-asset-page.col-capital')"
           :fetch-fn="fetchCapitals"
           :limit="25"
           :search="true"
@@ -183,7 +187,7 @@ function onAutoApply(payload: Record<string, unknown>) {
         <BasePaginatedMultiSelect
           name="domainSlug"
           compact-label
-          :label="t('sustainability-indicator-page.col-domain')"
+          :label="t('sustainability-asset-page.col-domain')"
           :fetch-fn="fetchDomains"
           :limit="25"
           :search="true"
@@ -192,7 +196,7 @@ function onAutoApply(payload: Record<string, unknown>) {
         <BasePaginatedMultiSelect
           name="componentSlug"
           compact-label
-          :label="t('sustainability-indicator-page.col-component')"
+          :label="t('sustainability-asset-page.col-component')"
           :fetch-fn="fetchComponents"
           :limit="25"
           :search="true"
@@ -201,7 +205,7 @@ function onAutoApply(payload: Record<string, unknown>) {
         <BasePaginatedMultiSelect
           name="capabilitySlug"
           compact-label
-          :label="t('sustainability-indicator-page.col-capability')"
+          :label="t('sustainability-asset-page.col-capability')"
           :fetch-fn="fetchCapabilities"
           :limit="25"
           :search="true"
@@ -210,17 +214,19 @@ function onAutoApply(payload: Record<string, unknown>) {
         <BasePaginatedMultiSelect
           name="claimSlug"
           compact-label
-          :label="t('sustainability-indicator-page.col-claim')"
+          :label="t('sustainability-asset-page.col-claim')"
           :fetch-fn="fetchClaims"
           :limit="25"
           :search="true"
           placeholder=""
         />
-        <BaseMultiSelect
-          name="indicatorType"
+        <BasePaginatedMultiSelect
+          name="indicatorSlug"
           compact-label
-          :label="t('sustainability-indicator-page.col-indicator-type')"
-          :options="indicatorTypeOptions"
+          :label="t('sustainability-asset-page.col-indicator')"
+          :fetch-fn="fetchIndicators"
+          :limit="25"
+          :search="true"
           placeholder=""
         />
       </div>

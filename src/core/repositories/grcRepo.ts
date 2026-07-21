@@ -173,6 +173,16 @@ export const grcRepo = {
     return grcHttpRequest({ method: 'DELETE', url: `/context/domains/${slug}` });
   },
 
+  // Components
+  componentList(params?: GrcListParams): Promise<GrcApiResponse<GrcPaginatedResponse>> {
+    return grcHttpRequest({ method: 'GET', url: '/context/components', params });
+  },
+
+  // Capabilities
+  capabilityList(params?: GrcListParams): Promise<GrcApiResponse<GrcPaginatedResponse>> {
+    return grcHttpRequest({ method: 'GET', url: '/context/capabilities', params });
+  },
+
   // Controls
   controlList(params?: GrcListParams): Promise<GrcApiResponse<GrcPaginatedResponse>> {
     return grcHttpRequest({ method: 'GET', url: '/context/controls', params });

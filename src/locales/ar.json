@@ -956,6 +956,22 @@
     "filter-field-status": "الحالة",
     "filter-badge-remove-aria": "إزالة الفلتر {label}"
   },
+  "sustainability-asset-page": {
+    "col-title": "العنوان",
+    "col-capital": "رأس المال",
+    "col-domain": "المجال",
+    "col-component": "المكون",
+    "col-capability": "القدرة",
+    "col-claim": "المطالبة",
+    "col-indicator": "المؤشر",
+    "col-asset-type": "نوع الأصل",
+    "filter-field-title": "العنوان",
+    "toolbar-export": "تصدير",
+    "toolbar-filter": "فلتر",
+    "toolbar-clear-filters": "مسح الفلاتر",
+    "filter-panel-title": "فلتر الأصول",
+    "filter-badge-remove-aria": "إزالة الفلتر {label}"
+  },
   "sustainability-graph-page": {
     "loading": "جارٍ تحميل الرسم البياني...",
     "error-title": "خطأ في التحميل",

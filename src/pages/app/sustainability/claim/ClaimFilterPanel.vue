@@ -65,36 +65,26 @@ async function fetchDomains(params: { page: number; limit: number; search?: stri
 }
 
 async function fetchComponents(params: { page: number; limit: number; search?: string }) {
-  const res = await grcRepo.claimList({ ...params, limit: 100 });
+  const res = await grcRepo.componentList(params);
   const list = res?.data?.list ?? [];
-  const unique = new Map<string, string>();
-  (Array.isArray(list) ? list : []).forEach((item: Record<string, unknown>) => {
-    const slug = String(item.componentSlug ?? '');
-    const title = String(item.componentTitle ?? '');
-    if (slug && title && !unique.has(slug)) {
-      unique.set(slug, title);
-    }
-  });
   return {
-    list: Array.from(unique.entries()).map(([value, label]) => ({ value, label })),
-    count: unique.size,
+    list: (Array.isArray(list) ? list : []).map((item: Record<string, unknown>) => ({
+      value: String(item.slug ?? ''),
+      label: String(item.title ?? item.name ?? ''),
+    })),
+    count: res?.data?.paginator?.count ?? 0,
   };
 }
 
 async function fetchCapabilities(params: { page: number; limit: number; search?: string }) {
-  const res = await grcRepo.claimList({ ...params, limit: 100 });
+  const res = await grcRepo.capabilityList(params);
   const list = res?.data?.list ?? [];
-  const unique = new Map<string, string>();
-  (Array.isArray(list) ? list : []).forEach((item: Record<string, unknown>) => {
-    const slug = String(item.capabilitySlug ?? '');
-    const title = String(item.capabilityTitle ?? '');
-    if (slug && title && !unique.has(slug)) {
-      unique.set(slug, title);
-    }
-  });
   return {
-    list: Array.from(unique.entries()).map(([value, label]) => ({ value, label })),
-    count: unique.size,
+    list: (Array.isArray(list) ? list : []).map((item: Record<string, unknown>) => ({
+      value: String(item.slug ?? ''),
+      label: String(item.title ?? item.name ?? ''),
+    })),
+    count: res?.data?.paginator?.count ?? 0,
   };
 }
 
@@ -172,7 +162,7 @@ function onAutoApply(payload: Record<string, unknown>) {
           compact-label
           :label="t('sustainability-claim-page.col-capital')"
           :fetch-fn="fetchCapitals"
-          :limit="10"
+          :limit="25"
           :search="true"
           placeholder=""
         />
@@ -181,7 +171,7 @@ function onAutoApply(payload: Record<string, unknown>) {
           compact-label
           :label="t('sustainability-claim-page.col-domain')"
           :fetch-fn="fetchDomains"
-          :limit="10"
+          :limit="25"
           :search="true"
           placeholder=""
         />
@@ -190,7 +180,7 @@ function onAutoApply(payload: Record<string, unknown>) {
           compact-label
           :label="t('sustainability-claim-page.col-component')"
           :fetch-fn="fetchComponents"
-          :limit="10"
+          :limit="25"
           :search="true"
           placeholder=""
         />
@@ -199,7 +189,7 @@ function onAutoApply(payload: Record<string, unknown>) {
           compact-label
           :label="t('sustainability-claim-page.col-capability')"
           :fetch-fn="fetchCapabilities"
-          :limit="10"
+          :limit="25"
           :search="true"
           placeholder=""
         />

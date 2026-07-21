@@ -41,14 +41,14 @@ const claimTypeOptions = computed(() => [
 ]);
 
 async function fetchCapitals(params: { page: number; limit: number; search?: string }) {
-  const res = await grcRepo.capitalTree({ ...params, level: 1 });
-  const list = Array.isArray(res?.data) ? res.data : [];
+  const res = await grcRepo.capitalList(params);
+  const list = res?.data?.list ?? [];
   return {
-    list: list.map((item: Record<string, unknown>) => ({
+    list: (Array.isArray(list) ? list : []).map((item: Record<string, unknown>) => ({
       value: String(item.slug ?? ''),
       label: String(item.title ?? item.name ?? ''),
     })),
-    count: list.length,
+    count: res?.data?.paginator?.count ?? 0,
   };
 }
 

@@ -304,7 +304,11 @@ export const grcRepo = {
     return grcHttpRequest({ method: 'DELETE', url: `/context/categories/${slug}` });
   },
 
-  // Capital Structure (tree)
+  // Capitals
+  capitalList(params?: GrcListParams): Promise<GrcApiResponse<GrcPaginatedResponse>> {
+    return grcHttpRequest({ method: 'GET', url: '/context/capitals', params });
+  },
+
   capitalTree(params?: GrcListParams): Promise<GrcApiResponse<Record<string, unknown>[]>> {
     return grcHttpRequest({ method: 'GET', url: '/context/capitals/tree', params });
   },

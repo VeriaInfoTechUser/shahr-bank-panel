@@ -38,6 +38,12 @@ const table = useDataTable({
   fetchFn: fetchClaims,
   columns: [
     createColumn({
+      key: 'title',
+      label: t('sustainability-claim-page.col-title'),
+      sortable: false,
+      bodyCell: (row) => pickStr(row, 'title'),
+    }),
+    createColumn({
       key: 'capital',
       label: t('sustainability-claim-page.col-capital'),
       sortable: false,
@@ -69,12 +75,6 @@ const table = useDataTable({
         const info = row.information as Record<string, unknown> | undefined;
         return info ? pickStr(info, 'claimTypeName') : '—';
       },
-    }),
-    createColumn({
-      key: 'title',
-      label: t('sustainability-claim-page.col-title'),
-      sortable: false,
-      bodyCell: (row) => pickStr(row, 'title'),
     }),
   ],
   selectable: false,

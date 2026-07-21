@@ -8,10 +8,13 @@ import BaseConfirmModal from '@/core/ui/base/BaseConfirmModal.vue';
 import { grcRepo } from '@/core/repositories/grcRepo';
 import { useGlobalModal } from '@/composables/useGlobalModal';
 import StructureFormModal from './StructureFormModal.vue';
+import DomainFormModal from './DomainFormModal.vue';
 
 interface CapitalNode {
   slug: string;
   title: string;
+  type?: string;
+  capitalType?: string;
   number?: string;
   description?: string;
   children?: CapitalNode[];
@@ -55,15 +58,62 @@ function onAddRoot() {
   });
 }
 
-function onAddChild(parentSlug: string, parentTitle: string) {
+function onAddChild(parentSlug: string, parentTitle: string, nodeType?: string, nodeData?: CapitalNode) {
   expanded.value.add(parentSlug);
-  openModal({
-    component: StructureFormModal,
-    props: { parentSlug, parentTitle },
-    onSuccess: () => {
-      void fetchTree();
-    },
-  });
+
+  // Build capital data from the parent node
+  const capitalData = {
+    slug: nodeData?.slug ?? parentSlug,
+    title: nodeData?.title ?? parentTitle,
+    capitalType: nodeData?.capitalType,
+  };
+
+  // nodeType comes directly from node.type field: "capital", "domain", "component", "capability"
+  if (nodeType === 'capital') {
+    // Capital -> Add Domain
+    openModal({
+      component: DomainFormModal,
+      props: {
+        capitalData,
+      },
+      onSuccess: () => {
+        void fetchTree();
+      },
+    });
+  } else if (nodeType === 'domain') {
+    // Domain -> Add Component
+    openModal({
+      component: DomainFormModal,
+      props: {
+        capitalData,
+      },
+      onSuccess: () => {
+        void fetchTree();
+      },
+    });
+  } else if (nodeType === 'component') {
+    // Component -> Add Capability
+    openModal({
+      component: DomainFormModal,
+      props: {
+        capitalData,
+      },
+      onSuccess: () => {
+        void fetchTree();
+      },
+    });
+  } else {
+    // Default: open domain modal
+    openModal({
+      component: DomainFormModal,
+      props: {
+        capitalData,
+      },
+      onSuccess: () => {
+        void fetchTree();
+      },
+    });
+  }
 }
 
 function onEdit(record: CapitalNode) {
@@ -214,7 +264,7 @@ onMounted(() => {
                       type="button"
                       class="flex h-7 w-7 items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-primary/10 hover:text-primary dark:hover:bg-primary/20"
                       :title="t('sustainability-fundamental-capitals-page.add-child')"
-                      @click.stop="onAddChild(node.slug, node.title)"
+                      @click.stop="onAddChild(node.slug, node.title, node.type || 'capital', node)"
                     >
                       <Lucide icon="Plus" class="h-3.5 w-3.5" />
                     </button>
@@ -286,7 +336,7 @@ onMounted(() => {
                             type="button"
                             class="flex h-6 w-6 items-center justify-center rounded-md text-slate-400 transition-colors hover:bg-primary/10 hover:text-primary dark:hover:bg-primary/20"
                             :title="t('sustainability-fundamental-capitals-page.add-child')"
-                            @click.stop="onAddChild(child.slug, child.title)"
+                            @click.stop="onAddChild(child.slug, child.title, child.type || 'domain', child)"
                           >
                             <Lucide icon="Plus" class="h-3 w-3" />
                           </button>
@@ -357,7 +407,7 @@ onMounted(() => {
                                 type="button"
                                 class="flex h-6 w-6 items-center justify-center rounded-md text-slate-400 transition-colors hover:bg-primary/10 hover:text-primary dark:hover:bg-primary/20"
                                 :title="t('sustainability-fundamental-capitals-page.add-child')"
-                                @click.stop="onAddChild(grandchild.slug, grandchild.title)"
+                                @click.stop="onAddChild(grandchild.slug, grandchild.title, grandchild.type || 'component', grandchild)"
                               >
                                 <Lucide icon="Plus" class="h-3 w-3" />
                               </button>

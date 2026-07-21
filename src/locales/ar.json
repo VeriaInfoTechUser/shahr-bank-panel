@@ -890,6 +890,23 @@
     "count-singular": "عنصر",
     "count-plural": "عناصر"
   },
+  "sustainability-domain-page": {
+    "add": "إضافة مجال",
+    "edit": "تعديل المجال",
+    "capital": "رأس المال",
+    "col-slug": "المعرف",
+    "col-title": "العنوان",
+    "col-title-en": "العنوان (الإنجليزية)",
+    "col-version": "الإصدار",
+    "col-order": "الترتيب",
+    "col-description": "الوصف",
+    "validation-slug": "أدخل المعرف.",
+    "validation-title": "أدخل العنوان.",
+    "add-success": "تم إنشاء المجال بنجاح.",
+    "add-error": "تعذّر إنشاء المجال.",
+    "edit-success": "تم تحديث المجال بنجاح.",
+    "edit-error": "تعذّر تحديث المجال."
+  },
   "sustainability-claim-page": {
     "add": "إضافة مطالبة",
     "edit": "تعديل المطالبة",

@@ -1154,6 +1154,23 @@
     "count-singular": "مورد",
     "count-plural": "مورد"
   },
+  "sustainability-domain-page": {
+    "add": "افزودن حوزه",
+    "edit": "ویرایش حوزه",
+    "capital": "سرمایه",
+    "col-slug": "شناسه",
+    "col-title": "عنوان",
+    "col-title-en": "عنوان انگلیسی",
+    "col-version": "نسخه",
+    "col-order": "ترتیب",
+    "col-description": "توضیحات",
+    "validation-slug": "شناسه را وارد کنید.",
+    "validation-title": "عنوان را وارد کنید.",
+    "add-success": "حوزه با موفقیت ایجاد شد.",
+    "add-error": "خطا در ایجاد حوزه.",
+    "edit-success": "حوزه با موفقیت ویرایش شد.",
+    "edit-error": "خطا در ویرایش حوزه."
+  },
   "sustainability-claim-page": {
     "add": "افزودن ادعا",
     "edit": "ویرایش ادعا",

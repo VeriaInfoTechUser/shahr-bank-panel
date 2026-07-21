@@ -1133,6 +1133,23 @@
     "count-singular": "item",
     "count-plural": "items"
   },
+  "sustainability-domain-page": {
+    "add": "Add Domain",
+    "edit": "Edit Domain",
+    "capital": "Capital",
+    "col-slug": "Slug",
+    "col-title": "Title",
+    "col-title-en": "Title (English)",
+    "col-version": "Version",
+    "col-order": "Order",
+    "col-description": "Description",
+    "validation-slug": "Slug is required.",
+    "validation-title": "Title is required.",
+    "add-success": "Domain created successfully.",
+    "add-error": "Failed to create domain.",
+    "edit-success": "Domain updated successfully.",
+    "edit-error": "Failed to update domain."
+  },
   "sustainability-claim-page": {
     "add": "Add Claim",
     "edit": "Edit Claim",

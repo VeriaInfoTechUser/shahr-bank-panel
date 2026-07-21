@@ -47,10 +47,7 @@ const table = useDataTable({
       key: 'capital',
       label: t('sustainability-indicator-page.col-capital'),
       sortable: false,
-      bodyCell: (row) => {
-        const info = row.information as Record<string, unknown> | undefined;
-        return info ? pickStr(info, 'capitalTitle') : '—';
-      },
+      bodyCell: (row) => pickStr(row, 'capitalTitle'),
     }),
     createColumn({
       key: 'domain',
@@ -59,58 +56,40 @@ const table = useDataTable({
       bodyCell: (row) => pickStr(row, 'domainTitle'),
     }),
     createColumn({
+      key: 'component',
+      label: t('sustainability-indicator-page.col-component'),
+      sortable: false,
+      bodyCell: (row) => pickStr(row, 'componentTitle'),
+    }),
+    createColumn({
       key: 'capability',
       label: t('sustainability-indicator-page.col-capability'),
       sortable: false,
-      bodyCell: (row) => {
-        const info = row.information as Record<string, unknown> | undefined;
-        return info ? pickStr(info, 'capabilityTitle') : '—';
-      },
+      bodyCell: (row) => pickStr(row, 'capabilityTitle'),
     }),
     createColumn({
       key: 'claim',
       label: t('sustainability-indicator-page.col-claim'),
       sortable: false,
-      bodyCell: (row) => {
-        const info = row.information as Record<string, unknown> | undefined;
-        return info ? pickStr(info, 'claimTitle') : '—';
-      },
-    }),
-    createColumn({
-      key: 'component',
-      label: t('sustainability-indicator-page.col-component'),
-      sortable: false,
-      bodyCell: (row) => {
-        const info = row.information as Record<string, unknown> | undefined;
-        return info ? pickStr(info, 'componentTitle') : '—';
-      },
+      bodyCell: (row) => pickStr(row, 'claimTitle'),
     }),
     createColumn({
       key: 'indicatorType',
       label: t('sustainability-indicator-page.col-indicator-type'),
       sortable: false,
-      bodyCell: (row) => {
-        const info = row.information as Record<string, unknown> | undefined;
-        return info ? pickStr(info, 'indicatorType') : '—';
-      },
+      bodyCell: (row) => pickStr(row, 'indicatorType'),
     }),
     createColumn({
       key: 'unit',
       label: t('sustainability-indicator-page.col-unit'),
       sortable: false,
-      bodyCell: (row) => {
-        const info = row.information as Record<string, unknown> | undefined;
-        return info ? pickStr(info, 'unit') : '—';
-      },
+      bodyCell: (row) => pickStr(row, 'unit'),
     }),
     createColumn({
       key: 'direction',
       label: t('sustainability-indicator-page.col-direction'),
       sortable: false,
-      bodyCell: (row) => {
-        const info = row.information as Record<string, unknown> | undefined;
-        return info ? pickStr(info, 'direction') : '—';
-      },
+      bodyCell: (row) => pickStr(row, 'direction'),
     }),
   ],
   selectable: false,

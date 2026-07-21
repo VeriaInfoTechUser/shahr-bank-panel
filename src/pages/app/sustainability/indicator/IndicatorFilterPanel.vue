@@ -68,9 +68,8 @@ async function fetchComponents(params: { page: number; limit: number; search?: s
   const list = res?.data?.list ?? [];
   const unique = new Map<string, string>();
   (Array.isArray(list) ? list : []).forEach((item: Record<string, unknown>) => {
-    const info = item.information as Record<string, unknown> | undefined;
-    const slug = String(info?.componentSlug ?? '');
-    const title = String(info?.componentTitle ?? '');
+    const slug = String(item.componentSlug ?? '');
+    const title = String(item.componentTitle ?? '');
     if (slug && title && !unique.has(slug)) {
       unique.set(slug, title);
     }
@@ -86,9 +85,8 @@ async function fetchCapabilities(params: { page: number; limit: number; search?:
   const list = res?.data?.list ?? [];
   const unique = new Map<string, string>();
   (Array.isArray(list) ? list : []).forEach((item: Record<string, unknown>) => {
-    const info = item.information as Record<string, unknown> | undefined;
-    const slug = String(info?.capabilitySlug ?? '');
-    const title = String(info?.capabilityTitle ?? '');
+    const slug = String(item.capabilitySlug ?? '');
+    const title = String(item.capabilityTitle ?? '');
     if (slug && title && !unique.has(slug)) {
       unique.set(slug, title);
     }

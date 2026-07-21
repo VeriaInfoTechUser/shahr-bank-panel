@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount, nextTick } from 'vue';
+import { ref, onMounted, onBeforeUnmount, nextTick, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { OrgChart } from 'd3-org-chart';
 import { grcRepo } from '@/core/repositories/grcRepo';
@@ -13,6 +13,9 @@ interface ApiNode {
   title: string;
   parentSlug?: string | null;
   children?: ApiNode[];
+  description?: string | null;
+  version?: string | null;
+  information?: any;
   [key: string]: unknown;
 }
 
@@ -21,6 +24,7 @@ interface FlatNode {
   parentId: string | null;
   title: string;
   type: string;
+  childrenCount?: number;
 }
 
 const chartContainer = ref<HTMLDivElement | null>(null);
@@ -29,36 +33,60 @@ const error = ref('');
 const treeData = ref<ApiNode[]>([]);
 let chart: InstanceType<typeof OrgChart> | null = null;
 
-const TYPE_COLORS: Record<string, { bg: string; border: string; text: string }> = {
-  sustainability:    { bg: 'bg-blue-50 dark:bg-blue-900/30',  border: 'border-blue-300 dark:border-blue-700',  text: 'text-blue-700 dark:text-blue-300' },
-  domain:     { bg: 'bg-emerald-50 dark:bg-emerald-900/30', border: 'border-emerald-300 dark:border-emerald-700', text: 'text-emerald-700 dark:text-emerald-300' },
-  component:  { bg: 'bg-violet-50 dark:bg-violet-900/30', border: 'border-violet-300 dark:border-violet-700', text: 'text-violet-700 dark:text-violet-300' },
-  capability: { bg: 'bg-amber-50 dark:bg-amber-900/30', border: 'border-amber-300 dark:border-amber-700', text: 'text-amber-700 dark:text-amber-300' },
-  claim:      { bg: 'bg-rose-50 dark:bg-rose-900/30', border: 'border-rose-300 dark:border-rose-700', text: 'text-rose-700 dark:text-rose-300' },
-  indicator:  { bg: 'bg-cyan-50 dark:bg-cyan-900/30', border: 'border-cyan-300 dark:border-cyan-700', text: 'text-cyan-700 dark:text-cyan-300' },
-};
+const selectedNode = ref<any>(null);
+const searchQuery = ref('');
+const breadcrumb = ref<string[]>([]);
 
 const ROOT_ID = '__sustainability_root__';
 
-function flattenAllNodes(nodes: ApiNode[]): FlatNode[] {
-  const result: FlatNode[] = [];
-  for (const node of nodes) {
-    result.push({
-      id: node.slug,
-      parentId: node.parentSlug ?? null,
-      title: node.title ?? node.slug,
-      type: node.type ?? 'unknown',
+const TYPE_COLORS: Record<string, { border: string; topBorder: string; text: string; icon: string }> = {
+  capital: { border: 'border-blue-200', topBorder: 'bg-blue-600', text: 'text-blue-700', icon: '💰' },
+  domain: { border: 'border-emerald-200', topBorder: 'bg-emerald-600', text: 'text-emerald-700', icon: '📁' },
+  component: { border: 'border-violet-200', topBorder: 'bg-violet-600', text: 'text-violet-700', icon: '⚙️' },
+  capability: { border: 'border-amber-200', topBorder: 'bg-amber-600', text: 'text-amber-700', icon: '🎯' },
+  sustainability: { border: 'border-slate-200', topBorder: 'bg-slate-700', text: 'text-slate-700', icon: '🌳' },
+};
+
+const typeLabel = (type: string) => t(`sustainability-graph-page.type-${type}` as any);
+
+// Statistics
+const stats = computed(() => {
+  const counts: Record<string, number> = { capital: 0, domain: 0, component: 0, capability: 0 };
+  const flatten = (nodes: ApiNode[]) => {
+    nodes.forEach(n => {
+      if (n.type in counts) counts[n.type as keyof typeof counts]++;
+      if (n.children) flatten(n.children);
     });
-    if (node.children?.length) {
-      result.push(...flattenAllNodes(node.children));
-    }
-  }
-  return result;
+  };
+  flatten(treeData.value);
+  return counts;
+});
+
+function countChildren(node: ApiNode): number {
+  let count = 0;
+  const recurse = (n: ApiNode) => {
+    count += (n.children?.length || 0);
+    n.children?.forEach(recurse);
+  };
+  recurse(node);
+  return count;
 }
 
-function typeLabel(type: string): string {
-  const key = `sustainability-graph-page.type-${type}` as const;
-  return t(key);
+function flattenAllNodes(nodes: ApiNode[], parentId: string | null = null): FlatNode[] {
+  const result: FlatNode[] = [];
+  nodes.forEach(node => {
+    result.push({
+      id: node.slug,
+      parentId,
+      title: node.title,
+      type: node.type,
+      childrenCount: countChildren(node),
+    });
+    if (node.children?.length) {
+      result.push(...flattenAllNodes(node.children, node.slug));
+    }
+  });
+  return result;
 }
 
 async function fetchData() {
@@ -68,10 +96,8 @@ async function fetchData() {
     const res = await grcRepo.capitalTree({ level: 6 });
     if (res?.result && Array.isArray(res.data)) {
       treeData.value = res.data as ApiNode[];
-    } else {
-      treeData.value = [];
     }
-  } catch {
+  } catch (e) {
     error.value = t('sustainability-graph-page.error-message');
   } finally {
     loading.value = false;
@@ -79,30 +105,49 @@ async function fetchData() {
 }
 
 function buildChartData(): FlatNode[] {
-  if (treeData.value.length === 0) return [];
+  if (!treeData.value.length) return [];
 
-  const allNodes = flattenAllNodes(treeData.value);
+  const flatNodes = flattenAllNodes(treeData.value);
 
   const root: FlatNode = {
     id: ROOT_ID,
     parentId: null,
     title: 'پایداری',
-    type: 'root',
+    type: 'sustainability',
   };
 
-  const nodesWithRoot: FlatNode[] = allNodes.map((n) => ({
+  return [root, ...flatNodes.map(n => ({
     ...n,
     parentId: n.parentId === null ? ROOT_ID : n.parentId,
-  }));
+  }))];
+}
 
-  return [root, ...nodesWithRoot];
+function getNodeFullData(slug: string): ApiNode | null {
+  const find = (nodes: ApiNode[]): ApiNode | null => {
+    for (const node of nodes) {
+      if (node.slug === slug) return node;
+      if (node.children) {
+        const found = find(node.children);
+        if (found) return found;
+      }
+    }
+    return null;
+  };
+  return find(treeData.value);
+}
+
+function updateBreadcrumb(node: any) {
+  breadcrumb.value = [];
+  if (!chart) return;
+  const path = chart.getNodePath?.(node.id) || [];
+  breadcrumb.value = path.map((n: any) => n.data.title).filter(Boolean);
 }
 
 function renderChart() {
   if (!chartContainer.value) return;
 
   const flat = buildChartData();
-  if (flat.length === 0) return;
+  if (!flat.length) return;
 
   if (chart) {
     chart.data(flat).render();
@@ -110,64 +155,98 @@ function renderChart() {
   }
 
   chart = new OrgChart()
-    .container(chartContainer.value)
-    .data(flat)
-    .nodeWidth(() => 220)
-    .nodeHeight(() => 80)
-    .compact(false)
-    .nodeContent((node: FlatNode) => {
-      if (node.id === ROOT_ID) {
-        return `
-          <div class="flex flex-col items-center justify-center w-full h-full rounded-lg border border-slate-300 dark:border-slate-600 bg-slate-100 dark:bg-slate-800 px-3 py-2 cursor-pointer select-none"
-               style="font-family: 'IRANSans', 'Vazirmatn', Tahoma, sans-serif;"
-               dir="rtl">
-            <div class="w-full truncate text-center text-[11px] font-bold text-slate-700 dark:text-slate-200 leading-tight">
-              ${node.title}
-            </div>
-            <div class="mt-1 inline-block rounded-full px-2 py-0.5 text-[9px] font-medium text-slate-500 dark:text-slate-400">
-              ${flat.length - 1} سرمایه
-            </div>
-          </div>
-        `;
-      }
-      const colors = TYPE_COLORS[node.type] ?? TYPE_COLORS.sustainability;
-      const title = node.title ?? node.id;
-      const truncated = title.length > 28 ? title.slice(0, 26) + '…' : title;
-      return `
-        <div class="flex flex-col items-center justify-center w-full h-full rounded-lg border ${colors.border} ${colors.bg} px-3 py-2 cursor-pointer select-none"
-             style="font-family: 'IRANSans', 'Vazirmatn', Tahoma, sans-serif;"
-             dir="rtl">
-          <div class="w-full truncate text-center text-[11px] font-semibold text-slate-800 dark:text-slate-100 leading-tight">
-            ${truncated}
-          </div>
-          <div class="mt-1 inline-block rounded-full px-2 py-0.5 text-[9px] font-medium ${colors.text} ${colors.bg} border ${colors.border}">
-            ${typeLabel(node.type)}
-          </div>
-        </div>
-      `;
-    })
-    .onNodeClick((_event: unknown, node: FlatNode) => {
-      if (!chart || node.id === ROOT_ID) return;
-      const data = chart.data();
-      const datum = data.find((d: FlatNode) => d.id === node.id);
-      if (datum) {
-        if (datum._children) {
-          datum._children = null;
+      .container(chartContainer.value)
+      .data(flat)
+      .nodeWidth(() => 260)
+      .nodeHeight(() => 110)
+      .compact(false)
+      .nodeContent((node: any) => {
+        const data = node.data as FlatNode;
+        if (data.id === ROOT_ID) {
+          return `
+          <div class="flex flex-col items-center justify-center w-full h-full rounded-2xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 shadow-sm px-4 py-3 cursor-pointer">
+            <div class="text-3xl mb-1">🌳</div>
+            <div class="font-bold text-lg text-slate-800 dark:text-slate-100">${data.title}</div>
+            <div class="text-xs text-slate-500 mt-1">${flat.length - 1} سرمایه</div>
+          </div>`;
         }
-      }
-    })
-    .render();
+
+        const colors = TYPE_COLORS[data.type] || TYPE_COLORS.sustainability;
+        const truncated = data.title.length > 35 ? data.title.slice(0, 32) + '…' : data.title;
+
+        return `
+        <div class="node-card group relative flex flex-col w-full h-full rounded-2xl border ${colors.border} bg-white dark:bg-slate-800 shadow-sm hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200 overflow-hidden cursor-pointer">
+          <!-- Top colored bar -->
+          <div class="h-1.5 w-full ${colors.topBorder}"></div>
+
+          <div class="flex-1 p-4 flex flex-col">
+            <div class="flex items-start gap-3">
+              <span class="text-2xl flex-shrink-0 mt-0.5">${colors.icon}</span>
+              <div class="flex-1 min-w-0">
+                <div class="font-semibold text-sm leading-tight text-slate-800 dark:text-slate-100 line-clamp-2">
+                  ${truncated}
+                </div>
+                <div class="mt-2 text-[10px] font-medium ${colors.text} uppercase tracking-widest">
+                  ${typeLabel(data.type)}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          ${data.childrenCount ? `
+          <div class="border-t border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 px-4 py-2 text-xs font-medium text-slate-500 flex items-center justify-between">
+            <span>${data.childrenCount} فرزند</span>
+          </div>` : ''}
+        </div>`;
+      })
+      .onNodeClick((event: any, node: any) => {
+        if (node.data.id === ROOT_ID) return;
+
+        const fullNode = getNodeFullData(node.data.id);
+        if (fullNode) {
+          selectedNode.value = { ...node.data, ...fullNode };
+          updateBreadcrumb(node);
+        }
+      })
+      .render();
 
   chart.collapseAll();
 }
 
-function collapseAll() {
-  chart?.collapseAll();
+// Controls
+const collapseAll = () => chart?.collapseAll();
+const expandAll = () => chart?.expandAll();
+const fitScreen = () => chart?.fit?.();
+const centerRoot = () => chart?.centerNode?.(ROOT_ID);
+const zoomIn = () => chart?.zoomIn?.();
+const zoomOut = () => chart?.zoomOut?.();
+
+async function exportPNG() {
+  if (!chart) return;
+  // d3-org-chart has .exportImage() or similar depending on version
+  try {
+    await chart.exportImage?.({ filename: 'sustainability-graph' });
+  } catch (e) {
+    alert('Export feature requires latest d3-org-chart');
+  }
 }
 
-function expandAll() {
-  chart?.expandAll();
-}
+// Search
+const performSearch = () => {
+  if (!chart || !searchQuery.value.trim()) return;
+
+  const query = searchQuery.value.toLowerCase().trim();
+  const data = chart.data();
+
+  const match = data.find((n: any) =>
+      n.title?.toLowerCase().includes(query)
+  );
+
+  if (match) {
+    chart.centerNode(match.id);
+    // Optional: highlight via custom class (advanced)
+  }
+};
 
 onMounted(async () => {
   await fetchData();
@@ -176,99 +255,118 @@ onMounted(async () => {
 });
 
 onBeforeUnmount(() => {
-  if (chart) {
-    chart = null;
-  }
-  if (chartContainer.value) {
-    chartContainer.value.innerHTML = '';
-  }
+  if (chart) chart = null;
+  if (chartContainer.value) chartContainer.value.innerHTML = '';
 });
 </script>
 
 <template>
-  <div class="grid grid-cols-12 gap-2 p-2">
-    <div class="col-span-12">
-      <div class="overflow-hidden rounded-xl border border-slate-200/60 bg-white shadow-sm dark:border-darkmode-700/60 dark:bg-darkmode-800">
-        <!-- Header -->
-        <div class="border-b border-slate-200/60 bg-slate-50/80 px-4 py-3 dark:border-darkmode-700/60 dark:bg-darkmode-800/80">
-          <div class="flex items-center justify-between">
-            <div class="flex items-center gap-2">
-              <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 dark:bg-primary/20">
-                <svg class="h-4 w-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <line x1="6" y1="3" x2="6" y2="15" />
-                  <circle cx="18" cy="6" r="3" />
-                  <circle cx="6" cy="18" r="3" />
-                  <path d="M18 9a9 9 0 0 1-9 9" />
-                </svg>
-              </div>
-              <span class="text-sm font-semibold text-slate-700 dark:text-slate-200">
-                {{ t('menu.sustainability-graph') }}
-              </span>
-            </div>
-            <div v-if="!loading && !error" class="flex items-center gap-1.5">
-              <button
-                type="button"
-                class="inline-flex h-7 items-center gap-1 rounded-md border border-slate-200 bg-white px-2 text-[11px] font-medium text-slate-600 transition hover:bg-slate-50 dark:border-darkmode-600 dark:bg-darkmode-800 dark:text-slate-300 dark:hover:bg-darkmode-700"
-                @click="collapseAll"
-              >
-                {{ t('sustainability-graph-page.collapse-all') }}
-              </button>
-              <button
-                type="button"
-                class="inline-flex h-7 items-center gap-1 rounded-md border border-slate-200 bg-white px-2 text-[11px] font-medium text-slate-600 transition hover:bg-slate-50 dark:border-darkmode-600 dark:bg-darkmode-800 dark:text-slate-300 dark:hover:bg-darkmode-700"
-                @click="expandAll"
-              >
-                {{ t('sustainability-graph-page.expand-all') }}
-              </button>
-            </div>
+  <div class="h-screen flex flex-col bg-slate-50 dark:bg-slate-950 overflow-hidden">
+    <!-- Header -->
+    <div class="border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-6 py-4">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-4">
+          <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-emerald-100 dark:bg-emerald-900/50 text-3xl">
+            🌳
+          </div>
+          <div>
+            <h1 class="text-2xl font-bold text-slate-900 dark:text-white">{{ t('menu.sustainability-graph') }}</h1>
+            <p class="text-sm text-slate-500">Capital Tree Framework</p>
           </div>
         </div>
 
-        <!-- Content -->
-        <div v-if="loading" class="flex flex-col items-center justify-center py-20">
-          <div class="h-8 w-8 animate-spin rounded-full border-[3px] border-primary/20 border-t-primary" />
-          <span class="mt-3 text-xs text-slate-500 dark:text-slate-400">{{ t('sustainability-graph-page.loading') }}</span>
+        <!-- Stats -->
+        <div class="flex gap-8 text-sm">
+          <div><span class="font-semibold text-emerald-600">{{ stats.capital }}</span> Capital</div>
+          <div><span class="font-semibold text-violet-600">{{ stats.domain }}</span> Domain</div>
+          <div><span class="font-semibold text-amber-600">{{ stats.component }}</span> Component</div>
+          <div><span class="font-semibold text-rose-600">{{ stats.capability }}</span> Capability</div>
         </div>
 
-        <div v-else-if="error" class="flex flex-col items-center justify-center py-20">
-          <span class="text-sm text-danger">{{ t('sustainability-graph-page.error-title') }}</span>
-          <span class="mt-1 text-xs text-slate-500 dark:text-slate-400">{{ error }}</span>
-          <button
-            type="button"
-            class="mt-3 inline-flex h-8 items-center gap-1 rounded-md border border-primary bg-primary px-3 text-xs font-medium text-white transition hover:opacity-90"
-            @click="fetchData"
-          >
-            {{ t('sustainability-graph-page.retry') }}
+        <div class="flex items-center gap-3">
+          <input
+              v-model="searchQuery"
+              @keyup.enter="performSearch"
+              placeholder="جستجو در گراف..."
+              class="w-80 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-2.5 text-sm focus:outline-none focus:border-primary"
+          />
+          <button @click="performSearch" class="px-5 py-2.5 bg-primary text-white rounded-xl text-sm font-medium hover:bg-primary/90">
+            جستجو
           </button>
         </div>
+      </div>
+    </div>
 
+    <!-- Toolbar -->
+    <div class="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-6 py-3 flex items-center gap-3">
+      <button @click="expandAll" class="btn">Expand All</button>
+      <button @click="collapseAll" class="btn">Collapse All</button>
+      <button @click="fitScreen" class="btn">Fit Screen</button>
+      <button @click="centerRoot" class="btn">Center Root</button>
+      <button @click="zoomIn" class="btn">Zoom +</button>
+      <button @click="zoomOut" class="btn">Zoom -</button>
+      <button @click="exportPNG" class="btn">Export PNG</button>
+    </div>
+
+    <div class="flex flex-1 overflow-hidden">
+      <!-- Main Chart -->
+      <div class="flex-1 flex flex-col">
         <div
-          v-else
-          ref="chartContainer"
-          class="min-h-[500px] overflow-auto p-2"
+            ref="chartContainer"
+            class="flex-1 overflow-auto bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] dark:bg-[radial-gradient(#374151_1px,transparent_1px)] [background-size:20px_20px] p-8"
         />
+      </div>
+
+      <!-- Side Panel -->
+      <div v-if="selectedNode" class="w-96 border-l border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 overflow-auto">
+        <div class="p-6">
+          <div class="flex justify-between items-start mb-6">
+            <div>
+              <div class="text-4xl mb-2">{{ TYPE_COLORS[selectedNode.type]?.icon || '📌' }}</div>
+              <h2 class="text-xl font-semibold">{{ selectedNode.title }}</h2>
+              <p class="text-sm text-slate-500">{{ typeLabel(selectedNode.type) }}</p>
+            </div>
+            <button @click="selectedNode = null" class="text-slate-400 hover:text-slate-600">✕</button>
+          </div>
+
+          <div class="space-y-6">
+            <div v-if="selectedNode.description" class="prose dark:prose-invert">
+              <h4 class="text-xs uppercase tracking-widest text-slate-500 mb-2">توضیحات</h4>
+              <p>{{ selectedNode.description }}</p>
+            </div>
+
+            <div v-if="selectedNode.version">
+              <h4 class="text-xs uppercase tracking-widest text-slate-500 mb-2">نسخه</h4>
+              <p class="font-mono">{{ selectedNode.version }}</p>
+            </div>
+
+            <div>
+              <h4 class="text-xs uppercase tracking-widest text-slate-500 mb-2">Slug</h4>
+              <p class="font-mono text-sm bg-slate-100 dark:bg-slate-800 p-2 rounded">{{ selectedNode.slug }}</p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <style scoped>
+.btn {
+  @apply px-4 py-2 text-sm font-medium rounded-xl border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors;
+}
+
+.node-card {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
 :deep(.org-chart) {
   display: flex;
   justify-content: center;
+  align-items: center;
 }
 
 :deep(.node) {
   cursor: pointer;
-}
-
-:deep(.links) {
-  stroke: #cbd5e1;
-  stroke-width: 1.5;
-}
-
-:deep(.node rect) {
-  rx: 8;
-  ry: 8;
 }
 </style>

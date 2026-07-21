@@ -65,9 +65,9 @@ const resolvedSearchPlaceholder = computed(() =>
 async function loadPage(p: number) {
   loading.value = true;
   try {
-    const params: { page: number; limit: number; search?: string } = { page: p, limit: props.limit };
+    const params: { page: number; limit: number; title?: string } = { page: p, limit: props.limit };
     if (props.search && searchText.value.trim()) {
-      params.search = searchText.value.trim();
+      params.title = searchText.value.trim();
     }
     const res = await props.fetchFn(params);
     options.value = res.list ?? [];

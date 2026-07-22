@@ -366,7 +366,6 @@ async function onSubmit(values: Record<string, unknown>) {
   const capitalType = capitalNode ? String(capitalNode.capitalType ?? '') : '';
 
   const data: Record<string, unknown> = {
-    slug: String(values.slug ?? '').trim(),
     title: String(values.title ?? '').trim(),
     titleEn: String(values.titleEn ?? '').trim() || undefined,
     version: String(values.version ?? '').trim() || undefined,

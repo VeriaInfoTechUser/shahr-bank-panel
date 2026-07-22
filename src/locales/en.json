@@ -1,5 +1,6 @@
 {
   "title": {
+    "show": "View",
     "framework": "Framework",
     "domain": "Domain",
     "owner": "Owner",

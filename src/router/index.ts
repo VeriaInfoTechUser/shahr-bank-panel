@@ -60,6 +60,7 @@ import SustainabilityMetricsDetail from "@/pages/app/sustainability/metrics/deta
 import SustainabilityFundamentalCapitals from "@/pages/app/sustainability/fundamental-capitals/index.vue";
 import SustainabilityClaim from "@/pages/app/sustainability/claim/index.vue";
 import SustainabilityIndicator from "@/pages/app/sustainability/indicator/index.vue";
+import SustainabilityIndicatorForm from "@/pages/app/sustainability/indicator/IndicatorFormPage.vue";
 import SustainabilityGraph from "@/pages/app/sustainability/graph/index.vue";
 import ReportsBaseline from "@/pages/app/reports/baseline/index.vue";
 import ReportsBaselineDetail from "@/pages/app/reports/baseline/detail/index.vue";
@@ -540,6 +541,18 @@ const routes = [
                                 name: "app-sustainability-indicator",
                                 component: SustainabilityIndicator,
                                 meta: { breadcrumbLabel: 'menu.sustainability-indicator' },
+                            },
+                            {
+                                path: "indicator/create",
+                                name: "app-sustainability-indicator-create",
+                                component: SustainabilityIndicatorForm,
+                                meta: { breadcrumbLabel: 'sustainability-indicator-page.add' },
+                            },
+                            {
+                                path: "indicator/:slug/edit",
+                                name: "app-sustainability-indicator-edit",
+                                component: SustainabilityIndicatorForm,
+                                meta: { breadcrumbLabel: 'sustainability-indicator-page.edit' },
                             },
                             {
                                 path: "graph",

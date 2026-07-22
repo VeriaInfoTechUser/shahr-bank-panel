@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue';
+import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { useDataTable, createColumn, type FetchFn } from '@core';
 import BaseTable from '@core/ui/base/BaseTable.vue';
@@ -7,15 +8,11 @@ import { grcRepo } from '@/core/repositories/grcRepo';
 import { useBreadcrumbSlot } from '@/composables/useBreadcrumb';
 import Button from '@/base-components/Button';
 import Lucide from '@/base-components/Lucide';
-import IndicatorFormModal from './IndicatorFormModal.vue';
 import IndicatorBreadcrumbToolbar from './IndicatorBreadcrumbToolbar.vue';
 
 const { t } = useI18n();
+const router = useRouter();
 const { setContent: setBreadcrumbSlot } = useBreadcrumbSlot();
-
-const showAddModal = ref(false);
-const showEditModal = ref(false);
-const selectedIndicator = ref<Record<string, unknown> | null>(null);
 
 function pickStr(row: Record<string, unknown>, ...keys: string[]) {
   for (const k of keys) {
@@ -103,17 +100,11 @@ function onExportIndicators() {
 }
 
 function onAddIndicator() {
-  showAddModal.value = true;
+  router.push({ name: 'app-sustainability-indicator-create' });
 }
 
 function onEditIndicator(row: Record<string, unknown>) {
-  selectedIndicator.value = row;
-  showEditModal.value = true;
-}
-
-function onModalSuccess() {
-  table.invalidateListCache();
-  table.setPage(1);
+  router.push({ name: 'app-sustainability-indicator-edit', params: { slug: row.slug } });
 }
 
 import { onMounted } from 'vue';
@@ -157,19 +148,5 @@ onMounted(() => {
         </template>
       </BaseTable>
     </div>
-
-    <IndicatorFormModal
-      :show="showAddModal"
-      @update:show="showAddModal = $event"
-      @success="onModalSuccess"
-    />
-
-    <IndicatorFormModal
-      v-if="selectedIndicator"
-      :show="showEditModal"
-      :record="selectedIndicator"
-      @update:show="showEditModal = $event"
-      @success="onModalSuccess"
-    />
   </div>
 </template>

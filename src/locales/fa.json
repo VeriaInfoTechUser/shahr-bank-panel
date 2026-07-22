@@ -1265,6 +1265,7 @@
   "sustainability-indicator-page": {
     "add": "افزودن شاخص",
     "edit": "ویرایش شاخص",
+    "detail": "جزئیات شاخص",
     "col-slug": "شناسه",
     "col-title": "عنوان",
     "col-title-en": "عنوان انگلیسی",

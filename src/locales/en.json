@@ -1244,6 +1244,7 @@
   "sustainability-indicator-page": {
     "add": "Add Indicator",
     "edit": "Edit Indicator",
+    "detail": "Indicator Details",
     "col-slug": "Slug",
     "col-title": "Title",
     "col-title-en": "Title (English)",

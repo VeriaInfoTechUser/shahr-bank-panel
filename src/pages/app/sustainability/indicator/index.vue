@@ -107,6 +107,10 @@ function onEditIndicator(row: Record<string, unknown>) {
   router.push({ name: 'app-sustainability-indicator-edit', params: { slug: row.slug } });
 }
 
+function onViewIndicator(row: Record<string, unknown>) {
+  router.push({ name: 'app-sustainability-indicator-detail', params: { slug: row.slug } });
+}
+
 import { onMounted } from 'vue';
 
 onMounted(() => {
@@ -133,6 +137,17 @@ onMounted(() => {
       >
         <template #actions="{ row }">
           <div class="flex items-center justify-center gap-3">
+            <Button
+              type="button"
+              variant="outline-secondary"
+              size="sm"
+              class="!h-7 !w-7 !px-0 !py-0"
+              :aria-label="t('title.show')"
+              :title="t('title.show')"
+              @click.stop="onViewIndicator(row)"
+            >
+              <Lucide icon="Eye" class="!h-3.5 !w-3.5" />
+            </Button>
             <Button
               type="button"
               variant="outline-secondary"

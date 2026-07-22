@@ -1001,6 +1001,7 @@
   "sustainability-indicator-page": {
     "add": "إضافة مؤشر",
     "edit": "تعديل المؤشر",
+    "detail": "تفاصيل المؤشر",
     "col-slug": "المعرف",
     "col-title": "العنوان",
     "col-title-en": "العنوان (الإنجليزية)",

@@ -413,7 +413,13 @@ async function onSubmit(values: Record<string, unknown>) {
 
     if (result?.result) {
       toast(isEdit.value ? t('sustainability-indicator-page.edit-success') : t('sustainability-indicator-page.add-success'), { type: 'success' });
-      goBack();
+      if (isEdit.value) {
+        goBack();
+      } else {
+        // Redirect to detail page after creation
+        const newSlug = data.slug || String(result.data?.slug ?? '');
+        router.push({ name: 'app-sustainability-indicator-detail', params: { slug: newSlug } });
+      }
     } else {
       toast(String(result?.error ?? (isEdit.value ? t('sustainability-indicator-page.edit-error') : t('sustainability-indicator-page.add-error'))), { type: 'error' });
     }

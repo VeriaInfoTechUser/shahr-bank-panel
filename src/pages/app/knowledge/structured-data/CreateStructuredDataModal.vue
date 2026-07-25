@@ -6,6 +6,7 @@ import { useI18n } from 'vue-i18n';
 import { toast } from 'vue3-toastify';
 import BaseModal from '@/core/ui/base/BaseModal.vue';
 import BaseInput from '@/core/ui/base/BaseInput.vue';
+import BaseSelect from '@/core/ui/base/BaseSelect.vue';
 import BaseMultiSelect from '@/core/ui/base/BaseMultiSelect.vue';
 import Button from '@/base-components/Button';
 import { grcHttp } from '@/core/api/grcHttp';
@@ -25,6 +26,7 @@ const { t } = useI18n();
 const saving = ref(false);
 const formKey = ref(0);
 const isConverted = ref(false);
+const promptOptions = ref<{ value: string; label: string }[]>([]);
 
 const tagOptions = [
   { value: 'legal', label: 'حقوقی' },
@@ -43,7 +45,23 @@ const formSchema = yup.object({
     return !!value && value.trim().length > 0;
   }),
   tags: yup.array().of(yup.string()).default([]),
+  promptSlug: yup.string().default(''),
 });
+
+async function fetchPrompts() {
+  try {
+    const res = await grcHttp.get(endpoints.rag.prompts.list, { params: { page: 1, limit: 100 } });
+    const body = (res as Record<string, unknown>)?.data as Record<string, unknown> | undefined;
+    const inner = body?.data as Record<string, unknown> | undefined;
+    const list = (inner?.list ?? []) as Record<string, unknown>[];
+    promptOptions.value = list.map((p) => ({
+      value: String(p.slug ?? ''),
+      label: String(p.title ?? ''),
+    }));
+  } catch {
+    promptOptions.value = [];
+  }
+}
 
 async function onSubmit(values: Record<string, unknown>) {
   saving.value = true;
@@ -54,6 +72,7 @@ async function onSubmit(values: Record<string, unknown>) {
       converted: String(values.converted ?? ''),
       isConverted: isConverted.value,
       tags: (values.tags ?? []) as string[],
+      promptSlug: String(values.promptSlug ?? ''),
     });
     toast(t('structured-data.form-add-success'), { type: 'success' });
     emit('success');
@@ -79,6 +98,7 @@ watch(() => props.show, (visible) => {
   formKey.value++;
   saving.value = false;
   isConverted.value = false;
+  fetchPrompts();
 });
 </script>
 
@@ -93,7 +113,7 @@ watch(() => props.show, (visible) => {
       :key="'form-' + formKey"
       id="create-structured-data-form"
       :validation-schema="formSchema"
-      :initial-values="{ title: '', data: '', converted: '', tags: [] }"
+      :initial-values="{ title: '', data: '', converted: '', tags: [], promptSlug: '' }"
       class="space-y-4"
       @submit="onSubmit"
     >
@@ -133,6 +153,13 @@ watch(() => props.show, (visible) => {
         :placeholder="t('structured-data.form-converted-placeholder')"
         :disabled="!isConverted"
         :rows="4"
+      />
+
+      <BaseSelect
+        name="promptSlug"
+        :label="t('structured-data.form-prompt')"
+        :options="promptOptions"
+        :placeholder="t('structured-data.form-prompt-placeholder')"
       />
 
       <BaseMultiSelect

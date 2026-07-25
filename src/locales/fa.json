@@ -772,6 +772,8 @@
     "form-is-converted": "تبدیل شده",
     "form-converted": "متن تبدیل شده",
     "form-converted-placeholder": "متن تبدیل شده را وارد کنید",
+    "form-prompt": "پرامپت",
+    "form-prompt-placeholder": "انتخاب پرامپت",
     "form-tags": "برچسب‌ها",
     "form-tags-placeholder": "انتخاب برچسب‌ها",
     "form-submit": "ثبت",

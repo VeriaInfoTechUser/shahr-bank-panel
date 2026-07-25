@@ -751,6 +751,8 @@
     "form-is-converted": "Is Converted",
     "form-converted": "Converted Text",
     "form-converted-placeholder": "Enter converted text",
+    "form-prompt": "Prompt",
+    "form-prompt-placeholder": "Select a prompt",
     "form-tags": "Tags",
     "form-tags-placeholder": "Select tags",
     "form-submit": "Submit",

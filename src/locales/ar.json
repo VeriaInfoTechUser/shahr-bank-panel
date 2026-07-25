@@ -588,6 +588,8 @@
     "form-is-converted": "تم التحويل",
     "form-converted": "النص المحول",
     "form-converted-placeholder": "أدخل النص المحول",
+    "form-prompt": "المحفز",
+    "form-prompt-placeholder": "اختر المحفز",
     "form-tags": "العلامات",
     "form-tags-placeholder": "اختر العلامات",
     "form-submit": "إرسال",

@@ -27,6 +27,15 @@ function formatDate(iso: string) {
   }
 }
 
+const tagOptions: Record<string, string> = {
+  legal: 'حقوقی',
+  compliance: 'تطبیق',
+  risk: 'ریسک',
+  governance: 'حاکمیت',
+  esg: 'پایداری',
+  policy: 'سیاست‌نامه',
+};
+
 const fetchStructuredData: FetchFn = async ({ page, limit, filters }) => {
   const res = await grcHttp.get(endpoints.rag.structuredData.list, {
     params: { page, limit, ...filters },
@@ -110,6 +119,21 @@ onMounted(() => {
         :actions="true"
         :show-search="false"
       >
+        <template #cell-tags="{ row }">
+          <div class="flex flex-wrap justify-center gap-1">
+            <template v-if="(row.tags as string[])?.length">
+              <span
+                v-for="tag in (row.tags as string[])"
+                :key="tag"
+                class="inline-flex items-center rounded-full border border-primary/15 bg-primary/5 px-2 py-0.5 text-[11px] font-medium text-primary dark:border-primary/20 dark:bg-primary/10 dark:text-primary"
+              >
+                {{ tagOptions[tag] ?? tag }}
+              </span>
+            </template>
+            <span v-else class="text-xs text-slate-400 dark:text-slate-500">—</span>
+          </div>
+        </template>
+
         <template #actions="{ row }">
           <div class="flex items-center justify-center gap-2">
             <a

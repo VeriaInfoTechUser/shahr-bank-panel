@@ -102,7 +102,7 @@ const table = useDataTable({
     }),
     createColumn({
       key: 'actions',
-      label: t('documents.col-actions'),
+      label: '',
       sortable: false,
     }),
   ],

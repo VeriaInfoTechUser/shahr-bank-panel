@@ -6,6 +6,7 @@ import { useI18n } from 'vue-i18n';
 import { toast } from 'vue3-toastify';
 import BaseModal from '@/core/ui/base/BaseModal.vue';
 import BaseInput from '@/core/ui/base/BaseInput.vue';
+import BaseSelect from '@/core/ui/base/BaseSelect.vue';
 import Button from '@/base-components/Button';
 import { grcHttp } from '@/core/api/grcHttp';
 import { endpoints } from '@/core/api/endpoints';
@@ -106,18 +107,13 @@ watch(() => props.show, (visible) => {
         :required="true"
         :rows="6"
       />
-      <div class="form-control w-full">
-        <label class="label min-h-0 py-1">
-          <span class="label-text text-sm font-normal leading-snug">{{ t('prompts.form-type') }} <span class="text-error">*</span></span>
-        </label>
-        <select
-          name="type"
-          class="select select-bordered w-full !h-8 !min-h-0 py-1.5 px-2.5 text-xs font-light leading-snug dark:bg-darkmode-800 dark:text-slate-200"
-        >
-          <option value="" disabled>{{ t('prompts.form-type-placeholder') }}</option>
-          <option v-for="opt in typeOptions" :key="opt.value" :value="opt.value">{{ opt.label }}</option>
-        </select>
-      </div>
+      <BaseSelect
+        name="type"
+        :label="t('prompts.form-type')"
+        :options="typeOptions"
+        :placeholder="t('prompts.form-type-placeholder')"
+        :required="true"
+      />
     </Form>
 
     <template #footer>

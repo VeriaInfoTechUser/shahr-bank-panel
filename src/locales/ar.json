@@ -596,7 +596,9 @@
     "validation-title-required": "العنوان مطلوب.",
     "validation-data-required": "البيانات مطلوبة.",
     "validation-converted-required": "النص المحول مطلوب.",
-    "empty": "لا توجد بيانات منظمة بعد"
+    "empty": "لا توجد بيانات منظمة بعد",
+    "detail-title": "تفاصيل",
+    "detail-load-error": "تعذر تحميل تفاصيل البيانات المنظمة."
   },
   "semantic-search": {
     "title": "البحث الدلالي",

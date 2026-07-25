@@ -759,7 +759,9 @@
     "validation-title-required": "Title is required.",
     "validation-data-required": "Data is required.",
     "validation-converted-required": "Converted text is required.",
-    "empty": "No structured data available yet"
+    "empty": "No structured data available yet",
+    "detail-title": "Detail",
+    "detail-load-error": "Could not load structured data details."
   },
   "semantic-search": {
     "title": "Semantic Search",

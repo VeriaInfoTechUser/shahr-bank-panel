@@ -1,15 +1,18 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
+import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { useDataTable, createColumn, type FetchFn } from '@core';
 import BaseTable from '@core/ui/base/BaseTable.vue';
 import StructuredDataBreadcrumbToolbar from './StructuredDataBreadcrumbToolbar.vue';
 import CreateStructuredDataModal from './CreateStructuredDataModal.vue';
 import { useBreadcrumbSlot } from '@/composables/useBreadcrumb';
+import Lucide from '@/base-components/Lucide';
 import { grcHttp } from '@/core/api/grcHttp';
 import { endpoints } from '@/core/api/endpoints';
 
 const { t } = useI18n();
+const router = useRouter();
 const { setContent: setBreadcrumbSlot } = useBreadcrumbSlot();
 
 const showCreateModal = ref(false);
@@ -29,8 +32,9 @@ const fetchStructuredData: FetchFn = async ({ page, limit, filters }) => {
     params: { page, limit, ...filters },
   });
   const body = (res as Record<string, unknown>)?.data as Record<string, unknown> | undefined;
-  const list = (body?.list ?? []) as Record<string, unknown>[];
-  const count = (body?.paginator as Record<string, unknown>)?.count ?? 0;
+  const inner = body?.data as Record<string, unknown> | undefined;
+  const list = (inner?.list ?? []) as Record<string, unknown>[];
+  const count = (inner?.paginator as Record<string, unknown>)?.count ?? 0;
   return { list: Array.isArray(list) ? list : [], count: Number(count) };
 };
 
@@ -68,7 +72,7 @@ const table = useDataTable({
     }),
     createColumn({
       key: 'actions',
-      label: t('structured-data.col-actions'),
+      label: '',
       sortable: false,
     }),
   ],
@@ -108,9 +112,14 @@ onMounted(() => {
       >
         <template #actions="{ row }">
           <div class="flex items-center justify-center gap-2">
-            <span class="text-[11px] text-slate-400 dark:text-slate-500">
-              {{ row.id ?? '—' }}
-            </span>
+            <a
+              href="#"
+              class="inline-flex items-center gap-1 rounded px-2 py-1 text-[11px] font-medium text-primary transition-colors hover:bg-primary/10"
+              @click.prevent="router.push({ name: 'app-knowledge-structured-data-detail', params: { slug: row.slug } })"
+            >
+              <Lucide icon="Eye" class="h-3.5 w-3.5" />
+              {{ t('structured-data.detail-title') }}
+            </a>
           </div>
         </template>
       </BaseTable>

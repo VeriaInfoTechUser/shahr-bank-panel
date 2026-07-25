@@ -780,7 +780,9 @@
     "validation-title-required": "عنوان الزامی است.",
     "validation-data-required": "داده الزامی است.",
     "validation-converted-required": "متن تبدیل شده الزامی است.",
-    "empty": "هنوز داده ساخت‌یافته‌ای موجود نیست"
+    "empty": "هنوز داده ساخت‌یافته‌ای موجود نیست",
+    "detail-title": "جزئیات",
+    "detail-load-error": "بارگذاری اطلاعات داده ساخت‌یافته ممکن نشد."
   },
   "semantic-search": {
     "title": "جستجوی معنایی",

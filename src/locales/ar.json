@@ -571,6 +571,8 @@
     "page-title": "البيانات المنظمة",
     "page-subtitle": "إدارة وصيانة البيانات المنظمة للمؤسسة",
     "col-title": "العنوان",
+    "col-prompt-title": "عنوان المحفز",
+    "col-prompt-summary": "ملخص المحفز",
     "col-tags": "العلامات",
     "col-is-converted": "تم التحويل",
     "col-created-at": "تاريخ الإنشاء",

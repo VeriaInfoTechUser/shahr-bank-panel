@@ -57,6 +57,18 @@ const table = useDataTable({
       bodyCell: (row: Record<string, unknown>) => row.title ?? '—',
     }),
     createColumn({
+      key: 'promptTitle',
+      label: t('structured-data.col-prompt-title'),
+      sortable: false,
+      bodyCell: (row: Record<string, unknown>) => row.promptTitle ?? '—',
+    }),
+    createColumn({
+      key: 'promptSummary',
+      label: t('structured-data.col-prompt-summary'),
+      sortable: false,
+      bodyCell: (row: Record<string, unknown>) => row.promptSummary ?? '—',
+    }),
+    createColumn({
       key: 'tags',
       label: t('structured-data.col-tags'),
       sortable: false,

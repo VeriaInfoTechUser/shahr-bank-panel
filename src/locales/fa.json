@@ -755,6 +755,8 @@
     "page-title": "داده‌های ساخت‌یافته",
     "page-subtitle": "مدیریت و نگهداری داده‌های ساخت‌یافته سازمانی",
     "col-title": "عنوان",
+    "col-prompt-title": "عنوان پرامپت",
+    "col-prompt-summary": "خلاصه پرامپت",
     "col-tags": "برچسب‌ها",
     "col-is-converted": "تبدیل شده",
     "col-created-at": "تاریخ ایجاد",

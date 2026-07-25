@@ -734,6 +734,8 @@
     "page-title": "Structured Data",
     "page-subtitle": "Manage and maintain organization structured data",
     "col-title": "Title",
+    "col-prompt-title": "Prompt Title",
+    "col-prompt-summary": "Prompt Summary",
     "col-tags": "Tags",
     "col-is-converted": "Converted",
     "col-created-at": "Created At",

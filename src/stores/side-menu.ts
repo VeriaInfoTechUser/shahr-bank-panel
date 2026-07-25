@@ -309,6 +309,11 @@ export const useSideMenuStore = defineStore("sideMenu", {
                 title: "menu.knowledge",
                 subMenu: [
                     {
+                        icon: "MessageSquare",
+                        pageName: "app-knowledge-prompts",
+                        title: "menu.knowledge-prompts",
+                    },
+                    {
                         icon: "Files",
                         pageName: "app-knowledge-documents",
                         title: "menu.knowledge-documents",
@@ -317,11 +322,6 @@ export const useSideMenuStore = defineStore("sideMenu", {
                         icon: "TableProperties",
                         pageName: "app-knowledge-structured-data",
                         title: "menu.knowledge-structured-data",
-                    },
-                    {
-                        icon: "MessageSquare",
-                        pageName: "app-knowledge-prompts",
-                        title: "menu.knowledge-prompts",
                     },
                     {
                         icon: "Sparkles",

@@ -136,5 +136,9 @@ export const endpoints = {
       process: 'rag/documents/process',
       search: 'rag/search',
     },
+    structuredData: {
+      list: 'rag/structured-data',
+      create: 'rag/structured-data',
+    },
   },
 };

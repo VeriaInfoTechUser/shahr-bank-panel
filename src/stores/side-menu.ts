@@ -314,6 +314,11 @@ export const useSideMenuStore = defineStore("sideMenu", {
                         title: "menu.knowledge-documents",
                     },
                     {
+                        icon: "TableProperties",
+                        pageName: "app-knowledge-structured-data",
+                        title: "menu.knowledge-structured-data",
+                    },
+                    {
                         icon: "Sparkles",
                         pageName: "app-knowledge-semantic-search",
                         title: "menu.knowledge-semantic-search",

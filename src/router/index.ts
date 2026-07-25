@@ -80,6 +80,8 @@ import KnowledgeDocumentDetail from "@/pages/app/knowledge/documents/detail/inde
 import KnowledgeSemanticSearch from "@/pages/app/knowledge/semantic-search/index.vue";
 import KnowledgeStructuredData from "@/pages/app/knowledge/structured-data/index.vue";
 import KnowledgeStructuredDataDetail from "@/pages/app/knowledge/structured-data/detail/index.vue";
+import KnowledgePrompts from "@/pages/app/knowledge/prompts/index.vue";
+import KnowledgePromptsDetail from "@/pages/app/knowledge/prompts/detail/index.vue";
 import SectionPlaceholderPage from "@/pages/app/shared/SectionPlaceholderPage.vue";
 import AuthLogin from "@/pages/auth/login/index.vue";
 
@@ -675,6 +677,26 @@ const routes = [
                                         {
                                             routeName: 'app-knowledge-structured-data',
                                             labelKey: 'menu.knowledge-structured-data',
+                                        },
+                                    ],
+                                },
+                            },
+                            {
+                                path: "prompts",
+                                name: "app-knowledge-prompts",
+                                component: KnowledgePrompts,
+                                meta: { breadcrumbLabel: 'menu.knowledge-prompts' },
+                            },
+                            {
+                                path: "prompts/:slug",
+                                name: "app-knowledge-prompts-detail",
+                                component: KnowledgePromptsDetail,
+                                meta: {
+                                    breadcrumbLabel: 'prompts.detail-title',
+                                    breadcrumbPrefix: [
+                                        {
+                                            routeName: 'app-knowledge-prompts',
+                                            labelKey: 'menu.knowledge-prompts',
                                         },
                                     ],
                                 },

@@ -140,5 +140,9 @@ export const endpoints = {
       list: 'rag/structured-data',
       create: 'rag/structured-data',
     },
+    prompts: {
+      list: 'rag/prompts',
+      create: 'rag/prompts',
+    },
   },
 };

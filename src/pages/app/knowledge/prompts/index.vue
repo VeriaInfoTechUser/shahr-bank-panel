@@ -59,10 +59,10 @@ const table = useDataTable({
       bodyCell: (row: Record<string, unknown>) => row.summary ?? '—',
     }),
     createColumn({
-      key: 'type',
-      label: t('prompts.col-type'),
+      key: 'promptType',
+      label: t('prompts.col-prompt-type'),
       sortable: false,
-      bodyCell: (row: Record<string, unknown>) => typeLabels[String(row.type ?? '')] ?? row.type ?? '—',
+      bodyCell: (row: Record<string, unknown>) => typeLabels[String(row.promptType ?? '')] ?? row.promptType ?? '—',
     }),
     createColumn({
       key: 'createdAt',

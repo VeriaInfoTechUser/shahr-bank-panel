@@ -34,7 +34,7 @@ const formSchema = yup.object({
   title: yup.string().trim().required(t('prompts.validation-title-required')),
   summary: yup.string().trim().required(t('prompts.validation-summary-required')),
   text: yup.string().trim().required(t('prompts.validation-text-required')),
-  type: yup.string().trim().required(t('prompts.validation-type-required')),
+  promptType: yup.string().trim().required(t('prompts.validation-prompt-type-required')),
 });
 
 async function onSubmit(values: Record<string, unknown>) {
@@ -44,7 +44,7 @@ async function onSubmit(values: Record<string, unknown>) {
       title: String(values.title ?? ''),
       summary: String(values.summary ?? ''),
       text: String(values.text ?? ''),
-      type: String(values.type ?? ''),
+      promptType: String(values.promptType ?? ''),
     });
     toast(t('prompts.form-add-success'), { type: 'success' });
     emit('success');
@@ -83,7 +83,7 @@ watch(() => props.show, (visible) => {
       :key="'form-' + formKey"
       id="create-prompt-form"
       :validation-schema="formSchema"
-      :initial-values="{ title: '', summary: '', text: '', type: '' }"
+      :initial-values="{ title: '', summary: '', text: '', promptType: '' }"
       class="space-y-4"
       @submit="onSubmit"
     >
@@ -108,10 +108,10 @@ watch(() => props.show, (visible) => {
         :rows="6"
       />
       <BaseSelect
-        name="type"
-        :label="t('prompts.form-type')"
+        name="promptType"
+        :label="t('prompts.form-prompt-type')"
         :options="typeOptions"
-        :placeholder="t('prompts.form-type-placeholder')"
+        :placeholder="t('prompts.form-prompt-type-placeholder')"
         :required="true"
       />
     </Form>

@@ -60,8 +60,8 @@ onMounted(async () => {
           </div>
 
           <div>
-            <span class="text-xs text-slate-400 dark:text-slate-500">{{ t('prompts.form-type') }}</span>
-            <p class="mt-1 text-xs text-slate-700 dark:text-slate-300">{{ typeLabels[String(detail.type ?? '')] ?? detail.type ?? '—' }}</p>
+            <span class="text-xs text-slate-400 dark:text-slate-500">{{ t('prompts.form-prompt-type') }}</span>
+            <p class="mt-1 text-xs text-slate-700 dark:text-slate-300">{{ typeLabels[String(detail.promptType ?? '')] ?? detail.promptType ?? '—' }}</p>
           </div>
 
           <div>

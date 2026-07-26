@@ -824,7 +824,17 @@
     "source-vector": "Vector",
     "source-text": "Text",
     "block-label": "Block",
-    "tags": "Tags"
+    "tags": "Tags",
+    "next": "Next",
+    "back-to-results": "Back to Results",
+    "selected-items": "items selected",
+    "combined-text": "Combined Text",
+    "select-prompt": "Select Prompt",
+    "prompt-placeholder": "Choose a prompt...",
+    "generate": "Generate",
+    "back-to-prompts": "Back to Prompts",
+    "prompt-text": "Prompt Text",
+    "selected-context": "Selected Context"
   },
   "settings-page": {
     "add-member": "Add member",

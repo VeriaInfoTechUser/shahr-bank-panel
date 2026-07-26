@@ -661,7 +661,17 @@
     "source-vector": "متجهي",
     "source-text": "نصي",
     "block-label": "كتلة",
-    "tags": "الوسوم"
+    "tags": "الوسوم",
+    "next": "التالي",
+    "back-to-results": "العودة إلى النتائج",
+    "selected-items": "عناصر محددة",
+    "combined-text": "النص المجمّع",
+    "select-prompt": "اختر المحفز",
+    "prompt-placeholder": "اختر محفزًا...",
+    "generate": "توليد",
+    "back-to-prompts": "العودة إلى المحفزات",
+    "prompt-text": "نص المحفز",
+    "selected-context": "السياق المحدد"
   },
   "settings-page": {
     "add-member": "إضافة جهة مرتبطة",

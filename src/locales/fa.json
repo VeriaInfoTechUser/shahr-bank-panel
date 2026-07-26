@@ -845,7 +845,17 @@
     "source-vector": "برداری",
     "source-text": "متنی",
     "block-label": "بلوک",
-    "tags": "برچسب‌ها"
+    "tags": "برچسب‌ها",
+    "next": "مرحله بعد",
+    "back-to-results": "بازگشت به نتایج",
+    "selected-items": "آیتم انتخاب شده",
+    "combined-text": "متن ترکیبی",
+    "select-prompt": "انتخاب پرامپت",
+    "prompt-placeholder": "یک پرامپت انتخاب کنید...",
+    "generate": "تولید",
+    "back-to-prompts": "بازگشت به پرامپت‌ها",
+    "prompt-text": "متن پرامپت",
+    "selected-context": "متن انتخاب شده"
   },
   "settings-page": {
     "add-member": "افزودن رابط",

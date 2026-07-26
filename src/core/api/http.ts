@@ -4,15 +4,22 @@ import { setCurrentUser } from '@/utils/cookie';
 import { generateRequestId, logAudit } from './auditLogger';
 import { withRetry } from './retryHandler';
 import { base_url } from '@/constants/config';
-// import router from '@/router';
 import { handleApiError, ApiError } from './apiError';
 
 const LOGOUT_ENDPOINTS = ['user/authentication/logout'];
 
+let routerInstance: ReturnType<typeof import('@/router').default> | null = null;
+function getRouter() {
+  if (!routerInstance) {
+    routerInstance = import('@/router').then(m => m.default);
+  }
+  return routerInstance;
+}
+
 function handleUnauthorized(): void {
   setCurrentUser(null);
   eraseCookie('utn');
-  // router.push({ name: 'auth-login' });
+  getRouter().then(r => r.push({ name: 'auth-login' }));
 }
 
 function createHttpClient(): AxiosInstance {

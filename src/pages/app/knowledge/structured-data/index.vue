@@ -19,7 +19,7 @@ const showCreateModal = ref(false);
 const showFilter = ref(false);
 
 function formatDate(iso: string) {
-  if (!iso) return '—';
+  if (!iso) return '';
   try {
     return new Date(iso).toLocaleDateString('fa-IR');
   } catch {
@@ -69,20 +69,27 @@ const table = useDataTable({
       bodyCell: (row: Record<string, unknown>) => row.promptSummary ?? '—',
     }),
     createColumn({
+      key: 'dataText',
+      label: t('structured-data.col-data-text'),
+      sortable: false,
+      bodyCell: (row: Record<string, unknown>) => {
+        const text = String(row.dataText ?? '');
+        return text.length > 80 ? text.slice(0, 80) + '...' : (text || ' ');
+      },
+    }),
+    createColumn({
+      key: 'chunkCount',
+      label: t('structured-data.col-chunk-count'),
+      sortable: false,
+      bodyCell: (row: Record<string, unknown>) => row.chunkCount ?? 0,
+    }),
+    createColumn({
       key: 'tags',
       label: t('structured-data.col-tags'),
       sortable: false,
       bodyCell: (row: Record<string, unknown>) => {
         const tags = (row.tags ?? []) as string[];
-        return tags.length ? tags.join(', ') : '—';
-      },
-    }),
-    createColumn({
-      key: 'isConverted',
-      label: t('structured-data.col-is-converted'),
-      sortable: false,
-      bodyCell: (row: Record<string, unknown>) => {
-        return row.isConverted ? t('structured-data.status-yes') : t('structured-data.status-no');
+        return tags.length ? tags.join(', ') : '';
       },
     }),
     createColumn({
@@ -142,7 +149,6 @@ onMounted(() => {
                 {{ tagOptions[tag] ?? tag }}
               </span>
             </template>
-            <span v-else class="text-xs text-slate-400 dark:text-slate-500">—</span>
           </div>
         </template>
 

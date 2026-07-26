@@ -2593,6 +2593,8 @@
     "date-to": "تاريخ الانتهاء",
     "date-start": "تاريخ البدء",
     "date": "التاريخ",
+    "date-range": "النطاق الزمني",
+    "date-range-placeholder": "اختر النطاق الزمني",
     "type": "النوع",
     "type-calculate": "حساب",
     "type-recalculate": "إعادة حساب",

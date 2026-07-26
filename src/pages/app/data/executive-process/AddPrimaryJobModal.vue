@@ -8,7 +8,7 @@ import BaseModal from '@/core/ui/base/BaseModal.vue';
 import BaseSelect from '@/core/ui/base/BaseSelect.vue';
 import Button from '@/base-components/Button';
 import { grcRepo, type GrcEntity } from '@/core/repositories/grcRepo';
-import BaseDatePicker from '@/core/ui/base/BaseDatePicker.vue';
+import BaseDateRangePicker from '@/core/ui/base/BaseDateRangePicker.vue';
 
 const props = withDefaults(
   defineProps<{
@@ -40,12 +40,14 @@ const assetOptions = ref<{ value: string; label: string }[]>([]);
 
 const initialValues = ref({
   asset_slug: '',
-  date: '',
+  date_from: '',
+  date_to: '',
 });
 
 const validationSchema = yup.object({
   asset_slug: yup.string().trim().required(t('validation.required')),
-  date: yup.string().trim().required(t('validation.required')),
+  date_from: yup.string().trim().required(t('validation.required')),
+  date_to: yup.string().trim().required(t('validation.required')),
 });
 
 async function loadAllAssets() {
@@ -77,12 +79,14 @@ watch(
     if (mode === 'edit' && j) {
       initialValues.value = {
         asset_slug: (j.asset_slug as string) ?? '',
-        date: (j.date as string) ?? '',
+        date_from: (j.date_from as string) ?? '',
+        date_to: (j.date_to as string) ?? '',
       };
     } else {
       initialValues.value = {
         asset_slug: '',
-        date: '',
+        date_from: '',
+        date_to: '',
       };
     }
     formKey.value += 1;
@@ -112,7 +116,8 @@ async function onSubmit(values: Record<string, unknown>) {
     if (selectedAsset && 'indicatorSlug' in selectedAsset) {
       payload.indicator_slug = (selectedAsset as Record<string, unknown>).indicatorSlug;
     }
-    if (values.date) payload.date_from = String(values.date);
+    if (values.date_from) payload.date_from = String(values.date_from);
+    if (values.date_to) payload.date_to = String(values.date_to);
 
     if (props.mode === 'edit' && props.job) {
       const id = String(props.job.id ?? '');
@@ -166,9 +171,11 @@ async function onSubmit(values: Record<string, unknown>) {
         :required="true"
         :filter="true"
       />
-      <BaseDatePicker
-        name="date"
-        :label="t('job.date')"
+      <BaseDateRangePicker
+        name-from="date_from"
+        name-to="date_to"
+        :label="t('job.date-range')"
+        :placeholder="t('job.date-range-placeholder')"
         :required="true"
       />
     </Form>

@@ -3315,6 +3315,8 @@
     "date-to": "تاریخ پایان",
     "date-start": "تاریخ شروع",
     "date": "تاریخ",
+    "date-range": "بازه زمانی",
+    "date-range-placeholder": "بازه زمانی را انتخاب کنید",
     "type": "نوع",
     "type-calculate": "محاسبه",
     "type-recalculate": "محاسبه مجدد",

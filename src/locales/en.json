@@ -3144,6 +3144,8 @@
     "date-to": "Date To",
     "date-start": "Start Date",
     "date": "Date",
+    "date-range": "Date Range",
+    "date-range-placeholder": "Select date range",
     "type": "Type",
     "type-calculate": "Calculate",
     "type-recalculate": "Recalculate",

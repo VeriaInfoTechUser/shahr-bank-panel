@@ -40,7 +40,7 @@ const tagOptions = [
 const formSchema = yup.object({
   title: yup.string().trim().required(t('structured-data.validation-title-required')),
   data: yup.string().trim().required(t('structured-data.validation-data-required')),
-  converted: yup.string().test('converted-required', t('structured-data.validation-converted-required'), (value) => {
+  dataText: yup.string().test('dataText-required', t('structured-data.validation-converted-required'), (value) => {
     if (!isConverted.value) return true;
     return !!value && value.trim().length > 0;
   }),
@@ -69,7 +69,7 @@ async function onSubmit(values: Record<string, unknown>) {
     await grcHttp.post(endpoints.rag.structuredData.create, {
       title: String(values.title ?? ''),
       data: String(values.data ?? ''),
-      converted: String(values.converted ?? ''),
+      dataText: String(values.dataText ?? ''),
       isConverted: isConverted.value,
       tags: (values.tags ?? []) as string[],
       promptSlug: String(values.promptSlug ?? ''),
@@ -113,7 +113,7 @@ watch(() => props.show, (visible) => {
       :key="'form-' + formKey"
       id="create-structured-data-form"
       :validation-schema="formSchema"
-      :initial-values="{ title: '', data: '', converted: '', tags: [], promptSlug: '' }"
+      :initial-values="{ title: '', data: '', dataText: '', tags: [], promptSlug: '' }"
       class="space-y-4"
       @submit="onSubmit"
     >
@@ -145,11 +145,11 @@ watch(() => props.show, (visible) => {
         </label>
       </div>
 
-      <!-- converted textarea — only enabled when isConverted is checked -->
+      <!-- dataText textarea — only enabled when isConverted is checked -->
       <BaseInput
-        name="converted"
+        name="dataText"
         type="textarea"
-        :label="t('structured-data.form-converted')"
+        :label="t('structured-data.form-data-text')"
         :placeholder="t('structured-data.form-converted-placeholder')"
         :disabled="!isConverted"
         :rows="4"

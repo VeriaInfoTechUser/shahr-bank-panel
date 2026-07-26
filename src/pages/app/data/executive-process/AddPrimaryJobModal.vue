@@ -190,7 +190,7 @@ async function onSubmit(values: Record<string, unknown>) {
           form="add-primary-job-form"
           :disabled="saving"
         >
-          {{ props.mode === 'edit' ? t('title.update') : t('title.register') }}
+          {{ t('general.submit') }}
         </Button>
       </div>
     </template>

@@ -113,7 +113,8 @@
     "no": "لا",
     "previous": "السابق",
     "next": "التالي",
-    "select": "اختر"
+    "select": "اختر",
+    "submit": "إرسال"
   },
   "login-history": {
     "title": "سجل الدخول",

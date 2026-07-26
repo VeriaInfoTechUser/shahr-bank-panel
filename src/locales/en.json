@@ -245,7 +245,8 @@
     "no": "No",
     "previous": "Previous",
     "next": "Next",
-    "select": "Select"
+    "select": "Select",
+    "submit": "Submit"
   },
   "login-history": {
     "title": "Login History",

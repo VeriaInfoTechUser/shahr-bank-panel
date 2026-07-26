@@ -264,7 +264,8 @@
     "no": "خیر",
     "previous": "قبلی",
     "next": "بعدی",
-    "select": "انتخاب کنید"
+    "select": "انتخاب کنید",
+    "submit": "ارسال"
   },
   "login-history": {
     "title": "تاریخچه ورود",

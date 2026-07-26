@@ -671,7 +671,22 @@
     "generate": "توليد",
     "back-to-prompts": "العودة إلى المحفزات",
     "prompt-text": "نص المحفز",
-    "selected-context": "السياق المحدد"
+    "selected-context": "السياق المحدد",
+    "step-1-label": "بحث واختيار",
+    "step-2-label": "تكوين المحفز",
+    "step-3-label": "مراجعة ومخرجات",
+    "chunks-selected": "أجزاء محددة",
+    "ready-to-configure": "جاهز لتكوين المحفز",
+    "continue": "متابعة",
+    "selected-context-title": "السياق المحدد",
+    "edit": "تعديل",
+    "untitled-chunk": "جزء بدون عنوان",
+    "configure-prompt": "تكوين المحفز",
+    "preview": "معاينة",
+    "start-over": "بدء من جديد",
+    "system-instructions": "تعليمات النظام",
+    "context-separator": "السياق",
+    "retrieved-context": "السياق المستخرج"
   },
   "settings-page": {
     "add-member": "إضافة جهة مرتبطة",

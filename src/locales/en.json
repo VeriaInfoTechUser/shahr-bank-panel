@@ -834,7 +834,22 @@
     "generate": "Generate",
     "back-to-prompts": "Back to Prompts",
     "prompt-text": "Prompt Text",
-    "selected-context": "Selected Context"
+    "selected-context": "Selected Context",
+    "step-1-label": "Search & Select",
+    "step-2-label": "Configure Prompt",
+    "step-3-label": "Review & Output",
+    "chunks-selected": "chunks selected",
+    "ready-to-configure": "Ready to configure prompt",
+    "continue": "Continue",
+    "selected-context-title": "Selected Context",
+    "edit": "Edit",
+    "untitled-chunk": "Untitled Chunk",
+    "configure-prompt": "Configure Prompt",
+    "preview": "Preview",
+    "start-over": "Start Over",
+    "system-instructions": "System Instructions",
+    "context-separator": "Context",
+    "retrieved-context": "Retrieved Context"
   },
   "settings-page": {
     "add-member": "Add member",

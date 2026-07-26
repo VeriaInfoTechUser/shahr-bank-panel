@@ -855,7 +855,22 @@
     "generate": "تولید",
     "back-to-prompts": "بازگشت به پرامپت‌ها",
     "prompt-text": "متن پرامپت",
-    "selected-context": "متن انتخاب شده"
+    "selected-context": "متن انتخاب شده",
+    "step-1-label": "جستجو و انتخاب",
+    "step-2-label": "پیکربندی پرامپت",
+    "step-3-label": "بررسی و خروجی",
+    "chunks-selected": "بخش انتخاب شده",
+    "ready-to-configure": "آماده برای پیکربندی پرامپت",
+    "continue": "ادامه",
+    "selected-context-title": "زمینه انتخاب شده",
+    "edit": "ویرایش",
+    "untitled-chunk": "بخش بدون عنوان",
+    "configure-prompt": "پیکربندی پرامپت",
+    "preview": "پیش‌نمایش",
+    "start-over": "شروع مجدد",
+    "system-instructions": "دستورالعمل‌های سیستم",
+    "context-separator": "زمینه",
+    "retrieved-context": "زمینه بازیابی شده"
   },
   "settings-page": {
     "add-member": "افزودن رابط",

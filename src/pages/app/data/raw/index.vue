@@ -26,11 +26,11 @@ const table = useDataTable({
       sortable: false,
       bodyCell: (row) => row.asset_name ?? row.asset_slug ?? '—',
     }),
-    createColumn({
-      key: 'metric_name',
-      label: t('raw-data-page.col-metric'),
+createColumn({
+      key: 'indicator_name',
+      label: t('raw-data-page.col-indicator'),
       sortable: false,
-      bodyCell: (row) => row.metric_name ?? row.metric_slug ?? '—',
+      bodyCell: (row) => row.indicator_name ?? row.indicator_slug ?? '—',
     }),
     createColumn({
       key: 'value',

@@ -109,8 +109,8 @@ async function onSubmit(values: Record<string, unknown>) {
     };
 
     if (values.asset_slug) payload.asset_slug = String(values.asset_slug);
-    if (selectedAsset && 'metricSlug' in selectedAsset) {
-      payload.metric_slug = (selectedAsset as Record<string, unknown>).metricSlug;
+    if (selectedAsset && 'indicatorSlug' in selectedAsset) {
+      payload.indicator_slug = (selectedAsset as Record<string, unknown>).indicatorSlug;
     }
     if (values.date) payload.date_from = String(values.date);
 

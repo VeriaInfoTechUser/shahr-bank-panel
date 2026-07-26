@@ -54,16 +54,16 @@ const table = useDataTable({
       bodyCell: (row) => row.id ?? '—',
     }),
     createColumn({
-      key: 'metric_slug',
-      label: t('job-log.metric-slug'),
+      key: 'indicator_slug',
+      label: t('job-log.indicator-slug'),
       sortable: false,
-      bodyCell: (row) => row.metric_slug ?? '—',
+      bodyCell: (row) => row.indicator_slug ?? '—',
     }),
     createColumn({
-      key: 'metric_name',
-      label: t('job-log.metric-name'),
+      key: 'indicator_name',
+      label: t('job-log.indicator-name'),
       sortable: false,
-      bodyCell: (row) => row.metric_name ?? '—',
+      bodyCell: (row) => row.indicator_name ?? '—',
     }),
     createColumn({
       key: 'calculation_type',
@@ -214,7 +214,7 @@ onMounted(() => {
           <div v-for="f in [
             { label: t('job-log.id'), value: selectedLog.id, mono: true },
             { label: t('job-log.job-id'), value: selectedLog.job_id, mono: true },
-            { label: t('job-log.metric-slug'), value: selectedLog.metric_slug, mono: true },
+            { label: t('job-log.indicator-slug'), value: selectedLog.indicator_slug, mono: true },
             { label: t('job-log.calculation-type'), value: selectedLog.calculation_type },
             { label: t('job-log.tenant-id'), value: selectedLog.tenant_id ?? '—' },
             { label: t('job-log.timestamp'), value: selectedLog.timestamp ? new Date(String(selectedLog.timestamp)).toLocaleString('fa-IR') : '—' },

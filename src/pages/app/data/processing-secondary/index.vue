@@ -17,11 +17,11 @@ const fetchSecondary: FetchFn = async ({ page, limit, filters }) => {
 const table = useDataTable({
   fetchFn: fetchSecondary,
   columns: [
-    createColumn({
-      key: 'metric_name',
-      label: t('job-log.metric-name'),
+createColumn({
+      key: 'indicator_name',
+      label: t('job-log.indicator-name'),
       sortable: false,
-      bodyCell: (row) => row.metric_name ?? row.metric_slug ?? '—',
+      bodyCell: (row) => row.indicator_name ?? row.indicator_slug ?? '—',
     }),
     createColumn({
       key: 'date_from',

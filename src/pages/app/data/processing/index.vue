@@ -18,16 +18,16 @@ const table = useDataTable({
   fetchFn: fetchPrimary,
   columns: [
     createColumn({
-      key: 'metric_name',
-      label: t('job-log.metric-name'),
+      key: 'indicator_name',
+      label: t('job-log.indicator-name'),
       sortable: false,
-      bodyCell: (row) => row.metric_name ?? row.metric_slug ?? '—',
+      bodyCell: (row) => row.indicator_name ?? row.indicator_slug ?? '—',
     }),
-    createColumn({
-      key: 'asset_name',
-      label: t('job-log.asset-name'),
+createColumn({
+      key: 'indicator_name',
+      label: t('job-log.indicator-name'),
       sortable: false,
-      bodyCell: (row) => row.asset_name ?? row.asset_slug ?? '—',
+      bodyCell: (row) => row.indicator_name ?? row.indicator_slug ?? '—',
     }),
     createColumn({
       key: 'date',

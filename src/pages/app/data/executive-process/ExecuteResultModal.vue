@@ -22,8 +22,8 @@ const emit = defineEmits<{
 
 const { t } = useI18n();
 
-const metricTitle = computed(() => (props.data?.metric_title as string) ?? '—');
-const metricSlug = computed(() => (props.data?.metric_slug as string) ?? '—');
+const indicatorTitle = computed(() => (props.data?.indicator_title as string) ?? '—');
+const indicatorSlug = computed(() => (props.data?.indicator_slug as string) ?? '—');
 const assetTitle = computed(() => (props.data?.asset_title as string) ?? '—');
 const assetSlug = computed(() => (props.data?.asset_slug as string) ?? '—');
 const formula = computed(() => (props.data?.formula as string) ?? '—');
@@ -75,7 +75,7 @@ function formatDate(v: string) {
             </svg>
           </div>
           <div class="min-w-0 flex-1">
-            <h3 class="text-sm font-bold text-slate-800 dark:text-slate-100">{{ metricTitle }}</h3>
+            <h3 class="text-sm font-bold text-slate-800 dark:text-slate-100">{{ indicatorTitle }}</h3>
             <p class="mt-0.5 text-xs text-slate-500 dark:text-slate-400">{{ assetTitle }}</p>
           </div>
           <div class="shrink-0 rounded-lg bg-primary px-3 py-1.5 text-center">
@@ -99,8 +99,8 @@ function formatDate(v: string) {
             <p class="mt-0.5 text-xs font-semibold text-slate-700 dark:text-slate-200">{{ dateTo }}</p>
           </div>
           <div class="rounded-lg bg-white p-2.5 dark:bg-darkmode-600">
-            <p class="text-[10px] font-medium uppercase tracking-wider text-slate-400 dark:text-slate-500">{{ t('job.metric-slug') }}</p>
-            <p class="mt-0.5 truncate text-xs font-semibold text-slate-700 dark:text-slate-200">{{ metricSlug }}</p>
+            <p class="text-[10px] font-medium uppercase tracking-wider text-slate-400 dark:text-slate-500">{{ t('job.indicator-slug') }}</p>
+            <p class="mt-0.5 truncate text-xs font-semibold text-slate-700 dark:text-slate-200">{{ indicatorSlug }}</p>
           </div>
           <div class="rounded-lg bg-white p-2.5 dark:bg-darkmode-600">
             <p class="text-[10px] font-medium uppercase tracking-wider text-slate-400 dark:text-slate-500">{{ t('job.asset-slug') }}</p>

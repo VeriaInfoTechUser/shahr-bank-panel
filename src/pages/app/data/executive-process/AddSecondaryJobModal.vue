@@ -33,27 +33,27 @@ const formRef = ref<InstanceType<typeof Form> | null>(null);
 const saving = ref(false);
 const formKey = ref(0);
 
-const metrics = ref<GrcEntity[]>([]);
-const selectedMetricSlug = ref('');
+const indicators = ref<GrcEntity[]>([]);
+const selectedIndicatorSlug = ref('');
 
-const metricOptions = ref<{ value: string; label: string }[]>([]);
+const indicatorOptions = ref<{ value: string; label: string }[]>([]);
 
 const initialValues = ref({
-  metric_slug: '',
+  indicator_slug: '',
   date: '',
 });
 
 const validationSchema = yup.object({
-  metric_slug: yup.string().trim().required(t('validation.required')),
+  indicator_slug: yup.string().trim().required(t('validation.required')),
   date: yup.string().trim().required(t('validation.required')),
 });
 
-async function loadMetrics() {
+async function loadIndicators() {
   try {
-    const res = await grcRepo.metricsList({ limit: 1000 });
+    const res = await grcRepo.indicatorList({ limit: 1000 });
     if (res?.result && res.data?.list) {
-      metrics.value = res.data.list;
-      metricOptions.value = metrics.value.map((m) => ({ value: m.slug, label: m.title ?? m.slug }));
+      indicators.value = res.data.list;
+      indicatorOptions.value = indicators.value.map((m) => ({ value: m.slug, label: m.title ?? m.slug }));
     }
   } catch {
     // silent
@@ -65,20 +65,20 @@ watch(
   async ([show, mode, j]) => {
     if (!show) return;
 
-    await loadMetrics();
+    await loadIndicators();
 
     if (mode === 'edit' && j) {
       initialValues.value = {
-        metric_slug: (j.metric_slug as string) ?? '',
+        indicator_slug: (j.indicator_slug as string) ?? '',
         date: (j.date as string) ?? '',
       };
-      selectedMetricSlug.value = (j.metric_slug as string) ?? '';
+      selectedIndicatorSlug.value = (j.indicator_slug as string) ?? '';
     } else {
       initialValues.value = {
-        metric_slug: '',
+        indicator_slug: '',
         date: '',
       };
-      selectedMetricSlug.value = '';
+      selectedIndicatorSlug.value = '';
     }
     formKey.value += 1;
   },
@@ -95,8 +95,8 @@ function onDialogVisible(v: boolean) {
   if (!v) emit('close');
 }
 
-function onMetricChanged(value: unknown) {
-  selectedMetricSlug.value = String(value ?? '');
+function onIndicatorChanged(value: unknown) {
+  selectedIndicatorSlug.value = String(value ?? '');
 }
 
 async function onSubmit(values: Record<string, unknown>) {
@@ -106,7 +106,7 @@ async function onSubmit(values: Record<string, unknown>) {
       calculation_level: 'SECONDARY',
     };
 
-    if (values.metric_slug) payload.metric_slug = String(values.metric_slug);
+    if (values.indicator_slug) payload.indicator_slug = String(values.indicator_slug);
     if (values.date) payload.date_from = String(values.date);
 
     if (props.mode === 'edit' && props.job) {
@@ -154,13 +154,13 @@ async function onSubmit(values: Record<string, unknown>) {
       @submit="onSubmit"
     >
       <BaseSelect
-        name="metric_slug"
-        :label="t('job.metric-slug')"
-        :options="metricOptions"
-        :placeholder="t('job.metric-slug-placeholder')"
+        name="indicator_slug"
+        :label="t('job.indicator-slug')"
+        :options="indicatorOptions"
+        :placeholder="t('job.indicator-slug-placeholder')"
         :required="true"
         :filter="true"
-        @change="onMetricChanged"
+        @change="onIndicatorChanged"
       />
       <BaseDatePicker
         name="date"

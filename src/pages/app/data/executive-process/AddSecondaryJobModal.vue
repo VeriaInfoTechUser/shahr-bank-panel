@@ -5,7 +5,7 @@ import * as yup from 'yup';
 import { useI18n } from 'vue-i18n';
 import { toast } from 'vue3-toastify';
 import BaseModal from '@/core/ui/base/BaseModal.vue';
-import BaseSelect from '@/core/ui/base/BaseSelect.vue';
+import BasePaginatedSelect from '@/core/ui/base/BasePaginatedSelect.vue';
 import Button from '@/base-components/Button';
 import { grcRepo, type GrcEntity } from '@/core/repositories/grcRepo';
 import BaseDatePicker from '@/core/ui/base/BaseDatePicker.vue';
@@ -33,11 +33,6 @@ const formRef = ref<InstanceType<typeof Form> | null>(null);
 const saving = ref(false);
 const formKey = ref(0);
 
-const indicators = ref<GrcEntity[]>([]);
-const selectedIndicatorSlug = ref('');
-
-const indicatorOptions = ref<{ value: string; label: string }[]>([]);
-
 const initialValues = ref({
   indicator_slug: '',
   date: '',
@@ -48,16 +43,12 @@ const validationSchema = yup.object({
   date: yup.string().trim().required(t('validation.required')),
 });
 
-async function loadIndicators() {
-  try {
-    const res = await grcRepo.indicatorList({ limit: 1000 });
-    if (res?.result && res.data?.list) {
-      indicators.value = res.data.list;
-      indicatorOptions.value = indicators.value.map((m) => ({ value: m.slug, label: m.title ?? m.slug }));
-    }
-  } catch {
-    // silent
-  }
+async function fetchIndicators(params: { page: number; limit: number; title?: string }) {
+  const res = await grcRepo.indicatorList({ page: params.page, limit: params.limit, title: params.title });
+  return {
+    list: (res.data?.list ?? []).map((m) => ({ value: m.slug, label: m.title ?? m.slug })),
+    count: res.data?.paginator?.count ?? 0,
+  };
 }
 
 watch(
@@ -65,20 +56,16 @@ watch(
   async ([show, mode, j]) => {
     if (!show) return;
 
-    await loadIndicators();
-
     if (mode === 'edit' && j) {
       initialValues.value = {
         indicator_slug: (j.indicator_slug as string) ?? '',
         date: (j.date as string) ?? '',
       };
-      selectedIndicatorSlug.value = (j.indicator_slug as string) ?? '';
     } else {
       initialValues.value = {
         indicator_slug: '',
         date: '',
       };
-      selectedIndicatorSlug.value = '';
     }
     formKey.value += 1;
   },
@@ -93,10 +80,6 @@ function close() {
 function onDialogVisible(v: boolean) {
   emit('update:show', v);
   if (!v) emit('close');
-}
-
-function onIndicatorChanged(value: unknown) {
-  selectedIndicatorSlug.value = String(value ?? '');
 }
 
 async function onSubmit(values: Record<string, unknown>) {
@@ -153,14 +136,14 @@ async function onSubmit(values: Record<string, unknown>) {
       class="space-y-3"
       @submit="onSubmit"
     >
-      <BaseSelect
+      <BasePaginatedSelect
         name="indicator_slug"
         :label="t('job.indicator-slug')"
-        :options="indicatorOptions"
+        :fetch-fn="fetchIndicators"
+        :search="true"
         :placeholder="t('job.indicator-slug-placeholder')"
         :required="true"
-        :filter="true"
-        @change="onIndicatorChanged"
+        :limit="25"
       />
       <BaseDatePicker
         name="date"

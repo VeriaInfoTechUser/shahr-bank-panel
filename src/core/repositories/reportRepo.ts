@@ -120,9 +120,9 @@ export class ReportRepo {
 
   async getSustainabilityDashboard(params?: Record<string, unknown>) {
     return grcHttpRequest({
-      method: 'GET',
+      method: 'POST',
       url: `${this.base}/dashboard`,
-      params,
+      data: params ?? {},
     });
   }
 }

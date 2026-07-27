@@ -14,7 +14,11 @@ const loading = ref(true);
 
 onMounted(async () => {
     try {
-      const response = await reportRepo.getSustainabilityDashboard( );
+      const response = await reportRepo.getSustainabilityDashboard({
+        date_from: '2024-01-01',
+        date_to: '2024-12-31',
+        period_type: 'yearly',
+      });
       if (response.data?.result) {
         dashboardData.value = response.data.data;
       }

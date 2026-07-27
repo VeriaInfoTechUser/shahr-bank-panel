@@ -9,13 +9,12 @@ const { t } = useI18n();
 const route = useRoute();
 const router = useRouter();
 
-const slug = ref(String(route.params.slug ?? ''));
 const dashboardData = ref<Record<string, unknown> | null>(null);
 const loading = ref(true);
 
 onMounted(async () => {
     try {
-      const response = await reportRepo.getSustainabilityDashboard({ slug: slug.value });
+      const response = await reportRepo.getSustainabilityDashboard( );
       if (response.data?.result) {
         dashboardData.value = response.data.data;
       }

@@ -9,6 +9,7 @@ const { t } = useI18n();
 const route = useRoute();
 const router = useRouter();
 
+const slug = ref(route.params.slug as string || '');
 const dashboardData = ref<Record<string, unknown> | null>(null);
 const loading = ref(true);
 

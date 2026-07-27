@@ -301,6 +301,11 @@ export const useSideMenuStore = defineStore("sideMenu", {
                         pageName: "app-reports-comparative",
                         title: "menu.reports-comparative",
                     },
+                    {
+                        icon: "LayoutDashboard",
+                        pageName: "app-reports-sustainability-dashboard",
+                        title: "menu.reports-sustainability-dashboard",
+                    },
                 ],
             },
             {

@@ -69,6 +69,7 @@ import ReportsBaselineDashboard from "@/pages/app/reports/baseline/dashboard/ind
 import ReportsComparative from "@/pages/app/reports/comparative/index.vue";
 import ReportsComparativeDetail from "@/pages/app/reports/comparative/detail/index.vue";
 import ReportsComparativeDashboard from "@/pages/app/reports/comparative/dashboard/index.vue";
+import ReportsSustainabilityDashboard from "@/pages/app/reports/sustainability/dashboard/index.vue";
 import DataEntry from "@/pages/app/data/entry/index.vue";
 import DataRaw from "@/pages/app/data/raw/index.vue";
 import DataLog from "@/pages/app/data/log/index.vue";
@@ -635,14 +636,20 @@ const routes = [
                                 component: ReportsComparativeDetail,
                                 meta: { breadcrumbLabel: 'reports.comparative-report' },
                             },
-                            {
-                                path: "comparative/dashboard/:slug",
-                                name: "app-reports-comparative-dashboard",
-                                component: ReportsComparativeDashboard,
-                                meta: { breadcrumbLabel: 'reports.comparative-dashboard' },
-                            },
-                        ],
-                    },
+{
+                            path: "comparative/dashboard/:slug",
+                            name: "app-reports-comparative-dashboard",
+                            component: ReportsComparativeDashboard,
+                            meta: { breadcrumbLabel: 'reports.comparative-dashboard' },
+                        },
+                        {
+                            path: "sustainability/dashboard",
+                            name: "app-reports-sustainability-dashboard",
+                            component: ReportsSustainabilityDashboard,
+                            meta: { breadcrumbLabel: 'reports.sustainability-dashboard' },
+                        },
+                    ],
+                },
                     {
                         path: "knowledge",
                         name: "app-knowledge",

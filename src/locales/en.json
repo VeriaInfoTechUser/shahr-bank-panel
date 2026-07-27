@@ -1492,6 +1492,8 @@
     "baseline-dashboard": "Baseline Dashboard",
     "comparative-report": "Comparative Report",
     "comparative-dashboard": "Comparative Dashboard",
+    "sustainability-dashboard": "Sustainability Dashboard",
+    "sustainability-dashboard-desc": "Display sustainability KPIs and ESG metrics",
     "comparative-wizard-title": "Create Comparative Report",
     "edit-title": "Edit Title",
     "update-success": "Title updated successfully",

@@ -117,6 +117,14 @@ export class ReportRepo {
     });
     return response;
   }
+
+  async getSustainabilityDashboard(params?: Record<string, unknown>) {
+    return grcHttpRequest({
+      method: 'GET',
+      url: `${this.base}/dashboard`,
+      params,
+    });
+  }
 }
 
 export const reportRepo = new ReportRepo();

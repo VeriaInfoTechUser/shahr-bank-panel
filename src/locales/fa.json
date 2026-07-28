@@ -265,7 +265,8 @@
     "previous": "قبلی",
     "next": "بعدی",
     "select": "انتخاب کنید",
-    "submit": "ارسال"
+    "submit": "ارسال",
+    "refresh": "بارگذاری مجدد"
   },
   "login-history": {
     "title": "تاریخچه ورود",
@@ -1514,8 +1515,14 @@
     "baseline-dashboard": "داشبورد مبنا",
     "comparative-report": "گزارش مقایسه‌ای",
     "comparative-dashboard": "داشبورد مقایسه‌ای",
+    "domain-distribution": "توزیع حوزه‌ها",
+    "sustainability-score": "امتیاز پایداری",
     "sustainability-dashboard": "داشبورد پایداری",
     "sustainability-dashboard-desc": "نمایش کلیدهای پایداری و شاخص‌های ESG",
+    "all-capitals-overview": "نمای کلی تمام سرمایه‌ها",
+    "capital-score": "امتیاز سرمایه",
+    "domain-count": "تعداد حوزه‌ها",
+    "required-maturity": "بلوغ مورد نیاز",
     "comparative-wizard-title": "ایجاد گزارش مقایسه‌ای",
     "edit-title": "ویرایش عنوان",
     "update-success": "عنوان با موفقیت بروزرسانی شد",

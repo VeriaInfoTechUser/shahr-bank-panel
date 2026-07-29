@@ -126,7 +126,7 @@ function seedForm() {
 
 async function loadAssets() {
   try {
-    const res = await grcRepo.governanceList('data-sources', { limit: 1000 });
+    const res = await grcRepo.dataSourcesList({ limit: 1000 });
     const list = res?.data?.list ?? [];
     const options = (Array.isArray(list) ? list : []).map((item: Record<string, unknown>) => ({
       value: String(item.slug ?? ''),
@@ -211,7 +211,7 @@ async function onSubmit(values: {
     let result;
     if (isEdit.value && props.record) {
       const slug = String(props.record.slug ?? '');
-      result = await grcRepo.governanceUpdate(slug, {
+      result = await grcRepo.dataSourceUpdate(slug, {
         title,
         dataSourceType,
         parentDataSourceSlug,
@@ -221,8 +221,7 @@ async function onSubmit(values: {
         relationSlugs,
       });
     } else {
-      result = await grcRepo.governanceCreate({
-        type: 'data-sources',
+      result = await grcRepo.dataSourceCreate({
         title,
         dataSourceType,
         parentDataSourceSlug,

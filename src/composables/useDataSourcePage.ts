@@ -23,7 +23,7 @@ export function useDataSourcePage() {
   const { openModal } = useGlobalModal();
 
   const fetchItems: FetchFn = async ({ page, limit, filters }) => {
-    const res = await grcRepo.governanceList('data-sources', { page, limit, ...filters });
+    const res = await grcRepo.dataSourcesList({ page, limit, ...filters });
     const list = res?.data?.list ?? [];
     const count = res?.data?.paginator?.count ?? 0;
     return { list: Array.isArray(list) ? list : [], count };

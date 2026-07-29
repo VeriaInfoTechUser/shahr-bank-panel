@@ -496,14 +496,30 @@ export const grcRepo = {
     return grcHttpRequest({ method: 'DELETE', url: `/context/metrics/${slug}` });
   },
 
-  // Metric Data Sources
-  metricDataSourceList(slug: string, params?: GrcListParams): Promise<GrcApiResponse<GrcPaginatedResponse>> {
-    return grcHttpRequest({ method: 'GET', url: '/governance', params: { type: 'data-sources', metricSlug: slug, ...(params ?? {}) } });
+  // Data Sources
+  dataSourcesList(params?: GrcListParams): Promise<GrcApiResponse<GrcPaginatedResponse>> {
+    return grcHttpRequest({ method: 'GET', url: '/context/data-sources', params });
   },
 
-  // All Data Sources
-  dataSourcesList(params?: GrcListParams): Promise<GrcApiResponse<GrcPaginatedResponse>> {
-    return grcHttpRequest({ method: 'GET', url: '/governance', params: { type: 'data-sources', ...(params ?? {}) } });
+  dataSourceGet(slug: string): Promise<GrcApiResponse<Record<string, unknown>>> {
+    return grcHttpRequest({ method: 'GET', url: `/context/data-sources/${slug}` });
+  },
+
+  dataSourceCreate(data: Record<string, unknown>): Promise<GrcApiResponse<Record<string, unknown>>> {
+    return grcHttpRequest({ method: 'POST', url: '/context/data-sources', data });
+  },
+
+  dataSourceUpdate(slug: string, data: Record<string, unknown>): Promise<GrcApiResponse<Record<string, unknown>>> {
+    return grcHttpRequest({ method: 'PUT', url: `/context/data-sources/${slug}`, data });
+  },
+
+  dataSourceDelete(slug: string): Promise<GrcApiResponse<null>> {
+    return grcHttpRequest({ method: 'DELETE', url: `/context/data-sources/${slug}` });
+  },
+
+  // Metric Data Sources
+  metricDataSourceList(slug: string, params?: GrcListParams): Promise<GrcApiResponse<GrcPaginatedResponse>> {
+    return grcHttpRequest({ method: 'GET', url: '/context/data-sources', params: { metricSlug: slug, ...(params ?? {}) } });
   },
 
   // Raw Data

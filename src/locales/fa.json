@@ -3239,6 +3239,8 @@
     "toolbar-add": "افزودن فرآیند",
     "toolbar-add-data-source": "فرایند شواهد",
     "toolbar-add-indicator": "فرایند شاخص",
+    "toolbar-add-primary": "افزودن فرآیند اصلی",
+    "toolbar-add-secondary": "افزودن فرآیند ثانویه",
     "toolbar-export": "خروجی",
     "slug": "شناسه یکتا",
     "slug-placeholder": "مثال: job-001",

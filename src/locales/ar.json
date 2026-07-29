@@ -2489,6 +2489,8 @@
     "toolbar-add": "إضافة مهمة",
     "toolbar-add-data-source": "عملية أصل",
     "toolbar-add-indicator": "عملية مؤشر",
+    "toolbar-add-primary": "إضافة عملية رئيسية",
+    "toolbar-add-secondary": "إضافة عملية ثانوية",
     "toolbar-export": "تصدير",
     "slug": "المعرف",
     "slug-placeholder": "مثال: job-001",

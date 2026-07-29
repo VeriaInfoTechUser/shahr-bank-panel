@@ -516,14 +516,14 @@ export const grcRepo = {
     return grcHttpRequest({ method: 'GET', url: '/calculations/jobs', params });
   },
 
-  // Calculations Primary
-  calculationPrimaryList(params?: GrcListParams): Promise<GrcApiResponse<GrcPaginatedResponse>> {
-    return grcHttpRequest({ method: 'GET', url: '/calculations/primary', params });
+  // Calculations Assets
+  calculationAssetList(params?: GrcListParams): Promise<GrcApiResponse<GrcPaginatedResponse>> {
+    return grcHttpRequest({ method: 'GET', url: '/calculations/assets', params });
   },
 
-  // Calculations Secondary
-  calculationSecondaryList(params?: GrcListParams): Promise<GrcApiResponse<GrcPaginatedResponse>> {
-    return grcHttpRequest({ method: 'GET', url: '/calculations/secondary', params });
+  // Calculations Indicators
+  calculationIndicatorList(params?: GrcListParams): Promise<GrcApiResponse<GrcPaginatedResponse>> {
+    return grcHttpRequest({ method: 'GET', url: '/calculations/indicators', params });
   },
 
   calculationJobGet(id: string): Promise<GrcApiResponse<Record<string, unknown>>> {

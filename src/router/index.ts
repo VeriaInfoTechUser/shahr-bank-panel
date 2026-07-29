@@ -470,7 +470,7 @@ const routes = [
                                 path: "processing-secondary",
                                 name: "app-data-processing-secondary",
                                 component: DataProcessingSecondary,
-                                meta: { breadcrumbLabel: 'menu.data-processing-secondary' },
+                                meta: { breadcrumbLabel: 'menu.data-processing-indicator' },
                             },
                             {
                                 path: "executive-process",

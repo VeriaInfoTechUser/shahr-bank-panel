@@ -8,7 +8,7 @@ import { grcRepo } from '@/core/repositories/grcRepo';
 const { t } = useI18n();
 
 const fetchSecondary: FetchFn = async ({ page, limit, filters }) => {
-  const res = await grcRepo.calculationSecondaryList({ page, limit, ...(filters ?? {}) });
+  const res = await grcRepo.calculationIndicatorList({ page, limit, ...(filters ?? {}) });
   const list = res?.data?.list ?? [];
   const count = res?.data?.paginator?.count ?? 0;
   return { list: Array.isArray(list) ? list : [], count };
@@ -66,7 +66,7 @@ createColumn({
   ],
   selectable: false,
   exportEnabled: true,
-  cacheKey: 'calculation-secondary-list',
+  cacheKey: 'calculation-indicator-list',
   listCacheStaleTime: 0,
 });
 

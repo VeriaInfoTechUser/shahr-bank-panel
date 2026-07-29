@@ -86,7 +86,7 @@ async function onSubmit(values: Record<string, unknown>) {
   saving.value = true;
   try {
     const payload: Record<string, unknown> = {
-      calculation_level: 'SECONDARY',
+      calculation_level: 'INDICATOR',
     };
 
     if (values.indicator_slug) payload.indicator_slug = String(values.indicator_slug);
@@ -123,7 +123,7 @@ async function onSubmit(values: Record<string, unknown>) {
 <template>
   <BaseModal
     :visible="show"
-    :title="props.mode === 'edit' ? t('job.edit') : t('job.toolbar-add-secondary')"
+    :title="props.mode === 'edit' ? t('job.edit') : t('job.toolbar-add-indicator')"
     size="sm"
     @update:visible="onDialogVisible"
   >

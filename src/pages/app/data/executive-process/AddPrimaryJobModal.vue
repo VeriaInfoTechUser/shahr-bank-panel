@@ -109,7 +109,7 @@ async function onSubmit(values: Record<string, unknown>) {
   try {
     const selectedAsset = assets.value.find((a) => a.slug === values.asset_slug);
     const payload: Record<string, unknown> = {
-      calculation_level: 'PRIMARY',
+      calculation_level: 'ASSET',
     };
 
     if (values.asset_slug) payload.asset_slug = String(values.asset_slug);
@@ -150,7 +150,7 @@ async function onSubmit(values: Record<string, unknown>) {
 <template>
   <BaseModal
     :visible="show"
-    :title="props.mode === 'edit' ? t('job.edit') : t('job.toolbar-add-primary')"
+    :title="props.mode === 'edit' ? t('job.edit') : t('job.toolbar-add-asset')"
     size="sm"
     @update:visible="onDialogVisible"
   >

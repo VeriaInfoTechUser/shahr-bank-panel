@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n';
 import BaseTable from '@core/ui/base/BaseTable.vue';
-import { useCapitalAssetPage } from '@/composables/useCapitalAssetPage';
+import { useDataSourcePage } from '@/composables/useDataSourcePage';
 
 const { t } = useI18n();
-const { table } = useCapitalAssetPage();
+const { table } = useDataSourcePage();
 </script>
 
 <template>

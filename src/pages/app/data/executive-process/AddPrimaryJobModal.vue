@@ -7,7 +7,7 @@ import { toast } from 'vue3-toastify';
 import BaseModal from '@/core/ui/base/BaseModal.vue';
 import BaseSelect from '@/core/ui/base/BaseSelect.vue';
 import Button from '@/base-components/Button';
-import { grcRepo, type GrcEntity } from '@/core/repositories/grcRepo';
+import { grcRepo } from '@/core/repositories/grcRepo';
 import BaseDateRangePicker from '@/core/ui/base/BaseDateRangePicker.vue';
 
 const props = withDefaults(
@@ -33,39 +33,39 @@ const formRef = ref<InstanceType<typeof Form> | null>(null);
 const saving = ref(false);
 const formKey = ref(0);
 
-const assets = ref<GrcEntity[]>([]);
-const loadingAssets = ref(false);
+const dataSources = ref<GrcEntity[]>([]);
+const loadingDataSources = ref(false);
 
-const assetOptions = ref<{ value: string; label: string }[]>([]);
+const dataSourceOptions = ref<{ value: string; label: string }[]>([]);
 
 const initialValues = ref({
-  asset_slug: '',
+  data_source_slug: '',
   date_from: '',
   date_to: '',
 });
 
 const validationSchema = yup.object({
-  asset_slug: yup.string().trim().required(t('validation.required')),
+  data_source_slug: yup.string().trim().required(t('validation.required')),
   date_from: yup.string().trim().required(t('validation.required')),
   date_to: yup.string().trim().required(t('validation.required')),
 });
 
 async function loadAllAssets() {
-  loadingAssets.value = true;
+  loadingDataSources.value = true;
   try {
-    const res = await grcRepo.assetsList({ limit: 1000 });
+    const res = await grcRepo.dataSourcesList({ limit: 1000 });
     if (res?.result && res.data?.list) {
-      assets.value = res.data.list;
-      assetOptions.value = assets.value.map((a) => ({ value: a.slug, label: a.title ?? a.slug }));
+      dataSources.value = res.data.list;
+      dataSourceOptions.value = dataSources.value.map((a) => ({ value: a.slug, label: a.title ?? a.slug }));
     } else {
-      assets.value = [];
-      assetOptions.value = [];
+      dataSources.value = [];
+      dataSourceOptions.value = [];
     }
   } catch {
-    assets.value = [];
-    assetOptions.value = [];
+    dataSources.value = [];
+    dataSourceOptions.value = [];
   } finally {
-    loadingAssets.value = false;
+    loadingDataSources.value = false;
   }
 }
 
@@ -78,13 +78,13 @@ watch(
 
     if (mode === 'edit' && j) {
       initialValues.value = {
-        asset_slug: (j.asset_slug as string) ?? '',
+        data_source_slug: (j.data_source_slug as string) ?? '',
         date_from: (j.date_from as string) ?? '',
         date_to: (j.date_to as string) ?? '',
       };
     } else {
       initialValues.value = {
-        asset_slug: '',
+        data_source_slug: '',
         date_from: '',
         date_to: '',
       };
@@ -107,12 +107,12 @@ function onDialogVisible(v: boolean) {
 async function onSubmit(values: Record<string, unknown>) {
   saving.value = true;
   try {
-    const selectedAsset = assets.value.find((a) => a.slug === values.asset_slug);
+    const selectedAsset = dataSources.value.find((a) => a.slug === values.data_source_slug);
     const payload: Record<string, unknown> = {
-      calculation_level: 'ASSET',
+      calculation_level: 'DATA_SOURCE',
     };
 
-    if (values.asset_slug) payload.asset_slug = String(values.asset_slug);
+    if (values.data_source_slug) payload.data_source_slug = String(values.data_source_slug);
     if (selectedAsset && 'indicatorSlug' in selectedAsset) {
       payload.indicator_slug = (selectedAsset as Record<string, unknown>).indicatorSlug;
     }
@@ -150,7 +150,7 @@ async function onSubmit(values: Record<string, unknown>) {
 <template>
   <BaseModal
     :visible="show"
-    :title="props.mode === 'edit' ? t('job.edit') : t('job.toolbar-add-asset')"
+    :title="props.mode === 'edit' ? t('job.edit') : t('job.toolbar-add-data-source')"
     size="sm"
     @update:visible="onDialogVisible"
   >
@@ -164,10 +164,10 @@ async function onSubmit(values: Record<string, unknown>) {
       @submit="onSubmit"
     >
       <BaseSelect
-        name="asset_slug"
-        :label="t('job.asset-slug')"
-        :options="assetOptions"
-        :placeholder="loadingAssets ? t('general.loading') : t('job.asset-slug-placeholder')"
+        name="data_source_slug"
+        :label="t('job.data-source-slug')"
+        :options="dataSourceOptions"
+        :placeholder="loadingDataSources ? t('general.loading') : t('job.data-source-slug-placeholder')"
         :required="true"
         :filter="true"
       />

@@ -54,7 +54,7 @@ import EsgSocial from "@/pages/app/esg/social/index.vue";
 import EsgEnvironment from "@/pages/app/esg/environment/index.vue";
 import EsgReport from "@/pages/app/esg/report/index.vue";
 import SustainabilityMetrics from "@/pages/app/sustainability/metrics/index.vue";
-import SustainabilityAsset from "@/pages/app/sustainability/asset/index.vue";
+import SustainabilityDataSource from "@/pages/app/sustainability/data-source/index.vue";
 import SustainabilityCategory from "@/pages/app/sustainability/category/index.vue";
 import SustainabilityMetricsDetail from "@/pages/app/sustainability/metrics/detail/index.vue";
 import SustainabilityFundamentalCapitals from "@/pages/app/sustainability/fundamental-capitals/index.vue";
@@ -593,10 +593,10 @@ const routes = [
                                 },
                             },
                             {
-                                path: "asset",
-                                name: "app-sustainability-asset",
-                                component: SustainabilityAsset,
-                                meta: { breadcrumbLabel: 'menu.sustainability-asset' },
+                                path: "data-source",
+                                name: "app-sustainability-data-source",
+                                component: SustainabilityDataSource,
+                                meta: { breadcrumbLabel: 'menu.sustainability-data-source' },
                             },
                         ],
                     },

@@ -5,7 +5,7 @@ import { useDataTable, createColumn, type FetchFn } from '@core';
 import { grcRepo } from '@/core/repositories/grcRepo';
 import { useBreadcrumbSlot } from '@/composables/useBreadcrumb';
 import { useGlobalModal } from '@/composables/useGlobalModal';
-import AssetBreadcrumbToolbar from '@/pages/app/sustainability/asset/AssetBreadcrumbToolbar.vue';
+import DataSourceBreadcrumbToolbar from '@/pages/app/sustainability/data-source/DataSourceBreadcrumbToolbar.vue';
 
 function pickStr(row: Record<string, unknown>, ...keys: string[]) {
   for (const k of keys) {
@@ -17,13 +17,13 @@ function pickStr(row: Record<string, unknown>, ...keys: string[]) {
   return '—';
 }
 
-export function useCapitalAssetPage() {
+export function useDataSourcePage() {
   const { t } = useI18n();
   const { setContent: setBreadcrumbSlot } = useBreadcrumbSlot();
   const { openModal } = useGlobalModal();
 
   const fetchItems: FetchFn = async ({ page, limit, filters }) => {
-    const res = await grcRepo.governanceList('assets', { page, limit, ...filters });
+    const res = await grcRepo.governanceList('data-sources', { page, limit, ...filters });
     const list = res?.data?.list ?? [];
     const count = res?.data?.paginator?.count ?? 0;
     return { list: Array.isArray(list) ? list : [], count };
@@ -34,56 +34,56 @@ export function useCapitalAssetPage() {
     columns: [
       createColumn({
         key: 'title',
-        label: t('sustainability-asset-page.col-title'),
+        label: t('sustainability-data-source-page.col-title'),
         sortable: false,
         bodyCell: (row) => pickStr(row, 'title'),
       }),
       createColumn({
         key: 'capital',
-        label: t('sustainability-asset-page.col-capital'),
+        label: t('sustainability-data-source-page.col-capital'),
         sortable: false,
         bodyCell: (row) => pickStr(row, 'capitalTitle'),
       }),
       createColumn({
         key: 'domain',
-        label: t('sustainability-asset-page.col-domain'),
+        label: t('sustainability-data-source-page.col-domain'),
         sortable: false,
         bodyCell: (row) => pickStr(row, 'domainTitle'),
       }),
       createColumn({
         key: 'component',
-        label: t('sustainability-asset-page.col-component'),
+        label: t('sustainability-data-source-page.col-component'),
         sortable: false,
         bodyCell: (row) => pickStr(row, 'componentTitle'),
       }),
       createColumn({
         key: 'capability',
-        label: t('sustainability-asset-page.col-capability'),
+        label: t('sustainability-data-source-page.col-capability'),
         sortable: false,
         bodyCell: (row) => pickStr(row, 'capabilityTitle'),
       }),
       createColumn({
         key: 'claim',
-        label: t('sustainability-asset-page.col-claim'),
+        label: t('sustainability-data-source-page.col-claim'),
         sortable: false,
         bodyCell: (row) => pickStr(row, 'claimTitle'),
       }),
       createColumn({
         key: 'indicator',
-        label: t('sustainability-asset-page.col-indicator'),
+        label: t('sustainability-data-source-page.col-indicator'),
         sortable: false,
         bodyCell: (row) => pickStr(row, 'indicatorTitle'),
       }),
       createColumn({
-        key: 'assetType',
-        label: t('sustainability-asset-page.col-asset-type'),
+        key: "dataSourceType",
+        label: t('sustainability-data-source-page.col-data-source-type'),
         sortable: false,
-        bodyCell: (row) => pickStr(row, 'assetType'),
+        bodyCell: (row) => pickStr(row, "dataSourceType"),
       }),
     ],
     selectable: false,
     exportEnabled: true,
-    cacheKey: 'sustainability-assets-list',
+    cacheKey: 'sustainability-data-sources-list',
     listCacheStaleTime: 0,
   });
 
@@ -94,7 +94,7 @@ export function useCapitalAssetPage() {
   onMounted(() => {
     table.invalidateListCache();
     table.fetch();
-    setBreadcrumbSlot(AssetBreadcrumbToolbar, {
+    setBreadcrumbSlot(DataSourceBreadcrumbToolbar, {
       onExport,
       table,
     });

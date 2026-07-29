@@ -79,16 +79,16 @@ const table = useDataTable({
       },
     }),
     createColumn({
-      key: 'hasSubAssets',
-      label: t('sustainability-metrics-page.has-sub-assets'),
+      key: 'hasSubDataSources',
+      label: t('sustainability-metrics-page.has-sub-data-sources'),
       sortable: false,
     }),
     createColumn({
-      key: 'sourceAssetType',
-      label: t('sustainability-metrics-page.col-source-asset'),
+      key: 'sourceDataSourceType',
+      label: t('sustainability-metrics-page.col-source-data-source'),
       sortable: false,
       bodyCell: (row) => {
-        const v = row.sourceAssetType;
+        const v = row.sourceDataSourceType;
         if (typeof v === 'string' && v.trim()) return t(`metrics.${v.trim()}`);
         return '—';
       },
@@ -158,12 +158,12 @@ onMounted(() => {
             {{ pickStr(row, 'metricRole') }}
           </span>
         </template>
-        <template #cell-hasSubAssets="{ row }">
+        <template #cell-hasSubDataSources="{ row }">
           <span
             class="rounded px-2 py-0.5 text-xs font-medium"
-            :class="row.hasSubAssets ? 'bg-success/10 text-success' : 'bg-slate-100 text-slate-500 dark:bg-darkmode-700 dark:text-slate-400'"
+            :class="row.hasSubDataSources ? 'bg-success/10 text-success' : 'bg-slate-100 text-slate-500 dark:bg-darkmode-700 dark:text-slate-400'"
           >
-            {{ row.hasSubAssets ? t('general.yes') : t('general.no') }}
+            {{ row.hasSubDataSources ? t('general.yes') : t('general.no') }}
           </span>
         </template>
         <template #actions="{ row }">

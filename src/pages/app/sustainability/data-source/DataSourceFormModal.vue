@@ -10,7 +10,7 @@ import BaseSelect from '@/core/ui/base/BaseSelect.vue';
 import BaseMultiSelect from '@/core/ui/base/BaseMultiSelect.vue';
 import Button from '@/base-components/Button';
 import { grcRepo } from '@/core/repositories/grcRepo';
-import { sourceAssetTypes } from '@/pages/app/sustainability/source-asset-types';
+import { sourceDataSourceTypes } from '@/pages/app/sustainability/source-data-source-types';
 
 const props = withDefaults(
   defineProps<{
@@ -33,10 +33,10 @@ const { t } = useI18n();
 const formRef = ref<InstanceType<typeof Form> | null>(null);
 const saving = ref(false);
 const formKey = ref(0);
-const parentAssets = ref<{ value: string; label: string }[]>([]);
-const allAssets = ref<{ value: string; label: string }[]>([]);
+const parentDataSources = ref<{ value: string; label: string }[]>([]);
+const allDataSources = ref<{ value: string; label: string }[]>([]);
 const metricOptions = ref<{ value: string; label: string }[]>([]);
-const selectedAssetType = ref('');
+const selectedDataSourceType = ref('');
 
 const currentSlug = computed(() =>
   isEdit.value ? String(props.record?.slug ?? '') : ''
@@ -44,8 +44,8 @@ const currentSlug = computed(() =>
 
 const relationOptions = computed(() =>
   currentSlug.value
-    ? allAssets.value.filter((a) => a.value !== currentSlug.value)
-    : allAssets.value
+    ? allDataSources.value.filter((a) => a.value !== currentSlug.value)
+    : allDataSources.value
 );
 
 const isEdit = computed(() => {
@@ -57,26 +57,26 @@ const isEdit = computed(() => {
 
 const modalTitle = computed(() =>
   isEdit.value
-    ? t('governance-page.edit-entity', { entity: t('menu.sustainability-asset') })
-    : t('governance-page.add-entity', { entity: t('menu.sustainability-asset') })
+    ? t('governance-page.edit-entity', { entity: t('menu.sustainability-data-source') })
+    : t('governance-page.add-entity', { entity: t('menu.sustainability-data-source') })
 );
 
-const assetTypeOptions = computed(() =>
-  sourceAssetTypes.map((item) => ({
+const dataSourceTypeOptions = computed(() =>
+  sourceDataSourceTypes.map((item) => ({
     value: item.slug,
     label: t(item.title),
   }))
 );
 
 const statusOptions = [
-  { value: 1, label: t('asset-page.status-active') },
-  { value: 0, label: t('asset-page.status-inactive') },
+  { value: 1, label: t('data-source-page.status-active') },
+  { value: 0, label: t('data-source-page.status-inactive') },
 ];
 
 const initialValues = ref({
   title: '',
-  assetType: '',
-  parentAssetSlug: null as string | null,
+  dataSourceType: '',
+  parentDataSourceSlug: null as string | null,
   metricSlug: null as string | null,
   description: '',
   status: 1,
@@ -89,11 +89,11 @@ const validationSchema = computed(() =>
       .string()
       .trim()
       .required(t('governance-page.validation-title-required')),
-    assetType: yup
+    dataSourceType: yup
       .string()
       .trim()
-      .required(t('asset-page.validation-asset-type-required')),
-    parentAssetSlug: yup.string().trim().nullable().optional(),
+      .required(t('data-source-page.validation-data-source-type-required')),
+    parentDataSourceSlug: yup.string().trim().nullable().optional(),
     metricSlug: yup.string().trim().nullable().optional(),
     description: yup.string().trim().optional(),
     status: yup.number().oneOf([0, 1]).required(),
@@ -110,12 +110,12 @@ function getField(rec: Record<string, unknown>, key: string): unknown {
 
 function seedForm() {
   const rec = props.record;
-  const assetType = String(getField(rec ?? {}, 'assetType') ?? '');
-  selectedAssetType.value = assetType;
+  const dataSourceType = String(getField(rec ?? {}, 'dataSourceType') ?? '');
+  selectedDataSourceType.value = dataSourceType;
   initialValues.value = {
     title: String(getField(rec ?? {}, 'title') ?? ''),
-    assetType,
-    parentAssetSlug: (getField(rec ?? {}, 'parentAssetSlug') as string) ?? null,
+    dataSourceType,
+    parentDataSourceSlug: (getField(rec ?? {}, 'parentDataSourceSlug') as string) ?? null,
     metricSlug: (getField(rec ?? {}, 'metricSlug') as string) ?? null,
     description: String(getField(rec ?? {}, 'description') ?? ''),
     status: Number(getField(rec ?? {}, 'status') ?? 1) as 0 | 1,
@@ -126,24 +126,24 @@ function seedForm() {
 
 async function loadAssets() {
   try {
-    const res = await grcRepo.governanceList('assets', { limit: 1000 });
+    const res = await grcRepo.governanceList('data-sources', { limit: 1000 });
     const list = res?.data?.list ?? [];
     const options = (Array.isArray(list) ? list : []).map((item: Record<string, unknown>) => ({
       value: String(item.slug ?? ''),
       label: String(item.title ?? item.name ?? ''),
     }));
-    allAssets.value = options;
-    parentAssets.value = options;
+    allDataSources.value = options;
+    parentDataSources.value = options;
   } catch {
-    allAssets.value = [];
-    parentAssets.value = [];
+    allDataSources.value = [];
+    parentDataSources.value = [];
   }
 }
 
-async function loadMetrics(assetType?: string) {
+async function loadMetrics(dataSourceType?: string) {
   try {
     const params: Record<string, unknown> = { limit: 1000 };
-    if (assetType) params.sourceAssetType = assetType;
+    if (dataSourceType) params.sourceDataSourceType = dataSourceType;
     const res = await grcRepo.metricsList(params);
     const list = res?.data?.list ?? [];
     metricOptions.value = (Array.isArray(list) ? list : []).map((item: Record<string, unknown>) => ({
@@ -155,14 +155,14 @@ async function loadMetrics(assetType?: string) {
   }
 }
 
-const metricDisabled = computed(() => !selectedAssetType.value);
+const metricDisabled = computed(() => !selectedDataSourceType.value);
 
 function onAssetTypeChange(value: unknown) {
-  const assetType = String(value ?? '');
-  selectedAssetType.value = assetType;
+  const dataSourceType = String(value ?? '');
+  selectedDataSourceType.value = dataSourceType;
   metricOptions.value = [];
-  if (assetType) {
-    void loadMetrics(assetType);
+  if (dataSourceType) {
+    void loadMetrics(dataSourceType);
   }
 }
 
@@ -172,8 +172,8 @@ watch(
     if (!visible) return;
     seedForm();
     void loadAssets();
-    if (selectedAssetType.value) {
-      void loadMetrics(selectedAssetType.value);
+    if (selectedDataSourceType.value) {
+      void loadMetrics(selectedDataSourceType.value);
     }
   },
   { immediate: true }
@@ -191,16 +191,16 @@ function onDialogVisible(v: boolean) {
 
 async function onSubmit(values: {
   title?: string;
-  assetType?: string;
-  parentAssetSlug?: string | null;
+  dataSourceType?: string;
+  parentDataSourceSlug?: string | null;
   metricSlug?: string | null;
   description?: string;
   status?: number;
   relationSlugs?: string[];
 }) {
   const title = String(values.title ?? '').trim();
-  const assetType = String(values.assetType ?? '').trim();
-  const parentAssetSlug = values.parentAssetSlug || null;
+  const dataSourceType = String(values.dataSourceType ?? '').trim();
+  const parentDataSourceSlug = values.parentDataSourceSlug || null;
   const metricSlug = values.metricSlug || null;
   const description = String(values.description ?? '').trim();
   const status = values.status ?? 1;
@@ -213,8 +213,8 @@ async function onSubmit(values: {
       const slug = String(props.record.slug ?? '');
       result = await grcRepo.governanceUpdate(slug, {
         title,
-        assetType,
-        parentAssetSlug,
+        dataSourceType,
+        parentDataSourceSlug,
         metricSlug,
         description,
         status,
@@ -222,10 +222,10 @@ async function onSubmit(values: {
       });
     } else {
       result = await grcRepo.governanceCreate({
-        type: 'assets',
+        type: 'data-sources',
         title,
-        assetType,
-        parentAssetSlug,
+        dataSourceType,
+        parentDataSourceSlug,
         metricSlug,
         description,
         status,
@@ -236,8 +236,8 @@ async function onSubmit(values: {
     if (result?.result) {
       toast(
         isEdit.value
-          ? t('governance-page.edit-success', { entity: t('menu.sustainability-asset') })
-          : t('governance-page.add-success', { entity: t('menu.sustainability-asset') }),
+          ? t('governance-page.edit-success', { entity: t('menu.sustainability-data-source') })
+          : t('governance-page.add-success', { entity: t('menu.sustainability-data-source') }),
         { type: 'success' }
       );
       emit('success');
@@ -247,8 +247,8 @@ async function onSubmit(values: {
         String(
           result?.error ??
             (isEdit.value
-              ? t('governance-page.edit-error', { entity: t('menu.sustainability-asset') })
-              : t('governance-page.add-error', { entity: t('menu.sustainability-asset') }))
+              ? t('governance-page.edit-error', { entity: t('menu.sustainability-data-source') })
+              : t('governance-page.add-error', { entity: t('menu.sustainability-data-source') }))
         ),
         { type: 'error' }
       );
@@ -258,8 +258,8 @@ async function onSubmit(values: {
       e instanceof Error
         ? e.message
         : isEdit.value
-          ? t('governance-page.edit-error', { entity: t('menu.sustainability-asset') })
-          : t('governance-page.add-error', { entity: t('menu.sustainability-asset') }),
+          ? t('governance-page.edit-error', { entity: t('menu.sustainability-data-source') })
+          : t('governance-page.add-error', { entity: t('menu.sustainability-data-source') }),
       { type: 'error' }
     );
   } finally {
@@ -276,7 +276,7 @@ async function onSubmit(values: {
     @update:visible="onDialogVisible"
   >
     <Form
-      id="asset-form"
+      id="data-source-form"
       :key="formKey"
       ref="formRef"
       :validation-schema="validationSchema"
@@ -293,35 +293,35 @@ async function onSubmit(values: {
           autofocus
         />
         <BaseSelect
-          name="parentAssetSlug"
-          :label="t('asset-page.col-parent-asset')"
-          :options="parentAssets"
+          name="parentDataSourceSlug"
+          :label="t('data-source-page.col-parent-data-source')"
+          :options="parentDataSources"
           :filter="true"
         />
         <BaseSelect
-          name="assetType"
-          :label="t('asset-page.col-asset-type')"
-          :options="assetTypeOptions"
+          name="dataSourceType"
+          :label="t('data-source-page.col-data-source-type')"
+          :options="dataSourceTypeOptions"
           :required="true"
           :filter="true"
           @change="onAssetTypeChange"
         />
         <BaseSelect
           name="metricSlug"
-          :label="t('asset-page.col-metric')"
+          :label="t('data-source-page.col-metric')"
           :options="metricOptions"
           :filter="true"
           :disabled="metricDisabled"
         />
         <BaseSelect
           name="status"
-          :label="t('asset-page.col-status')"
+          :label="t('data-source-page.col-status')"
           :options="statusOptions"
           :required="true"
         />
         <BaseMultiSelect
           name="relationSlugs"
-          :label="t('asset-page.col-relations')"
+          :label="t('data-source-page.col-relations')"
           :options="relationOptions"
         />
         <div class="md:col-span-2">
@@ -348,7 +348,7 @@ async function onSubmit(values: {
           type="submit"
           variant="primary"
           size="sm"
-          form="asset-form"
+          form="data-source-form"
           :disabled="saving"
         >
           {{ isEdit ? t('rule.form-edit-submit') : t('rule.form-submit') }}

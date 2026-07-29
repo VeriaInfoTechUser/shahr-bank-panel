@@ -1,10 +1,10 @@
-export interface SourceAssetType {
+export interface SourceDataSourceType {
   slug: string;
   key: string;
   title: string;
 }
 
-export const sourceAssetTypes: SourceAssetType[] = [
+export const sourceDataSourceTypes: SourceDataSourceType[] = [
   { slug: 'codebase_repository', key: 'codebase_repository', title: 'source-asset-type.codebase_repository' },
   { slug: 'compliance_log', key: 'compliance_log', title: 'source-asset-type.compliance_log' },
   { slug: 'cybersecurity_siem', key: 'cybersecurity_siem', title: 'source-asset-type.cybersecurity_siem' },
@@ -14,7 +14,7 @@ export const sourceAssetTypes: SourceAssetType[] = [
   { slug: 'emission_point', key: 'emission_point', title: 'source-asset-type.emission_point' },
   { slug: 'emission_stack', key: 'emission_stack', title: 'source-asset-type.emission_stack' },
   { slug: 'energy_source', key: 'energy_source', title: 'source-asset-type.energy_source' },
-  { slug: 'equipment_asset', key: 'equipment_asset', title: 'source-asset-type.equipment_asset' },
+  { slug: 'equipment_data_source', key: 'equipment_data_source', title: 'source-asset-type.equipment_data_source' },
   { slug: 'facility', key: 'facility', title: 'source-asset-type.facility' },
   { slug: 'facility_meter', key: 'facility_meter', title: 'source-asset-type.facility_meter' },
   { slug: 'facility_site', key: 'facility_site', title: 'source-asset-type.facility_site' },

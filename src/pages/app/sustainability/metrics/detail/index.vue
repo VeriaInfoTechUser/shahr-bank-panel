@@ -37,12 +37,12 @@ interface MetricInformation {
   description: string;
   annualTarget: string;
   categorySlug: string;
-  hasSubAssets: boolean;
+  hasSubDataSources: boolean;
   categoryTitle: string;
   calculationType: string;
   categorySubSlug: string;
   reportingPeriod: string;
-  sourceAssetType: string;
+  sourceDataSourceType: string;
   categorySubTitle: string;
   warningThreshold: string;
   criticalThreshold: string;
@@ -426,17 +426,17 @@ onMounted(() => {
                 <span class="text-end text-xs font-semibold text-slate-700 dark:text-slate-200">{{ info.dataSource }}</span>
               </div>
               <div class="flex items-start justify-between gap-3 rounded-lg bg-slate-50/80 px-3 py-2.5 dark:bg-darkmode-900/50">
-                <span class="text-xs text-slate-500 dark:text-slate-400">{{ t('sustainability-metrics-page.source-asset') }}</span>
-                <span class="text-end text-xs font-semibold text-slate-700 dark:text-slate-200">{{ info.sourceAssetType }}</span>
+                <span class="text-xs text-slate-500 dark:text-slate-400">{{ t('sustainability-metrics-page.source-data-source') }}</span>
+                <span class="text-end text-xs font-semibold text-slate-700 dark:text-slate-200">{{ info.sourceDataSourceType }}</span>
               </div>
               <div class="flex items-center justify-between rounded-lg bg-slate-50/80 px-3 py-2.5 dark:bg-darkmode-900/50">
-                <span class="text-xs text-slate-500 dark:text-slate-400">{{ t('sustainability-metrics-page.has-sub-assets') }}</span>
+                <span class="text-xs text-slate-500 dark:text-slate-400">{{ t('sustainability-metrics-page.has-sub-data-sources') }}</span>
                 <span
                   class="inline-flex items-center gap-1 rounded-lg px-2 py-0.5 text-xs font-semibold"
-                  :class="info.hasSubAssets ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400' : 'bg-slate-100 text-slate-500 dark:bg-darkmode-700 dark:text-slate-400'"
+                  :class="info.hasSubDataSources ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400' : 'bg-slate-100 text-slate-500 dark:bg-darkmode-700 dark:text-slate-400'"
                 >
-                  <span class="h-1.5 w-1.5 rounded-full" :class="info.hasSubAssets ? 'bg-emerald-500' : 'bg-slate-400'" />
-                  {{ info.hasSubAssets ? t('general.yes') : t('general.no') }}
+                  <span class="h-1.5 w-1.5 rounded-full" :class="info.hasSubDataSources ? 'bg-emerald-500' : 'bg-slate-400'" />
+                  {{ info.hasSubDataSources ? t('general.yes') : t('general.no') }}
                 </span>
               </div>
             </div>

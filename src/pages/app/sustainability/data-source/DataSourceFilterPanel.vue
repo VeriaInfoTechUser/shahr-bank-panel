@@ -6,7 +6,7 @@ import { useI18n } from 'vue-i18n';
 import BaseInput from '@/core/ui/base/BaseInput.vue';
 import BasePaginatedMultiSelect from '@/core/ui/base/BasePaginatedMultiSelect.vue';
 import { grcRepo } from '@/core/repositories/grcRepo';
-import AssetFilterAutoApply from './AssetFilterAutoApply.vue';
+import DataSourceFilterAutoApply from './DataSourceFilterAutoApply.vue';
 
 const props = withDefaults(
   defineProps<{
@@ -29,7 +29,7 @@ const emit = defineEmits<{
 
 const { t } = useI18n();
 const formKey = ref(0);
-const formId = 'asset-filter-form';
+const formId = 'data-source-filter-form';
 
 async function fetchCapitals(params: { page: number; limit: number; search?: string }) {
   const res = await grcRepo.capitalList(params);
@@ -165,7 +165,7 @@ function onAutoApply(payload: Record<string, unknown>) {
       :initial-values="formInitialValues"
       as="div"
     >
-      <AssetFilterAutoApply
+      <DataSourceFilterAutoApply
         :build-payload="buildPayload"
         @apply="onAutoApply"
       />
@@ -173,12 +173,12 @@ function onAutoApply(payload: Record<string, unknown>) {
         <BaseInput
           name="title"
           compact-label
-          :label="t('sustainability-asset-page.filter-field-title')"
+          :label="t('sustainability-data-source-page.filter-field-title')"
         />
         <BasePaginatedMultiSelect
           name="capitalSlug"
           compact-label
-          :label="t('sustainability-asset-page.col-capital')"
+          :label="t('sustainability-data-source-page.col-capital')"
           :fetch-fn="fetchCapitals"
           :limit="25"
           :search="true"
@@ -187,7 +187,7 @@ function onAutoApply(payload: Record<string, unknown>) {
         <BasePaginatedMultiSelect
           name="domainSlug"
           compact-label
-          :label="t('sustainability-asset-page.col-domain')"
+          :label="t('sustainability-data-source-page.col-domain')"
           :fetch-fn="fetchDomains"
           :limit="25"
           :search="true"
@@ -196,7 +196,7 @@ function onAutoApply(payload: Record<string, unknown>) {
         <BasePaginatedMultiSelect
           name="componentSlug"
           compact-label
-          :label="t('sustainability-asset-page.col-component')"
+          :label="t('sustainability-data-source-page.col-component')"
           :fetch-fn="fetchComponents"
           :limit="25"
           :search="true"
@@ -205,7 +205,7 @@ function onAutoApply(payload: Record<string, unknown>) {
         <BasePaginatedMultiSelect
           name="capabilitySlug"
           compact-label
-          :label="t('sustainability-asset-page.col-capability')"
+          :label="t('sustainability-data-source-page.col-capability')"
           :fetch-fn="fetchCapabilities"
           :limit="25"
           :search="true"
@@ -214,7 +214,7 @@ function onAutoApply(payload: Record<string, unknown>) {
         <BasePaginatedMultiSelect
           name="claimSlug"
           compact-label
-          :label="t('sustainability-asset-page.col-claim')"
+          :label="t('sustainability-data-source-page.col-claim')"
           :fetch-fn="fetchClaims"
           :limit="25"
           :search="true"
@@ -223,7 +223,7 @@ function onAutoApply(payload: Record<string, unknown>) {
         <BasePaginatedMultiSelect
           name="indicatorSlug"
           compact-label
-          :label="t('sustainability-asset-page.col-indicator')"
+          :label="t('sustainability-data-source-page.col-indicator')"
           :fetch-fn="fetchIndicators"
           :limit="25"
           :search="true"

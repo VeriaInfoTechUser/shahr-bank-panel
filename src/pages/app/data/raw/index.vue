@@ -21,10 +21,10 @@ const table = useDataTable({
   fetchFn: fetchItems,
   columns: [
     createColumn({
-      key: 'asset_name',
-      label: t('raw-data-page.col-asset'),
+      key: 'data_source_name',
+      label: t('raw-data-page.col-data-source'),
       sortable: false,
-      bodyCell: (row) => row.asset_name ?? row.asset_slug ?? '—',
+      bodyCell: (row) => row.data_source_name ?? row.data_source_slug ?? '—',
     }),
 createColumn({
       key: 'indicator_name',

@@ -243,8 +243,8 @@ export const useSideMenuStore = defineStore("sideMenu", {
                     },
                     {
                         icon: "Briefcase",
-                        pageName: "app-sustainability-asset",
-                        title: "menu.sustainability-asset",
+                        pageName: "app-sustainability-data-source",
+                        title: "menu.sustainability-data-source",
                     },
                 ],
             },
@@ -271,7 +271,7 @@ export const useSideMenuStore = defineStore("sideMenu", {
                     {
                         icon: "Settings",
                         pageName: "app-data-processing",
-                        title: "menu.data-processing-asset",
+                        title: "menu.data-processing-data-source",
                     },
                     {
                         icon: "Settings",

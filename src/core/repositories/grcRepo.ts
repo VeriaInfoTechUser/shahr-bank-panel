@@ -496,14 +496,14 @@ export const grcRepo = {
     return grcHttpRequest({ method: 'DELETE', url: `/context/metrics/${slug}` });
   },
 
-  // Metric Assets
-  metricAssetsList(slug: string, params?: GrcListParams): Promise<GrcApiResponse<GrcPaginatedResponse>> {
-    return grcHttpRequest({ method: 'GET', url: '/governance', params: { type: 'assets', metricSlug: slug, ...(params ?? {}) } });
+  // Metric Data Sources
+  metricDataSourceList(slug: string, params?: GrcListParams): Promise<GrcApiResponse<GrcPaginatedResponse>> {
+    return grcHttpRequest({ method: 'GET', url: '/governance', params: { type: 'data-sources', metricSlug: slug, ...(params ?? {}) } });
   },
 
-  // All Assets
-  assetsList(params?: GrcListParams): Promise<GrcApiResponse<GrcPaginatedResponse>> {
-    return grcHttpRequest({ method: 'GET', url: '/governance', params: { type: 'assets', ...(params ?? {}) } });
+  // All Data Sources
+  dataSourcesList(params?: GrcListParams): Promise<GrcApiResponse<GrcPaginatedResponse>> {
+    return grcHttpRequest({ method: 'GET', url: '/governance', params: { type: 'data-sources', ...(params ?? {}) } });
   },
 
   // Raw Data
@@ -516,9 +516,9 @@ export const grcRepo = {
     return grcHttpRequest({ method: 'GET', url: '/calculations/jobs', params });
   },
 
-  // Calculations Assets
-  calculationAssetList(params?: GrcListParams): Promise<GrcApiResponse<GrcPaginatedResponse>> {
-    return grcHttpRequest({ method: 'GET', url: '/calculations/assets', params });
+  // Calculations Data Sources
+  calculationDataSourceList(params?: GrcListParams): Promise<GrcApiResponse<GrcPaginatedResponse>> {
+    return grcHttpRequest({ method: 'GET', url: '/calculations/data-sources', params });
   },
 
   // Calculations Indicators

@@ -1352,6 +1352,7 @@
   },
   "sustainability-data-source-page": {
     "col-title": "عنوان",
+    "col-description": "توضیحات",
     "col-capital": "سرمایه",
     "col-domain": "حوزه",
     "col-component": "مؤلفه",
@@ -1359,6 +1360,10 @@
     "col-claim": "ادعا",
     "col-indicator": "شاخص",
     "col-data-source-type": "نوع شواهد",
+    "col-source": "منبع",
+    "col-status": "وضعیت",
+    "status-active": "فعال",
+    "status-inactive": "غیرفعال",
     "filter-field-title": "عنوان",
     "toolbar-export": "خروجی",
     "toolbar-filter": "فیلتر",

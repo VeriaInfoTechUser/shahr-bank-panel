@@ -39,6 +39,12 @@ export function useDataSourcePage() {
         bodyCell: (row) => pickStr(row, 'title'),
       }),
       createColumn({
+        key: 'description',
+        label: t('sustainability-data-source-page.col-description'),
+        sortable: false,
+        bodyCell: (row) => pickStr(row, 'description'),
+      }),
+      createColumn({
         key: 'capital',
         label: t('sustainability-data-source-page.col-capital'),
         sortable: false,
@@ -75,10 +81,21 @@ export function useDataSourcePage() {
         bodyCell: (row) => pickStr(row, 'indicatorTitle'),
       }),
       createColumn({
-        key: "dataSourceType",
+        key: 'dataSourceType',
         label: t('sustainability-data-source-page.col-data-source-type'),
         sortable: false,
-        bodyCell: (row) => pickStr(row, "dataSourceType"),
+        bodyCell: (row) => pickStr(row, 'dataSourceType'),
+      }),
+      createColumn({
+        key: 'status',
+        label: t('sustainability-data-source-page.col-status'),
+        sortable: false,
+        bodyCell: (row) => {
+          const v = row['status'];
+          if (v === 1) return t('sustainability-data-source-page.status-active');
+          if (v === 0) return t('sustainability-data-source-page.status-inactive');
+          return pickStr(row, 'status');
+        },
       }),
     ],
     selectable: false,

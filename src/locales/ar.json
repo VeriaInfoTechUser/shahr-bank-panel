@@ -1086,6 +1086,7 @@
   },
   "sustainability-data-source-page": {
     "col-title": "العنوان",
+    "col-description": "الوصف",
     "col-capital": "رأس المال",
     "col-domain": "المجال",
     "col-component": "المكون",
@@ -1093,6 +1094,10 @@
     "col-claim": "المطالبة",
     "col-indicator": "المؤشر",
     "col-data-source-type": "نوع الأصل",
+    "col-source": "المصدر",
+    "col-status": "الحالة",
+    "status-active": "نشط",
+    "status-inactive": "غير نشط",
     "filter-field-title": "العنوان",
     "toolbar-export": "تصدير",
     "toolbar-filter": "فلتر",

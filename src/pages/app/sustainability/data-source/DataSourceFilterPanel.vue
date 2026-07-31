@@ -4,8 +4,10 @@ import { computed, ref, toValue, watch } from 'vue';
 import { Form } from 'vee-validate';
 import { useI18n } from 'vue-i18n';
 import BaseInput from '@/core/ui/base/BaseInput.vue';
+import BaseSelect from '@/core/ui/base/BaseSelect.vue';
 import BasePaginatedMultiSelect from '@/core/ui/base/BasePaginatedMultiSelect.vue';
 import { grcRepo } from '@/core/repositories/grcRepo';
+import { sourceDataSourceTypes } from '@/pages/app/sustainability/source-data-source-types';
 import DataSourceFilterAutoApply from './DataSourceFilterAutoApply.vue';
 
 const props = withDefaults(
@@ -30,6 +32,20 @@ const emit = defineEmits<{
 const { t } = useI18n();
 const formKey = ref(0);
 const formId = 'data-source-filter-form';
+
+const dataSourceTypeOptions = sourceDataSourceTypes.map((item) => ({
+  value: item.slug,
+  label: t(item.title),
+}));
+
+const sourceOptions = [
+  { value: 'esos', label: 'ESOS' },
+];
+
+const statusOptions = [
+  { value: 1, label: t('sustainability-data-source-page.status-active') },
+  { value: 0, label: t('sustainability-data-source-page.status-inactive') },
+];
 
 async function fetchCapitals(params: { page: number; limit: number; search?: string }) {
   const res = await grcRepo.capitalList(params);
@@ -113,6 +129,9 @@ function apiFiltersToFormValues(f: Record<string, unknown> | undefined | null) {
     capabilitySlug: Array.isArray(x.capabilitySlug) ? x.capabilitySlug.map(String) : x.capabilitySlug ? [String(x.capabilitySlug)] : [],
     claimSlug: Array.isArray(x.claimSlug) ? x.claimSlug.map(String) : x.claimSlug ? [String(x.claimSlug)] : [],
     indicatorSlug: Array.isArray(x.indicatorSlug) ? x.indicatorSlug.map(String) : x.indicatorSlug ? [String(x.indicatorSlug)] : [],
+    dataSourceType: String(x.dataSourceType ?? ''),
+    source: String(x.source ?? ''),
+    status: x.status !== undefined && x.status !== null ? Number(x.status) : '',
   };
 }
 
@@ -144,6 +163,12 @@ function buildPayload(values: Record<string, unknown>): Record<string, unknown> 
   if (claimSlug?.length) o.claimSlug = claimSlug.length === 1 ? claimSlug[0] : claimSlug;
   const indicatorSlug = values.indicatorSlug as string[] | undefined;
   if (indicatorSlug?.length) o.indicatorSlug = indicatorSlug.length === 1 ? indicatorSlug[0] : indicatorSlug;
+  const dataSourceType = String(values.dataSourceType ?? '').trim();
+  if (dataSourceType) o.dataSourceType = dataSourceType;
+  const source = String(values.source ?? '').trim();
+  if (source) o.source = source;
+  const status = values.status;
+  if (status !== '' && status !== undefined && status !== null) o.status = Number(status);
   return o;
 }
 
@@ -228,6 +253,30 @@ function onAutoApply(payload: Record<string, unknown>) {
           :limit="25"
           :search="true"
           placeholder=""
+        />
+        <BaseSelect
+          name="dataSourceType"
+          compact-label
+          :label="t('sustainability-data-source-page.col-data-source-type')"
+          :options="dataSourceTypeOptions"
+          placeholder=""
+          filter
+        />
+        <BaseSelect
+          name="source"
+          compact-label
+          :label="t('sustainability-data-source-page.col-source')"
+          :options="sourceOptions"
+          placeholder=""
+          filter
+        />
+        <BaseSelect
+          name="status"
+          compact-label
+          :label="t('sustainability-data-source-page.col-status')"
+          :options="statusOptions"
+          placeholder=""
+          filter
         />
       </div>
     </Form>

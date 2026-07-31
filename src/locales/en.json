@@ -1330,6 +1330,7 @@
   },
   "sustainability-data-source-page": {
     "col-title": "Title",
+    "col-description": "Description",
     "col-capital": "Capital",
     "col-domain": "Domain",
     "col-component": "Component",
@@ -1337,6 +1338,10 @@
     "col-claim": "Claim",
     "col-indicator": "Indicator",
     "col-data-source-type": "Data Source Type",
+    "col-source": "Source",
+    "col-status": "Status",
+    "status-active": "Active",
+    "status-inactive": "Inactive",
     "filter-field-title": "Title",
     "toolbar-export": "Export",
     "toolbar-filter": "Filter",

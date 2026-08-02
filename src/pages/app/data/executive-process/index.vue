@@ -33,6 +33,52 @@ const stateLabelMap: Record<string, string> = {
   CANCELLED: t('job.status-cancelled'),
 };
 
+function formatDate(v: unknown) {
+  if (v == null || v === '') return '—';
+  try {
+    return new Date(String(v)).toLocaleDateString('fa-IR');
+  } catch {
+    return String(v);
+  }
+}
+
+function formatDateTime(v: unknown) {
+  if (v == null || v === '') return '—';
+  try {
+    return new Date(String(v)).toLocaleString('fa-IR');
+  } catch {
+    return String(v);
+  }
+}
+
+function typeLabel(v: unknown) {
+  const key = String(v ?? '').toUpperCase();
+  const map: Record<string, string> = {
+    CALCULATE: t('job.type-calculate'),
+    RECALCULATE: t('job.type-recalculate'),
+    UPDATE: t('job.type-update'),
+    TEST: t('job.type-test'),
+  };
+  return map[key] ?? (key || '—');
+}
+
+function levelLabel(v: unknown) {
+  return String(v ?? '') === 'INDICATOR' ? t('job.level-secondary') : t('job.level-primary');
+}
+
+function stateBadgeClass(v: unknown) {
+  const s = String(v ?? '');
+  const map: Record<string, string> = {
+    TO_DO: 'bg-warning/15 text-warning',
+    IN_QUEUE: 'bg-info/15 text-info',
+    IN_PROGRESS: 'bg-info/15 text-info',
+    DONE: 'bg-success/15 text-success',
+    FAILED: 'bg-danger/15 text-danger',
+    CANCELLED: 'bg-slate-200 text-slate-600 dark:bg-darkmode-600 dark:text-slate-300',
+  };
+  return map[s] ?? 'bg-slate-200 text-slate-600 dark:bg-darkmode-600 dark:text-slate-300';
+}
+
 const fetchJobs: FetchFn = async ({ page, limit, filters }) => {
   const res = await grcRepo.calculationJobList({ page, limit, ...(filters ?? {}) });
   const list = res?.data?.list ?? [];
@@ -47,7 +93,11 @@ const table = useDataTable({
       key: 'slug',
       label: t('job.slug'),
       sortable: false,
-      bodyCell: (row) => row.slug ?? '—',
+      bodyCell: (row) => {
+        const s = String(row.slug ?? '');
+        if (!s) return '—';
+        return s.length > 12 ? `${s.slice(0, 8)}…` : s;
+      },
     }),
     createColumn({
       key: 'indicator_name',
@@ -55,23 +105,23 @@ const table = useDataTable({
       sortable: false,
       bodyCell: (row) => row.indicator_name ?? '—',
     }),
-createColumn({
-      key: 'indicator_name',
-      label: t('job.indicator-name'),
-      sortable: false,
-      bodyCell: (row) => row.indicator_name ?? '—',
-    }),
     createColumn({
-      key: 'type',
-      label: t('job.type'),
+      key: 'data_source_name',
+      label: t('job.data-source-name'),
       sortable: false,
-      bodyCell: (row) => row.type ?? '—',
+      bodyCell: (row) => row.data_source_name ?? '—',
     }),
     createColumn({
       key: 'calculation_level',
       label: t('job.calculation-level'),
       sortable: false,
-      bodyCell: (row) => row.calculation_level ?? '—',
+      bodyCell: (row) => levelLabel(row.calculation_level),
+    }),
+    createColumn({
+      key: 'type',
+      label: t('job.type'),
+      sortable: false,
+      bodyCell: (row) => typeLabel(row.type),
     }),
     createColumn({
       key: 'state',
@@ -80,21 +130,13 @@ createColumn({
       bodyCell: (row) => stateLabelMap[row.state as string] ?? (row.state as string) ?? '—',
     }),
     createColumn({
-      key: 'date_from',
-      label: t('job.date-from'),
+      key: 'date_range',
+      label: t('job.date-range'),
       sortable: false,
+      exportable: false,
       bodyCell: (row) => {
-        if (!row.date_from) return '—';
-        return new Date(row.date_from as string).toLocaleString('fa-IR');
-      },
-    }),
-    createColumn({
-      key: 'date_to',
-      label: t('job.date-to'),
-      sortable: false,
-      bodyCell: (row) => {
-        if (!row.date_to) return '—';
-        return new Date(row.date_to as string).toLocaleString('fa-IR');
+        if (row.date_from == null && row.date_to == null) return '—';
+        return `${formatDate(row.date_from)} — ${formatDate(row.date_to)}`;
       },
     }),
     createColumn({
@@ -102,6 +144,12 @@ createColumn({
       label: t('job.retry-count'),
       sortable: false,
       bodyCell: (row) => row.retry_count != null ? String(row.retry_count) : '—',
+    }),
+    createColumn({
+      key: 'created_at',
+      label: t('general.created-at'),
+      sortable: false,
+      bodyCell: (row) => formatDateTime(row.created_at),
     }),
   ],
   selectable: false,
@@ -179,6 +227,34 @@ function onModalSuccess() {
         :actions="true"
         :show-search="false"
       >
+        <template #cell-slug="{ row }">
+          <span v-if="row.slug" :title="String(row.slug)">
+            {{ String(row.slug).slice(0, 8) }}…
+          </span>
+          <span v-else>—</span>
+        </template>
+
+        <template #cell-calculation_level="{ row }">
+          <span class="inline-block rounded bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
+            {{ levelLabel(row.calculation_level) }}
+          </span>
+        </template>
+
+        <template #cell-type="{ row }">
+          <span class="inline-block rounded bg-info/15 px-2 py-0.5 text-xs font-medium text-info">
+            {{ typeLabel(row.type) }}
+          </span>
+        </template>
+
+        <template #cell-state="{ row }">
+          <span
+            class="inline-block rounded px-2 py-0.5 text-xs font-medium"
+            :class="stateBadgeClass(row.state)"
+          >
+            {{ stateLabelMap[row.state as string] ?? (row.state as string) ?? '—' }}
+          </span>
+        </template>
+
         <template #actions="{ row }">
           <div class="flex items-center justify-center">
             <Button

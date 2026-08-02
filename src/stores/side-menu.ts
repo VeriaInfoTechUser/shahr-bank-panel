@@ -232,6 +232,11 @@ export const useSideMenuStore = defineStore("sideMenu", {
                         title: "menu.sustainability-fundamental-capitals",
                     },
                     {
+                        icon: "Layers",
+                        pageName: "app-sustainability-capability",
+                        title: "menu.sustainability-capability",
+                    },
+                    {
                         icon: "FileCheck",
                         pageName: "app-sustainability-claim",
                         title: "menu.sustainability-claim",

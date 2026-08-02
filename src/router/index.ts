@@ -58,6 +58,7 @@ import SustainabilityDataSource from "@/pages/app/sustainability/data-source/ind
 import SustainabilityCategory from "@/pages/app/sustainability/category/index.vue";
 import SustainabilityMetricsDetail from "@/pages/app/sustainability/metrics/detail/index.vue";
 import SustainabilityFundamentalCapitals from "@/pages/app/sustainability/fundamental-capitals/index.vue";
+import SustainabilityCapability from "@/pages/app/sustainability/capability/index.vue";
 import SustainabilityClaim from "@/pages/app/sustainability/claim/index.vue";
 import SustainabilityIndicator from "@/pages/app/sustainability/indicator/index.vue";
 import SustainabilityIndicatorForm from "@/pages/app/sustainability/indicator/IndicatorFormPage.vue";
@@ -535,6 +536,12 @@ const routes = [
                                 name: "app-sustainability-fundamental-capitals",
                                 component: SustainabilityFundamentalCapitals,
                                 meta: { breadcrumbLabel: 'menu.sustainability-fundamental-capitals' },
+                            },
+                            {
+                                path: "capability",
+                                name: "app-sustainability-capability",
+                                component: SustainabilityCapability,
+                                meta: { breadcrumbLabel: 'menu.sustainability-capability' },
                             },
                             {
                                 path: "claim",

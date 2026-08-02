@@ -8,7 +8,7 @@ import BaseModal from '@/core/ui/base/BaseModal.vue';
 import BaseSelect from '@/core/ui/base/BaseSelect.vue';
 import Button from '@/base-components/Button';
 import { grcRepo } from '@/core/repositories/grcRepo';
-import BaseDateRangePicker from '@/core/ui/base/BaseDateRangePicker.vue';
+import DatePickerExtra from '@/components/DatePickerExtra.vue';
 
 const props = withDefaults(
   defineProps<{
@@ -38,16 +38,14 @@ const loadingDataSources = ref(false);
 
 const dataSourceOptions = ref<{ value: string; label: string }[]>([]);
 
+const selectedPeriod = ref<{ type: string; startDate: string; endDate: string } | null>(null);
+
 const initialValues = ref({
   data_source_slug: '',
-  date_from: '',
-  date_to: '',
 });
 
 const validationSchema = yup.object({
   data_source_slug: yup.string().trim().required(t('validation.required')),
-  date_from: yup.string().trim().required(t('validation.required')),
-  date_to: yup.string().trim().required(t('validation.required')),
 });
 
 async function loadAllAssets() {
@@ -79,16 +77,13 @@ watch(
     if (mode === 'edit' && j) {
       initialValues.value = {
         data_source_slug: (j.data_source_slug as string) ?? '',
-        date_from: (j.date_from as string) ?? '',
-        date_to: (j.date_to as string) ?? '',
       };
     } else {
       initialValues.value = {
         data_source_slug: '',
-        date_from: '',
-        date_to: '',
       };
     }
+    selectedPeriod.value = null;
     formKey.value += 1;
   },
   { immediate: true }
@@ -105,19 +100,20 @@ function onDialogVisible(v: boolean) {
 }
 
 async function onSubmit(values: Record<string, unknown>) {
+  if (!selectedPeriod.value) return;
   saving.value = true;
   try {
     const selectedAsset = dataSources.value.find((a) => a.slug === values.data_source_slug);
     const payload: Record<string, unknown> = {
       calculation_level: 'DATA_SOURCE',
+      date_from: selectedPeriod.value.startDate,
+      date_to: selectedPeriod.value.endDate,
     };
 
     if (values.data_source_slug) payload.data_source_slug = String(values.data_source_slug);
     if (selectedAsset && 'indicatorSlug' in selectedAsset) {
       payload.indicator_slug = (selectedAsset as Record<string, unknown>).indicatorSlug;
     }
-    if (values.date_from) payload.date_from = String(values.date_from);
-    if (values.date_to) payload.date_to = String(values.date_to);
 
     if (props.mode === 'edit' && props.job) {
       const id = String(props.job.id ?? '');
@@ -171,13 +167,21 @@ async function onSubmit(values: Record<string, unknown>) {
         :required="true"
         :filter="true"
       />
-      <BaseDateRangePicker
-        name-from="date_from"
-        name-to="date_to"
-        :label="t('job.date-range')"
-        :placeholder="t('job.date-range-placeholder')"
-        :required="true"
-      />
+      <div>
+        <label class="mb-1.5 block text-xs font-medium text-slate-500 dark:text-slate-400">
+          {{ t('job.date-range') }}
+          <span class="me-0.5 text-danger">*</span>
+        </label>
+        <div class="flex justify-center">
+          <DatePickerExtra
+            v-model="selectedPeriod"
+            :modes="['season', 'month', 'year']"
+          />
+        </div>
+        <p v-if="!selectedPeriod" class="mt-1 text-[11px] text-danger">
+          {{ t('job.date-range-placeholder') }}
+        </p>
+      </div>
     </Form>
     <template #footer>
       <div class="flex flex-wrap justify-end gap-2">
@@ -195,7 +199,7 @@ async function onSubmit(values: Record<string, unknown>) {
           variant="primary"
           size="sm"
           form="add-primary-job-form"
-          :disabled="saving"
+          :disabled="saving || !selectedPeriod"
         >
           {{ t('general.submit') }}
         </Button>

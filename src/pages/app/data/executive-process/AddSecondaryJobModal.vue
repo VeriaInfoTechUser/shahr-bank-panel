@@ -8,7 +8,7 @@ import BaseModal from '@/core/ui/base/BaseModal.vue';
 import BasePaginatedSelect from '@/core/ui/base/BasePaginatedSelect.vue';
 import Button from '@/base-components/Button';
 import { grcRepo, type GrcEntity } from '@/core/repositories/grcRepo';
-import BaseDatePicker from '@/core/ui/base/BaseDatePicker.vue';
+import DatePickerExtra from '@/components/DatePickerExtra.vue';
 
 const props = withDefaults(
   defineProps<{
@@ -33,14 +33,14 @@ const formRef = ref<InstanceType<typeof Form> | null>(null);
 const saving = ref(false);
 const formKey = ref(0);
 
+const selectedPeriod = ref<{ type: string; startDate: string; endDate: string } | null>(null);
+
 const initialValues = ref({
   indicator_slug: '',
-  date: '',
 });
 
 const validationSchema = yup.object({
   indicator_slug: yup.string().trim().required(t('validation.required')),
-  date: yup.string().trim().required(t('validation.required')),
 });
 
 async function fetchIndicators(params: { page: number; limit: number; title?: string }) {
@@ -59,14 +59,13 @@ watch(
     if (mode === 'edit' && j) {
       initialValues.value = {
         indicator_slug: (j.indicator_slug as string) ?? '',
-        date: (j.date as string) ?? '',
       };
     } else {
       initialValues.value = {
         indicator_slug: '',
-        date: '',
       };
     }
+    selectedPeriod.value = null;
     formKey.value += 1;
   },
   { immediate: true }
@@ -83,14 +82,16 @@ function onDialogVisible(v: boolean) {
 }
 
 async function onSubmit(values: Record<string, unknown>) {
+  if (!selectedPeriod.value) return;
   saving.value = true;
   try {
     const payload: Record<string, unknown> = {
       calculation_level: 'INDICATOR',
+      date_from: selectedPeriod.value.startDate,
+      date_to: selectedPeriod.value.endDate,
     };
 
     if (values.indicator_slug) payload.indicator_slug = String(values.indicator_slug);
-    if (values.date) payload.date_from = String(values.date);
 
     if (props.mode === 'edit' && props.job) {
       const id = String(props.job.id ?? '');
@@ -145,11 +146,21 @@ async function onSubmit(values: Record<string, unknown>) {
         :required="true"
         :limit="25"
       />
-      <BaseDatePicker
-        name="date"
-        :label="t('job.date')"
-        :required="true"
-      />
+      <div>
+        <label class="mb-1.5 block text-xs font-medium text-slate-500 dark:text-slate-400">
+          {{ t('job.date-range') }}
+          <span class="me-0.5 text-danger">*</span>
+        </label>
+        <div class="flex justify-center">
+          <DatePickerExtra
+            v-model="selectedPeriod"
+            :modes="['season', 'month', 'year']"
+          />
+        </div>
+        <p v-if="!selectedPeriod" class="mt-1 text-[11px] text-danger">
+          {{ t('job.date-range-placeholder') }}
+        </p>
+      </div>
     </Form>
     <template #footer>
       <div class="flex flex-wrap justify-end gap-2">
@@ -167,7 +178,7 @@ async function onSubmit(values: Record<string, unknown>) {
           variant="primary"
           size="sm"
           form="add-secondary-job-form"
-          :disabled="saving"
+          :disabled="saving || !selectedPeriod"
         >
           {{ t('general.submit') }}
         </Button>

@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite --port 7070",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "jobs:create": "node scripts/create-calculation-jobs.mjs"
   },
   "dependencies": {
     "@bhplugin/vue3-datatable": "^1.1.4",

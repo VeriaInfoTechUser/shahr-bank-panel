@@ -35,15 +35,6 @@ const stateLabelMap: Record<string, string> = {
   CANCELLED: t('job.status-cancelled'),
 };
 
-function formatDate(v: unknown) {
-  if (v == null || v === '') return '—';
-  try {
-    return new Date(String(v)).toLocaleDateString('fa-IR');
-  } catch {
-    return String(v);
-  }
-}
-
 function formatDateTime(v: unknown) {
   if (v == null || v === '') return '—';
   try {
@@ -140,7 +131,7 @@ const table = useDataTable({
       exportable: false,
       bodyCell: (row) => {
         if (row.date_from == null && row.date_to == null) return '—';
-        return `${formatDate(row.date_from)} — ${formatDate(row.date_to)}`;
+        return `${formatDateTime(row.date_from)} — ${formatDateTime(row.date_to)}`;
       },
     }),
     createColumn({

@@ -24,10 +24,16 @@ const table = useDataTable({
       bodyCell: (row) => row.capability_name ?? row.capability_slug ?? '—',
     }),
     createColumn({
-      key: 'date',
-      label: t('job.date'),
+      key: 'date_from',
+      label: t('job.date-from'),
       sortable: false,
-      bodyCell: (row) => row.date ?? '—',
+      bodyCell: (row) => row.date_from ?? '—',
+    }),
+    createColumn({
+      key: 'date_to',
+      label: t('job.date-to'),
+      sortable: false,
+      bodyCell: (row) => row.date_to ?? '—',
     }),
     createColumn({
       key: 'period_type',

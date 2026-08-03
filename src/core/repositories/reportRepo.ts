@@ -125,6 +125,22 @@ export class ReportRepo {
       data: params ?? {},
     });
   }
+
+  async getSustainabilityDashboardOverview(params?: Record<string, unknown>) {
+    return grcHttpRequest({
+      method: 'POST',
+      url: `${this.base}/dashboard/overview`,
+      data: params ?? {},
+    });
+  }
+
+  async getSustainabilityCapitalIndicators(capitalSlug: string, params?: Record<string, unknown>) {
+    return grcHttpRequest({
+      method: 'POST',
+      url: `${this.base}/dashboard/capitals/${capitalSlug}/indicators`,
+      data: params ?? {},
+    });
+  }
 }
 
 export const reportRepo = new ReportRepo();

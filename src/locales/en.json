@@ -247,7 +247,8 @@
     "next": "Next",
     "select": "Select",
     "submit": "Submit",
-    "refresh": "Refresh"
+    "refresh": "Refresh",
+    "load-failed": "Failed to load"
   },
   "login-history": {
     "title": "Login History",
@@ -1464,7 +1465,30 @@
     "comparative-wizard-title": "Create Comparative Report",
     "edit-title": "Edit Title",
     "update-success": "Title updated successfully",
-    "update-error": "Error updating title"
+    "update-error": "Error updating title",
+    "quarter": "Q",
+    "vs": "vs",
+    "current-period": "Current period",
+    "comparison-period": "Comparison period",
+    "comparison-score": "Comparison score",
+    "comparison-must-differ": "Comparison period must differ from the main period",
+    "enable-compare": "Enable comparison",
+    "disable-compare": "Disable comparison",
+    "final-score": "Final score",
+    "raw-value": "Raw value",
+    "data-status": "Data status",
+    "has-data": "Has data",
+    "indicator": "Indicator",
+    "unit": "Unit",
+    "no-data": "No data for this period",
+    "no-indicator-data": "No data for this indicator",
+    "no-capability-data": "No data for this capability",
+    "no-component-data": "No data for this component",
+    "dashboard-settings": "Dashboard settings",
+    "selected-range": "Selected range",
+    "capitals": "Capitals",
+    "indicators": "Indicators",
+    "compare-hint": "Turn on the comparison switch and pick a second period to compare two periods side by side"
   },
   "compliance-page": {
     "col-code": "Code",

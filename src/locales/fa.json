@@ -266,7 +266,8 @@
     "next": "بعدی",
     "select": "انتخاب کنید",
     "submit": "ارسال",
-    "refresh": "بارگذاری مجدد"
+    "refresh": "بارگذاری مجدد",
+    "load-failed": "خطا در بارگذاری"
   },
   "login-history": {
     "title": "تاریخچه ورود",
@@ -1486,7 +1487,30 @@
     "comparative-wizard-title": "ایجاد گزارش مقایسه‌ای",
     "edit-title": "ویرایش عنوان",
     "update-success": "عنوان با موفقیت بروزرسانی شد",
-    "update-error": "خطا در بروزرسانی عنوان"
+    "update-error": "خطا در بروزرسانی عنوان",
+    "quarter": "سه‌ماهه",
+    "vs": "در مقایسه با",
+    "current-period": "دوره فعلی",
+    "comparison-period": "دوره مقایسه",
+    "comparison-score": "امتیاز مقایسه",
+    "comparison-must-differ": "دوره مقایسه باید با دوره اصلی متفاوت باشد",
+    "enable-compare": "فعال‌کردن مقایسه",
+    "disable-compare": "غیرفعال‌کردن مقایسه",
+    "final-score": "امتیاز نهایی",
+    "raw-value": "مقدار خام",
+    "data-status": "وضعیت داده",
+    "has-data": "دارای داده",
+    "indicator": "شاخص",
+    "unit": "واحد",
+    "no-data": "داده‌ای برای این دوره وجود ندارد",
+    "no-indicator-data": "داده‌ای برای این شاخص وجود ندارد",
+    "no-capability-data": "داده‌ای برای این قابلیت وجود ندارد",
+    "no-component-data": "داده‌ای برای این مؤلفه وجود ندارد",
+    "dashboard-settings": "تنظیمات داشبورد",
+    "selected-range": "بازه انتخابی",
+    "capitals": "سرمایه‌ها",
+    "indicators": "شاخص‌ها",
+    "compare-hint": "برای مقایسهٔ دو دوره، سوییچ مقایسه را فعال کنید و دورهٔ دوم را انتخاب کنید"
   },
   "compliance-page": {
     "col-code": "کد",

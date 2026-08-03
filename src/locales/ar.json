@@ -114,7 +114,8 @@
     "previous": "السابق",
     "next": "التالي",
     "select": "اختر",
-    "submit": "إرسال"
+    "submit": "إرسال",
+    "load-failed": "فشل التحميل"
   },
   "login-history": {
     "title": "سجل الدخول",
@@ -1194,7 +1195,30 @@
     "comparative-wizard-title": "إنشاء تقرير مقارن",
     "edit-title": "تعديل العنوان",
     "update-success": "تم تحديث العنوان بنجاح",
-    "update-error": "خطأ في تحديث العنوان"
+    "update-error": "خطأ في تحديث العنوان",
+    "quarter": "الربع",
+    "vs": "مقارنة بـ",
+    "current-period": "الفترة الحالية",
+    "comparison-period": "فترة المقارنة",
+    "comparison-score": "درجة المقارنة",
+    "comparison-must-differ": "يجب أن تختلف فترة المقارنة عن الفترة الرئيسية",
+    "enable-compare": "تفعيل المقارنة",
+    "disable-compare": "تعطيل المقارنة",
+    "final-score": "الدرجة النهائية",
+    "raw-value": "القيمة الخام",
+    "data-status": "حالة البيانات",
+    "has-data": "لديه بيانات",
+    "indicator": "مؤشر",
+    "unit": "الوحدة",
+    "no-data": "لا توجد بيانات لهذه الفترة",
+    "no-indicator-data": "لا توجد بيانات لهذا المؤشر",
+    "no-capability-data": "لا توجد بيانات لهذه القدرة",
+    "no-component-data": "لا توجد بيانات لهذا المكون",
+    "dashboard-settings": "إعدادات لوحة المعلومات",
+    "selected-range": "النطاق المحدد",
+    "capitals": "رؤوس الأموال",
+    "indicators": "المؤشرات",
+    "compare-hint": "فعّل مفتاح المقارنة واختر فترة ثانية لمقارنة فترتين جنبًا إلى جنب"
   },
   "compliance-page": {
     "col-code": "الرمز",

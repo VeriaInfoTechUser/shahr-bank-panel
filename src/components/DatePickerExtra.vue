@@ -127,7 +127,7 @@
  *   <DatePicker v-model="form.period" />
  */
 
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, nextTick } from 'vue'
 
 // ── PeriodType ───────────────────────────────────────────────────────────────
 // If your project already has the real TS enum, import it instead of this
@@ -290,6 +290,61 @@ const viewYear  = ref(todayJ.jy)     // stored in active calendar's unit
 const viewMonth = ref(todayJ.jm)
 const selRaw    = ref(null)          // internal selection (active-cal coords)
 
+// ── ModelValue sync ──────────────────────────────────────────────────────────
+// When the parent sets `modelValue` programmatically (e.g. adopting the
+// backend-resolved default period) the internal view/selection must follow,
+// otherwise the picker renders today's year with nothing selected.
+const syncing = ref(false)
+
+function parseIso(s) {
+  const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(s || ''))
+  if (!m) return null
+  return { y: +m[1], m: +m[2], d: +m[3] }
+}
+
+function typeToMode(type) {
+  const t = String(type || '').toUpperCase()
+  if (t === 'YEARLY')    return 'year'
+  if (t === 'QUARTERLY') return 'season'
+  if (t === 'MONTHLY')   return 'month'
+  if (t === 'WEEKLY')    return 'week'
+  return 'day'
+}
+
+watch(() => props.modelValue, (val) => {
+  if (!val || typeof val.type !== 'string') return
+  const iso = parseIso(val.startDate)
+  if (!iso) return
+
+  const targetMode = typeToMode(val.type)
+  if (!props.modes.includes(targetMode)) return
+
+  syncing.value = true
+  try {
+    mode.value = targetMode
+    if (cal.value === 'fa') {
+      const j = toJalali(iso.y, iso.m, iso.d)
+      viewYear.value  = j.jy
+      viewMonth.value = j.jm
+      if (targetMode === 'day' || targetMode === 'week') selRaw.value = { type: targetMode, y: j.jy, m: j.jm, d: j.jd }
+      else if (targetMode === 'month') selRaw.value = { type: 'month', y: j.jy, m: j.jm }
+      else if (targetMode === 'season') selRaw.value = { type: 'season', y: j.jy, s: Math.floor((j.jm - 1) / 3) + 1 }
+      else selRaw.value = { type: 'year', y: j.jy }
+    } else {
+      viewYear.value  = iso.y
+      viewMonth.value = iso.m
+      if (targetMode === 'day' || targetMode === 'week') selRaw.value = { type: targetMode, y: iso.y, m: iso.m, d: iso.d }
+      else if (targetMode === 'month') selRaw.value = { type: 'month', y: iso.y, m: iso.m }
+      else if (targetMode === 'season') selRaw.value = { type: 'season', y: iso.y, s: Math.floor((iso.m - 1) / 3) + 1 }
+      else selRaw.value = { type: 'year', y: iso.y }
+    }
+  } finally {
+    // keep the guard active until the pre-flush `watch(mode)` callback has
+    // run, otherwise it would clear the selection we just synced in.
+    void nextTick(() => { syncing.value = false })
+  }
+}, { immediate: true })
+
 // ── Filtered modes ──────────────────────────────────────────────────────────
 const filteredModes = computed(() =>
   MODES.filter(m => props.modes.includes(m.value))
@@ -305,6 +360,7 @@ watch(() => props.modes, (newModes) => {
 // FIX: clearing the selection on mode change wasn't reflected to the parent.
 // Now we also emit `null` so v-model never goes stale vs. the (now-empty) UI.
 watch(mode, () => {
+  if (syncing.value) return
   selRaw.value = null
   emit('update:modelValue', null)
 })

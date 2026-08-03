@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, reactive, onMounted } from 'vue';
+import { ref, computed, reactive, onMounted, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
 import {
@@ -19,6 +19,7 @@ import {
 } from 'chart.js';
 import { Radar, Bar, Doughnut } from 'vue-chartjs';
 import Lucide from '@/base-components/Lucide';
+import DatePickerExtra from '@/components/DatePickerExtra.vue';
 import { reportRepo } from '@/core/repositories/reportRepo';
 
 ChartJS.register(
@@ -53,6 +54,26 @@ interface MaturityLevel {
   emoji: string;
   status: string;
 }
+interface PeriodInfo {
+  type: string;
+  year: number;
+}
+interface ComparisonValue {
+  value: number | null;
+  period: PeriodInfo;
+}
+interface DashboardSummary {
+  capitals: number;
+  domains: number;
+  components: number;
+  capabilities: number;
+  indicators: number;
+  indicatorsWithData: number;
+  avgScore: number;
+  dataCompletion: number;
+  targetsTotal: number;
+  targetsMet: number;
+}
 interface IndicatorNode {
   slug: string;
   title: string;
@@ -65,6 +86,9 @@ interface IndicatorNode {
   rawValue?: number | null;
   rawScore?: number | null;
   finalScore?: number | null;
+  period: PeriodInfo;
+  comparison?: ComparisonValue | null;
+  comparisonValue?: number | null;
 }
 interface CapabilityNode {
   slug: string;
@@ -74,7 +98,11 @@ interface CapabilityNode {
   maturity: MaturityLevel;
   requiredMaturity?: number | null;
   meetsTarget?: boolean | null;
+  indicatorCount?: number;
+  indicatorsWithData?: number;
   indicators: IndicatorNode[];
+  period: PeriodInfo;
+  comparison?: ComparisonValue | null;
 }
 interface ComponentNode {
   slug: string;
@@ -83,6 +111,8 @@ interface ComponentNode {
   score: number;
   maturity: MaturityLevel;
   capabilities: CapabilityNode[];
+  period: PeriodInfo;
+  comparison?: ComparisonValue | null;
 }
 interface DomainNode {
   slug: string;
@@ -91,6 +121,8 @@ interface DomainNode {
   score: number;
   maturity: MaturityLevel;
   components: ComponentNode[];
+  period: PeriodInfo;
+  comparison?: ComparisonValue | null;
 }
 interface CapitalNode {
   slug: string;
@@ -99,13 +131,26 @@ interface CapitalNode {
   capitalType?: string;
   score: number;
   maturity: MaturityLevel;
+  indicatorCount?: number;
+  indicatorsWithData?: number;
   domains: DomainNode[];
+  period: PeriodInfo;
+  comparison?: ComparisonValue | null;
 }
 interface DashboardResponse {
   date_from: string;
   date_to: string;
   period_type: string;
+  period: PeriodInfo;
+  comparison_period?: PeriodInfo | null;
+  summary?: DashboardSummary;
   capitals: CapitalNode[];
+}
+
+interface SelectedPeriod {
+  type: string;
+  startDate: string;
+  endDate: string;
 }
 
 // ---------- state ----------
@@ -113,9 +158,20 @@ const loading = ref(true);
 const loadError = ref(false);
 const dashboardData = ref<DashboardResponse | null>(null);
 const activeTab = ref<string>('');
+const hasLoaded = ref(false);
 const openDomains = reactive<Set<string>>(new Set());
-// NEW: which capability rows have their indicator table expanded
 const openCapabilities = reactive<Set<string>>(new Set());
+
+// period + comparison
+const selectedPeriod = ref<SelectedPeriod | null>(null);
+const compareEnabled = ref(false);
+const comparePeriod = ref<SelectedPeriod | null>(null);
+// lazy capital indicator cache
+const loadedCapitals = reactive<Record<string, CapitalNode>>({});
+const loadingCapitalSlug = ref<string | null>(null);
+
+// suppress reload while adopting the backend-resolved default period
+let suppressReload = false;
 
 const OVERVIEW_TAB = '__overview__';
 
@@ -124,6 +180,7 @@ const activeCapital = computed<CapitalNode | undefined>(() =>
     capitals.value.find((c) => c.slug === activeTab.value),
 );
 const isOverview = computed(() => activeTab.value === OVERVIEW_TAB);
+const hasComparison = computed(() => !!dashboardData.value?.comparison_period);
 
 const CAPITAL_ICON: Record<string, string> = {
   NAT: 'Leaf',
@@ -137,8 +194,6 @@ function capitalIcon(type?: string) {
   return (type && CAPITAL_ICON[type]) || 'CircleDot';
 }
 
-// NEW: a distinct brand color per capital type, independent from the
-// per-node maturity color (mirrors the env/soc/gov palette of the legacy dashboard)
 const CAPITAL_THEME: Record<string, { main: string; light: string }> = {
   NAT: { main: '#16A34A', light: '#ECFDF5' },
   HUM: { main: '#2563EB', light: '#EFF6FF' },
@@ -161,20 +216,88 @@ function round1(n: number) {
   return Math.round(n * 10) / 10;
 }
 
+// ---------- period helpers ----------
+const compareModes = computed<string[]>(() => {
+  const type = selectedPeriod.value?.type;
+  if (type === 'QUARTERLY') return ['season'];
+  if (type === 'MONTHLY') return ['month'];
+  return ['year'];
+});
+
+const compareInvalid = computed(() => {
+  if (!compareEnabled.value || !comparePeriod.value || !selectedPeriod.value) return false;
+  return (
+      comparePeriod.value.startDate === selectedPeriod.value.startDate &&
+      comparePeriod.value.endDate === selectedPeriod.value.endDate
+  );
+});
+
+function formatPeriodLabel(p: SelectedPeriod): string {
+  const year = p.startDate.slice(0, 4);
+  if (p.type === 'YEARLY') return `${t('reports.period-type.yearly')} ${year}`;
+  if (p.type === 'QUARTERLY') {
+    const q = Math.floor((Number(p.startDate.slice(5, 7)) - 1) / 3) + 1;
+    return `${t('reports.quarter')} ${q} ${year}`;
+  }
+  if (p.type === 'MONTHLY') {
+    const month = Number(p.startDate.slice(5, 7));
+    return `${t('reports.period-type.monthly')} ${String(month).padStart(2, '0')} ${year}`;
+  }
+  return `${p.startDate} → ${p.endDate}`;
+}
+
+const periodLabel = computed(() => (selectedPeriod.value ? formatPeriodLabel(selectedPeriod.value) : ''));
+const comparisonLabel = computed(() => (comparePeriod.value ? formatPeriodLabel(comparePeriod.value) : ''));
+
+// ---------- request params ----------
+function buildParams(): Record<string, unknown> {
+  const params: Record<string, unknown> = {};
+  if (selectedPeriod.value) {
+    params.period_type = selectedPeriod.value.type;
+    params.date_from = selectedPeriod.value.startDate;
+    params.date_to = selectedPeriod.value.endDate;
+  }
+  if (compareEnabled.value && comparePeriod.value && !compareInvalid.value) {
+    params.compare_period_type = comparePeriod.value.type;
+    params.compare_date_from = comparePeriod.value.startDate;
+    params.compare_date_to = comparePeriod.value.endDate;
+  }
+  return params;
+}
+
 // ---------- fetch ----------
-async function loadDashboard() {
+async function loadOverview() {
   loading.value = true;
   loadError.value = false;
   try {
-    const response = await reportRepo.getSustainabilityDashboard({
-      date_from: '2024-01-01',
-      date_to: '2024-12-31',
-      period_type: 'YEARLY',
-    });
-    if (response.data) {
+    const response = await reportRepo.getSustainabilityDashboardOverview(buildParams());
+    if (response?.data) {
       dashboardData.value = response.data;
-      if (dashboardData.value?.capitals?.length) {
-        activeTab.value = dashboardData.value.capitals[0].slug;
+      // Adopt the backend-resolved default period on first load (no explicit dates sent).
+      if (!selectedPeriod.value && response.data.period && response.data.date_from && response.data.date_to) {
+        selectedPeriod.value = {
+          type: response.data.period.type,
+          startDate: response.data.date_from,
+          endDate: response.data.date_to,
+        };
+      }
+      for (const key of Object.keys(loadedCapitals)) delete loadedCapitals[key];
+      openDomains.clear();
+      openCapabilities.clear();
+      if (dashboardData.value.capitals.length) {
+        if (!hasLoaded.value) {
+          // first load: land on the capitals overview tab (capital-level data only)
+          activeTab.value = OVERVIEW_TAB;
+          hasLoaded.value = true;
+        } else if (activeTab.value !== OVERVIEW_TAB) {
+          const current = activeTab.value;
+          if (!dashboardData.value.capitals.some((c) => c.slug === current)) {
+            activeTab.value = OVERVIEW_TAB;
+          } else {
+            // stay on the current capital tab and re-fetch its indicator detail
+            void ensureCapitalLoaded(current);
+          }
+        }
       }
     } else {
       loadError.value = true;
@@ -186,48 +309,131 @@ async function loadDashboard() {
     loading.value = false;
   }
 }
-onMounted(loadDashboard);
+
+async function ensureCapitalLoaded(capitalSlug: string) {
+  if (loadedCapitals[capitalSlug] || loadingCapitalSlug.value) return;
+  loadingCapitalSlug.value = capitalSlug;
+  try {
+    const response = await reportRepo.getSustainabilityCapitalIndicators(capitalSlug, buildParams());
+    const capital = response?.data?.capitals?.[0];
+    if (capital && dashboardData.value) {
+      loadedCapitals[capitalSlug] = capital;
+      const index = dashboardData.value.capitals.findIndex((c) => c.slug === capitalSlug);
+      if (index >= 0) dashboardData.value.capitals[index] = capital;
+    }
+  } catch (error) {
+    console.error(`Failed to load indicators for capital ${capitalSlug}:`, error);
+  } finally {
+    loadingCapitalSlug.value = null;
+  }
+}
+
+function reload() {
+  if (suppressReload) return;
+  if (!selectedPeriod.value) return;
+  loadOverview();
+}
+
+watch([selectedPeriod, comparePeriod], reload);
+watch(compareEnabled, (enabled) => {
+  if (!enabled) {
+    comparePeriod.value = null;
+  }
+});
+
+function selectCapital(slug: string) {
+  activeTab.value = slug;
+  ensureCapitalLoaded(slug);
+}
+
+function toggleDomain(domainSlug: string) {
+  if (openDomains.has(domainSlug)) openDomains.delete(domainSlug);
+  else openDomains.add(domainSlug);
+}
+
+function toggleCapability(capabilitySlug: string) {
+  const cap = activeCapital.value;
+  if (cap && !loadedCapitals[cap.slug]) ensureCapitalLoaded(cap.slug);
+  if (openCapabilities.has(capabilitySlug)) openCapabilities.delete(capabilitySlug);
+  else openCapabilities.add(capabilitySlug);
+}
+
+onMounted(async () => {
+  suppressReload = true;
+  await loadOverview();
+  suppressReload = false;
+});
 
 // ---------- radar: domains under the active capital ----------
 const domainRadarData = computed(() => {
   const cap = activeCapital.value;
   if (!cap) return null;
+  const datasets: any[] = [
+    {
+      label: t('reports.sustainability-score'),
+      data: cap.domains.map((d) => d.score),
+      backgroundColor: hexToRgba(cap.maturity.color, 0.12),
+      borderColor: cap.maturity.color,
+      borderWidth: 2,
+      pointBackgroundColor: cap.domains.map((d) => d.maturity.color),
+      pointBorderColor: '#fff',
+      pointRadius: 4,
+      pointHoverRadius: 6,
+    },
+  ];
+  if (hasComparison.value) {
+    datasets.push({
+      label: t('reports.comparison-score'),
+      data: cap.domains.map((d) => (d.comparison?.value != null ? round1(d.comparison.value) : null)),
+      backgroundColor: 'transparent',
+      borderColor: '#94a3b8',
+      borderDash: [5, 5],
+      borderWidth: 1.5,
+      pointBackgroundColor: '#94a3b8',
+      pointBorderColor: '#fff',
+      pointRadius: 3,
+      pointHoverRadius: 5,
+    });
+  }
   return {
     labels: cap.domains.map((d) => d.title),
-    datasets: [
-      {
-        label: t('reports.sustainability-score'),
-        data: cap.domains.map((d) => d.score),
-        backgroundColor: hexToRgba(cap.maturity.color, 0.12),
-        borderColor: cap.maturity.color,
-        borderWidth: 2,
-        pointBackgroundColor: cap.domains.map((d) => d.maturity.color),
-        pointBorderColor: '#fff',
-        pointRadius: 4,
-        pointHoverRadius: 6,
-      },
-    ],
+    datasets,
   };
 });
 
 // ---------- radar: all capitals, overview tab ----------
 const capitalRadarData = computed(() => {
   if (!capitals.value.length) return null;
+  const datasets: any[] = [
+    {
+      label: t('reports.sustainability-score'),
+      data: capitals.value.map((c) => c.score),
+      backgroundColor: 'rgba(99, 102, 241, 0.12)',
+      borderColor: '#6366f1',
+      borderWidth: 2,
+      pointBackgroundColor: capitals.value.map((c) => c.maturity.color),
+      pointBorderColor: '#fff',
+      pointRadius: 5,
+      pointHoverRadius: 7,
+    },
+  ];
+  if (hasComparison.value) {
+    datasets.push({
+      label: t('reports.comparison-score'),
+      data: capitals.value.map((c) => (c.comparison?.value != null ? round1(c.comparison.value) : null)),
+      backgroundColor: 'transparent',
+      borderColor: '#94a3b8',
+      borderDash: [5, 5],
+      borderWidth: 1.5,
+      pointBackgroundColor: '#94a3b8',
+      pointBorderColor: '#fff',
+      pointRadius: 4,
+      pointHoverRadius: 6,
+    });
+  }
   return {
     labels: capitals.value.map((c) => c.title),
-    datasets: [
-      {
-        label: t('reports.sustainability-score'),
-        data: capitals.value.map((c) => c.score),
-        backgroundColor: 'rgba(99, 102, 241, 0.12)',
-        borderColor: '#6366f1',
-        borderWidth: 2,
-        pointBackgroundColor: capitals.value.map((c) => c.maturity.color),
-        pointBorderColor: '#fff',
-        pointRadius: 5,
-        pointHoverRadius: 7,
-      },
-    ],
+    datasets,
   };
 });
 
@@ -244,15 +450,31 @@ const radarOptions = {
     },
   },
   plugins: {
-    legend: { display: false },
-    tooltip: { callbacks: { label: (ctx: any) => ` ${round1(ctx.raw)} / 100` } },
+    legend: { display: true, position: 'bottom' as const, labels: { boxWidth: 10, font: { size: 10 } } },
+    tooltip: { callbacks: { label: (ctx: any) => ` ${ctx.dataset.label}: ${round1(ctx.raw)} / 100` } },
   },
 };
 
 // ============================================================
-// NEW — global (all-capitals) aggregates for the top KPI strip
+// global (all-capitals) aggregates for the top KPI strip
 // ============================================================
 const globalStats = computed(() => {
+  const summary = dashboardData.value?.summary;
+  if (summary) {
+    return {
+      capitals: summary.capitals,
+      domains: summary.domains,
+      components: summary.components,
+      capabilities: summary.capabilities,
+      indicators: summary.indicators,
+      withData: summary.indicatorsWithData,
+      avgScore: summary.avgScore,
+      completion: summary.dataCompletion,
+      hasTarget: summary.targetsTotal,
+      meetsTarget: summary.targetsMet,
+    };
+  }
+
   let domains = 0;
   let components = 0;
   let capabilities = 0;
@@ -285,7 +507,7 @@ const globalStats = computed(() => {
   const completion = indicators ? (withData / indicators) * 100 : 0;
   const targetRate = hasTarget ? (meetsTarget / hasTarget) * 100 : 0;
 
-  return { domains, components, capabilities, indicators, withData, avgScore, completion, hasTarget, meetsTarget, targetRate };
+  return { capitals: capitals.value.length, domains, components, capabilities, indicators, withData, avgScore, completion, hasTarget, meetsTarget, targetRate };
 });
 
 // ---------- maturity bucket helper (reused for global + per-capital donuts) ----------
@@ -326,10 +548,19 @@ const donutOptions = {
 const globalMaturityBuckets = computed(() => buildMaturityBuckets(capitals.value.flatMap((c) => c.domains)));
 const globalMaturityDonutData = computed(() => maturityDonutChartData(globalMaturityBuckets.value));
 
-// ---------- capital comparison bar (overview tab) ----------
-const capitalBarData = computed(() => ({
-  labels: capitals.value.map((c) => c.title),
-  datasets: [
+// comparison aggregate used in the KPI strip (frontend mean of capital comparison values)
+const globalComparisonAvg = computed<number | null>(() => {
+  if (!hasComparison.value) return null;
+  const vals = capitals.value
+      .map((c) => c.comparison?.value)
+      .filter((v): v is number => typeof v === 'number' && Number.isFinite(v));
+  if (!vals.length) return null;
+  return round1(vals.reduce((a, b) => a + b, 0) / vals.length);
+});
+
+// ---------- capital comparison bar (overview tab), with optional comparison dataset ----------
+const capitalBarData = computed(() => {
+  const datasets: any[] = [
     {
       label: t('reports.sustainability-score'),
       data: capitals.value.map((c) => round1(c.score)),
@@ -337,8 +568,23 @@ const capitalBarData = computed(() => ({
       borderRadius: 6,
       barThickness: 20,
     },
-  ],
-}));
+  ];
+  if (hasComparison.value) {
+    datasets.push({
+      label: t('reports.comparison-score'),
+      data: capitals.value.map((c) => (c.comparison?.value != null ? round1(c.comparison.value) : null)),
+      backgroundColor: 'transparent',
+      borderColor: '#94a3b8',
+      borderWidth: 1.5,
+      borderRadius: 6,
+      barThickness: 20,
+    });
+  }
+  return {
+    labels: capitals.value.map((c) => c.title),
+    datasets,
+  };
+});
 const barOptionsHorizontal = {
   indexAxis: 'y' as const,
   maintainAspectRatio: false,
@@ -347,8 +593,8 @@ const barOptionsHorizontal = {
     y: { grid: { display: false }, ticks: { font: { size: 11 } } },
   },
   plugins: {
-    legend: { display: false },
-    tooltip: { callbacks: { label: (ctx: any) => ` ${round1(ctx.raw)} / 100` } },
+    legend: { display: true, position: 'bottom' as const, labels: { boxWidth: 10, font: { size: 10 } } },
+    tooltip: { callbacks: { label: (ctx: any) => ` ${ctx.dataset.label}: ${round1(ctx.raw)} / 100` } },
   },
 };
 
@@ -361,7 +607,7 @@ const topDomains = computed(() => [...allDomainsFlat.value].sort((a, b) => b.sco
 const bottomDomains = computed(() => [...allDomainsFlat.value].sort((a, b) => a.score - b.score).slice(0, 6));
 
 // ============================================================
-// NEW — per-capital aggregates & charts (capital tab)
+// per-capital aggregates & charts (capital tab)
 // ============================================================
 const capitalStats = computed(() => {
   const cap = activeCapital.value;
@@ -378,14 +624,20 @@ const capitalStats = computed(() => {
     for (const comp of d.components) {
       capabilities += comp.capabilities.length;
       for (const capa of comp.capabilities) {
-        indicators += capa.indicators.length;
-        withData += capa.indicators.filter((i) => i.hasData).length;
+        const inds = capa.indicators ?? [];
+        indicators += inds.length;
+        withData += inds.filter((i) => i.hasData).length;
         if (capa.meetsTarget !== null && capa.meetsTarget !== undefined) {
           hasTarget += 1;
           if (capa.meetsTarget) meetsTarget += 1;
         }
       }
     }
+  }
+  // In overview mode the capital node carries precomputed counts instead of indicator rows.
+  if (indicators === 0 && cap.indicatorCount != null) {
+    indicators = cap.indicatorCount;
+    withData = cap.indicatorsWithData ?? 0;
   }
   const completion = indicators ? (withData / indicators) * 100 : 0;
   return { components, capabilities, indicators, withData, completion, hasTarget, meetsTarget };
@@ -404,17 +656,29 @@ const componentsInCapital = computed<ComponentWithDomain[]>(() => {
 });
 const componentBarData = computed(() => {
   const list = componentsInCapital.value.slice(0, 12);
+  const datasets: any[] = [
+    {
+      label: t('reports.sustainability-score'),
+      data: list.map((c) => round1(c.score)),
+      backgroundColor: list.map((c) => c.maturity.color),
+      borderRadius: 6,
+      barThickness: 14,
+    },
+  ];
+  if (hasComparison.value) {
+    datasets.push({
+      label: t('reports.comparison-score'),
+      data: list.map((c) => (c.comparison?.value != null ? round1(c.comparison.value) : null)),
+      backgroundColor: 'transparent',
+      borderColor: '#94a3b8',
+      borderWidth: 1.5,
+      borderRadius: 6,
+      barThickness: 14,
+    });
+  }
   return {
     labels: list.map((c) => (c.title.length > 22 ? c.title.slice(0, 22) + '…' : c.title)),
-    datasets: [
-      {
-        label: t('reports.sustainability-score'),
-        data: list.map((c) => round1(c.score)),
-        backgroundColor: list.map((c) => c.maturity.color),
-        borderRadius: 6,
-        barThickness: 14,
-      },
-    ],
+    datasets,
   };
 });
 
@@ -447,14 +711,6 @@ const sortedDomains = computed(() => {
   if (!cap) return [];
   return [...cap.domains].sort((a, b) => a.score - b.score);
 });
-function toggleDomain(domainSlug: string) {
-  if (openDomains.has(domainSlug)) openDomains.delete(domainSlug);
-  else openDomains.add(domainSlug);
-}
-function toggleCapability(capabilitySlug: string) {
-  if (openCapabilities.has(capabilitySlug)) openCapabilities.delete(capabilitySlug);
-  else openCapabilities.add(capabilitySlug);
-}
 </script>
 
 <template>
@@ -479,7 +735,8 @@ function toggleCapability(capabilitySlug: string) {
               {{ t('reports.sustainability-dashboard') }}
             </h1>
             <p v-if="dashboardData" class="text-xs text-slate-400 dark:text-slate-500">
-              {{ dashboardData.date_from }} → {{ dashboardData.date_to }} · {{ dashboardData.period_type }}
+              {{ periodLabel }}
+              <span v-if="hasComparison" class="text-indigo-500"> {{ t('reports.vs') }} {{ comparisonLabel }}</span>
               <span v-if="slug"> · {{ slug }}</span>
             </p>
           </div>
@@ -487,11 +744,120 @@ function toggleCapability(capabilitySlug: string) {
         <button
             type="button"
             class="inline-flex items-center gap-2 rounded-md border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 shadow-sm transition hover:bg-slate-50 dark:border-darkmode-600 dark:bg-darkmode-800 dark:text-slate-300 dark:hover:bg-darkmode-700"
-            @click="loadDashboard"
+            @click="loadOverview"
         >
           <Lucide icon="RefreshCw" class="h-3.5 w-3.5" :class="{ 'animate-spin': loading }" />
           {{ t('general.refresh') }}
         </button>
+      </div>
+
+      <!-- dashboard config panel -->
+      <div class="border-b border-slate-100 px-6 py-4 dark:border-darkmode-700">
+        <div class="mb-4 flex items-center gap-2">
+          <Lucide icon="SlidersHorizontal" class="h-4 w-4 text-slate-400" />
+          <h2 class="text-sm font-semibold text-slate-700 dark:text-slate-200">{{ t('reports.dashboard-settings') }}</h2>
+          <div class="mr-auto flex flex-wrap items-center gap-2">
+            <span class="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-1 text-[10px] font-medium text-slate-500 dark:bg-darkmode-700 dark:text-slate-400">
+              <Lucide icon="Layers" class="h-3 w-3" />
+              {{ globalStats.capitals }} {{ t('reports.capitals') }}
+            </span>
+            <span class="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-1 text-[10px] font-medium text-slate-500 dark:bg-darkmode-700 dark:text-slate-400">
+              <Lucide icon="ListChecks" class="h-3 w-3" />
+              {{ globalStats.indicators }} {{ t('reports.indicators') }}
+            </span>
+            <span class="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-1 text-[10px] font-medium text-emerald-600 dark:bg-emerald-900/20 dark:text-emerald-400">
+              <Lucide icon="Percent" class="h-3 w-3" />
+              {{ round1(globalStats.completion) }}% {{ t('reports.data-completion') }}
+            </span>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 gap-4 lg:grid-cols-3">
+          <!-- period selector -->
+          <div class="rounded-lg border border-slate-100 bg-slate-50/50 p-4 dark:border-darkmode-700 dark:bg-darkmode-700/20">
+            <div class="mb-2 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+              <Lucide icon="CalendarRange" class="h-3.5 w-3.5" />
+              {{ t('reports.period') }}
+            </div>
+            <div class="flex justify-center">
+              <DatePickerExtra
+                  v-model="selectedPeriod"
+                  :modes="['season', 'month', 'year']"
+              />
+            </div>
+          </div>
+
+          <!-- selected range summary -->
+          <div class="rounded-lg border border-slate-100 bg-slate-50/50 p-4 dark:border-darkmode-700 dark:bg-darkmode-700/20">
+            <div class="mb-2 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+              <Lucide icon="Info" class="h-3.5 w-3.5" />
+              {{ t('reports.selected-range') }}
+            </div>
+            <div class="rounded-lg border border-slate-100 bg-white p-3 shadow-sm dark:border-darkmode-600 dark:bg-darkmode-800">
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-sm font-semibold text-slate-700 dark:text-slate-200">{{ periodLabel }}</span>
+                <span
+                    class="rounded-full bg-indigo-50 px-2 py-0.5 text-[10px] font-semibold text-indigo-600 dark:bg-indigo-900/20 dark:text-indigo-400"
+                >{{ selectedPeriod?.type }}</span>
+              </div>
+              <div v-if="dashboardData" class="mt-1 flex items-center justify-between text-[11px] text-slate-400">
+                <span dir="ltr">{{ dashboardData.date_from }}</span>
+                <Lucide icon="ArrowLeftRight" class="mx-1 h-3 w-3 flex-none text-slate-300" />
+                <span dir="ltr">{{ dashboardData.date_to }}</span>
+              </div>
+              <div v-if="hasComparison" class="mt-3 rounded-md border border-indigo-100 bg-indigo-50/50 px-2.5 py-2 text-[11px] leading-5 text-slate-500 dark:border-indigo-900/30 dark:bg-indigo-900/10 dark:text-slate-400">
+                <div class="flex items-center justify-between">
+                  <span>{{ t('reports.current-period') }}</span>
+                  <b class="text-slate-700 dark:text-slate-200">{{ periodLabel }}</b>
+                </div>
+                <div class="flex items-center justify-between">
+                  <span>{{ t('reports.comparison-period') }}</span>
+                  <b class="text-slate-700 dark:text-slate-200">{{ comparisonLabel }}</b>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- compare -->
+          <div class="rounded-lg border border-slate-100 bg-slate-50/50 p-4 dark:border-darkmode-700 dark:bg-darkmode-700/20">
+            <div class="mb-2 flex items-center justify-between">
+              <div class="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+                <Lucide icon="GitCompare" class="h-3.5 w-3.5" />
+                {{ t('reports.comparison-period') }}
+              </div>
+              <button
+                  type="button"
+                  role="switch"
+                  :aria-checked="compareEnabled"
+                  :aria-label="compareEnabled ? t('reports.disable-compare') : t('reports.enable-compare')"
+                  class="relative inline-flex h-5 w-10 flex-none items-center rounded-full transition-colors"
+                  :class="compareEnabled ? 'bg-indigo-500' : 'bg-slate-300 dark:bg-darkmode-600'"
+                  @click="compareEnabled = !compareEnabled"
+              >
+                <span
+                    class="inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform"
+                    :class="compareEnabled ? 'translate-x-5' : 'translate-x-0.5'"
+                />
+              </button>
+            </div>
+
+            <div v-if="!compareEnabled" class="flex min-h-[188px] items-center justify-center rounded-lg border border-dashed border-slate-200 px-4 text-center text-[11px] leading-5 text-slate-400 dark:border-darkmode-600 dark:text-slate-500">
+              {{ t('reports.compare-hint') }}
+            </div>
+            <template v-else>
+              <div class="flex justify-center">
+                <DatePickerExtra
+                    v-model="comparePeriod"
+                    :modes="compareModes"
+                />
+              </div>
+              <p v-if="compareInvalid" class="mt-2 flex items-center gap-1 text-[11px] text-danger">
+                <Lucide icon="AlertTriangle" class="h-3 w-3 flex-none" />
+                {{ t('reports.comparison-must-differ') }}
+              </p>
+            </template>
+          </div>
+        </div>
       </div>
 
       <div class="p-6">
@@ -509,7 +875,7 @@ function toggleCapability(capabilitySlug: string) {
           <button
               type="button"
               class="mt-4 rounded-md border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50 dark:border-darkmode-600 dark:text-slate-300 dark:hover:bg-darkmode-700"
-              @click="loadDashboard"
+              @click="loadOverview"
           >
             {{ t('general.retry') }}
           </button>
@@ -525,7 +891,7 @@ function toggleCapability(capabilitySlug: string) {
 
         <!-- dashboard -->
         <div v-else class="space-y-5">
-          <!-- ══════════════ NEW: GLOBAL KPI STRIP ══════════════ -->
+          <!-- GLOBAL KPI STRIP -->
           <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
             <div class="rounded-xl border border-slate-100 bg-white p-4 shadow-sm dark:border-darkmode-700 dark:bg-darkmode-800">
               <div class="flex items-center gap-2 text-slate-400">
@@ -533,6 +899,17 @@ function toggleCapability(capabilitySlug: string) {
                 <span class="text-[11px] font-medium">{{ t('reports.average-score') }}</span>
               </div>
               <div class="mt-2 text-2xl font-bold text-slate-800 dark:text-slate-100">{{ round1(globalStats.avgScore) }}</div>
+              <div v-if="globalComparisonAvg != null" class="mt-1 flex items-center gap-1 text-[11px] text-slate-400">
+                {{ t('reports.vs') }}
+                <b class="text-slate-600 dark:text-slate-300">{{ globalComparisonAvg }}</b>
+                <span
+                    class="text-[10px] font-semibold"
+                    :class="globalComparisonAvg >= globalStats.avgScore ? 'text-emerald-500' : 'text-rose-500'"
+                >
+                  {{ globalComparisonAvg >= globalStats.avgScore ? '▲' : '▼' }}
+                  {{ round1(Math.abs(globalComparisonAvg - globalStats.avgScore)) }}
+                </span>
+              </div>
               <div class="mt-2 h-1.5 rounded-full bg-slate-100 dark:bg-darkmode-700">
                 <div class="h-full rounded-full bg-indigo-500" :style="{ width: Math.min(globalStats.avgScore, 100) + '%' }" />
               </div>
@@ -580,22 +957,6 @@ function toggleCapability(capabilitySlug: string) {
               class="flex flex-wrap gap-1.5 rounded-xl border border-slate-100 bg-slate-50/60 p-1.5 dark:border-darkmode-700 dark:bg-darkmode-700/30"
           >
             <button
-                v-for="cap in capitals"
-                :key="cap.slug"
-                type="button"
-                class="flex flex-1 basis-32 items-center justify-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold transition"
-                :class="
-                activeTab === cap.slug
-                  ? 'bg-white text-slate-800 shadow-sm dark:bg-darkmode-800 dark:text-slate-100'
-                  : 'text-slate-500 hover:bg-white/60 dark:text-slate-400 dark:hover:bg-darkmode-800/50'
-              "
-                @click="activeTab = cap.slug"
-            >
-              <Lucide :icon="capitalIcon(cap.capitalType)" class="h-4 w-4" :style="{ color: capitalTheme(cap.capitalType).main }" />
-              {{ cap.title }}
-              <span class="h-1.5 w-1.5 rounded-full" :style="{ backgroundColor: cap.maturity.color }" />
-            </button>
-            <button
                 type="button"
                 class="flex flex-1 basis-32 items-center justify-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold transition"
                 :class="
@@ -607,6 +968,22 @@ function toggleCapability(capabilitySlug: string) {
             >
               <Lucide icon="Radar" class="h-4 w-4" />
               {{ t('reports.all-capitals-overview') }}
+            </button>
+            <button
+                v-for="cap in capitals"
+                :key="cap.slug"
+                type="button"
+                class="flex flex-1 basis-32 items-center justify-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold transition"
+                :class="
+                activeTab === cap.slug
+                  ? 'bg-white text-slate-800 shadow-sm dark:bg-darkmode-800 dark:text-slate-100'
+                  : 'text-slate-500 hover:bg-white/60 dark:text-slate-400 dark:hover:bg-darkmode-800/50'
+              "
+                @click="selectCapital(cap.slug)"
+            >
+              <Lucide :icon="capitalIcon(cap.capitalType)" class="h-4 w-4" :style="{ color: capitalTheme(cap.capitalType).main }" />
+              {{ cap.title }}
+              <span class="h-1.5 w-1.5 rounded-full" :style="{ backgroundColor: cap.maturity.color }" />
             </button>
           </div>
 
@@ -627,11 +1004,15 @@ function toggleCapability(capabilitySlug: string) {
                 >
                   <span class="h-2 w-2 rounded-full" :style="{ backgroundColor: cap.maturity.color }" />
                   {{ cap.title }} — <b class="text-slate-700 dark:text-slate-200">{{ round1(cap.score) }}</b>
+                  <span v-if="hasComparison" class="text-slate-400">
+                    <Lucide icon="ArrowRightLeft" class="inline h-3 w-3" />
+                    {{ cap.comparison?.value != null ? round1(cap.comparison.value) : '—' }}
+                  </span>
                 </span>
               </div>
             </div>
 
-            <!-- NEW: capital comparison bar + global maturity donut -->
+            <!-- capital comparison bar + global maturity donut -->
             <div class="grid grid-cols-1 gap-5 lg:grid-cols-12">
               <div class="lg:col-span-7 rounded-xl border border-slate-100 p-5 dark:border-darkmode-700">
                 <div class="mb-1 flex items-center gap-2">
@@ -654,7 +1035,7 @@ function toggleCapability(capabilitySlug: string) {
               </div>
             </div>
 
-            <!-- NEW: global leaderboard tables -->
+            <!-- global leaderboard tables -->
             <div class="grid grid-cols-1 gap-5 lg:grid-cols-2">
               <div class="rounded-xl border border-slate-100 dark:border-darkmode-700">
                 <div class="flex items-center gap-2 border-b border-slate-100 px-5 py-3 dark:border-darkmode-700">
@@ -675,6 +1056,9 @@ function toggleCapability(capabilitySlug: string) {
                     </td>
                     <td class="w-14 py-2 text-left font-semibold" :style="{ color: d.maturity.color }">
                       {{ round1(d.score) }}
+                      <span v-if="hasComparison" class="block text-[10px] font-normal text-slate-400">
+                        {{ d.comparison?.value != null ? round1(d.comparison.value) : '—' }}
+                      </span>
                     </td>
                   </tr>
                   </tbody>
@@ -699,6 +1083,9 @@ function toggleCapability(capabilitySlug: string) {
                     </td>
                     <td class="w-14 py-2 text-left font-semibold" :style="{ color: d.maturity.color }">
                       {{ round1(d.score) }}
+                      <span v-if="hasComparison" class="block text-[10px] font-normal text-slate-400">
+                        {{ d.comparison?.value != null ? round1(d.comparison.value) : '—' }}
+                      </span>
                     </td>
                   </tr>
                   </tbody>
@@ -733,11 +1120,21 @@ function toggleCapability(capabilitySlug: string) {
               >
                 {{ activeCapital.maturity.emoji }} {{ activeCapital.maturity.labelFa }}
               </span>
+              <div v-if="hasComparison && activeCapital.comparison?.value != null" class="mt-3 text-xs text-slate-500 dark:text-slate-400">
+                <Lucide icon="ArrowRightLeft" class="inline h-3 w-3" />
+                {{ comparisonLabel }}: <b class="text-slate-700 dark:text-slate-200">{{ round1(activeCapital.comparison.value) }}</b>
+                <span
+                    class="ms-1 text-[10px] font-semibold"
+                    :class="activeCapital.comparison.value >= activeCapital.score ? 'text-emerald-500' : 'text-rose-500'"
+                >
+                  {{ activeCapital.comparison.value >= activeCapital.score ? '▲' : '▼' }}
+                  {{ round1(Math.abs(activeCapital.comparison.value - activeCapital.score)) }}
+                </span>
+              </div>
               <div class="mt-4 flex justify-between border-t border-slate-100 pt-3 text-xs text-slate-500 dark:border-darkmode-700 dark:text-slate-400">
                 <span>{{ t('reports.domain-count') }}</span>
                 <b class="text-slate-700 dark:text-slate-200">{{ activeCapital.domains.length }}</b>
               </div>
-              <!-- NEW: extra capital-level stats -->
               <div v-if="capitalStats" class="mt-2 space-y-2 text-xs text-slate-500 dark:text-slate-400">
                 <div class="flex justify-between border-t border-slate-100 pt-2 dark:border-darkmode-700">
                   <span>{{ t('reports.capability-count') }}</span>
@@ -764,7 +1161,7 @@ function toggleCapability(capabilitySlug: string) {
               </div>
             </div>
 
-            <!-- NEW: component comparison bar + capital maturity donut -->
+            <!-- component comparison bar + capital maturity donut -->
             <div class="lg:col-span-7 rounded-xl border border-slate-100 p-5 dark:border-darkmode-700">
               <div class="mb-1 flex items-center gap-2">
                 <Lucide icon="BarChart3" class="h-4 w-4 text-slate-400" />
@@ -787,7 +1184,7 @@ function toggleCapability(capabilitySlug: string) {
               </div>
             </div>
 
-            <!-- NEW: gap analysis — capabilities that don't meet their required maturity -->
+            <!-- gap analysis -->
             <div v-if="gapCapabilities.length" class="lg:col-span-12 rounded-xl border border-rose-100 bg-rose-50/40 p-5 dark:border-rose-900/30 dark:bg-rose-900/10">
               <div class="mb-3 flex items-center gap-2">
                 <Lucide icon="AlertOctagon" class="h-4 w-4 text-rose-500" />
@@ -805,6 +1202,7 @@ function toggleCapability(capabilitySlug: string) {
                     <th class="pb-2 text-center font-medium">{{ t('reports.current-maturity') }}</th>
                     <th class="pb-2 text-center font-medium">{{ t('reports.required-maturity') }}</th>
                     <th class="pb-2 text-left font-medium">{{ t('reports.score') }}</th>
+                    <th v-if="hasComparison" class="pb-2 text-left font-medium">{{ t('reports.comparison-score') }}</th>
                   </tr>
                   </thead>
                   <tbody>
@@ -818,6 +1216,7 @@ function toggleCapability(capabilitySlug: string) {
                     </td>
                     <td class="py-2 text-center font-semibold text-slate-600 dark:text-slate-300">{{ capa.requiredMaturity ?? '—' }}</td>
                     <td class="py-2 text-left font-semibold" :style="{ color: capa.maturity.color }">{{ round1(capa.score) }}</td>
+                    <td v-if="hasComparison" class="py-2 text-left text-slate-400">{{ capa.comparison?.value != null ? round1(capa.comparison.value) : '—' }}</td>
                   </tr>
                   </tbody>
                 </table>
@@ -858,6 +1257,9 @@ function toggleCapability(capabilitySlug: string) {
                   </div>
                   <div class="w-12 flex-none text-left text-sm font-semibold" :style="{ color: dom.maturity.color }">
                     {{ round1(dom.score) }}
+                    <span v-if="hasComparison" class="block text-[10px] font-normal text-slate-400">
+                      {{ dom.comparison?.value != null ? round1(dom.comparison.value) : '—' }}
+                    </span>
                   </div>
                 </button>
 
@@ -896,20 +1298,31 @@ function toggleCapability(capabilitySlug: string) {
                               :class="cap2.meetsTarget ? 'text-emerald-500' : 'text-rose-500'"
                           />
                         </span>
+                        <span v-if="hasComparison" class="w-8 flex-none text-left text-[10px] text-slate-400">
+                          {{ cap2.comparison?.value != null ? round1(cap2.comparison.value) : '—' }}
+                        </span>
                         <span class="w-10 flex-none text-left font-semibold" :style="{ color: cap2.maturity.color }">
                           {{ round1(cap2.score) }}
                         </span>
                       </button>
 
-                      <!-- NEW: indicator table for this capability -->
+                      <!-- indicator table for this capability -->
                       <div v-if="openCapabilities.has(cap2.slug)" class="mb-2 mr-5 overflow-x-auto rounded-lg bg-slate-50/70 dark:bg-darkmode-700/30">
-                        <table v-if="cap2.indicators.length" class="w-full min-w-[520px] text-[11px]">
+                        <div
+                            v-if="!loadedCapitals[activeCapital.slug] && loadingCapitalSlug === activeCapital.slug"
+                            class="flex items-center gap-2 px-3 py-2 text-[11px] text-slate-400"
+                        >
+                          <Lucide icon="Loader2" class="h-3.5 w-3.5 animate-spin" />
+                          {{ t('general.loading') }}
+                        </div>
+                        <table v-else-if="cap2.indicators.length" class="w-full min-w-[560px] text-[11px]">
                           <thead>
                           <tr class="border-b border-slate-100 text-right text-[10px] uppercase tracking-wide text-slate-400 dark:border-darkmode-700">
                             <th class="px-3 py-1.5 font-medium">{{ t('reports.indicator') }}</th>
                             <th class="px-3 py-1.5 font-medium">{{ t('reports.unit') }}</th>
                             <th class="px-3 py-1.5 text-center font-medium">{{ t('reports.raw-value') }}</th>
                             <th class="px-3 py-1.5 text-center font-medium">{{ t('reports.final-score') }}</th>
+                            <th v-if="hasComparison" class="px-3 py-1.5 text-center font-medium">{{ t('reports.comparison-score') }}</th>
                             <th class="px-3 py-1.5 text-center font-medium">{{ t('reports.data-status') }}</th>
                           </tr>
                           </thead>
@@ -922,6 +1335,9 @@ function toggleCapability(capabilitySlug: string) {
                             </td>
                             <td class="px-3 py-1.5 text-center font-semibold text-slate-700 dark:text-slate-200">
                               {{ ind.finalScore != null ? round1(ind.finalScore) : '—' }}
+                            </td>
+                            <td v-if="hasComparison" class="px-3 py-1.5 text-center text-slate-400">
+                              {{ ind.comparison?.value != null ? round1(ind.comparison.value) : '—' }}
                             </td>
                             <td class="px-3 py-1.5 text-center">
                                 <span

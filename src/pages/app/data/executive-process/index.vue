@@ -12,6 +12,7 @@ import Button from '@/base-components/Button';
 import Lucide from '@/base-components/Lucide';
 import AddPrimaryJobModal from './AddPrimaryJobModal.vue';
 import AddSecondaryJobModal from './AddSecondaryJobModal.vue';
+import AddCapabilityJobModal from './AddCapabilityJobModal.vue';
 import ExecuteResultModal from './ExecuteResultModal.vue';
 import JobBreadcrumbToolbar from './JobBreadcrumbToolbar.vue';
 
@@ -21,6 +22,7 @@ const { setContent: setBreadcrumbSlot } = useBreadcrumbSlot();
 
 const showPrimaryModal = ref(false);
 const showSecondaryModal = ref(false);
+const showCapabilityModal = ref(false);
 const showResultModal = ref(false);
 const executeResultData = ref<Record<string, unknown> | null>(null);
 
@@ -63,7 +65,9 @@ function typeLabel(v: unknown) {
 }
 
 function levelLabel(v: unknown) {
-  return String(v ?? '') === 'INDICATOR' ? t('job.level-secondary') : t('job.level-primary');
+  const s = String(v ?? '').toUpperCase();
+  if (s === 'CAPABILITY') return t('job.level-capability');
+  return s === 'INDICATOR' ? t('job.level-secondary') : t('job.level-primary');
 }
 
 function stateBadgeClass(v: unknown) {
@@ -168,6 +172,7 @@ onMounted(() => {
   setBreadcrumbSlot(JobBreadcrumbToolbar, {
     onAddPrimary: onAddPrimaryJob,
     onAddSecondary: onAddSecondaryJob,
+    onAddCapability: onAddCapabilityJob,
     onExport: onExportJobs,
   });
 });
@@ -178,6 +183,10 @@ function onAddPrimaryJob() {
 
 function onAddSecondaryJob() {
   showSecondaryModal.value = true;
+}
+
+function onAddCapabilityJob() {
+  showCapabilityModal.value = true;
 }
 
 function onExecuteJob(row: Record<string, unknown>) {
@@ -284,6 +293,13 @@ function onModalSuccess() {
       :show="showSecondaryModal"
       mode="add"
       @update:show="showSecondaryModal = $event"
+      @success="onModalSuccess"
+    />
+
+    <AddCapabilityJobModal
+      :show="showCapabilityModal"
+      mode="add"
+      @update:show="showCapabilityModal = $event"
       @success="onModalSuccess"
     />
 

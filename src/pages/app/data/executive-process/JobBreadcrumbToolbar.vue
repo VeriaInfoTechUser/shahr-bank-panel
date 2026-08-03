@@ -4,6 +4,7 @@ import { useI18n } from 'vue-i18n';
 const props = defineProps<{
   onAddPrimary?: () => void;
   onAddSecondary?: () => void;
+  onAddCapability?: () => void;
   onExport?: () => void;
 }>();
 
@@ -33,6 +34,19 @@ const { t } = useI18n();
       @click="props.onAddSecondary?.()"
     >
       <span>{{ t('job.toolbar-add-secondary') }}</span>
+      <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="12" y1="5" x2="12" y2="19" />
+        <line x1="5" y1="12" x2="19" y2="12" />
+      </svg>
+    </button>
+    <button
+      type="button"
+      class="inline-flex h-8 items-center justify-center gap-1.5 rounded-md border border-violet-600 bg-violet-600 px-2.5 text-xs font-medium text-white shadow-sm transition hover:opacity-90 dark:border-violet-500 dark:bg-violet-500 dark:hover:opacity-90"
+      :aria-label="t('job.toolbar-add-capability')"
+      :title="t('job.toolbar-add-capability')"
+      @click="props.onAddCapability?.()"
+    >
+      <span>{{ t('job.toolbar-add-capability') }}</span>
       <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
         <line x1="12" y1="5" x2="12" y2="19" />
         <line x1="5" y1="12" x2="19" y2="12" />

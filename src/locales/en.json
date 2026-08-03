@@ -587,6 +587,7 @@
     "data-processing-data-source": "Data Source Processing",
     "data-processing-indicator": "Indicator Processing",
     "data-executive-process": "Executive Process",
+    "data-capability-process": "Capability Processing",
     "user-list": "User list",
     "request": "Request",
     "request-list": "Request list",
@@ -3094,6 +3095,7 @@
     "data-source-name": "Data Source",
     "capability-slug": "Capability Slug",
     "capability-slug-placeholder": "Enter capability slug",
+    "capability-name": "Capability",
     "date-from": "Date From",
     "date-to": "Date To",
     "date-start": "Start Date",
@@ -3172,6 +3174,7 @@
     "value": "Value",
     "unit": "Unit",
     "calculated-at": "Calculated At",
-    "data-source-name": "Data Source"
+    "data-source-name": "Data Source",
+    "capability-name": "Capability"
   }
 }

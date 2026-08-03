@@ -609,6 +609,7 @@
     "data-processing-data-source": "پردازش شواهد",
     "data-processing-indicator": "پردازش شاخص",
     "data-executive-process": "فرآیند اجرایی",
+    "data-capability-process": "پردازش قابلیت",
     "user-list": "فهرست کاربران",
     "request": "درخواست",
     "request-list": "فهرست",
@@ -3266,6 +3267,7 @@
     "data-source-name": "شواهد",
     "capability-slug": "شناسه قابلیت",
     "capability-slug-placeholder": "شناسه قابلیت را وارد کنید",
+    "capability-name": "قابلیت",
     "date-from": "تاریخ شروع",
     "date-to": "تاریخ پایان",
     "date-start": "تاریخ شروع",
@@ -3344,6 +3346,7 @@
     "value": "مقدار",
     "unit": "واحد",
     "calculated-at": "تاریخ محاسبه",
-    "data-source-name": "شواهد"
+    "data-source-name": "شواهد",
+    "capability-name": "قابلیت"
   }
 }

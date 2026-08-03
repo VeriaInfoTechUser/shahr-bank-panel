@@ -74,9 +74,10 @@ import ReportsSustainabilityDashboard from "@/pages/app/reports/sustainability/d
 import DataEntry from "@/pages/app/data/entry/index.vue";
 import DataRaw from "@/pages/app/data/raw/index.vue";
 import DataLog from "@/pages/app/data/log/index.vue";
-import DataProcessing from "@/pages/app/data/processing/index.vue";
-import DataProcessingSecondary from "@/pages/app/data/processing-secondary/index.vue";
+import DataProcessing from "@/pages/app/data/processing-data-source/index.vue";
+import DataProcessingSecondary from "@/pages/app/data/processing-indicator/index.vue";
 import DataExecutiveProcess from "@/pages/app/data/executive-process/index.vue";
+import DataCapabilityProcess from "@/pages/app/data/capability-process/index.vue";
 import KnowledgeDocuments from "@/pages/app/knowledge/documents/index.vue";
 import KnowledgeDocumentDetail from "@/pages/app/knowledge/documents/detail/index.vue";
 import KnowledgeSemanticSearch from "@/pages/app/knowledge/semantic-search/index.vue";
@@ -462,14 +463,14 @@ const routes = [
                                 meta: { breadcrumbLabel: 'menu.data-log' },
                             },
                             {
-                                path: "processing",
-                                name: "app-data-processing",
+                                path: "processing-data-source",
+                                name: "app-data-processing-data-source",
                                 component: DataProcessing,
-                                meta: { breadcrumbLabel: 'menu.data-processing' },
+                                meta: { breadcrumbLabel: 'menu.data-processing-data-source' },
                             },
                             {
-                                path: "processing-secondary",
-                                name: "app-data-processing-secondary",
+                                path: "processing-indicator",
+                                name: "app-data-processing-indicator",
                                 component: DataProcessingSecondary,
                                 meta: { breadcrumbLabel: 'menu.data-processing-indicator' },
                             },
@@ -478,6 +479,12 @@ const routes = [
                                 name: "app-data-executive-process",
                                 component: DataExecutiveProcess,
                                 meta: { breadcrumbLabel: 'menu.data-executive-process' },
+                            },
+                            {
+                                path: "capability-process",
+                                name: "app-data-capability-process",
+                                component: DataCapabilityProcess,
+                                meta: { breadcrumbLabel: 'menu.data-capability-process' },
                             },
                         ],
                     },

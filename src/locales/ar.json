@@ -422,6 +422,7 @@
     "data-processing-data-source": "معالجة الأصول",
     "data-processing-indicator": "معالجة المؤشرات",
     "data-executive-process": "العملية التنفيذية",
+    "data-capability-process": "معالجة القدرة",
     "user-list": "قائمة المستخدمين",
     "blogs": "أخبار",
     "request": "الطلب",
@@ -2516,6 +2517,7 @@
     "data-source-name": "الأصل",
     "capability-slug": "معرف القدرة",
     "capability-slug-placeholder": "أدخل معرف القدرة",
+    "capability-name": "القدرة",
     "date-from": "تاريخ البدء",
     "date-to": "تاريخ الانتهاء",
     "date-start": "تاريخ البدء",
@@ -2594,6 +2596,7 @@
     "value": "القيمة",
     "unit": "الوحدة",
     "calculated-at": "تاريخ الحساب",
-    "data-source-name": "الأصل"
+    "data-source-name": "الأصل",
+    "capability-name": "القدرة"
   }
 }

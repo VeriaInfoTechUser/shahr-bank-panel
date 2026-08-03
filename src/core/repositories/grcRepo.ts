@@ -542,6 +542,11 @@ export const grcRepo = {
     return grcHttpRequest({ method: 'GET', url: '/calculations/indicators', params });
   },
 
+  // Calculations Capabilities
+  calculationCapabilityList(params?: GrcListParams): Promise<GrcApiResponse<GrcPaginatedResponse>> {
+    return grcHttpRequest({ method: 'GET', url: '/calculations/capabilities', params });
+  },
+
   calculationJobGet(id: string): Promise<GrcApiResponse<Record<string, unknown>>> {
     return grcHttpRequest({ method: 'GET', url: `/calculations/jobs/${id}` });
   },

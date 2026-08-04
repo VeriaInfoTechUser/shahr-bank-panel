@@ -1492,7 +1492,8 @@
     "quick-select": "Quick select",
     "compare-previous-period": "Compare with previous period",
     "select-period": "Select period",
-    "select-compare-period": "Select comparison period"
+    "select-compare-period": "Select comparison period",
+    "clear-period": "Clear period"
   },
   "compliance-page": {
     "col-code": "Code",

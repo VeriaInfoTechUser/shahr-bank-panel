@@ -409,6 +409,27 @@ watch(compareEnabled, (enabled) => {
   }
 });
 
+// ---------- filter panel ----------
+const filterOpen = ref(true);
+const hasComparisonChip = computed(() => compareEnabled.value && !!comparePeriod.value);
+const showClearFilters = computed(() => hasComparisonChip.value);
+
+/** Remove the optional comparison filter. */
+function removeComparison() {
+  compareEnabled.value = false;
+  comparePeriod.value = null;
+}
+
+/** Reset period to the backend-resolved default and disable comparison. */
+async function clearFilters() {
+  suppressReload = true;
+  compareEnabled.value = false;
+  comparePeriod.value = null;
+  selectedPeriod.value = null;
+  await loadOverview();
+  suppressReload = false;
+}
+
 function selectCapital(slug: string) {
   activeTab.value = slug;
   ensureCapitalLoaded(slug);
@@ -809,21 +830,94 @@ const sortedDomains = computed(() => {
             </p>
           </div>
         </div>
-        <button
-            type="button"
-            class="inline-flex items-center gap-2 rounded-md border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 shadow-sm transition hover:bg-slate-50 dark:border-darkmode-600 dark:bg-darkmode-800 dark:text-slate-300 dark:hover:bg-darkmode-700"
-            @click="loadOverview"
-        >
-          <Lucide icon="RefreshCw" class="h-3.5 w-3.5" :class="{ 'animate-spin': loading }" />
-          {{ t('general.refresh') }}
-        </button>
+        <div class="flex items-center gap-2">
+          <button
+              type="button"
+              class="inline-flex h-8 w-8 flex-none items-center justify-center rounded-md border shadow-sm transition"
+              :class="filterOpen
+                ? 'border-indigo-200 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 dark:border-indigo-800 dark:bg-indigo-900/20 dark:text-indigo-400'
+                : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50 hover:text-primary dark:border-darkmode-600 dark:bg-darkmode-800 dark:text-slate-300 dark:hover:bg-darkmode-700 dark:hover:text-primary'"
+              :aria-expanded="filterOpen"
+              :aria-label="t('reports.dashboard-settings')"
+              :title="t('reports.dashboard-settings')"
+              @click="filterOpen = !filterOpen"
+          >
+            <Lucide icon="Filter" class="h-4 w-4" />
+          </button>
+          <button
+              type="button"
+              class="inline-flex items-center gap-2 rounded-md border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 shadow-sm transition hover:bg-slate-50 dark:border-darkmode-600 dark:bg-darkmode-800 dark:text-slate-300 dark:hover:bg-darkmode-700"
+              @click="loadOverview"
+          >
+            <Lucide icon="RefreshCw" class="h-3.5 w-3.5" :class="{ 'animate-spin': loading }" />
+            {{ t('general.refresh') }}
+          </button>
+        </div>
       </div>
 
-      <!-- dashboard config panel -->
-      <div class="border-b border-slate-100 px-6 py-4 dark:border-darkmode-700">
-        <div class="mb-4 flex items-center gap-2">
-          <Lucide icon="SlidersHorizontal" class="h-4 w-4 text-slate-400" />
-          <h2 class="text-sm font-semibold text-slate-700 dark:text-slate-200">{{ t('reports.dashboard-settings') }}</h2>
+      <!-- dashboard filter panel -->
+      <div class="border-b border-slate-100 dark:border-darkmode-700">
+        <!-- filter panel header -->
+        <div class="flex flex-wrap items-center gap-2 px-6 py-3">
+          <button
+              type="button"
+              class="inline-flex items-center gap-2 rounded-md border px-3 py-1.5 text-xs font-semibold shadow-sm transition"
+              :class="filterOpen
+                ? 'border-indigo-200 bg-indigo-50 text-indigo-600 dark:border-indigo-800 dark:bg-indigo-900/20 dark:text-indigo-400'
+                : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50 dark:border-darkmode-600 dark:bg-darkmode-800 dark:text-slate-300 dark:hover:bg-darkmode-700'"
+              :aria-expanded="filterOpen"
+              @click="filterOpen = !filterOpen"
+          >
+            <Lucide icon="SlidersHorizontal" class="h-3.5 w-3.5" />
+            {{ t('reports.dashboard-settings') }}
+            <Lucide :icon="filterOpen ? 'ChevronUp' : 'ChevronDown'" class="h-3.5 w-3.5" />
+          </button>
+
+          <!-- active filter chips -->
+          <div class="flex min-w-0 flex-wrap items-center gap-1.5">
+            <span
+                v-if="selectedPeriod"
+                class="inline-flex max-w-[13rem] items-center gap-0.5 rounded-full border border-indigo-100 bg-indigo-50 py-0.5 pl-2 pr-0.5 text-[11px] font-medium text-indigo-600 dark:border-indigo-800 dark:bg-indigo-900/20 dark:text-indigo-400"
+            >
+              <Lucide icon="CalendarRange" class="h-3 w-3 flex-none" />
+              <span class="min-w-0 truncate" :title="periodLabel">{{ periodLabel }}</span>
+              <button
+                  type="button"
+                  class="inline-flex h-4 w-4 flex-none items-center justify-center rounded-full text-indigo-400 transition hover:bg-indigo-100 hover:text-indigo-700 dark:hover:bg-indigo-900/40 dark:hover:text-indigo-300"
+                  :aria-label="t('reports.clear-period')"
+                  :title="t('reports.clear-period')"
+                  @click="clearFilters"
+              >
+                <Lucide icon="X" class="h-3 w-3" />
+              </button>
+            </span>
+            <span
+                v-if="hasComparisonChip"
+                class="inline-flex max-w-[13rem] items-center gap-0.5 rounded-full border border-slate-200 bg-slate-50 py-0.5 pl-2 pr-0.5 text-[11px] font-medium text-slate-600 dark:border-darkmode-600 dark:bg-darkmode-700/80 dark:text-slate-300"
+            >
+              <Lucide icon="GitCompare" class="h-3 w-3 flex-none text-slate-400" />
+              <span class="min-w-0 truncate" :title="comparisonLabel">{{ comparisonLabel }}</span>
+              <button
+                  type="button"
+                  class="inline-flex h-4 w-4 flex-none items-center justify-center rounded-full text-slate-400 transition hover:bg-slate-200 hover:text-slate-700 dark:hover:bg-darkmode-600 dark:hover:text-slate-200"
+                  :aria-label="t('reports.disable-compare')"
+                  :title="t('reports.disable-compare')"
+                  @click="removeComparison"
+              >
+                <Lucide icon="X" class="h-3 w-3" />
+              </button>
+            </span>
+            <button
+                v-if="showClearFilters"
+                type="button"
+                class="inline-flex h-6 flex-none items-center gap-1 rounded-full border border-slate-200 bg-white px-2 text-[11px] font-medium text-slate-500 shadow-sm transition hover:bg-slate-50 hover:text-danger dark:border-darkmode-600 dark:bg-darkmode-800 dark:text-slate-400 dark:hover:bg-darkmode-700 dark:hover:text-danger"
+                @click="clearFilters"
+            >
+              <Lucide icon="XCircle" class="h-3 w-3" />
+              <span class="whitespace-nowrap">{{ t('reports.toolbar-clear-filters') }}</span>
+            </button>
+          </div>
+
           <div class="mr-auto flex flex-wrap items-center gap-2">
             <span class="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-1 text-[10px] font-medium text-slate-500 dark:bg-darkmode-700 dark:text-slate-400">
               <Lucide icon="Layers" class="h-3 w-3" />
@@ -840,7 +934,7 @@ const sortedDomains = computed(() => {
           </div>
         </div>
 
-        <div class="grid grid-cols-1 gap-4 lg:grid-cols-3">
+        <div v-show="filterOpen" class="grid grid-cols-1 gap-4 px-6 pb-4 lg:grid-cols-3">
           <!-- period selector -->
           <div class="rounded-lg border border-slate-100 bg-slate-50/50 p-4 dark:border-darkmode-700 dark:bg-darkmode-700/20">
             <div class="mb-2 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-slate-400">

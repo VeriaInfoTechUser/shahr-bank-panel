@@ -1514,7 +1514,8 @@
     "quick-select": "انتخاب سریع",
     "compare-previous-period": "مقایسه با دوره قبل",
     "select-period": "انتخاب دوره",
-    "select-compare-period": "انتخاب دوره مقایسه"
+    "select-compare-period": "انتخاب دوره مقایسه",
+    "clear-period": "حذف دوره"
   },
   "compliance-page": {
     "col-code": "کد",

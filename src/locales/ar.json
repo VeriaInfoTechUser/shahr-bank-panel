@@ -1222,7 +1222,8 @@
     "quick-select": "اختيار سريع",
     "compare-previous-period": "المقارنة مع الفترة السابقة",
     "select-period": "اختر الفترة",
-    "select-compare-period": "اختر فترة المقارنة"
+    "select-compare-period": "اختر فترة المقارنة",
+    "clear-period": "مسح الفترة"
   },
   "compliance-page": {
     "col-code": "الرمز",

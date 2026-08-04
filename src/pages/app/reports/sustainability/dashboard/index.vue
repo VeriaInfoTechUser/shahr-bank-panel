@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { ref, computed, reactive, onMounted, watch } from 'vue';
+import { ref, computed, reactive, nextTick, onBeforeUnmount, onMounted, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
+import { useElementBounding, onClickOutside, useEventListener } from '@vueuse/core';
 import {
   Chart as ChartJS,
   RadialLinearScale,
@@ -53,6 +54,51 @@ interface MaturityLevel {
   color: string;
   emoji: string;
   status: string;
+}
+
+/** Fallback maturity for periods without data (API may return `maturity: null`). */
+const DEFAULT_MATURITY: MaturityLevel = {
+  level: 0,
+  name: 'unknown',
+  label: 'No data',
+  labelFa: 'بدون داده',
+  min: 0,
+  max: 0,
+  color: '#94a3b8',
+  emoji: '❔',
+  status: 'no-data',
+};
+
+function normalizeMaturity<T extends { maturity?: MaturityLevel | null }>(node: T): T & { maturity: MaturityLevel } {
+  if (!node.maturity) {
+    (node as { maturity: MaturityLevel }).maturity = { ...DEFAULT_MATURITY };
+  }
+  return node as T & { maturity: MaturityLevel };
+}
+
+/** Fills a fallback `maturity` on a single capital and all its descendants. */
+function normalizeCapital(cap: CapitalNode): CapitalNode {
+  normalizeMaturity(cap);
+  if (!Array.isArray(cap.domains)) cap.domains = [];
+  for (const dom of cap.domains) {
+    normalizeMaturity(dom);
+    if (!Array.isArray(dom.components)) dom.components = [];
+    for (const comp of dom.components) {
+      normalizeMaturity(comp);
+      if (!Array.isArray(comp.capabilities)) comp.capabilities = [];
+      for (const capa of comp.capabilities) {
+        normalizeMaturity(capa);
+        if (!Array.isArray(capa.indicators)) capa.indicators = [];
+      }
+    }
+  }
+  return cap;
+}
+
+/** Fills a fallback `maturity` on every capital/domain/component/capability node. */
+function normalizeDashboardData(data: DashboardResponse): DashboardResponse {
+  (data.capitals ?? []).forEach(normalizeCapital);
+  return data;
 }
 interface PeriodInfo {
   type: string;
@@ -212,7 +258,8 @@ function hexToRgba(hex: string, alpha: number) {
   const b = parseInt(hex.slice(5, 7), 16);
   return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 }
-function round1(n: number) {
+function round1(n: number | null | undefined) {
+  if (n == null || Number.isNaN(n)) return 0;
   return Math.round(n * 10) / 10;
 }
 
@@ -340,7 +387,7 @@ async function loadOverview() {
   try {
     const response = await reportRepo.getSustainabilityDashboardOverview(buildParams());
     if (response?.data) {
-      dashboardData.value = response.data;
+      dashboardData.value = normalizeDashboardData(response.data);
       // Adopt the backend-resolved default period on first load (no explicit dates sent).
       if (!selectedPeriod.value && response.data.period && response.data.date_from && response.data.date_to) {
         selectedPeriod.value = {
@@ -385,6 +432,7 @@ async function ensureCapitalLoaded(capitalSlug: string) {
     const response = await reportRepo.getSustainabilityCapitalIndicators(capitalSlug, buildParams());
     const capital = response?.data?.capitals?.[0];
     if (capital && dashboardData.value) {
+      normalizeCapital(capital);
       loadedCapitals[capitalSlug] = capital;
       const index = dashboardData.value.capitals.findIndex((c) => c.slug === capitalSlug);
       if (index >= 0) dashboardData.value.capitals[index] = capital;
@@ -409,8 +457,8 @@ watch(compareEnabled, (enabled) => {
   }
 });
 
-// ---------- filter panel ----------
-const filterOpen = ref(true);
+// ---------- filter panel (popover, baseline-style) ----------
+const filterOpen = ref(false);
 const hasComparisonChip = computed(() => compareEnabled.value && !!comparePeriod.value);
 const showClearFilters = computed(() => hasComparisonChip.value);
 
@@ -429,6 +477,98 @@ async function clearFilters() {
   await loadOverview();
   suppressReload = false;
 }
+
+function toggleFilter() {
+  filterOpen.value = !filterOpen.value;
+}
+function closeFilter() {
+  filterOpen.value = false;
+}
+
+interface FilterChip {
+  key: string;
+  label: string;
+  ariaKey: string;
+  onRemove: () => void;
+}
+
+const activeFilterKeys = computed<string[]>(() => {
+  const keys: string[] = [];
+  if (selectedPeriod.value) keys.push('period');
+  if (hasComparisonChip.value) keys.push('comparison');
+  return keys;
+});
+
+const activeFilterChips = computed<FilterChip[]>(() => {
+  const chips: FilterChip[] = [];
+  if (selectedPeriod.value) {
+    chips.push({
+      key: 'period',
+      label: periodLabel.value,
+      ariaKey: 'reports.clear-period',
+      onRemove: () => { void clearFilters(); },
+    });
+  }
+  if (hasComparisonChip.value) {
+    chips.push({
+      key: 'comparison',
+      label: comparisonLabel.value,
+      ariaKey: 'reports.disable-compare',
+      onRemove: () => { removeComparison(); },
+    });
+  }
+  return chips;
+});
+
+const filterBtnRef = ref<HTMLElement | null>(null);
+const filterClusterRef = ref<HTMLElement | null>(null);
+const popoverRef = ref<HTMLElement | null>(null);
+
+const bound = useElementBounding(filterBtnRef, { windowScroll: true, windowResize: true });
+
+const popoverStyle = computed(() => {
+  const margin = 8;
+  const maxW = Math.min(36 * 16, window.innerWidth - 2 * margin);
+  let leftPos = bound.left.value;
+  if (leftPos + maxW > window.innerWidth - margin) {
+    leftPos = Math.max(margin, window.innerWidth - margin - maxW);
+  }
+  if (leftPos < margin) leftPos = margin;
+  return {
+    position: 'fixed' as const,
+    top: `${bound.bottom.value + margin}px`,
+    left: `${leftPos}px`,
+    width: `${maxW}px`,
+    zIndex: 1100,
+  };
+});
+
+let stopClickOutside: (() => void) | undefined;
+
+watch(filterOpen, (open) => {
+  stopClickOutside?.();
+  stopClickOutside = undefined;
+  if (open) {
+    void nextTick(() => {
+      bound.update();
+      stopClickOutside = onClickOutside(
+        popoverRef,
+        () => { closeFilter(); },
+        {
+          ignore: [
+            filterClusterRef,
+          ],
+        }
+      );
+    });
+  }
+});
+
+onBeforeUnmount(() => { stopClickOutside?.(); });
+
+useEventListener(document, 'keydown', (e: KeyboardEvent) => {
+  if (e.key === 'Escape' && filterOpen.value) closeFilter();
+});
 
 function selectCapital(slug: string) {
   activeTab.value = slug;
@@ -830,20 +970,65 @@ const sortedDomains = computed(() => {
             </p>
           </div>
         </div>
-        <div class="flex items-center gap-2">
-          <button
-              type="button"
-              class="inline-flex h-8 w-8 flex-none items-center justify-center rounded-md border shadow-sm transition"
-              :class="filterOpen
-                ? 'border-indigo-200 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 dark:border-indigo-800 dark:bg-indigo-900/20 dark:text-indigo-400'
-                : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50 hover:text-primary dark:border-darkmode-600 dark:bg-darkmode-800 dark:text-slate-300 dark:hover:bg-darkmode-700 dark:hover:text-primary'"
-              :aria-expanded="filterOpen"
-              :aria-label="t('reports.dashboard-settings')"
-              :title="t('reports.dashboard-settings')"
-              @click="filterOpen = !filterOpen"
+        <div class="flex flex-shrink-0 flex-wrap items-center gap-1.5" dir="ltr">
+          <!-- filter toolbar cluster -->
+          <div
+              ref="filterClusterRef"
+              class="flex max-w-[min(100vw-6rem,36rem)] flex-shrink-0 flex-wrap items-center gap-0.5"
           >
-            <Lucide icon="Filter" class="h-4 w-4" />
-          </button>
+            <div class="flex shrink-0 items-center gap-1">
+              <button
+                  ref="filterBtnRef"
+                  type="button"
+                  class="inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-md border shadow-sm transition"
+                  :class="filterOpen
+                    ? 'border-indigo-200 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 dark:border-indigo-800 dark:bg-indigo-900/20 dark:text-indigo-400'
+                    : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50 hover:text-primary dark:border-darkmode-600 dark:bg-darkmode-800 dark:text-slate-300 dark:hover:bg-darkmode-700 dark:hover:text-primary'"
+                  :aria-expanded="filterOpen"
+                  :aria-label="t('reports.dashboard-settings')"
+                  :title="t('reports.dashboard-settings')"
+                  @click="toggleFilter"
+              >
+                <Lucide icon="Filter" class="h-4 w-4" />
+              </button>
+              <button
+                  v-if="showClearFilters"
+                  type="button"
+                  class="inline-flex h-8 max-w-[min(100%,12rem)] shrink-0 items-center rounded-md border border-slate-200 bg-white px-2 text-xs font-medium text-slate-600 shadow-sm transition hover:bg-slate-50 hover:text-danger dark:border-darkmode-600 dark:bg-darkmode-800 dark:text-slate-300 dark:hover:bg-darkmode-700 dark:hover:text-danger"
+                  :aria-label="t('reports.toolbar-clear-filters')"
+                  :title="t('reports.toolbar-clear-filters')"
+                  @click="clearFilters"
+              >
+                <span class="truncate">{{ t('reports.toolbar-clear-filters') }}</span>
+              </button>
+            </div>
+
+            <div
+                v-if="activeFilterKeys.length > 0"
+                class="mx-1.5 flex min-w-0 flex-wrap items-center gap-1 sm:mx-2"
+            >
+              <div class="h-8 w-1 shrink-0 self-center rounded-full bg-slate-500 dark:bg-slate-400" aria-hidden="true" />
+              <div class="flex min-w-0 flex-wrap items-center gap-1">
+                <span
+                    v-for="chip in activeFilterChips"
+                    :key="chip.key"
+                    class="inline-flex max-w-[11rem] items-center gap-0.5 rounded-full border border-slate-200 bg-slate-50 py-0.5 pl-2 pr-0.5 text-[11px] font-medium text-slate-700 shadow-sm dark:border-darkmode-600 dark:bg-darkmode-700/80 dark:text-slate-200"
+                >
+                  <span class="min-w-0 truncate" :title="chip.label">{{ chip.label }}</span>
+                  <button
+                      type="button"
+                      class="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-slate-500 transition hover:bg-slate-200 hover:text-slate-900 dark:hover:bg-darkmode-600 dark:hover:text-slate-100"
+                      :aria-label="t(chip.ariaKey)"
+                      :title="t(chip.ariaKey)"
+                      @click.stop="chip.onRemove()"
+                  >
+                    <Lucide icon="X" class="!h-3 !w-3" />
+                  </button>
+                </span>
+              </div>
+            </div>
+          </div>
+
           <button
               type="button"
               class="inline-flex items-center gap-2 rounded-md border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 shadow-sm transition hover:bg-slate-50 dark:border-darkmode-600 dark:bg-darkmode-800 dark:text-slate-300 dark:hover:bg-darkmode-700"
@@ -855,194 +1040,169 @@ const sortedDomains = computed(() => {
         </div>
       </div>
 
-      <!-- dashboard filter panel -->
-      <div class="border-b border-slate-100 dark:border-darkmode-700">
-        <!-- filter panel header -->
-        <div class="flex flex-wrap items-center gap-2 px-6 py-3">
-          <button
-              type="button"
-              class="inline-flex items-center gap-2 rounded-md border px-3 py-1.5 text-xs font-semibold shadow-sm transition"
-              :class="filterOpen
-                ? 'border-indigo-200 bg-indigo-50 text-indigo-600 dark:border-indigo-800 dark:bg-indigo-900/20 dark:text-indigo-400'
-                : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50 dark:border-darkmode-600 dark:bg-darkmode-800 dark:text-slate-300 dark:hover:bg-darkmode-700'"
-              :aria-expanded="filterOpen"
-              @click="filterOpen = !filterOpen"
+      <!-- dashboard filter popover -->
+      <Teleport to="body">
+        <Transition name="sustainability-filter-pop">
+          <div
+              v-if="filterOpen"
+              class="fixed inset-0 z-[1099] bg-slate-900/10 dark:bg-black/25"
+              aria-hidden="true"
+              @click="closeFilter"
+          />
+        </Transition>
+        <Transition name="sustainability-filter-pop">
+          <div
+              v-if="filterOpen"
+              ref="popoverRef"
+              class="rounded-xl border border-slate-200/90 bg-white p-4 shadow-xl dark:border-darkmode-600 dark:bg-darkmode-800 dark:shadow-[0_12px_40px_rgba(0,0,0,0.35)]"
+              :style="popoverStyle"
+              role="dialog"
+              aria-modal="true"
+              @click.stop
           >
-            <Lucide icon="SlidersHorizontal" class="h-3.5 w-3.5" />
-            {{ t('reports.dashboard-settings') }}
-            <Lucide :icon="filterOpen ? 'ChevronUp' : 'ChevronDown'" class="h-3.5 w-3.5" />
-          </button>
-
-          <!-- active filter chips -->
-          <div class="flex min-w-0 flex-wrap items-center gap-1.5">
-            <span
-                v-if="selectedPeriod"
-                class="inline-flex max-w-[13rem] items-center gap-0.5 rounded-full border border-indigo-100 bg-indigo-50 py-0.5 pl-2 pr-0.5 text-[11px] font-medium text-indigo-600 dark:border-indigo-800 dark:bg-indigo-900/20 dark:text-indigo-400"
-            >
-              <Lucide icon="CalendarRange" class="h-3 w-3 flex-none" />
-              <span class="min-w-0 truncate" :title="periodLabel">{{ periodLabel }}</span>
+            <div class="mb-3 flex items-center justify-between gap-2 border-b border-slate-100 pb-2.5 dark:border-darkmode-700">
+              <div class="flex items-center gap-1.5 text-xs font-semibold text-slate-700 dark:text-slate-200">
+                <Lucide icon="SlidersHorizontal" class="h-4 w-4 text-slate-400" />
+                {{ t('reports.dashboard-settings') }}
+              </div>
               <button
                   type="button"
-                  class="inline-flex h-4 w-4 flex-none items-center justify-center rounded-full text-indigo-400 transition hover:bg-indigo-100 hover:text-indigo-700 dark:hover:bg-indigo-900/40 dark:hover:text-indigo-300"
-                  :aria-label="t('reports.clear-period')"
-                  :title="t('reports.clear-period')"
-                  @click="clearFilters"
+                  class="inline-flex h-6 w-6 items-center justify-center rounded-md text-slate-400 transition hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-darkmode-700 dark:hover:text-slate-200"
+                  :aria-label="t('general.close')"
+                  :title="t('general.close')"
+                  @click="closeFilter"
               >
-                <Lucide icon="X" class="h-3 w-3" />
+                <Lucide icon="X" class="h-4 w-4" />
               </button>
-            </span>
-            <span
-                v-if="hasComparisonChip"
-                class="inline-flex max-w-[13rem] items-center gap-0.5 rounded-full border border-slate-200 bg-slate-50 py-0.5 pl-2 pr-0.5 text-[11px] font-medium text-slate-600 dark:border-darkmode-600 dark:bg-darkmode-700/80 dark:text-slate-300"
-            >
-              <Lucide icon="GitCompare" class="h-3 w-3 flex-none text-slate-400" />
-              <span class="min-w-0 truncate" :title="comparisonLabel">{{ comparisonLabel }}</span>
-              <button
-                  type="button"
-                  class="inline-flex h-4 w-4 flex-none items-center justify-center rounded-full text-slate-400 transition hover:bg-slate-200 hover:text-slate-700 dark:hover:bg-darkmode-600 dark:hover:text-slate-200"
-                  :aria-label="t('reports.disable-compare')"
-                  :title="t('reports.disable-compare')"
-                  @click="removeComparison"
-              >
-                <Lucide icon="X" class="h-3 w-3" />
-              </button>
-            </span>
-            <button
-                v-if="showClearFilters"
-                type="button"
-                class="inline-flex h-6 flex-none items-center gap-1 rounded-full border border-slate-200 bg-white px-2 text-[11px] font-medium text-slate-500 shadow-sm transition hover:bg-slate-50 hover:text-danger dark:border-darkmode-600 dark:bg-darkmode-800 dark:text-slate-400 dark:hover:bg-darkmode-700 dark:hover:text-danger"
-                @click="clearFilters"
-            >
-              <Lucide icon="XCircle" class="h-3 w-3" />
-              <span class="whitespace-nowrap">{{ t('reports.toolbar-clear-filters') }}</span>
-            </button>
-          </div>
-
-          <div class="mr-auto flex flex-wrap items-center gap-2">
-            <span class="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-1 text-[10px] font-medium text-slate-500 dark:bg-darkmode-700 dark:text-slate-400">
-              <Lucide icon="Layers" class="h-3 w-3" />
-              {{ globalStats.capitals }} {{ t('reports.capitals') }}
-            </span>
-            <span class="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-1 text-[10px] font-medium text-slate-500 dark:bg-darkmode-700 dark:text-slate-400">
-              <Lucide icon="ListChecks" class="h-3 w-3" />
-              {{ globalStats.indicators }} {{ t('reports.indicators') }}
-            </span>
-            <span class="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-1 text-[10px] font-medium text-emerald-600 dark:bg-emerald-900/20 dark:text-emerald-400">
-              <Lucide icon="Percent" class="h-3 w-3" />
-              {{ round1(globalStats.completion) }}% {{ t('reports.data-completion') }}
-            </span>
-          </div>
-        </div>
-
-        <div v-show="filterOpen" class="grid grid-cols-1 gap-4 px-6 pb-4 lg:grid-cols-3">
-          <!-- period selector -->
-          <div class="rounded-lg border border-slate-100 bg-slate-50/50 p-4 dark:border-darkmode-700 dark:bg-darkmode-700/20">
-            <div class="mb-2 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-slate-400">
-              <Lucide icon="CalendarRange" class="h-3.5 w-3.5" />
-              {{ t('reports.period') }}
             </div>
-            <div class="mb-2 flex flex-wrap justify-center gap-1">
-              <button
-                  v-for="y in quickYears"
-                  :key="y"
-                  type="button"
-                  class="rounded-full border px-2.5 py-1 text-[11px] font-medium transition"
-                  :class="isQuickYearActive(y)
-                    ? 'border-indigo-300 bg-indigo-50 text-indigo-600 dark:border-indigo-800 dark:bg-indigo-900/20 dark:text-indigo-400'
-                    : 'border-slate-200 bg-white text-slate-500 hover:bg-slate-50 dark:border-darkmode-600 dark:bg-darkmode-800 dark:text-slate-400 dark:hover:bg-darkmode-700'"
-                  @click="quickSelectYear(y)"
-              >{{ y }}</button>
-            </div>
-            <PeriodSelectPanel
-                v-model="selectedPeriod"
-                :label="periodLabel"
-                :placeholder="t('reports.select-period')"
-            />
-          </div>
 
-          <!-- selected range summary -->
-          <div class="rounded-lg border border-slate-100 bg-slate-50/50 p-4 dark:border-darkmode-700 dark:bg-darkmode-700/20">
-            <div class="mb-2 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-slate-400">
-              <Lucide icon="Info" class="h-3.5 w-3.5" />
-              {{ t('reports.selected-range') }}
-            </div>
-            <div class="rounded-lg border border-slate-100 bg-white p-3 shadow-sm dark:border-darkmode-600 dark:bg-darkmode-800">
-              <div class="flex items-center justify-between gap-2">
-                <span class="text-sm font-semibold text-slate-700 dark:text-slate-200">{{ periodLabel }}</span>
-                <span
-                    class="rounded-full bg-indigo-50 px-2 py-0.5 text-[10px] font-semibold text-indigo-600 dark:bg-indigo-900/20 dark:text-indigo-400"
-                >{{ selectedPeriod?.type }}</span>
-              </div>
-              <div v-if="dashboardData" class="mt-1 flex items-center justify-between text-[11px] text-slate-400">
-                <span dir="ltr">{{ dashboardData.date_from }}</span>
-                <Lucide icon="ArrowLeftRight" class="mx-1 h-3 w-3 flex-none text-slate-300" />
-                <span dir="ltr">{{ dashboardData.date_to }}</span>
-              </div>
-              <div v-if="hasComparison" class="mt-3 rounded-md border border-indigo-100 bg-indigo-50/50 px-2.5 py-2 text-[11px] leading-5 text-slate-500 dark:border-indigo-900/30 dark:bg-indigo-900/10 dark:text-slate-400">
-                <div class="flex items-center justify-between">
-                  <span>{{ t('reports.current-period') }}</span>
-                  <b class="text-slate-700 dark:text-slate-200">{{ periodLabel }}</b>
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <!-- period selector -->
+              <div class="rounded-lg border border-slate-100 bg-slate-50/50 p-4 dark:border-darkmode-700 dark:bg-darkmode-700/20">
+                <div class="mb-2 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+                  <Lucide icon="CalendarRange" class="h-3.5 w-3.5" />
+                  {{ t('reports.period') }}
                 </div>
-                <div class="flex items-center justify-between">
-                  <span>{{ t('reports.comparison-period') }}</span>
-                  <b class="text-slate-700 dark:text-slate-200">{{ comparisonLabel }}</b>
+                <div class="mb-2 flex flex-wrap justify-center gap-1">
+                  <button
+                      v-for="y in quickYears"
+                      :key="y"
+                      type="button"
+                      class="rounded-full border px-2.5 py-1 text-[11px] font-medium transition"
+                      :class="isQuickYearActive(y)
+                        ? 'border-indigo-300 bg-indigo-50 text-indigo-600 dark:border-indigo-800 dark:bg-indigo-900/20 dark:text-indigo-400'
+                        : 'border-slate-200 bg-white text-slate-500 hover:bg-slate-50 dark:border-darkmode-600 dark:bg-darkmode-800 dark:text-slate-400 dark:hover:bg-darkmode-700'"
+                      @click="quickSelectYear(y)"
+                  >{{ y }}</button>
                 </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- compare -->
-          <div class="rounded-lg border border-slate-100 bg-slate-50/50 p-4 dark:border-darkmode-700 dark:bg-darkmode-700/20">
-            <div class="mb-2 flex items-center justify-between">
-              <div class="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-slate-400">
-                <Lucide icon="GitCompare" class="h-3.5 w-3.5" />
-                {{ t('reports.comparison-period') }}
-              </div>
-              <button
-                  type="button"
-                  role="switch"
-                  :aria-checked="compareEnabled"
-                  :aria-label="compareEnabled ? t('reports.disable-compare') : t('reports.enable-compare')"
-                  class="relative inline-flex h-5 w-10 flex-none items-center rounded-full transition-colors"
-                  :class="compareEnabled ? 'bg-indigo-500' : 'bg-slate-300 dark:bg-darkmode-600'"
-                  @click="compareEnabled = !compareEnabled"
-              >
-                <span
-                    class="inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform"
-                    :class="compareEnabled ? 'translate-x-5' : 'translate-x-0.5'"
+                <PeriodSelectPanel
+                    v-model="selectedPeriod"
+                    :label="periodLabel"
+                    :placeholder="t('reports.select-period')"
                 />
-              </button>
+              </div>
+
+              <!-- compare -->
+              <div class="rounded-lg border border-slate-100 bg-slate-50/50 p-4 dark:border-darkmode-700 dark:bg-darkmode-700/20">
+                <div class="mb-2 flex items-center justify-between">
+                  <div class="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+                    <Lucide icon="GitCompare" class="h-3.5 w-3.5" />
+                    {{ t('reports.comparison-period') }}
+                  </div>
+                  <button
+                      type="button"
+                      role="switch"
+                      :aria-checked="compareEnabled"
+                      :aria-label="compareEnabled ? t('reports.disable-compare') : t('reports.enable-compare')"
+                      class="relative inline-flex h-5 w-10 flex-none items-center rounded-full transition-colors"
+                      :class="compareEnabled ? 'bg-indigo-500' : 'bg-slate-300 dark:bg-darkmode-600'"
+                      @click="compareEnabled = !compareEnabled"
+                  >
+                    <span
+                        class="inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform"
+                        :class="compareEnabled ? 'translate-x-5' : 'translate-x-0.5'"
+                    />
+                  </button>
+                </div>
+
+                <button
+                    type="button"
+                    class="mb-2 inline-flex w-full items-center justify-center gap-1.5 rounded-md border px-2.5 py-1.5 text-[11px] font-medium transition"
+                    :class="isComparingPrevious
+                      ? 'border-indigo-300 bg-indigo-50 text-indigo-600 dark:border-indigo-800 dark:bg-indigo-900/20 dark:text-indigo-400'
+                      : 'border-slate-200 bg-white text-slate-500 hover:bg-slate-50 dark:border-darkmode-600 dark:bg-darkmode-800 dark:text-slate-400 dark:hover:bg-darkmode-700'"
+                    @click="compareWithPrevious"
+                >
+                  <Lucide icon="ArrowLeftRight" class="h-3.5 w-3.5" />
+                  {{ t('reports.compare-previous-period') }}
+                </button>
+
+                <div v-if="!compareEnabled" class="flex min-h-[110px] items-center justify-center rounded-lg border border-dashed border-slate-200 px-4 text-center text-[11px] leading-5 text-slate-400 dark:border-darkmode-600 dark:text-slate-500">
+                  {{ t('reports.compare-hint') }}
+                </div>
+                <template v-else>
+                  <PeriodSelectPanel
+                      v-model="comparePeriod"
+                      :label="comparisonLabel"
+                      :placeholder="t('reports.select-compare-period')"
+                  />
+                  <p v-if="compareInvalid" class="mt-2 flex items-center gap-1 text-[11px] text-danger">
+                    <Lucide icon="AlertTriangle" class="h-3 w-3 flex-none" />
+                    {{ t('reports.comparison-must-differ') }}
+                  </p>
+                </template>
+              </div>
+
+              <!-- selected range summary -->
+              <div class="rounded-lg border border-slate-100 bg-slate-50/50 p-4 sm:col-span-2 dark:border-darkmode-700 dark:bg-darkmode-700/20">
+                <div class="mb-2 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+                  <Lucide icon="Info" class="h-3.5 w-3.5" />
+                  {{ t('reports.selected-range') }}
+                </div>
+                <div class="rounded-lg border border-slate-100 bg-white p-3 shadow-sm dark:border-darkmode-600 dark:bg-darkmode-800">
+                  <div class="flex items-center justify-between gap-2">
+                    <span class="text-sm font-semibold text-slate-700 dark:text-slate-200">{{ periodLabel }}</span>
+                    <span
+                        class="rounded-full bg-indigo-50 px-2 py-0.5 text-[10px] font-semibold text-indigo-600 dark:bg-indigo-900/20 dark:text-indigo-400"
+                    >{{ selectedPeriod?.type }}</span>
+                  </div>
+                  <div v-if="dashboardData" class="mt-1 flex items-center justify-between text-[11px] text-slate-400">
+                    <span dir="ltr">{{ dashboardData.date_from }}</span>
+                    <Lucide icon="ArrowLeftRight" class="mx-1 h-3 w-3 flex-none text-slate-300" />
+                    <span dir="ltr">{{ dashboardData.date_to }}</span>
+                  </div>
+                  <div v-if="hasComparison" class="mt-3 rounded-md border border-indigo-100 bg-indigo-50/50 px-2.5 py-2 text-[11px] leading-5 text-slate-500 dark:border-indigo-900/30 dark:bg-indigo-900/10 dark:text-slate-400">
+                    <div class="flex items-center justify-between">
+                      <span>{{ t('reports.current-period') }}</span>
+                      <b class="text-slate-700 dark:text-slate-200">{{ periodLabel }}</b>
+                    </div>
+                    <div class="flex items-center justify-between">
+                      <span>{{ t('reports.comparison-period') }}</span>
+                      <b class="text-slate-700 dark:text-slate-200">{{ comparisonLabel }}</b>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
 
-            <button
-                type="button"
-                class="mb-2 inline-flex w-full items-center justify-center gap-1.5 rounded-md border px-2.5 py-1.5 text-[11px] font-medium transition"
-                :class="isComparingPrevious
-                  ? 'border-indigo-300 bg-indigo-50 text-indigo-600 dark:border-indigo-800 dark:bg-indigo-900/20 dark:text-indigo-400'
-                  : 'border-slate-200 bg-white text-slate-500 hover:bg-slate-50 dark:border-darkmode-600 dark:bg-darkmode-800 dark:text-slate-400 dark:hover:bg-darkmode-700'"
-                @click="compareWithPrevious"
-            >
-              <Lucide icon="ArrowLeftRight" class="h-3.5 w-3.5" />
-              {{ t('reports.compare-previous-period') }}
-            </button>
-
-            <div v-if="!compareEnabled" class="flex min-h-[110px] items-center justify-center rounded-lg border border-dashed border-slate-200 px-4 text-center text-[11px] leading-5 text-slate-400 dark:border-darkmode-600 dark:text-slate-500">
-              {{ t('reports.compare-hint') }}
+            <!-- dashboard stats footer -->
+            <div class="mt-4 flex flex-wrap items-center gap-2 border-t border-slate-100 pt-3 dark:border-darkmode-700">
+              <span class="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-1 text-[10px] font-medium text-slate-500 dark:bg-darkmode-700 dark:text-slate-400">
+                <Lucide icon="Layers" class="h-3 w-3" />
+                {{ globalStats.capitals }} {{ t('reports.capitals') }}
+              </span>
+              <span class="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-1 text-[10px] font-medium text-slate-500 dark:bg-darkmode-700 dark:text-slate-400">
+                <Lucide icon="ListChecks" class="h-3 w-3" />
+                {{ globalStats.indicators }} {{ t('reports.indicators') }}
+              </span>
+              <span class="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-1 text-[10px] font-medium text-emerald-600 dark:bg-emerald-900/20 dark:text-emerald-400">
+                <Lucide icon="Percent" class="h-3 w-3" />
+                {{ round1(globalStats.completion) }}% {{ t('reports.data-completion') }}
+              </span>
             </div>
-            <template v-else>
-              <PeriodSelectPanel
-                  v-model="comparePeriod"
-                  :label="comparisonLabel"
-                  :placeholder="t('reports.select-compare-period')"
-              />
-              <p v-if="compareInvalid" class="mt-2 flex items-center gap-1 text-[11px] text-danger">
-                <Lucide icon="AlertTriangle" class="h-3 w-3 flex-none" />
-                {{ t('reports.comparison-must-differ') }}
-              </p>
-            </template>
           </div>
-        </div>
-      </div>
+        </Transition>
+      </Teleport>
 
       <div class="p-6">
         <!-- loading -->
@@ -1549,3 +1709,14 @@ const sortedDomains = computed(() => {
     </div>
   </div>
 </template>
+
+<style scoped>
+.sustainability-filter-pop-enter-active,
+.sustainability-filter-pop-leave-active {
+  transition: opacity 0.15s ease;
+}
+.sustainability-filter-pop-enter-from,
+.sustainability-filter-pop-leave-to {
+  opacity: 0;
+}
+</style>

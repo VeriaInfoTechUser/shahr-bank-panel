@@ -19,7 +19,7 @@ import {
 } from 'chart.js';
 import { Radar, Bar, Doughnut } from 'vue-chartjs';
 import Lucide from '@/base-components/Lucide';
-import DatePickerExtra from '@/components/DatePickerExtra.vue';
+import PeriodSelectPanel from '@/components/PeriodSelectPanel.vue';
 import { reportRepo } from '@/core/repositories/reportRepo';
 
 ChartJS.register(
@@ -217,13 +217,6 @@ function round1(n: number) {
 }
 
 // ---------- period helpers ----------
-const compareModes = computed<string[]>(() => {
-  const type = selectedPeriod.value?.type;
-  if (type === 'QUARTERLY') return ['season'];
-  if (type === 'MONTHLY') return ['month'];
-  return ['year'];
-});
-
 const compareInvalid = computed(() => {
   if (!compareEnabled.value || !comparePeriod.value || !selectedPeriod.value) return false;
   return (
@@ -248,6 +241,81 @@ function formatPeriodLabel(p: SelectedPeriod): string {
 
 const periodLabel = computed(() => (selectedPeriod.value ? formatPeriodLabel(selectedPeriod.value) : ''));
 const comparisonLabel = computed(() => (comparePeriod.value ? formatPeriodLabel(comparePeriod.value) : ''));
+
+// ---------- quick presets ----------
+const pad2 = (n: number) => String(n).padStart(2, '0');
+const lastDayOfMonth = (year: number, month: number) => new Date(year, month, 0).getDate();
+
+/** Chips for one-click year switching, anchored around the currently loaded period. */
+const quickYears = computed<number[]>(() => {
+  const from = dashboardData.value?.date_from;
+  const base = from ? Number(from.slice(0, 4)) : selectedPeriod.value ? Number(selectedPeriod.value.startDate.slice(0, 4)) : new Date().getFullYear() - 1;
+  return [base - 1, base, base + 1];
+});
+
+/** Builds a period of the same type for a given year, preserving quarter/month. */
+function periodForYear(type: string, year: number): SelectedPeriod {
+  const month = selectedPeriod.value ? Number(selectedPeriod.value.startDate.slice(5, 7)) : 1;
+  if (type === 'QUARTERLY') {
+    const q = Math.floor((month - 1) / 3) + 1;
+    const fm = (q - 1) * 3 + 1;
+    const lm = q * 3;
+    return { type: 'QUARTERLY', startDate: `${year}-${pad2(fm)}-01`, endDate: `${year}-${pad2(lm)}-${pad2(lastDayOfMonth(year, lm))}` };
+  }
+  if (type === 'MONTHLY') {
+    const m = Math.min(month, 12);
+    return { type: 'MONTHLY', startDate: `${year}-${pad2(m)}-01`, endDate: `${year}-${pad2(m)}-${pad2(lastDayOfMonth(year, m))}` };
+  }
+  return { type: 'YEARLY', startDate: `${year}-01-01`, endDate: `${year}-12-31` };
+}
+
+function isQuickYearActive(year: number): boolean {
+  const p = selectedPeriod.value;
+  return !!p && Number(p.startDate.slice(0, 4)) === year;
+}
+
+function quickSelectYear(year: number) {
+  selectedPeriod.value = periodForYear(selectedPeriod.value?.type ?? 'YEARLY', year);
+}
+
+/** The immediately preceding period of the same type (2024 → 2023, Q3 → Q2, Feb → Jan). */
+const prevComparePeriod = computed<SelectedPeriod | null>(() => {
+  const p = selectedPeriod.value;
+  if (!p) return null;
+  const year = Number(p.startDate.slice(0, 4));
+  const month = Number(p.startDate.slice(5, 7));
+  if (p.type === 'YEARLY') {
+    const y = year - 1;
+    return { type: 'YEARLY', startDate: `${y}-01-01`, endDate: `${y}-12-31` };
+  }
+  if (p.type === 'QUARTERLY') {
+    const q = Math.floor((month - 1) / 3) + 1;
+    let y = year;
+    let pq = q - 1;
+    if (pq === 0) { pq = 4; y -= 1; }
+    const fm = (pq - 1) * 3 + 1;
+    const lm = pq * 3;
+    return { type: 'QUARTERLY', startDate: `${y}-${pad2(fm)}-01`, endDate: `${y}-${pad2(lm)}-${pad2(lastDayOfMonth(y, lm))}` };
+  }
+  if (p.type === 'MONTHLY') {
+    let y = year;
+    let m = month - 1;
+    if (m === 0) { m = 12; y -= 1; }
+    return { type: 'MONTHLY', startDate: `${y}-${pad2(m)}-01`, endDate: `${y}-${pad2(m)}-${pad2(lastDayOfMonth(y, m))}` };
+  }
+  return null;
+});
+
+const isComparingPrevious = computed(() => {
+  const prev = prevComparePeriod.value;
+  return !!prev && !!comparePeriod.value && comparePeriod.value.startDate === prev.startDate && comparePeriod.value.endDate === prev.endDate;
+});
+
+function compareWithPrevious() {
+  if (!prevComparePeriod.value) return;
+  comparePeriod.value = prevComparePeriod.value;
+  compareEnabled.value = true;
+}
 
 // ---------- request params ----------
 function buildParams(): Record<string, unknown> {
@@ -779,12 +847,23 @@ const sortedDomains = computed(() => {
               <Lucide icon="CalendarRange" class="h-3.5 w-3.5" />
               {{ t('reports.period') }}
             </div>
-            <div class="flex justify-center">
-              <DatePickerExtra
-                  v-model="selectedPeriod"
-                  :modes="['season', 'month', 'year']"
-              />
+            <div class="mb-2 flex flex-wrap justify-center gap-1">
+              <button
+                  v-for="y in quickYears"
+                  :key="y"
+                  type="button"
+                  class="rounded-full border px-2.5 py-1 text-[11px] font-medium transition"
+                  :class="isQuickYearActive(y)
+                    ? 'border-indigo-300 bg-indigo-50 text-indigo-600 dark:border-indigo-800 dark:bg-indigo-900/20 dark:text-indigo-400'
+                    : 'border-slate-200 bg-white text-slate-500 hover:bg-slate-50 dark:border-darkmode-600 dark:bg-darkmode-800 dark:text-slate-400 dark:hover:bg-darkmode-700'"
+                  @click="quickSelectYear(y)"
+              >{{ y }}</button>
             </div>
+            <PeriodSelectPanel
+                v-model="selectedPeriod"
+                :label="periodLabel"
+                :placeholder="t('reports.select-period')"
+            />
           </div>
 
           <!-- selected range summary -->
@@ -841,16 +920,27 @@ const sortedDomains = computed(() => {
               </button>
             </div>
 
-            <div v-if="!compareEnabled" class="flex min-h-[188px] items-center justify-center rounded-lg border border-dashed border-slate-200 px-4 text-center text-[11px] leading-5 text-slate-400 dark:border-darkmode-600 dark:text-slate-500">
+            <button
+                type="button"
+                class="mb-2 inline-flex w-full items-center justify-center gap-1.5 rounded-md border px-2.5 py-1.5 text-[11px] font-medium transition"
+                :class="isComparingPrevious
+                  ? 'border-indigo-300 bg-indigo-50 text-indigo-600 dark:border-indigo-800 dark:bg-indigo-900/20 dark:text-indigo-400'
+                  : 'border-slate-200 bg-white text-slate-500 hover:bg-slate-50 dark:border-darkmode-600 dark:bg-darkmode-800 dark:text-slate-400 dark:hover:bg-darkmode-700'"
+                @click="compareWithPrevious"
+            >
+              <Lucide icon="ArrowLeftRight" class="h-3.5 w-3.5" />
+              {{ t('reports.compare-previous-period') }}
+            </button>
+
+            <div v-if="!compareEnabled" class="flex min-h-[110px] items-center justify-center rounded-lg border border-dashed border-slate-200 px-4 text-center text-[11px] leading-5 text-slate-400 dark:border-darkmode-600 dark:text-slate-500">
               {{ t('reports.compare-hint') }}
             </div>
             <template v-else>
-              <div class="flex justify-center">
-                <DatePickerExtra
-                    v-model="comparePeriod"
-                    :modes="compareModes"
-                />
-              </div>
+              <PeriodSelectPanel
+                  v-model="comparePeriod"
+                  :label="comparisonLabel"
+                  :placeholder="t('reports.select-compare-period')"
+              />
               <p v-if="compareInvalid" class="mt-2 flex items-center gap-1 text-[11px] text-danger">
                 <Lucide icon="AlertTriangle" class="h-3 w-3 flex-none" />
                 {{ t('reports.comparison-must-differ') }}

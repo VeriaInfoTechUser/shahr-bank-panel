@@ -1488,7 +1488,11 @@
     "selected-range": "Selected range",
     "capitals": "Capitals",
     "indicators": "Indicators",
-    "compare-hint": "Turn on the comparison switch and pick a second period to compare two periods side by side"
+    "compare-hint": "Turn on the comparison switch and pick a second period to compare two periods side by side",
+    "quick-select": "Quick select",
+    "compare-previous-period": "Compare with previous period",
+    "select-period": "Select period",
+    "select-compare-period": "Select comparison period"
   },
   "compliance-page": {
     "col-code": "Code",

@@ -1510,7 +1510,11 @@
     "selected-range": "بازه انتخابی",
     "capitals": "سرمایه‌ها",
     "indicators": "شاخص‌ها",
-    "compare-hint": "برای مقایسهٔ دو دوره، سوییچ مقایسه را فعال کنید و دورهٔ دوم را انتخاب کنید"
+    "compare-hint": "برای مقایسهٔ دو دوره، سوییچ مقایسه را فعال کنید و دورهٔ دوم را انتخاب کنید",
+    "quick-select": "انتخاب سریع",
+    "compare-previous-period": "مقایسه با دوره قبل",
+    "select-period": "انتخاب دوره",
+    "select-compare-period": "انتخاب دوره مقایسه"
   },
   "compliance-page": {
     "col-code": "کد",

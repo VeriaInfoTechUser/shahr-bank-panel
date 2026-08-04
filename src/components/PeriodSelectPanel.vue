@@ -29,7 +29,7 @@
             :key="opt.type"
             type="button"
             class="flex-1 rounded-md px-2 py-1.5 text-[11px] font-semibold transition"
-            :class="type === opt.type
+            :class="effectiveType === opt.type
               ? 'bg-indigo-50 text-indigo-600 dark:bg-indigo-900/20 dark:text-indigo-400'
               : 'text-slate-500 hover:bg-slate-50 dark:text-slate-400 dark:hover:bg-darkmode-700'"
             @click="selectType(opt.type)"
@@ -51,7 +51,7 @@
       </div>
 
       <!-- step 3a: quarter -->
-      <div v-if="type === 'QUARTERLY'" class="grid grid-cols-4 gap-1 p-2 pt-0">
+      <div v-if="effectiveType === 'QUARTERLY'" class="grid grid-cols-4 gap-1 p-2 pt-0">
         <button
             v-for="q in 4"
             :key="q"
@@ -65,7 +65,7 @@
       </div>
 
       <!-- step 3b: month -->
-      <div v-else-if="type === 'MONTHLY'" class="grid grid-cols-4 gap-1 p-2 pt-0">
+      <div v-else-if="effectiveType === 'MONTHLY'" class="grid grid-cols-4 gap-1 p-2 pt-0">
         <button
             v-for="m in 12"
             :key="m"
@@ -127,12 +127,19 @@ const typeOptions = computed(() =>
     })),
 );
 
+/** The granularity actually usable: falls back to the first allowed type (e.g. when types is locked). */
+const effectiveType = computed(() => {
+  if (props.types.length && !props.types.includes(type.value)) return props.types[0];
+  return type.value;
+});
+
 const years = computed<number[]>(() => [year.value - 1, year.value, year.value + 1]);
 
 function syncFromModel() {
   const v = props.modelValue as { type?: string; startDate?: string } | null;
   if (!v || !v.type) return;
-  type.value = v.type;
+  // Respect a locked `types` list: fall back to the first allowed granularity.
+  type.value = props.types.length && !props.types.includes(v.type) ? props.types[0] : v.type;
   const m = /^(\d{4})-(\d{2})/.exec(String(v.startDate || ''));
   if (m) {
     year.value = Number(m[1]);
@@ -169,11 +176,12 @@ function selectType(tp: string) {
 
 function selectYear(y: number) {
   year.value = y;
-  if (type.value === 'YEARLY') {
+  const tp = effectiveType.value;
+  if (tp === 'YEARLY') {
     emitPeriod(buildPeriod('YEARLY', y, 1));
     open.value = false;
   } else {
-    emitPeriod(buildPeriod(type.value, y, sub.value));
+    emitPeriod(buildPeriod(tp, y, sub.value));
   }
 }
 

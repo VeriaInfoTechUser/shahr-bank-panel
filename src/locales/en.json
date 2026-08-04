@@ -1493,7 +1493,8 @@
     "compare-previous-period": "Compare with previous period",
     "select-period": "Select period",
     "select-compare-period": "Select comparison period",
-    "clear-period": "Clear period"
+    "clear-period": "Clear period",
+    "comparison-same-type": "Comparison period must be {type} (same type as the main period)"
   },
   "compliance-page": {
     "col-code": "Code",

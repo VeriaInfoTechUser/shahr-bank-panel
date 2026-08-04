@@ -1515,7 +1515,8 @@
     "compare-previous-period": "مقایسه با دوره قبل",
     "select-period": "انتخاب دوره",
     "select-compare-period": "انتخاب دوره مقایسه",
-    "clear-period": "حذف دوره"
+    "clear-period": "حذف دوره",
+    "comparison-same-type": "دوره مقایسه باید {type} باشد (هم‌نوع با دوره اصلی)"
   },
   "compliance-page": {
     "col-code": "کد",

@@ -1223,7 +1223,8 @@
     "compare-previous-period": "المقارنة مع الفترة السابقة",
     "select-period": "اختر الفترة",
     "select-compare-period": "اختر فترة المقارنة",
-    "clear-period": "مسح الفترة"
+    "clear-period": "مسح الفترة",
+    "comparison-same-type": "يجب أن تكون فترة المقارنة {type} (نفس نوع الفترة الرئيسية)"
   },
   "compliance-page": {
     "col-code": "الرمز",

@@ -293,11 +293,25 @@ const comparisonLabel = computed(() => (comparePeriod.value ? formatPeriodLabel(
 const pad2 = (n: number) => String(n).padStart(2, '0');
 const lastDayOfMonth = (year: number, month: number) => new Date(year, month, 0).getDate();
 
-/** Chips for one-click year switching, anchored around the currently loaded period. */
-const quickYears = computed<number[]>(() => {
+const currentYear = () => new Date().getFullYear();
+
+/** Base year to anchor the scrollable year strip. */
+const activeBaseYear = computed<number>(() => {
   const from = dashboardData.value?.date_from;
-  const base = from ? Number(from.slice(0, 4)) : selectedPeriod.value ? Number(selectedPeriod.value.startDate.slice(0, 4)) : new Date().getFullYear() - 1;
-  return [base - 1, base, base + 1];
+  return from
+      ? Number(from.slice(0, 4))
+      : selectedPeriod.value
+        ? Number(selectedPeriod.value.startDate.slice(0, 4))
+        : currentYear() - 1;
+});
+
+/** Scrollable year range (≈ 2015 → next year), so the user can browse any year. */
+const yearOptions = computed<number[]>(() => {
+  const min = 2015;
+  const max = Math.max(currentYear() + 1, activeBaseYear.value);
+  const years: number[] = [];
+  for (let y = Math.min(min, activeBaseYear.value); y <= max; y++) years.push(y);
+  return years;
 });
 
 /** Builds a period of the same type for a given year, preserving quarter/month. */
@@ -323,6 +337,20 @@ function isQuickYearActive(year: number): boolean {
 
 function quickSelectYear(year: number) {
   selectedPeriod.value = periodForYear(selectedPeriod.value?.type ?? 'YEARLY', year);
+}
+
+// ---------- scrollable year strip ----------
+const yearsStripRef = ref<HTMLElement | null>(null);
+
+function scrollYears(direction: number) {
+  yearsStripRef.value?.scrollBy({ left: direction * 220, behavior: 'smooth' });
+}
+
+function scrollActiveYearIntoView() {
+  void nextTick(() => {
+    const el = yearsStripRef.value?.querySelector('[data-active="true"]');
+    el?.scrollIntoView({ block: 'nearest', inline: 'center', behavior: 'smooth' });
+  });
 }
 
 /** The immediately preceding period of the same type (2024 → 2023, Q3 → Q2, Feb → Jan). */
@@ -357,6 +385,30 @@ const isComparingPrevious = computed(() => {
   const prev = prevComparePeriod.value;
   return !!prev && !!comparePeriod.value && comparePeriod.value.startDate === prev.startDate && comparePeriod.value.endDate === prev.endDate;
 });
+
+/** Comparison must use the same granularity as the dashboard period (monthly ↔ monthly, …). */
+const compareTypes = computed<string[]>(() => (selectedPeriod.value ? [selectedPeriod.value.type] : ['YEARLY']));
+
+const comparisonTypeLabel = computed(() => {
+  const tp = compareTypes.value[0];
+  if (tp === 'YEARLY') return t('reports.period-type.yearly');
+  if (tp === 'QUARTERLY') return t('reports.period-type.quarterly');
+  if (tp === 'MONTHLY') return t('reports.period-type.monthly');
+  return tp;
+});
+
+/** If the main period type changes, drop the now-incompatible comparison selection.
+ *  `suppressReload` batches this into the reload already scheduled by the period change,
+ *  so clearing the comparison doesn't cause a second fetch. */
+watch(
+    () => selectedPeriod.value?.type,
+    () => {
+      if (!compareEnabled.value) return;
+      suppressReload = true;
+      comparePeriod.value = null;
+      suppressReload = false;
+    },
+);
 
 function compareWithPrevious() {
   if (!prevComparePeriod.value) return;
@@ -591,7 +643,10 @@ onMounted(async () => {
   suppressReload = true;
   await loadOverview();
   suppressReload = false;
+  scrollActiveYearIntoView();
 });
+
+watch(selectedPeriod, scrollActiveYearIntoView);
 
 // ---------- radar: domains under the active capital ----------
 const domainRadarData = computed(() => {
@@ -1083,17 +1138,41 @@ const sortedDomains = computed(() => {
                   <Lucide icon="CalendarRange" class="h-3.5 w-3.5" />
                   {{ t('reports.period') }}
                 </div>
-                <div class="mb-2 flex flex-wrap justify-center gap-1">
+                <div class="mb-2 flex items-center gap-1">
                   <button
-                      v-for="y in quickYears"
-                      :key="y"
                       type="button"
-                      class="rounded-full border px-2.5 py-1 text-[11px] font-medium transition"
-                      :class="isQuickYearActive(y)
-                        ? 'border-indigo-300 bg-indigo-50 text-indigo-600 dark:border-indigo-800 dark:bg-indigo-900/20 dark:text-indigo-400'
-                        : 'border-slate-200 bg-white text-slate-500 hover:bg-slate-50 dark:border-darkmode-600 dark:bg-darkmode-800 dark:text-slate-400 dark:hover:bg-darkmode-700'"
-                      @click="quickSelectYear(y)"
-                  >{{ y }}</button>
+                      class="inline-flex h-7 w-6 flex-none items-center justify-center rounded-md border border-slate-200 bg-white text-slate-400 shadow-sm transition hover:bg-slate-50 hover:text-slate-600 dark:border-darkmode-600 dark:bg-darkmode-800 dark:text-slate-500 dark:hover:bg-darkmode-700 dark:hover:text-slate-300"
+                      :aria-label="t('general.previous')"
+                      :title="t('general.previous')"
+                      @click="scrollYears(-1)"
+                  >
+                    <Lucide icon="ChevronRight" class="h-3.5 w-3.5" />
+                  </button>
+                  <div
+                      ref="yearsStripRef"
+                      class="flex flex-1 items-center gap-1 overflow-x-auto overscroll-contain px-0.5 py-1 [scrollbar-width:thin]"
+                  >
+                    <button
+                        v-for="y in yearOptions"
+                        :key="y"
+                        type="button"
+                        :data-active="isQuickYearActive(y)"
+                        class="flex-none rounded-full border px-2.5 py-1 text-[11px] font-medium transition"
+                        :class="isQuickYearActive(y)
+                          ? 'border-indigo-300 bg-indigo-50 text-indigo-600 dark:border-indigo-800 dark:bg-indigo-900/20 dark:text-indigo-400'
+                          : 'border-slate-200 bg-white text-slate-500 hover:bg-slate-50 dark:border-darkmode-600 dark:bg-darkmode-800 dark:text-slate-400 dark:hover:bg-darkmode-700'"
+                        @click="quickSelectYear(y)"
+                    >{{ y }}</button>
+                  </div>
+                  <button
+                      type="button"
+                      class="inline-flex h-7 w-6 flex-none items-center justify-center rounded-md border border-slate-200 bg-white text-slate-400 shadow-sm transition hover:bg-slate-50 hover:text-slate-600 dark:border-darkmode-600 dark:bg-darkmode-800 dark:text-slate-500 dark:hover:bg-darkmode-700 dark:hover:text-slate-300"
+                      :aria-label="t('general.next')"
+                      :title="t('general.next')"
+                      @click="scrollYears(1)"
+                  >
+                    <Lucide icon="ChevronLeft" class="h-3.5 w-3.5" />
+                  </button>
                 </div>
                 <PeriodSelectPanel
                     v-model="selectedPeriod"
@@ -1141,10 +1220,15 @@ const sortedDomains = computed(() => {
                   {{ t('reports.compare-hint') }}
                 </div>
                 <template v-else>
+                  <p class="mb-2 rounded-md border border-indigo-100 bg-indigo-50/50 px-2.5 py-1.5 text-[11px] text-slate-500 dark:border-indigo-900/30 dark:bg-indigo-900/10 dark:text-slate-400">
+                    <Lucide icon="Lock" class="me-1 inline h-3 w-3 text-indigo-400" />
+                    {{ t('reports.comparison-same-type', { type: comparisonTypeLabel }) }}
+                  </p>
                   <PeriodSelectPanel
                       v-model="comparePeriod"
                       :label="comparisonLabel"
                       :placeholder="t('reports.select-compare-period')"
+                      :types="compareTypes"
                   />
                   <p v-if="compareInvalid" class="mt-2 flex items-center gap-1 text-[11px] text-danger">
                     <Lucide icon="AlertTriangle" class="h-3 w-3 flex-none" />

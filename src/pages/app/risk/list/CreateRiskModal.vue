@@ -10,6 +10,7 @@ import BaseSelect from '@/core/ui/base/BaseSelect.vue';
 import Button from '@/base-components/Button';
 import { useRisk } from './useRisk';
 import { useRiskCategories } from './useRiskCategories';
+import { useCapabilityTree } from './useCapabilityTree';
 import { ermRepo } from '@/core/repositories/ermRepo';
 
 const props = defineProps<{
@@ -25,9 +26,13 @@ const emit = defineEmits<{
 const { t } = useI18n();
 const { loading, createRisk } = useRisk();
 const { categoryOptions, subCategoryOptions, getCategoryTitle, getSubCategoryTitle, fetchTree } = useRiskCategories();
+const { capitalOptions, domainOptions, componentOptions, capabilityOptions, getTitle: getCapabilityTitle, fetchTree: fetchCapabilityTree } = useCapabilityTree();
 const saving = ref(false);
 const formKey = ref(0);
 const selectedCategorySlug = ref('');
+const selectedCapitalSlug = ref('');
+const selectedDomainSlug = ref('');
+const selectedComponentSlug = ref('');
 const memberOptions = ref<{ value: string; label: string }[]>([]);
 
 const { setFieldValue } = useForm();
@@ -43,6 +48,10 @@ const initialValues = ref({
   riskType: '',
   categorySlug: '',
   subCategorySlug: '',
+  capitalSlug: '',
+  domainSlug: '',
+  componentSlug: '',
+  capabilitySlug: '',
   ownerId: '',
 });
 
@@ -53,6 +62,10 @@ const validationSchema = computed(() =>
     riskType: yup.string().trim().required(t('validation.required')),
     categorySlug: yup.string().trim().required(t('validation.required')),
     subCategorySlug: yup.string().trim().required(t('validation.required')),
+    capitalSlug: yup.string().trim().required(t('validation.required')),
+    domainSlug: yup.string().trim().required(t('validation.required')),
+    componentSlug: yup.string().trim().required(t('validation.required')),
+    capabilitySlug: yup.string().trim().required(t('validation.required')),
     ownerId: yup.string().trim().required(t('validation.required')),
   })
 );
@@ -80,9 +93,16 @@ watch(
         riskType: '',
         categorySlug: '',
         subCategorySlug: '',
+        capitalSlug: '',
+        domainSlug: '',
+        componentSlug: '',
+        capabilitySlug: '',
         ownerId: '',
       };
       selectedCategorySlug.value = '';
+      selectedCapitalSlug.value = '';
+      selectedDomainSlug.value = '';
+      selectedComponentSlug.value = '';
       formKey.value += 1;
     }
   },
@@ -91,6 +111,7 @@ watch(
 
 onMounted(async () => {
   fetchTree();
+  fetchCapabilityTree();
   try {
     const res = await ermRepo.memberList({ page: 1, limit: 500 });
     const list = res?.data?.list ?? [];
@@ -115,11 +136,36 @@ function onCategoryChange(value: unknown) {
   setFieldValue('subCategorySlug', '');
 }
 
+function onCapitalChange(value: unknown) {
+  selectedCapitalSlug.value = String(value ?? '');
+  selectedDomainSlug.value = '';
+  selectedComponentSlug.value = '';
+  setFieldValue('domainSlug', '');
+  setFieldValue('componentSlug', '');
+  setFieldValue('capabilitySlug', '');
+}
+
+function onDomainChange(value: unknown) {
+  selectedDomainSlug.value = String(value ?? '');
+  selectedComponentSlug.value = '';
+  setFieldValue('componentSlug', '');
+  setFieldValue('capabilitySlug', '');
+}
+
+function onComponentChange(value: unknown) {
+  selectedComponentSlug.value = String(value ?? '');
+  setFieldValue('capabilitySlug', '');
+}
+
 async function onSubmit(values: Record<string, unknown>) {
   saving.value = true;
   try {
     const catSlug = String(values.categorySlug ?? '');
     const subCatSlug = String(values.subCategorySlug ?? '');
+    const capSlug = String(values.capabilitySlug ?? '');
+    const compSlug = String(values.componentSlug ?? '');
+    const domSlug = String(values.domainSlug ?? '');
+    const capiSlug = String(values.capitalSlug ?? '');
     const data = {
       title: String(values.title ?? ''),
       createDescription: String(values.draftDescription ?? ''),
@@ -128,6 +174,14 @@ async function onSubmit(values: Record<string, unknown>) {
       categoryTitle: getCategoryTitle(catSlug),
       subCategorySlug: subCatSlug,
       subCategoryTitle: getSubCategoryTitle(catSlug, subCatSlug),
+      capabilitySlug: capSlug,
+      capabilityTitle: getCapabilityTitle(capSlug),
+      componentSlug: compSlug,
+      componentTitle: getCapabilityTitle(compSlug),
+      domainSlug: domSlug,
+      domainTitle: getCapabilityTitle(domSlug),
+      capitalSlug: capiSlug,
+      capitalTitle: getCapabilityTitle(capiSlug),
       ownerId: String(values.ownerId ?? ''),
     };
     await createRisk(data);
@@ -178,6 +232,37 @@ async function onSubmit(values: Record<string, unknown>) {
             name="subCategorySlug"
             :label="t('risk.field-sub-category')"
             :options="subCategoryOptions(selectedCategorySlug)"
+            :required="true"
+            :filter="true"
+          />
+          <BaseSelect
+            name="capitalSlug"
+            :label="t('risk.field-capital')"
+            :options="capitalOptions"
+            :required="true"
+            :filter="true"
+            @change="onCapitalChange"
+          />
+          <BaseSelect
+            name="domainSlug"
+            :label="t('risk.field-domain')"
+            :options="domainOptions(selectedCapitalSlug)"
+            :required="true"
+            :filter="true"
+            @change="onDomainChange"
+          />
+          <BaseSelect
+            name="componentSlug"
+            :label="t('risk.field-component')"
+            :options="componentOptions(selectedDomainSlug)"
+            :required="true"
+            :filter="true"
+            @change="onComponentChange"
+          />
+          <BaseSelect
+            name="capabilitySlug"
+            :label="t('risk.field-capability')"
+            :options="capabilityOptions(selectedComponentSlug)"
             :required="true"
             :filter="true"
           />

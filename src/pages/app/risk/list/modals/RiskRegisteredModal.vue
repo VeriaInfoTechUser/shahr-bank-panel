@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, watch, nextTick } from 'vue';
-import { Form } from 'vee-validate';
+import { Form, useForm } from 'vee-validate';
 import * as yup from 'yup';
 import { useI18n } from 'vue-i18n';
 import { toast } from 'vue3-toastify';
@@ -11,6 +11,7 @@ import { useGlobalModal } from '@/composables/useGlobalModal';
 import { ermRepo } from '@/core/repositories/ermRepo';
 import { useRisk, type Risk } from '../useRisk';
 import { useRiskCategories } from '../useRiskCategories';
+import { useCapabilityTree } from '../useCapabilityTree';
 import { useRiskTransition } from '../useRiskTransition';
 import BaseInput from '@/core/ui/base/BaseInput.vue';
 import BaseSelect from '@/core/ui/base/BaseSelect.vue';
@@ -29,6 +30,7 @@ const { t } = useI18n();
 const { openModal } = useGlobalModal();
 const { loading: apiLoading, fetchRisk, updateRisk, transitionRisk } = useRisk();
 const { categoryOptions, subCategoryOptions, getCategoryTitle, getSubCategoryTitle, fetchTree } = useRiskCategories();
+const { capitalOptions, domainOptions, componentOptions, capabilityOptions, getTitle: getCapabilityTitle, fetchTree: fetchCapabilityTree } = useCapabilityTree();
 const { parseTransitionErrors } = useRiskTransition();
 
 const formKey = ref(0);
@@ -36,15 +38,29 @@ const saving = ref(false);
 const registering = ref(false);
 const risk = ref<Risk | null>(null);
 const selectedCategorySlug = ref('');
+const selectedCapitalSlug = ref('');
+const selectedDomainSlug = ref('');
+const selectedComponentSlug = ref('');
 const memberOptions = ref<{ value: string; label: string }[]>([]);
 const initialValues = ref<Record<string, unknown>>({});
 const formRef = ref<InstanceType<typeof Form>>();
+const { setFieldValue } = useForm();
 
 const validationSchema = computed(() => yup.object({
   title: yup.string().trim().required(t('validation.required')),
   riskType: yup.string().trim().required(t('validation.required')),
   categorySlug: yup.string().trim().required(t('validation.required')),
+  categoryTitle: yup.string().trim().required(t('validation.required')),
   subCategorySlug: yup.string().trim().required(t('validation.required')),
+  subCategoryTitle: yup.string().trim().required(t('validation.required')),
+  capitalSlug: yup.string().trim().required(t('validation.required')),
+  capitalTitle: yup.string().trim().required(t('validation.required')),
+  domainSlug: yup.string().trim().required(t('validation.required')),
+  domainTitle: yup.string().trim().required(t('validation.required')),
+  componentSlug: yup.string().trim().required(t('validation.required')),
+  componentTitle: yup.string().trim().required(t('validation.required')),
+  capabilitySlug: yup.string().trim().required(t('validation.required')),
+  capabilityTitle: yup.string().trim().required(t('validation.required')),
   ownerId: yup.string().trim().required(t('validation.required')),
   registerDescription: yup.string().trim().optional(),
 }));
@@ -81,7 +97,7 @@ watch(
     () => [props.show, props.riskId],
     async ([show, id]) => {
       if (show && id) {
-        await Promise.all([fetchTree(), loadMembers()]);
+        await Promise.all([fetchTree(), fetchCapabilityTree(), loadMembers()]);
         await loadRisk(id);
       }
     },
@@ -103,6 +119,9 @@ async function loadRisk(id: string) {
   if (!data) return;
   risk.value = data;
   selectedCategorySlug.value = data.categorySlug ?? '';
+  selectedCapitalSlug.value = (data as Record<string, unknown>).capitalSlug as string ?? '';
+  selectedDomainSlug.value = (data as Record<string, unknown>).domainSlug as string ?? '';
+  selectedComponentSlug.value = (data as Record<string, unknown>).componentSlug as string ?? '';
 
   await nextTick();
   populateForm(data);
@@ -110,12 +129,23 @@ async function loadRisk(id: string) {
 }
 
 function populateForm(r: Risk) {
+  const rec = r as Record<string, unknown>;
   initialValues.value = {
     title: r.title ?? '',
     registerDescription: r.registerDescription ?? '',
     riskType: r.riskType ?? '',
     categorySlug: r.categorySlug ?? '',
+    categoryTitle: r.categoryTitle ?? '',
     subCategorySlug: r.subCategorySlug ?? '',
+    subCategoryTitle: r.subCategoryTitle ?? '',
+    capitalSlug: (rec.capitalSlug as string) ?? '',
+    capitalTitle: (rec.capitalTitle as string) ?? '',
+    domainSlug: (rec.domainSlug as string) ?? '',
+    domainTitle: (rec.domainTitle as string) ?? '',
+    componentSlug: (rec.componentSlug as string) ?? '',
+    componentTitle: (rec.componentTitle as string) ?? '',
+    capabilitySlug: (rec.capabilitySlug as string) ?? '',
+    capabilityTitle: (rec.capabilityTitle as string) ?? '',
     ownerId: r.ownerId ?? '',
   };
 }
@@ -130,22 +160,61 @@ function onDialogVisible(v: boolean) {
 
 function onCategoryChange(value: unknown) {
   selectedCategorySlug.value = String(value ?? '');
+  setFieldValue('subCategorySlug', '');
+  setFieldValue('subCategoryTitle', '');
+  setFieldValue('categoryTitle', getCategoryTitle(String(value ?? '')));
+}
+
+function onCapitalChange(value: unknown) {
+  selectedCapitalSlug.value = String(value ?? '');
+  selectedDomainSlug.value = '';
+  selectedComponentSlug.value = '';
+  setFieldValue('capitalTitle', getCapabilityTitle(String(value ?? '')));
+  setFieldValue('domainSlug', '');
+  setFieldValue('domainTitle', '');
+  setFieldValue('componentSlug', '');
+  setFieldValue('componentTitle', '');
+  setFieldValue('capabilitySlug', '');
+  setFieldValue('capabilityTitle', '');
+}
+
+function onDomainChange(value: unknown) {
+  selectedDomainSlug.value = String(value ?? '');
+  selectedComponentSlug.value = '';
+  setFieldValue('domainTitle', getCapabilityTitle(String(value ?? '')));
+  setFieldValue('componentSlug', '');
+  setFieldValue('componentTitle', '');
+  setFieldValue('capabilitySlug', '');
+  setFieldValue('capabilityTitle', '');
+}
+
+function onComponentChange(value: unknown) {
+  selectedComponentSlug.value = String(value ?? '');
+  setFieldValue('componentTitle', getCapabilityTitle(String(value ?? '')));
+  setFieldValue('capabilitySlug', '');
+  setFieldValue('capabilityTitle', '');
 }
 
 async function handleSave(values: Record<string, unknown>) {
   if (!risk.value) return;
   saving.value = true;
   try {
-    const catSlug = String(values.categorySlug ?? '');
-    const subCatSlug = String(values.subCategorySlug ?? '');
     const data = {
       title: values.title,
       registerDescription: values.registerDescription,
       riskType: values.riskType,
-      categorySlug: catSlug,
-      categoryTitle: getCategoryTitle(catSlug),
-      subCategorySlug: subCatSlug,
-      subCategoryTitle: getSubCategoryTitle(catSlug, subCatSlug),
+      categorySlug: values.categorySlug,
+      categoryTitle: values.categoryTitle,
+      subCategorySlug: values.subCategorySlug,
+      subCategoryTitle: values.subCategoryTitle,
+      capabilitySlug: values.capabilitySlug,
+      capabilityTitle: values.capabilityTitle,
+      componentSlug: values.componentSlug,
+      componentTitle: values.componentTitle,
+      domainSlug: values.domainSlug,
+      domainTitle: values.domainTitle,
+      capitalSlug: values.capitalSlug,
+      capitalTitle: values.capitalTitle,
       ownerId: values.ownerId,
       impact: risk.value.impact ?? null,
       likelihood: risk.value.likelihood ?? null,
@@ -190,6 +259,10 @@ function handleStartAnalysis() {
               ...values,
               impact: risk.value!.impact ?? null,
               likelihood: risk.value!.likelihood ?? null,
+              capabilityTitle: values.capabilityTitle,
+              componentTitle: values.componentTitle,
+              domainTitle: values.domainTitle,
+              capitalTitle: values.capitalTitle,
             });
             if (!res) throw new Error(t('risk.transition-error'));
           } catch (err: unknown) {
@@ -262,6 +335,37 @@ function handleStartAnalysis() {
                 name="subCategorySlug"
                 :label="t('risk.field-sub-category')"
                 :options="subCategoryOptions(selectedCategorySlug)"
+                :filter="true"
+            />
+            <BaseSelect
+                name="capitalSlug"
+                :label="t('risk.field-capital')"
+                :options="capitalOptions"
+                :required="true"
+                :filter="true"
+                @change="onCapitalChange"
+            />
+            <BaseSelect
+                name="domainSlug"
+                :label="t('risk.field-domain')"
+                :options="domainOptions(selectedCapitalSlug)"
+                :required="true"
+                :filter="true"
+                @change="onDomainChange"
+            />
+            <BaseSelect
+                name="componentSlug"
+                :label="t('risk.field-component')"
+                :options="componentOptions(selectedDomainSlug)"
+                :required="true"
+                :filter="true"
+                @change="onComponentChange"
+            />
+            <BaseSelect
+                name="capabilitySlug"
+                :label="t('risk.field-capability')"
+                :options="capabilityOptions(selectedComponentSlug)"
+                :required="true"
                 :filter="true"
             />
             <BaseSelect

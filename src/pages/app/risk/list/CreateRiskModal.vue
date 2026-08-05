@@ -47,11 +47,17 @@ const initialValues = ref({
   draftDescription: '',
   riskType: '',
   categorySlug: '',
+  categoryTitle: '',
   subCategorySlug: '',
+  subCategoryTitle: '',
   capitalSlug: '',
+  capitalTitle: '',
   domainSlug: '',
+  domainTitle: '',
   componentSlug: '',
+  componentTitle: '',
   capabilitySlug: '',
+  capabilityTitle: '',
   ownerId: '',
 });
 
@@ -61,11 +67,17 @@ const validationSchema = computed(() =>
     draftDescription: yup.string().trim().required(t('validation.required')),
     riskType: yup.string().trim().required(t('validation.required')),
     categorySlug: yup.string().trim().required(t('validation.required')),
+    categoryTitle: yup.string().trim().required(t('validation.required')),
     subCategorySlug: yup.string().trim().required(t('validation.required')),
+    subCategoryTitle: yup.string().trim().required(t('validation.required')),
     capitalSlug: yup.string().trim().required(t('validation.required')),
+    capitalTitle: yup.string().trim().required(t('validation.required')),
     domainSlug: yup.string().trim().required(t('validation.required')),
+    domainTitle: yup.string().trim().required(t('validation.required')),
     componentSlug: yup.string().trim().required(t('validation.required')),
+    componentTitle: yup.string().trim().required(t('validation.required')),
     capabilitySlug: yup.string().trim().required(t('validation.required')),
+    capabilityTitle: yup.string().trim().required(t('validation.required')),
     ownerId: yup.string().trim().required(t('validation.required')),
   })
 );
@@ -92,11 +104,17 @@ watch(
         draftDescription: '',
         riskType: '',
         categorySlug: '',
+        categoryTitle: '',
         subCategorySlug: '',
+        subCategoryTitle: '',
         capitalSlug: '',
+        capitalTitle: '',
         domainSlug: '',
+        domainTitle: '',
         componentSlug: '',
+        componentTitle: '',
         capabilitySlug: '',
+        capabilityTitle: '',
         ownerId: '',
       };
       selectedCategorySlug.value = '';
@@ -134,54 +152,59 @@ function onDialogVisible(v: boolean) {
 function onCategoryChange(value: unknown) {
   selectedCategorySlug.value = String(value ?? '');
   setFieldValue('subCategorySlug', '');
+  setFieldValue('subCategoryTitle', '');
+  setFieldValue('categoryTitle', getCategoryTitle(String(value ?? '')));
 }
 
 function onCapitalChange(value: unknown) {
   selectedCapitalSlug.value = String(value ?? '');
   selectedDomainSlug.value = '';
   selectedComponentSlug.value = '';
+  setFieldValue('capitalTitle', getCapabilityTitle(String(value ?? '')));
   setFieldValue('domainSlug', '');
+  setFieldValue('domainTitle', '');
   setFieldValue('componentSlug', '');
+  setFieldValue('componentTitle', '');
   setFieldValue('capabilitySlug', '');
+  setFieldValue('capabilityTitle', '');
 }
 
 function onDomainChange(value: unknown) {
   selectedDomainSlug.value = String(value ?? '');
   selectedComponentSlug.value = '';
+  setFieldValue('domainTitle', getCapabilityTitle(String(value ?? '')));
   setFieldValue('componentSlug', '');
+  setFieldValue('componentTitle', '');
   setFieldValue('capabilitySlug', '');
+  setFieldValue('capabilityTitle', '');
 }
 
 function onComponentChange(value: unknown) {
   selectedComponentSlug.value = String(value ?? '');
+  setFieldValue('componentTitle', getCapabilityTitle(String(value ?? '')));
   setFieldValue('capabilitySlug', '');
+  setFieldValue('capabilityTitle', '');
 }
 
 async function onSubmit(values: Record<string, unknown>) {
   saving.value = true;
   try {
-    const catSlug = String(values.categorySlug ?? '');
-    const subCatSlug = String(values.subCategorySlug ?? '');
-    const capSlug = String(values.capabilitySlug ?? '');
-    const compSlug = String(values.componentSlug ?? '');
-    const domSlug = String(values.domainSlug ?? '');
-    const capiSlug = String(values.capitalSlug ?? '');
     const data = {
       title: String(values.title ?? ''),
       createDescription: String(values.draftDescription ?? ''),
       riskType: String(values.riskType ?? ''),
-      categorySlug: catSlug,
-      categoryTitle: getCategoryTitle(catSlug),
-      subCategorySlug: subCatSlug,
-      subCategoryTitle: getSubCategoryTitle(catSlug, subCatSlug),
-      capabilitySlug: capSlug,
-      capabilityTitle: getCapabilityTitle(capSlug),
-      componentSlug: compSlug,
-      componentTitle: getCapabilityTitle(compSlug),
-      domainSlug: domSlug,
-      domainTitle: getCapabilityTitle(domSlug),
-      capitalSlug: capiSlug,
-      capitalTitle: getCapabilityTitle(capiSlug),
+      categorySlug: values.categorySlug,
+      categoryTitle: values.categoryTitle,
+      subCategorySlug: values.subCategorySlug,
+      subCategoryTitle: values.subCategoryTitle,
+      capabilitySlug: values.capabilitySlug,
+      capabilityTitle: values.capabilityTitle,
+      componentSlug: values.componentSlug,
+      componentTitle: values.componentTitle,
+      domainSlug: values.domainSlug,
+      domainTitle: values.domainTitle,
+      capitalSlug: values.capitalSlug,
+      capitalTitle: values.capitalTitle,
       ownerId: String(values.ownerId ?? ''),
     };
     await createRisk(data);

@@ -89,6 +89,7 @@ function normalizeCapital(cap: CapitalNode): CapitalNode {
       for (const capa of comp.capabilities) {
         normalizeMaturity(capa);
         if (!Array.isArray(capa.indicators)) capa.indicators = [];
+        if (!capa.risks) capa.risks = defaultCapabilityRisks();
       }
     }
   }
@@ -98,6 +99,9 @@ function normalizeCapital(cap: CapitalNode): CapitalNode {
 /** Fills a fallback `maturity` on every capital/domain/component/capability node. */
 function normalizeDashboardData(data: DashboardResponse): DashboardResponse {
   (data.capitals ?? []).forEach(normalizeCapital);
+  if (!data.risks) {
+    data.risks = { total: 0, active: 0, archived: 0, byState: {}, byLevel: {}, byCapital: {} };
+  }
   return data;
 }
 interface PeriodInfo {
@@ -107,6 +111,37 @@ interface PeriodInfo {
 interface ComparisonValue {
   value: number | null;
   period: PeriodInfo;
+}
+// ---------- risk DTOs (appended data — never affects scoring) ----------
+interface DashboardRiskDto {
+  total: number;
+  active: number;
+  archived: number;
+  byState: Record<string, number>;
+  byLevel: Record<string, number>;
+  byCapital: Record<string, number>;
+}
+interface RiskSummaryDto {
+  total: number;
+  byState: Record<string, number>;
+  byLevel: Record<string, number>;
+}
+interface RiskInfoDto {
+  slug: string;
+  title: string;
+  state: string | null;
+  level: string | null;
+  score: number | null;
+  impact: number | null;
+  likelihood: number | null;
+  riskType: string | null;
+  treatmentStrategy: string | null;
+  deadline: string | null;
+  ownerId: string | null;
+}
+interface CapabilityRisksDto {
+  summary: RiskSummaryDto;
+  risks: RiskInfoDto[];
 }
 interface DashboardSummary {
   capitals: number;
@@ -147,6 +182,7 @@ interface CapabilityNode {
   indicatorCount?: number;
   indicatorsWithData?: number;
   indicators: IndicatorNode[];
+  risks?: CapabilityRisksDto;
   period: PeriodInfo;
   comparison?: ComparisonValue | null;
 }
@@ -190,6 +226,7 @@ interface DashboardResponse {
   period: PeriodInfo;
   comparison_period?: PeriodInfo | null;
   summary?: DashboardSummary;
+  risks?: DashboardRiskDto;
   capitals: CapitalNode[];
 }
 
@@ -261,6 +298,118 @@ function hexToRgba(hex: string, alpha: number) {
 function round1(n: number | null | undefined) {
   if (n == null || Number.isNaN(n)) return 0;
   return Math.round(n * 10) / 10;
+}
+
+// ---------- risk helpers (appended data, does not affect scoring) ----------
+const RISK_LEVELS = ['critical', 'high', 'medium', 'low', 'unknown'];
+const RISK_STATES = ['draft', 'registered', 'analysis', 'response', 'monitoring', 'closed', 'archived', 'unknown'];
+
+const RISK_LEVEL_COLOR: Record<string, string> = {
+  critical: '#dc2626',
+  high: '#f97316',
+  medium: '#f59e0b',
+  low: '#16a34a',
+  unknown: '#94a3b8',
+};
+const RISK_STATE_COLOR: Record<string, string> = {
+  draft: '#94a3b8',
+  registered: '#6366f1',
+  analysis: '#0ea5e9',
+  response: '#f59e0b',
+  monitoring: '#8b5cf6',
+  closed: '#16a34a',
+  archived: '#64748b',
+  unknown: '#94a3b8',
+};
+
+function riskLevelColor(level: string | null | undefined): string {
+  return RISK_LEVEL_COLOR[level ?? 'unknown'] ?? '#94a3b8';
+}
+
+function riskLevelLabel(level: string | null | undefined): string {
+  const map: Record<string, string> = {
+    critical: 'reports.risk-level-critical',
+    high: 'reports.risk-level-high',
+    medium: 'reports.risk-level-medium',
+    low: 'reports.risk-level-low',
+    unknown: 'reports.risk-unknown',
+  };
+  return t(map[level ?? 'unknown'] ?? 'reports.risk-unknown');
+}
+
+function riskStateLabel(state: string | null | undefined): string {
+  const map: Record<string, string> = {
+    draft: 'reports.risk-state-draft',
+    registered: 'reports.risk-state-registered',
+    analysis: 'reports.risk-state-analysis',
+    response: 'reports.risk-state-response',
+    monitoring: 'reports.risk-state-monitoring',
+    closed: 'reports.risk-state-closed',
+    archived: 'reports.risk-state-archived',
+    unknown: 'reports.risk-unknown',
+  };
+  return t(map[state ?? 'unknown'] ?? 'reports.risk-unknown');
+}
+
+function riskTypeLabel(type: string | null | undefined): string {
+  if (type === 'threat') return t('reports.risk-type-threat');
+  if (type === 'opportunity') return t('reports.risk-type-opportunity');
+  return '—';
+}
+
+function strategyLabel(strategy: string | null | undefined): string {
+  const map: Record<string, string> = {
+    reduce: 'reports.risk-strategy-reduce',
+    accept: 'reports.risk-strategy-accept',
+    transfer: 'reports.risk-strategy-transfer',
+    avoid: 'reports.risk-strategy-avoid',
+    exploit: 'reports.risk-strategy-exploit',
+    share: 'reports.risk-strategy-share',
+    enhance: 'reports.risk-strategy-enhance',
+  };
+  return strategy && map[strategy] ? t(map[strategy]) : '—';
+}
+
+function defaultCapabilityRisks(): CapabilityRisksDto {
+  return { summary: { total: 0, byState: {}, byLevel: {} }, risks: [] };
+}
+
+interface RiskHeatRow {
+  key: string;
+  label: string;
+  counts: Record<string, number>;
+  total: number;
+}
+
+function emptyHeatRow(key: string, label: string): RiskHeatRow {
+  return { key, label, counts: { critical: 0, high: 0, medium: 0, low: 0, unknown: 0 }, total: 0 };
+}
+
+function addRiskLevelCounts(row: RiskHeatRow, byLevel?: Record<string, number> | null) {
+  if (!byLevel) return;
+  for (const [lvl, n] of Object.entries(byLevel)) {
+    const k = RISK_LEVELS.includes(lvl) ? lvl : 'unknown';
+    row.counts[k] += n;
+    row.total += n;
+  }
+}
+
+function heatMax(rows: RiskHeatRow[]): number {
+  let m = 0;
+  for (const r of rows) for (const lvl of RISK_LEVELS) m = Math.max(m, r.counts[lvl] ?? 0);
+  return m || 1;
+}
+
+function heatCellStyle(count: number, max: number, level: string) {
+  if (count <= 0) return { backgroundColor: 'transparent', color: 'rgba(100,116,139,0.55)', fontWeight: 400 };
+  const base = riskLevelColor(level);
+  const ratio = max > 0 ? Math.min(count / max, 1) : 0;
+  const alpha = 0.14 + ratio * 0.82;
+  return {
+    backgroundColor: hexToRgba(base, alpha),
+    color: alpha > 0.5 ? '#fff' : 'rgba(100,116,139,0.95)',
+    fontWeight: 600,
+  };
 }
 
 // ---------- period helpers ----------
@@ -882,6 +1031,28 @@ const barOptionsHorizontal = {
   },
 };
 
+// risk section chart options (counts, not 0-100 scores)
+const riskDonutOptions = {
+  maintainAspectRatio: false,
+  cutout: '62%',
+  plugins: {
+    legend: { position: 'bottom' as const, labels: { boxWidth: 10, font: { size: 10 }, padding: 12 } },
+    tooltip: { callbacks: { label: (ctx: any) => ` ${ctx.label}: ${ctx.raw}` } },
+  },
+};
+const riskBarOptions = {
+  indexAxis: 'y' as const,
+  maintainAspectRatio: false,
+  scales: {
+    x: { beginAtZero: true, grid: { color: 'rgba(148, 163, 184, 0.15)' }, ticks: { font: { size: 10 } } },
+    y: { grid: { display: false }, ticks: { font: { size: 11 } } },
+  },
+  plugins: {
+    legend: { display: false },
+    tooltip: { callbacks: { label: (ctx: any) => ` ${ctx.dataset.label ?? ctx.label}: ${ctx.raw}` } },
+  },
+};
+
 // ---------- global leaderboard: best/worst domains across all capitals ----------
 interface DomainWithCapital extends DomainNode { capitalTitle: string }
 const allDomainsFlat = computed<DomainWithCapital[]>(() =>
@@ -995,6 +1166,157 @@ const sortedDomains = computed(() => {
   if (!cap) return [];
   return [...cap.domains].sort((a, b) => a.score - b.score);
 });
+
+// ============================================================
+// RISK SECTIONS (appended risk data — never affects scoring)
+// ============================================================
+const portfolioRisks = computed<DashboardRiskDto>(() => dashboardData.value?.risks ?? {
+  total: 0,
+  active: 0,
+  archived: 0,
+  byState: {},
+  byLevel: {},
+  byCapital: {},
+});
+
+const portfolioRiskCriticalHigh = computed(() => {
+  const by = portfolioRisks.value.byLevel ?? {};
+  return (by.critical ?? 0) + (by.high ?? 0);
+});
+const portfolioRiskCritical = computed(() => portfolioRisks.value.byLevel?.critical ?? 0);
+
+const riskLevelBuckets = computed<[string, number][]>(() =>
+    RISK_LEVELS.map((lvl) => [lvl, portfolioRisks.value.byLevel?.[lvl] ?? 0] as [string, number])
+        .filter(([, n]) => n > 0),
+);
+const riskLevelDonutData = computed(() => ({
+  labels: riskLevelBuckets.value.map(([lvl]) => riskLevelLabel(lvl)),
+  datasets: [{
+    data: riskLevelBuckets.value.map(([, n]) => n),
+    backgroundColor: riskLevelBuckets.value.map(([lvl]) => riskLevelColor(lvl)),
+    borderColor: '#fff',
+    borderWidth: 2,
+  }],
+}));
+
+const riskStateBarData = computed(() => {
+  const by = portfolioRisks.value.byState ?? {};
+  const entries = RISK_STATES.filter((s) => (by[s] ?? 0) > 0);
+  return {
+    labels: entries.map((s) => riskStateLabel(s)),
+    datasets: [{
+      label: t('reports.risks'),
+      data: entries.map((s) => by[s] ?? 0),
+      backgroundColor: entries.map((s) => RISK_STATE_COLOR[s] ?? '#94a3b8'),
+      borderRadius: 6,
+      barThickness: 18,
+    }],
+  };
+});
+
+const riskHeatmapByCapital = computed<RiskHeatRow[]>(() => {
+  const map = new Map<string, RiskHeatRow>();
+  for (const cap of capitals.value) {
+    let row = map.get(cap.slug);
+    if (!row) {
+      row = emptyHeatRow(cap.slug, cap.title);
+      map.set(cap.slug, row);
+    }
+    for (const d of cap.domains) {
+      for (const comp of d.components) {
+        for (const capa of comp.capabilities) {
+          addRiskLevelCounts(row, capa.risks?.summary?.byLevel);
+        }
+      }
+    }
+  }
+  return [...map.values()].filter((r) => r.total > 0);
+});
+
+// per-capital risk aggregates (derived from capability risk summaries)
+const capitalRiskSummary = computed<{ total: number; byState: Record<string, number>; byLevel: Record<string, number> } | null>(() => {
+  const cap = activeCapital.value;
+  if (!cap) return null;
+  const byState: Record<string, number> = {};
+  const byLevel: Record<string, number> = {};
+  let total = 0;
+  for (const d of cap.domains) {
+    for (const comp of d.components) {
+      for (const capa of comp.capabilities) {
+        const s = capa.risks?.summary;
+        if (!s) continue;
+        total += s.total ?? 0;
+        for (const [k, v] of Object.entries(s.byState ?? {})) byState[k] = (byState[k] ?? 0) + v;
+        for (const [k, v] of Object.entries(s.byLevel ?? {})) byLevel[k] = (byLevel[k] ?? 0) + v;
+      }
+    }
+  }
+  return { total, byState, byLevel };
+});
+
+const capitalRiskLevelDonutData = computed(() => {
+  const by = capitalRiskSummary.value?.byLevel ?? {};
+  const entries = RISK_LEVELS.map((lvl) => [lvl, by[lvl] ?? 0] as [string, number]).filter(([, n]) => n > 0);
+  return {
+    labels: entries.map(([lvl]) => riskLevelLabel(lvl)),
+    datasets: [{
+      data: entries.map(([, n]) => n),
+      backgroundColor: entries.map(([lvl]) => riskLevelColor(lvl)),
+      borderColor: '#fff',
+      borderWidth: 2,
+    }],
+  };
+});
+
+const capitalRiskStateBarData = computed(() => {
+  const by = capitalRiskSummary.value?.byState ?? {};
+  const entries = RISK_STATES.filter((s) => (by[s] ?? 0) > 0);
+  return {
+    labels: entries.map((s) => riskStateLabel(s)),
+    datasets: [{
+      label: t('reports.risks'),
+      data: entries.map((s) => by[s] ?? 0),
+      backgroundColor: entries.map((s) => RISK_STATE_COLOR[s] ?? '#94a3b8'),
+      borderRadius: 6,
+      barThickness: 18,
+    }],
+  };
+});
+
+const riskHeatmapByDomain = computed<RiskHeatRow[]>(() => {
+  const cap = activeCapital.value;
+  if (!cap) return [];
+  return cap.domains
+      .map((d) => {
+        const row = emptyHeatRow(d.slug, d.title);
+        for (const comp of d.components) {
+          for (const capa of comp.capabilities) {
+            addRiskLevelCounts(row, capa.risks?.summary?.byLevel);
+          }
+        }
+        return row;
+      })
+      .filter((r) => r.total > 0);
+});
+
+// capability-level helpers for badges + drill-down risk table
+function capabilityRiskTotal(capa: CapabilityNode): number {
+  return capa.risks?.summary?.total ?? 0;
+}
+function capabilityTopRiskLevel(capa: CapabilityNode): string {
+  const by = capa.risks?.summary?.byLevel;
+  if (!by) return 'unknown';
+  for (const lvl of RISK_LEVELS) if ((by[lvl] ?? 0) > 0) return lvl;
+  return 'unknown';
+}
+function riskBadgeStyle(capa: CapabilityNode) {
+  const color = riskLevelColor(capabilityTopRiskLevel(capa));
+  return { color, backgroundColor: hexToRgba(color, 0.1) };
+}
+function goToRisk(slug?: string | null) {
+  if (!slug) return;
+  router.push({ name: 'app-risk-detail', params: { slug } });
+}
 </script>
 
 <template>
@@ -1463,6 +1785,113 @@ const sortedDomains = computed(() => {
               </div>
             </div>
 
+            <!-- RISK PORTFOLIO OVERVIEW (appended risk data — does not affect scoring) -->
+            <div v-if="portfolioRisks.total > 0" class="space-y-5">
+              <div class="flex flex-wrap items-center gap-2">
+                <Lucide icon="ShieldAlert" class="h-5 w-5 text-rose-500" />
+                <h2 class="text-sm font-semibold text-slate-700 dark:text-slate-200">
+                  {{ t('reports.risk-portfolio-overview') }}
+                </h2>
+                <span class="rounded-full bg-rose-100 px-2 py-0.5 text-[10px] font-semibold text-rose-600 dark:bg-rose-900/30 dark:text-rose-400">
+                  {{ portfolioRisks.total }}
+                </span>
+              </div>
+
+              <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                <div class="rounded-xl border border-slate-100 bg-white p-4 shadow-sm dark:border-darkmode-700 dark:bg-darkmode-800">
+                  <div class="flex items-center gap-2 text-slate-400">
+                    <Lucide icon="ListTodo" class="h-4 w-4" />
+                    <span class="text-[11px] font-medium">{{ t('reports.total-risks') }}</span>
+                  </div>
+                  <div class="mt-2 text-2xl font-bold text-slate-800 dark:text-slate-100">{{ portfolioRisks.total }}</div>
+                </div>
+                <div class="rounded-xl border border-slate-100 bg-white p-4 shadow-sm dark:border-darkmode-700 dark:bg-darkmode-800">
+                  <div class="flex items-center gap-2 text-slate-400">
+                    <Lucide icon="Activity" class="h-4 w-4 text-emerald-500" />
+                    <span class="text-[11px] font-medium">{{ t('reports.active-risks') }}</span>
+                  </div>
+                  <div class="mt-2 text-2xl font-bold text-emerald-600 dark:text-emerald-400">{{ portfolioRisks.active }}</div>
+                </div>
+                <div class="rounded-xl border border-slate-100 bg-white p-4 shadow-sm dark:border-darkmode-700 dark:bg-darkmode-800">
+                  <div class="flex items-center gap-2 text-slate-400">
+                    <Lucide icon="Archive" class="h-4 w-4 text-slate-400" />
+                    <span class="text-[11px] font-medium">{{ t('reports.archived-risks') }}</span>
+                  </div>
+                  <div class="mt-2 text-2xl font-bold text-slate-500 dark:text-slate-400">{{ portfolioRisks.archived }}</div>
+                </div>
+                <div class="rounded-xl border border-slate-100 bg-white p-4 shadow-sm dark:border-darkmode-700 dark:bg-darkmode-800">
+                  <div class="flex items-center gap-2 text-slate-400">
+                    <Lucide icon="ShieldAlert" class="h-4 w-4 text-rose-500" />
+                    <span class="text-[11px] font-medium">{{ t('reports.high-level-risks') }} + {{ t('reports.critical-risks') }}</span>
+                  </div>
+                  <div class="mt-2 text-2xl font-bold text-rose-600 dark:text-rose-400">{{ portfolioRiskCriticalHigh }}</div>
+                  <p class="mt-1 text-[11px] text-slate-400">
+                    {{ t('reports.risk-level-critical') }}: <b class="text-rose-500">{{ portfolioRiskCritical }}</b>
+                  </p>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 gap-5 lg:grid-cols-12">
+                <div class="lg:col-span-5 rounded-xl border border-slate-100 p-5 dark:border-darkmode-700">
+                  <div class="mb-1 flex items-center gap-2">
+                    <Lucide icon="PieChart" class="h-4 w-4 text-slate-400" />
+                    <h3 class="text-sm font-semibold text-slate-700 dark:text-slate-200">{{ t('reports.risks-by-level') }}</h3>
+                  </div>
+                  <div class="h-[240px]">
+                    <Doughnut v-if="riskLevelBuckets.length" :data="riskLevelDonutData" :options="riskDonutOptions" />
+                    <p v-else class="py-10 text-center text-xs text-slate-400">{{ t('reports.no-risk-data') }}</p>
+                  </div>
+                </div>
+                <div class="lg:col-span-7 rounded-xl border border-slate-100 p-5 dark:border-darkmode-700">
+                  <div class="mb-1 flex items-center gap-2">
+                    <Lucide icon="ListChecks" class="h-4 w-4 text-slate-400" />
+                    <h3 class="text-sm font-semibold text-slate-700 dark:text-slate-200">{{ t('reports.risks-by-state') }}</h3>
+                  </div>
+                  <div class="mt-3" :style="{ height: Math.max(riskStateBarData.labels.length * 30, 160) + 'px' }">
+                    <Bar v-if="riskStateBarData.labels.length" :data="riskStateBarData" :options="riskBarOptions" />
+                    <p v-else class="py-10 text-center text-xs text-slate-400">{{ t('reports.no-risk-data') }}</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- risk heatmap: capital × level -->
+              <div v-if="riskHeatmapByCapital.length" class="rounded-xl border border-slate-100 p-5 dark:border-darkmode-700">
+                <div class="mb-3 flex flex-wrap items-center gap-2">
+                  <Lucide icon="Grid3x3" class="h-4 w-4 text-rose-500" />
+                  <h3 class="text-sm font-semibold text-slate-700 dark:text-slate-200">{{ t('reports.risk-heatmap-by-capital') }}</h3>
+                  <span class="mr-auto text-[11px] text-slate-400">{{ t('reports.risk-heatmap') }}</span>
+                </div>
+                <div class="overflow-x-auto">
+                  <table class="w-full min-w-[560px] text-xs">
+                    <thead>
+                    <tr class="border-b border-slate-100 text-right text-[10px] uppercase tracking-wide text-slate-400 dark:border-darkmode-700">
+                      <th class="pb-2 font-medium">{{ t('reports.capitals') }}</th>
+                      <th v-for="lvl in RISK_LEVELS" :key="lvl" class="pb-2 text-center font-medium">
+                        <span class="inline-flex items-center gap-1">
+                          <span class="h-2 w-2 rounded-full" :style="{ backgroundColor: riskLevelColor(lvl) }" />
+                          {{ riskLevelLabel(lvl) }}
+                        </span>
+                      </th>
+                      <th class="pb-2 text-center font-medium">{{ t('reports.risks') }}</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr v-for="row in riskHeatmapByCapital" :key="row.key" class="border-b border-slate-50 last:border-0 dark:border-darkmode-800">
+                      <td class="py-2 pr-2 font-medium text-slate-700 dark:text-slate-200">{{ row.label }}</td>
+                      <td v-for="lvl in RISK_LEVELS" :key="lvl" class="py-1.5 text-center">
+                        <span
+                            class="inline-flex h-8 w-14 items-center justify-center rounded-md text-[11px]"
+                            :style="heatCellStyle(row.counts[lvl] ?? 0, heatMax(riskHeatmapByCapital), lvl)"
+                        >{{ row.counts[lvl] ?? 0 }}</span>
+                      </td>
+                      <td class="py-2 text-center font-semibold text-slate-700 dark:text-slate-200">{{ row.total }}</td>
+                    </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
             <!-- global leaderboard tables -->
             <div class="grid grid-cols-1 gap-5 lg:grid-cols-2">
               <div class="rounded-xl border border-slate-100 dark:border-darkmode-700">
@@ -1654,6 +2083,73 @@ const sortedDomains = computed(() => {
               </div>
             </div>
 
+            <!-- RISK OVERVIEW (per capital, appended risk data) -->
+            <div
+                v-if="capitalRiskSummary && capitalRiskSummary.total > 0"
+                class="lg:col-span-12 rounded-xl border border-rose-100 bg-rose-50/40 p-5 dark:border-rose-900/30 dark:bg-rose-900/10"
+            >
+              <div class="mb-3 flex flex-wrap items-center gap-2">
+                <Lucide icon="ShieldAlert" class="h-4 w-4 text-rose-500" />
+                <h3 class="text-sm font-semibold text-slate-700 dark:text-slate-200">{{ t('reports.risk-overview') }}</h3>
+                <span class="rounded-full bg-rose-100 px-2 py-0.5 text-[10px] font-semibold text-rose-600 dark:bg-rose-900/30 dark:text-rose-400">
+                  {{ capitalRiskSummary.total }}
+                </span>
+              </div>
+
+              <div class="grid grid-cols-1 gap-5 lg:grid-cols-12">
+                <div class="lg:col-span-5">
+                  <h4 class="mb-2 text-xs font-medium text-slate-500 dark:text-slate-400">{{ t('reports.risks-by-level') }}</h4>
+                  <div class="h-[220px] rounded-xl border border-slate-100 bg-white p-4 dark:border-darkmode-700 dark:bg-darkmode-800">
+                    <Doughnut v-if="capitalRiskLevelDonutData.labels.length" :data="capitalRiskLevelDonutData" :options="riskDonutOptions" />
+                    <p v-else class="py-10 text-center text-xs text-slate-400">{{ t('reports.no-risk-data') }}</p>
+                  </div>
+                </div>
+                <div class="lg:col-span-7">
+                  <h4 class="mb-2 text-xs font-medium text-slate-500 dark:text-slate-400">{{ t('reports.risks-by-state') }}</h4>
+                  <div class="rounded-xl border border-slate-100 bg-white p-4 dark:border-darkmode-700 dark:bg-darkmode-800">
+                    <div :style="{ height: Math.max(capitalRiskStateBarData.labels.length * 30, 180) + 'px' }">
+                      <Bar v-if="capitalRiskStateBarData.labels.length" :data="capitalRiskStateBarData" :options="riskBarOptions" />
+                      <p v-else class="py-10 text-center text-xs text-slate-400">{{ t('reports.no-risk-data') }}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- risk heatmap: domain × level -->
+              <div v-if="riskHeatmapByDomain.length" class="mt-4 overflow-x-auto rounded-xl border border-slate-100 bg-white p-4 dark:border-darkmode-700 dark:bg-darkmode-800">
+                <div class="mb-3 flex flex-wrap items-center gap-2">
+                  <Lucide icon="Grid3x3" class="h-4 w-4 text-rose-500" />
+                  <h4 class="text-xs font-semibold text-slate-700 dark:text-slate-200">{{ t('reports.risk-heatmap-by-domain') }}</h4>
+                </div>
+                <table class="w-full min-w-[560px] text-xs">
+                  <thead>
+                  <tr class="border-b border-slate-100 text-right text-[10px] uppercase tracking-wide text-slate-400 dark:border-darkmode-700">
+                    <th class="pb-2 font-medium">{{ t('reports.domain') }}</th>
+                    <th v-for="lvl in RISK_LEVELS" :key="lvl" class="pb-2 text-center font-medium">
+                      <span class="inline-flex items-center gap-1">
+                        <span class="h-2 w-2 rounded-full" :style="{ backgroundColor: riskLevelColor(lvl) }" />
+                        {{ riskLevelLabel(lvl) }}
+                      </span>
+                    </th>
+                    <th class="pb-2 text-center font-medium">{{ t('reports.risks') }}</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  <tr v-for="row in riskHeatmapByDomain" :key="row.key" class="border-b border-slate-50 last:border-0 dark:border-darkmode-800">
+                    <td class="py-2 pr-2 font-medium text-slate-700 dark:text-slate-200">{{ row.label }}</td>
+                    <td v-for="lvl in RISK_LEVELS" :key="lvl" class="py-1.5 text-center">
+                      <span
+                          class="inline-flex h-8 w-14 items-center justify-center rounded-md text-[11px]"
+                          :style="heatCellStyle(row.counts[lvl] ?? 0, heatMax(riskHeatmapByDomain), lvl)"
+                      >{{ row.counts[lvl] ?? 0 }}</span>
+                    </td>
+                    <td class="py-2 text-center font-semibold text-slate-700 dark:text-slate-200">{{ row.total }}</td>
+                  </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
             <!-- domain drill-down -->
             <div class="lg:col-span-12 space-y-2">
               <div
@@ -1726,6 +2222,15 @@ const sortedDomains = computed(() => {
                               :class="cap2.meetsTarget ? 'text-emerald-500' : 'text-rose-500'"
                           />
                         </span>
+                        <span
+                            v-if="capabilityRiskTotal(cap2) > 0"
+                            class="inline-flex flex-none items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold"
+                            :style="riskBadgeStyle(cap2)"
+                            :title="t('reports.capability-risks')"
+                        >
+                          <Lucide icon="ShieldAlert" class="h-3 w-3" />
+                          {{ capabilityRiskTotal(cap2) }}
+                        </span>
                         <span v-if="hasComparison" class="w-8 flex-none text-left text-[10px] text-slate-400">
                           {{ cap2.comparison?.value != null ? round1(cap2.comparison.value) : '—' }}
                         </span>
@@ -1781,6 +2286,63 @@ const sortedDomains = computed(() => {
                           </tbody>
                         </table>
                         <p v-else class="px-3 py-2 text-[11px] text-slate-400">{{ t('reports.no-indicator-data') }}</p>
+
+                        <!-- risk list for this capability -->
+                        <div v-if="cap2.risks && cap2.risks.risks.length" class="mt-2 overflow-x-auto rounded-lg bg-rose-50/40 dark:bg-rose-900/10">
+                          <div class="flex items-center gap-1.5 px-3 py-2 text-[11px] font-semibold text-slate-600 dark:text-slate-300">
+                            <Lucide icon="ShieldAlert" class="h-3.5 w-3.5 text-rose-500" />
+                            {{ t('reports.capability-risks') }} ({{ cap2.risks.summary.total }})
+                          </div>
+                          <table class="w-full min-w-[860px] text-[11px]">
+                            <thead>
+                            <tr class="border-b border-rose-100 text-right text-[10px] uppercase tracking-wide text-slate-400 dark:border-rose-900/30">
+                              <th class="px-3 py-1.5 font-medium">{{ t('reports.risk-title') }}</th>
+                              <th class="px-3 py-1.5 font-medium">{{ t('reports.type') }}</th>
+                              <th class="px-3 py-1.5 text-center font-medium">{{ t('reports.level') }}</th>
+                              <th class="px-3 py-1.5 text-center font-medium">{{ t('reports.score') }}</th>
+                              <th class="px-3 py-1.5 text-center font-medium">{{ t('reports.impact') }}</th>
+                              <th class="px-3 py-1.5 text-center font-medium">{{ t('reports.likelihood') }}</th>
+                              <th class="px-3 py-1.5 font-medium">{{ t('reports.strategy') }}</th>
+                              <th class="px-3 py-1.5 font-medium">{{ t('reports.state') }}</th>
+                              <th class="px-3 py-1.5 font-medium">{{ t('reports.deadline') }}</th>
+                              <th class="px-3 py-1.5 font-medium">{{ t('reports.owner') }}</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr
+                                v-for="risk in cap2.risks.risks"
+                                :key="risk.slug"
+                                class="border-b border-rose-50 last:border-0 dark:border-rose-900/20"
+                            >
+                              <td class="px-3 py-1.5">
+                                <button
+                                    v-if="risk.slug"
+                                    type="button"
+                                    class="text-right font-medium text-indigo-600 hover:underline dark:text-indigo-400"
+                                    @click="goToRisk(risk.slug)"
+                                >
+                                  {{ risk.title || '—' }}
+                                </button>
+                                <span v-else class="text-slate-600 dark:text-slate-300">{{ risk.title || '—' }}</span>
+                              </td>
+                              <td class="px-3 py-1.5 text-slate-400">{{ riskTypeLabel(risk.riskType) }}</td>
+                              <td class="px-3 py-1.5 text-center">
+                                <span
+                                    class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium"
+                                    :style="{ color: riskLevelColor(risk.level), backgroundColor: hexToRgba(riskLevelColor(risk.level), 0.1) }"
+                                >{{ riskLevelLabel(risk.level) }}</span>
+                              </td>
+                              <td class="px-3 py-1.5 text-center font-semibold text-slate-700 dark:text-slate-200">{{ risk.score ?? '—' }}</td>
+                              <td class="px-3 py-1.5 text-center text-slate-500 dark:text-slate-400">{{ risk.impact ?? '—' }}</td>
+                              <td class="px-3 py-1.5 text-center text-slate-500 dark:text-slate-400">{{ risk.likelihood ?? '—' }}</td>
+                              <td class="px-3 py-1.5 text-slate-400">{{ strategyLabel(risk.treatmentStrategy) }}</td>
+                              <td class="px-3 py-1.5 text-slate-500 dark:text-slate-400">{{ riskStateLabel(risk.state) }}</td>
+                              <td class="px-3 py-1.5 text-slate-400" dir="ltr">{{ risk.deadline ?? '—' }}</td>
+                              <td class="px-3 py-1.5 text-slate-400">{{ risk.ownerId ?? '—' }}</td>
+                            </tr>
+                            </tbody>
+                          </table>
+                        </div>
                       </div>
                     </div>
                   </div>

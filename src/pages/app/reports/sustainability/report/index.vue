@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, nextTick, onMounted, ref } from 'vue'
 import html2canvas from 'html2canvas'
 import { jsPDF } from 'jspdf'
 import Lucide from '@/base-components/Lucide'
@@ -54,6 +54,12 @@ async function loadReport() {
     error.value = (e as Error)?.message || 'خطا در دریافت گزارش'
   } finally {
     loading.value = false
+    await nextTick()
+    buildPages()
+    // Re-measure once webfonts are ready so the A4 page splits are stable
+    if (document.fonts?.ready) {
+      document.fonts.ready.then(() => buildPages())
+    }
   }
 }
 
@@ -377,12 +383,237 @@ const riskRegisterByCapital = computed(() => {
 })
 
 // ---------------------------------------------------------------------------
+// A4 pagination: split each section's content across exact-A4 pages
+// ---------------------------------------------------------------------------
+const MM_PX = 96 / 25.4
+const A4_H_PX = Math.round(297 * MM_PX) // 1123 px @96dpi
+const PAGE_TOP_PX = 15 * MM_PX // 56.7 px
+const PAGE_BOTTOM_PX = 12 * MM_PX // 45.4 px
+const PAGE_CONTENT_H = A4_H_PX - PAGE_TOP_PX - PAGE_BOTTOM_PX // ~1020.5 px
+
+interface PageCtx {
+  shell: HTMLElement
+  pages: HTMLElement[]
+  cur: HTMLElement
+  remaining: number
+  contentH: number
+  tolerance: number
+}
+interface Host {
+  el: HTMLElement
+}
+
+const ORPHAN_HEADINGS = ['page-header', 'strip-title', 'register-cap', 'domain-head', 'register-head']
+
+function unitHeight(el: HTMLElement) {
+  const cs = getComputedStyle(el)
+  const mt = parseFloat(cs.marginTop) || 0
+  const mb = parseFloat(cs.marginBottom) || 0
+  return el.getBoundingClientRect().height + mt + mb
+}
+
+function isAtomic(el: HTMLElement) {
+  if (['P', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'IMG', 'SVG', 'BUTTON', 'A', 'LI', 'TH', 'TD', 'SPAN'].includes(el.tagName)) return true
+  if (el.children.length === 0) return true
+  const cls = el.classList
+  return (
+    cls.contains('cover') ||
+    cls.contains('page-header') ||
+    cls.contains('register-cap') ||
+    cls.contains('register-head') ||
+    cls.contains('domain-head') ||
+    cls.contains('cap-score-row') ||
+    cls.contains('narrative-box') ||
+    cls.contains('dist-card') ||
+    cls.contains('kpi-grid') ||
+    cls.contains('target-bar') ||
+    cls.contains('strip-title') ||
+    cls.contains('capab-row') ||
+    cls.contains('cap-strip-row') ||
+    cls.contains('comp-row') ||
+    cls.contains('bar-row')
+  )
+}
+
+function newPage(ctx: PageCtx) {
+  const p = ctx.shell.cloneNode(false) as HTMLElement
+  p.classList.remove('page-source')
+  p.style.height = `${A4_H_PX}px`
+  p.style.minHeight = `${A4_H_PX}px`
+  p.style.overflow = 'hidden'
+  ctx.pages.push(p)
+  ctx.cur = p
+  ctx.remaining = ctx.contentH
+  // keep section headings with the content that follows them
+  const prev = ctx.pages[ctx.pages.length - 2]
+  const last = prev?.lastElementChild as HTMLElement | null
+  if (last && ORPHAN_HEADINGS.some((c) => last.classList.contains(c))) {
+    ctx.cur.appendChild(last)
+    ctx.remaining = ctx.contentH - unitHeight(last)
+  }
+}
+
+function splitTable(table: HTMLTableElement, host: Host, reopen: () => void, ctx: PageCtx) {
+  const tbody = table.querySelector(':scope > tbody') as HTMLTableElement | null
+  if (!tbody || tbody.children.length === 0) {
+    // no splittable rows → move the table as a single block
+    reopen()
+    host.el.appendChild(table)
+    ctx.remaining -= unitHeight(table)
+    return
+  }
+  const thead = table.querySelector(':scope > thead')
+  const rows = Array.from(tbody.children) as HTMLElement[]
+
+  // open the first row-chunk in the current page
+  if (unitHeight(rows[0]) > ctx.remaining + ctx.tolerance) reopen()
+
+  const openChunk = () => {
+    const chunk = table.cloneNode(false) as HTMLTableElement
+    if (thead) chunk.appendChild(thead.cloneNode(true))
+    chunk.appendChild(document.createElement('tbody'))
+    host.el.appendChild(chunk)
+    return chunk
+  }
+  let chunk = openChunk()
+  for (const tr of rows) {
+    const h = unitHeight(tr)
+    const fresh = ctx.remaining >= ctx.contentH - 1
+    if (h > ctx.remaining + ctx.tolerance && !fresh) {
+      reopen()
+      chunk = openChunk()
+    }
+    chunk.querySelector('tbody')!.appendChild(tr)
+    ctx.remaining -= h
+  }
+}
+
+function place(el: HTMLElement, host: Host, reopen: () => void, ctx: PageCtx) {
+  const h = unitHeight(el)
+  if (h <= ctx.remaining + ctx.tolerance) {
+    host.el.appendChild(el)
+    ctx.remaining -= h
+    return
+  }
+  if (el.tagName === 'TABLE') {
+    splitTable(el as HTMLTableElement, host, reopen, ctx)
+    return
+  }
+  if (h <= ctx.contentH + ctx.tolerance) {
+    // fits on a fresh page → move the whole block so it is never cut in half
+    reopen()
+    host.el.appendChild(el)
+    ctx.remaining -= h
+    return
+  }
+  if (el.children.length > 0 && !isAtomic(el)) {
+    // taller than a page → flow its children through per-page copies of the
+    // container so boxes/borders are preserved on every page
+    const gap = parseFloat(getComputedStyle(el).rowGap) || 0
+    const first = el.cloneNode(false) as HTMLElement
+    host.el.appendChild(first)
+    const chunk: Host = { el: first }
+    const reopenChunk = () => {
+      reopen()
+      chunk.el = el.cloneNode(false) as HTMLElement
+      host.el.appendChild(chunk.el)
+    }
+    const kids = Array.from(el.children) as HTMLElement[]
+    kids.forEach((kid, idx) => {
+      // account for the container's row-gap, which unitHeight() does not include
+      if (idx > 0 && gap > 0) ctx.remaining -= gap
+      place(kid, chunk, reopenChunk, ctx)
+    })
+    return
+  }
+  // atomic block taller than a full page → best-effort placement
+  reopen()
+  host.el.appendChild(el)
+  ctx.remaining -= h
+}
+
+function buildPages() {
+  // never rebuild the pagination while a PDF capture is in flight, otherwise
+  // the captured page nodes would be detached and rasterized blank
+  if (isGenerating.value) return
+  const wrapper = document.getElementById('sustainability-report-wrapper')
+  const source = document.getElementById('sustainability-report-source')
+  if (!wrapper || !source) return
+  wrapper.innerHTML = ''
+  const sections = Array.from(source.querySelectorAll('.page-source')) as HTMLElement[]
+
+  let pageNumber = 1
+  for (const section of sections) {
+    const isCover = section.classList.contains('page-cover')
+
+    // work on a clone so the hidden source can be re-paginated later
+    const working = section.cloneNode(true) as HTMLElement
+    source.appendChild(working)
+
+    const numEl = Array.from(working.children).find((c) =>
+      c.classList.contains('page-num')
+    ) as HTMLElement | undefined
+
+    const firstPage = section.cloneNode(false) as HTMLElement
+    firstPage.classList.remove('page-source')
+    firstPage.style.height = `${A4_H_PX}px`
+    firstPage.style.minHeight = `${A4_H_PX}px`
+    firstPage.style.overflow = 'hidden'
+
+    const ctx: PageCtx = {
+      shell: section,
+      pages: [firstPage],
+      cur: firstPage,
+      remaining: PAGE_CONTENT_H,
+      contentH: PAGE_CONTENT_H,
+      tolerance: 8,
+    }
+    const pageHost: Host = { el: firstPage }
+    const reopenPage = () => {
+      newPage(ctx)
+      pageHost.el = ctx.cur
+    }
+
+    const kids = Array.from(working.children).filter(
+      (c) => !c.classList.contains('page-num')
+    ) as HTMLElement[]
+    for (const kid of kids) place(kid, pageHost, reopenPage, ctx)
+
+    source.removeChild(working)
+
+    for (const p of ctx.pages) {
+      if (!isCover && numEl) {
+        const num = numEl.cloneNode(true) as HTMLElement
+        num.textContent = `صفحه ${faNum(pageNumber)}`
+        p.appendChild(num)
+      }
+      pageNumber += 1
+      wrapper.appendChild(p)
+    }
+  }
+}
+
+// ---------------------------------------------------------------------------
 // PDF export (same approach as the ESG report)
 // ---------------------------------------------------------------------------
 async function downloadPDF() {
   isGenerating.value = true
   progress.value = 0
   try {
+    // Make sure the Vazirmatn web font is fully loaded before capturing,
+    // otherwise html2canvas rasterizes with fallback-font metrics (text looks
+    // mis-scaled and glyphs render as boxes in the exported PDF).
+    try {
+      await document.fonts.ready
+      await Promise.all(
+        Array.from(document.fonts).map((f) =>
+          f.load().catch(() => undefined)
+        )
+      )
+    } catch (e) {
+      console.warn('Font preload skipped:', e)
+    }
+
     const wrapper = document.getElementById('sustainability-report-wrapper')
     if (!wrapper) return
     const pages = wrapper.querySelectorAll('.page') as NodeListOf<HTMLElement>
@@ -390,11 +621,23 @@ async function downloadPDF() {
     const A4_W = 210
     const A4_H = 297
 
+    let firstPage = true
     for (let i = 0; i < pages.length; i++) {
       progress.value = Math.round(((i + 1) / pages.length) * 100)
       const page = pages[i]
+
+      // Adaptive scale: render at 2x for crisp text, but scale down when the page
+      // is very tall so the canvas never exceeds browser limits (html2canvas would
+      // otherwise produce a blank/decorative capture for oversized elements).
+      // scrollHeight is used so content that overflows the sheet (overflow:hidden)
+      // is still measured and never dropped from the capture.
+      const pageH = Math.max(page.scrollHeight, page.offsetHeight)
+      const pageW = page.offsetWidth || page.scrollWidth
+      const maxDim = Math.max(pageW, pageH)
+      const scale = Math.max(0.4, Math.min(2, 12000 / maxDim))
+
       const canvas = await html2canvas(page, {
-        scale: 2,
+        scale,
         useCORS: true,
         onclone: (doc) => {
           doc.querySelectorAll('*').forEach((el) => {
@@ -406,25 +649,46 @@ async function downloadPDF() {
               ;(el as HTMLElement).style.color = '#000000'
             }
           })
+          // Never clip content during the raster: if a sheet's content overflows
+          // its box, let it grow to its natural height so every row is captured.
+          doc.querySelectorAll('.page').forEach((el) => {
+            const p = el as HTMLElement
+            if (p.scrollHeight > p.clientHeight + 2) {
+              p.style.height = 'auto'
+              p.style.minHeight = '0'
+              p.style.maxHeight = 'none'
+              p.style.overflow = 'visible'
+            }
+          })
         },
       })
-      const imgData = canvas.toDataURL('image/jpeg', 0.95)
-      const imgW = A4_W
-      const imgH = (canvas.height * A4_W) / canvas.width
-      // slice very tall pages into multiple A4 pages so content is never squished
+
+      // Slice the canvas into exact A4-height bands. Each band becomes one A4
+      // PDF page (210 x 297 mm) and every band is kept, so no content is hidden.
       const pxPerMm = canvas.width / A4_W
-      const sliceHeightPx = Math.round(A4_H * pxPerMm)
-      const sliceCount = Math.max(1, Math.ceil(canvas.height / sliceHeightPx))
+      const sliceHpx = Math.round(A4_H * pxPerMm)
+      const sliceCount = Math.max(1, Math.ceil(canvas.height / sliceHpx))
+      // Skip sub-1%-of-A4 slivers (created by pixel rounding on sheets that are
+      // exactly one A4 tall) — they contain no visible content, only padding.
+      const minSlicePx = Math.max(20, Math.round(sliceHpx * 0.01))
+
       for (let s = 0; s < sliceCount; s++) {
-        if (i > 0 || s > 0) pdf.addPage()
-        const yPx = s * sliceHeightPx
-        const hPx = Math.min(sliceHeightPx, canvas.height - yPx)
-        pdf.addImage(
-          imgData, 'JPEG',
-          0, 0, imgW, (hPx / pxPerMm),
-          undefined, 'FAST',
-          0, 0, yPx, canvas.width, hPx,
-        )
+        const yPx = s * sliceHpx
+        const hPx = Math.min(sliceHpx, canvas.height - yPx)
+        if (s > 0 && hPx < minSlicePx) continue
+
+        const sliceCanvas = document.createElement('canvas')
+        sliceCanvas.width = canvas.width
+        sliceCanvas.height = hPx
+        const ctx = sliceCanvas.getContext('2d')
+        if (ctx) {
+          ctx.drawImage(canvas, 0, yPx, canvas.width, hPx, 0, 0, canvas.width, hPx)
+        }
+        const sliceData = sliceCanvas.toDataURL('image/jpeg', 0.95)
+
+        if (!firstPage) pdf.addPage()
+        firstPage = false
+        pdf.addImage(sliceData, 'JPEG', 0, 0, A4_W, hPx / pxPerMm)
       }
     }
 
@@ -487,11 +751,13 @@ async function downloadPDF() {
     </div>
 
     <!-- ======================= REPORT PAGES ======================= -->
-    <div class="report-wrapper" id="sustainability-report-wrapper">
+    <!-- hidden layout source; buildPages() measures it and splits each section
+         into exact-A4 pages inside #sustainability-report-wrapper -->
+    <div class="report-source" id="sustainability-report-source" aria-hidden="true">
       <div
           v-for="(pg, i) in pageGroups"
           :key="pg.key"
-          class="page"
+          class="page page-source"
           :class="pg.type === 'cover' ? 'page-cover' : 'page-body'"
       >
         <!-- ================= COVER ================= -->
@@ -1119,6 +1385,9 @@ async function downloadPDF() {
         <div v-if="pg.type !== 'cover'" class="page-num">صفحه {{ faNum(i + 1) }}</div>
       </div>
     </div>
+
+    <!-- paginated A4 pages are built here by buildPages() -->
+    <div class="report-wrapper" id="sustainability-report-wrapper"></div>
   </div>
 </template>
 
@@ -1211,6 +1480,17 @@ async function downloadPDF() {
   padding: 28px;
   min-height: 100vh;
 }
+
+/* hidden layout source used by buildPages() to measure each section's content */
+.report-source {
+  position: absolute;
+  top: 0;
+  left: -99999px;
+  width: 210mm;
+  visibility: hidden;
+  pointer-events: none;
+}
+.report-source .page { margin: 0; }
 .page {
   width: 210mm;
   min-height: 297mm;
@@ -1798,27 +2078,42 @@ async function downloadPDF() {
   border-radius: 999px;
   padding: 1px 9px;
 }
-.register-table { width: 100%; border-collapse: collapse; }
+.register-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
 .register-table th {
-  font-size: 9.5px;
+  font-size: 9px;
   color: #64748B;
   font-weight: 600;
   text-align: right;
   background: #FCFDFE;
   border-bottom: 1px solid #E2E8F0;
-  padding: 8px 10px;
+  padding: 7px 6px;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
+.register-table th:nth-child(1) { width: 33%; }
+.register-table th:nth-child(2) { width: 10%; }
+.register-table th:nth-child(3) { width: 10%; }
+.register-table th:nth-child(4) { width: 8%; }
+.register-table th:nth-child(5) { width: 7%; }
+.register-table th:nth-child(6) { width: 8%; }
+.register-table th:nth-child(7) { width: 12%; }
+.register-table th:nth-child(8) { width: 12%; }
 .register-table td {
-  font-size: 10px;
+  font-size: 9.5px;
   color: #334155;
   border-bottom: 1px solid #F1F5F9;
-  padding: 8px 10px;
+  padding: 7px 6px;
   vertical-align: middle;
+  overflow-wrap: anywhere;
 }
 .register-table tr:last-child td { border-bottom: none; }
 .reg-row:hover td { background: #FAFBFC; }
-.reg-title { min-width: 200px; max-width: 260px; }
+.reg-title { min-width: 0; width: auto; }
 .reg-title-main {
   font-size: 10.5px;
   font-weight: 700;

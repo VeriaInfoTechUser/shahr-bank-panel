@@ -131,6 +131,15 @@ export const grcRepo = {
     return grcHttpRequest({ method: 'GET', url: '/compliance/dashboard', params });
   },
 
+  // Report sections
+  riskReportSections(params?: Record<string, unknown>): Promise<GrcApiResponse<Record<string, unknown>>> {
+    return grcHttpRequest({ method: 'GET', url: '/grc/risks/report/sections', params });
+  },
+
+  complianceReportSections(params?: Record<string, unknown>): Promise<GrcApiResponse<Record<string, unknown>>> {
+    return grcHttpRequest({ method: 'GET', url: '/compliance/report/sections', params });
+  },
+
   // Frameworks
   frameworkList(params?: GrcListParams): Promise<GrcApiResponse<GrcPaginatedResponse>> {
     return grcHttpRequest({ method: 'GET', url: '/context/frameworks', params });

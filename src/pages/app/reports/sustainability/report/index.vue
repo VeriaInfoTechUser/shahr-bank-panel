@@ -2,6 +2,7 @@
 import { computed, onMounted, ref } from 'vue'
 import html2canvas from 'html2canvas'
 import { jsPDF } from 'jspdf'
+import Lucide from '@/base-components/Lucide'
 import { reportRepo } from '@/core/repositories/reportRepo'
 
 // ---------------------------------------------------------------------------
@@ -96,7 +97,6 @@ const riskSection = computed(() => byKey('risk-management') ?? null)
 const riskData = computed(() => riskSection.value?.data?.risks ?? null)
 const comparativeSection = computed(() => byKey('comparative-analysis') ?? null)
 const comparison = computed(() => comparativeSection.value?.data?.comparison ?? null)
-const outlook = computed(() => byKey('outlook') ?? null)
 const period = computed(() => data.value?.period ?? null)
 const comparisonPeriod = computed(() => data.value?.comparisonPeriod ?? null)
 
@@ -109,17 +109,16 @@ const pageGroups = computed(() => {
   for (const s of capitalPages.value) groups.push({ type: 'capital', key: s.key })
   if (riskSection.value) groups.push({ type: 'risk', key: 'risk-management' })
   if (comparativeSection.value) groups.push({ type: 'comparative', key: 'comparative-analysis' })
-  if (outlook.value) groups.push({ type: 'narrative', key: 'outlook' })
   return groups
 })
 
 const capitalRisks = computed(() => {
-  const map: Record<string, { title: string; emoji: string; color: string }> = {}
+  const map: Record<string, { title: string; icon: string; color: string }> = {}
   for (const s of capitalSections.value) {
     const c = s.data?.capital
     if (!c) continue
     const meta = capitalMeta(c.capitalType)
-    map[c.slug] = { title: c.title, emoji: meta.emoji, color: meta.color }
+    map[c.slug] = { title: c.title, icon: meta.icon, color: meta.color }
   }
   const byCap = riskData.value?.byCapital ?? {}
   return Object.entries(byCap)
@@ -128,7 +127,7 @@ const capitalRisks = computed(() => {
       slug,
       count,
       title: map[slug]?.title ?? slug,
-      emoji: map[slug]?.emoji ?? '📊',
+      icon: map[slug]?.icon ?? 'CircleDot',
       color: map[slug]?.color ?? '#64748b',
     }))
 })
@@ -168,16 +167,16 @@ const comparativeRows = computed(() => {
 // ---------------------------------------------------------------------------
 // helpers
 // ---------------------------------------------------------------------------
-const CAPITAL_META: Record<string, { color: string; emoji: string }> = {
-  NAT: { color: '#16A34A', emoji: '🌿' },
-  HUM: { color: '#2563EB', emoji: '👥' },
-  SOC: { color: '#DB2777', emoji: '🤝' },
-  INS: { color: '#7C3AED', emoji: '🏛️' },
-  TEC: { color: '#0891B2', emoji: '💠' },
-  FEC: { color: '#CA8A04', emoji: '💰' },
+const CAPITAL_META: Record<string, { color: string; icon: string }> = {
+  NAT: { color: '#16A34A', icon: 'Leaf' },
+  HUM: { color: '#2563EB', icon: 'Users' },
+  SOC: { color: '#DB2777', icon: 'Handshake' },
+  INS: { color: '#7C3AED', icon: 'Landmark' },
+  TEC: { color: '#0891B2', icon: 'Cpu' },
+  FEC: { color: '#CA8A04', icon: 'Coins' },
 }
 function capitalMeta(type?: string) {
-  return (type && CAPITAL_META[type]) || { color: '#64748b', emoji: '📊' }
+  return (type && CAPITAL_META[type]) || { color: '#64748b', icon: 'CircleDot' }
 }
 
 const PERIOD_TYPE_FA: Record<string, string> = {
@@ -226,6 +225,24 @@ const RISK_STATE_COLOR: Record<string, string> = {
   archived: '#64748b',
   unknown: '#94a3b8',
 }
+const RISK_TYPE_LABEL: Record<string, string> = {
+  threat: 'تهدید',
+  opportunity: 'فرصت',
+}
+const TREATMENT_LABEL: Record<string, string> = {
+  avoid: 'اجتناب',
+  transfer: 'انتقال',
+  reduce: 'کاهش',
+  accept: 'پذیرش',
+  share: 'تقسیم/اشتراک',
+}
+const RISK_LEVEL_ORDER: Record<string, number> = {
+  critical: 0,
+  high: 1,
+  medium: 2,
+  low: 3,
+  unknown: 4,
+}
 
 function hexToRgba(hex: string, alpha: number) {
   const r = parseInt(hex.slice(1, 3), 16)
@@ -254,11 +271,17 @@ function deltaValue(node: any): number | null {
   if (node?.score == null || node?.comparison?.value == null) return null
   return node.score - node.comparison.value
 }
-function deltaBadge(node: any) {
+function deltaDir(node: any): 'up' | 'down' | 'zero' | 'none' {
+  const d = deltaValue(node)
+  if (d == null) return 'none'
+  if (d > 0) return 'up'
+  if (d < 0) return 'down'
+  return 'zero'
+}
+function deltaAbs(node: any) {
   const d = deltaValue(node)
   if (d == null || d === 0) return '—'
-  const arrow = d > 0 ? '▲' : '▼'
-  return `${arrow} ${faNum(Math.abs(round1(d)))}`
+  return faNum(Math.abs(round1(d)))
 }
 function maturityChipStyle(m: any) {
   const c = m?.color || '#64748b'
@@ -277,6 +300,81 @@ function barPct(count: number, max: number) {
 function maxCount(values: number[]) {
   return Math.max(...values, 1)
 }
+function faDate(d?: string | null) {
+  if (!d) return '—'
+  const [y, m, day] = d.split('-')
+  if (!y || !m || !day) return faNum(Number(d))
+  return `${faNum(Number(y))}/${faNum(Number(m))}/${faNum(Number(day))}`
+}
+function pctOf(part: number | null | undefined, total: number | null | undefined) {
+  if (part == null || total == null || total === 0) return '—'
+  return faNum(round1((part / total) * 100)) + '٪'
+}
+function pctWidth(part: number | null | undefined, total: number | null | undefined) {
+  if (part == null || total == null || total === 0) return '0%'
+  return Math.min(Math.round((part / total) * 100), 100) + '%'
+}
+// indicator data-completion of a node (0-100) or null when no counts
+function dataPct(node: any) {
+  const total = node?.indicatorCount
+  const withData = node?.indicatorsWithData
+  if (total == null || withData == null || total === 0) return null
+  return round1((withData / total) * 100)
+}
+
+// ---------------------------------------------------------------------------
+// risk register: flatten all capability-level risks with context
+// ---------------------------------------------------------------------------
+const riskRegister = computed(() => {
+  const rows: any[] = []
+  for (const s of capitalSections.value) {
+    const c = s.data?.capital
+    if (!c) continue
+    for (const dom of c.domains ?? []) {
+      for (const comp of dom.components ?? []) {
+        for (const capab of comp.capabilities ?? []) {
+          for (const r of capab.risks?.risks ?? []) {
+            rows.push({
+              ...r,
+              capitalSlug: c.slug,
+              capitalTitle: c.title,
+              capitalType: c.capitalType,
+              domainTitle: dom.title,
+              capabilityTitle: capab.title,
+            })
+          }
+        }
+      }
+    }
+  }
+  rows.sort((a, b) => {
+    const lvl = (RISK_LEVEL_ORDER[a.level] ?? 9) - (RISK_LEVEL_ORDER[b.level] ?? 9)
+    if (lvl !== 0) return lvl
+    return (b.score ?? 0) - (a.score ?? 0)
+  })
+  return rows
+})
+const riskRegisterByCapital = computed(() => {
+  const groups: any[] = []
+  const map = new Map<string, any>()
+  for (const r of riskRegister.value) {
+    if (!map.has(r.capitalSlug)) {
+      const g = {
+        slug: r.capitalSlug,
+        title: r.capitalTitle,
+        capitalType: r.capitalType,
+        total: 0,
+        risks: [] as any[],
+      }
+      map.set(r.capitalSlug, g)
+      groups.push(g)
+    }
+    const g = map.get(r.capitalSlug)
+    g.total += 1
+    g.risks.push(r)
+  }
+  return groups.sort((a, b) => b.total - a.total)
+})
 
 // ---------------------------------------------------------------------------
 // PDF export (same approach as the ESG report)
@@ -313,11 +411,20 @@ async function downloadPDF() {
       const imgData = canvas.toDataURL('image/jpeg', 0.95)
       const imgW = A4_W
       const imgH = (canvas.height * A4_W) / canvas.width
-      if (i > 0) pdf.addPage()
-      if (imgH <= A4_H) {
-        pdf.addImage(imgData, 'JPEG', 0, 0, imgW, imgH)
-      } else {
-        pdf.addImage(imgData, 'JPEG', 0, 0, imgW, A4_H)
+      // slice very tall pages into multiple A4 pages so content is never squished
+      const pxPerMm = canvas.width / A4_W
+      const sliceHeightPx = Math.round(A4_H * pxPerMm)
+      const sliceCount = Math.max(1, Math.ceil(canvas.height / sliceHeightPx))
+      for (let s = 0; s < sliceCount; s++) {
+        if (i > 0 || s > 0) pdf.addPage()
+        const yPx = s * sliceHeightPx
+        const hPx = Math.min(sliceHeightPx, canvas.height - yPx)
+        pdf.addImage(
+          imgData, 'JPEG',
+          0, 0, imgW, (hPx / pxPerMm),
+          undefined, 'FAST',
+          0, 0, yPx, canvas.width, hPx,
+        )
       }
     }
 
@@ -455,7 +562,11 @@ async function downloadPDF() {
                   class="cover-cap"
                   :style="{ borderColor: hexToRgba(capitalMeta(s.data.capital.capitalType).color, 0.4) }"
               >
-                <span class="cc-emoji">{{ capitalMeta(s.data.capital.capitalType).emoji }}</span>
+                <Lucide
+                    :icon="capitalMeta(s.data.capital.capitalType).icon"
+                    class="w-4 h-4"
+                    :style="{ color: capitalMeta(s.data.capital.capitalType).color }"
+                />
                 <span class="cc-score">{{ fmtScore(s.data.capital.score) }}</span>
               </div>
             </div>
@@ -486,30 +597,45 @@ async function downloadPDF() {
             <div class="kpi-card">
               <div class="kpi-label">امتیاز میانگین</div>
               <div class="kpi-value" style="color:#0B5C43">{{ fmtScore(summary?.avgScore) }}</div>
+              <div class="kpi-sub">از ۱۰۰</div>
             </div>
             <div class="kpi-card">
               <div class="kpi-label">تکمیل داده</div>
               <div class="kpi-value" style="color:#0B5C43">{{ fmtScore(summary?.dataCompletion) }}٪</div>
+              <div class="kpi-sub">{{ faNum(summary?.indicatorsWithData) }} از {{ faNum(summary?.indicators) }} شاخص</div>
             </div>
             <div class="kpi-card">
               <div class="kpi-label">حوزه‌ها</div>
               <div class="kpi-value">{{ faNum(summary?.domains) }}</div>
-            </div>
-            <div class="kpi-card">
-              <div class="kpi-label">اجزا</div>
-              <div class="kpi-value">{{ faNum(summary?.components) }}</div>
+              <div class="kpi-sub">{{ faNum(summary?.components) }} جزء</div>
             </div>
             <div class="kpi-card">
               <div class="kpi-label">قابلیت‌ها</div>
               <div class="kpi-value">{{ faNum(summary?.capabilities) }}</div>
+              <div class="kpi-sub">شامل شاخص‌های کلیدی</div>
             </div>
             <div class="kpi-card">
-              <div class="kpi-label">شاخص‌ها</div>
-              <div class="kpi-value">{{ faNum(summary?.indicatorsWithData) }}/{{ faNum(summary?.indicators) }}</div>
+              <div class="kpi-label">شاخص‌های دارای داده</div>
+              <div class="kpi-value">{{ faNum(summary?.indicatorsWithData) }}</div>
+              <div class="kpi-sub">{{ pctOf(summary?.indicatorsWithData, summary?.indicators) }} از کل شاخص‌ها</div>
             </div>
             <div class="kpi-card">
               <div class="kpi-label">اهداف محقق‌شده</div>
               <div class="kpi-value">{{ faNum(summary?.targetsMet) }}/{{ faNum(summary?.targetsTotal) }}</div>
+              <div class="kpi-sub">{{ pctOf(summary?.targetsMet, summary?.targetsTotal) }} از اهداف بلوغ</div>
+            </div>
+          </div>
+
+          <div class="target-bar">
+            <div class="tb-head">
+              <span class="tb-title">تحقق اهداف بلوغ</span>
+              <span class="tb-num">{{ faNum(summary?.targetsMet) }} از {{ faNum(summary?.targetsTotal) }} · {{ pctOf(summary?.targetsMet, summary?.targetsTotal) }}</span>
+            </div>
+            <div class="tb-bg">
+              <div
+                  class="tb-fill"
+                  :style="{ width: pctWidth(summary?.targetsMet, summary?.targetsTotal), background: '#0B5C43' }"
+              />
             </div>
           </div>
 
@@ -518,7 +644,11 @@ async function downloadPDF() {
             <div v-for="s in capitalSections" :key="s.key" class="cap-strip-row">
               <div class="csr-name">
                 <span class="csr-emoji" :style="{ background: hexToRgba(capitalMeta(s.data.capital.capitalType).color, 0.14) }">
-                  {{ capitalMeta(s.data.capital.capitalType).emoji }}
+                  <Lucide
+                      :icon="capitalMeta(s.data.capital.capitalType).icon"
+                      class="w-3.5 h-3.5"
+                      :style="{ color: capitalMeta(s.data.capital.capitalType).color }"
+                  />
                 </span>
                 <span>{{ s.data.capital.title }}</span>
               </div>
@@ -529,23 +659,28 @@ async function downloadPDF() {
                 />
               </div>
               <span class="csr-score">{{ fmtScore(s.data.capital.score) }}</span>
+              <span v-if="dataPct(s.data.capital) != null" class="csr-compl" :title="`تکمیل داده: ${dataPct(s.data.capital)}٪`">
+                {{ faNum(dataPct(s.data.capital)) }}٪
+              </span>
               <span
-                  v-if="deltaValue(s.data.capital) != null"
+                  v-if="deltaDir(s.data.capital) !== 'none'"
                   class="delta-badge"
-                  :class="deltaValue(s.data.capital)! > 0 ? 'delta-up' : deltaValue(s.data.capital)! < 0 ? 'delta-down' : ''"
-              >{{ deltaBadge(s.data.capital) }}</span>
+                  :class="deltaDir(s.data.capital) === 'up' ? 'delta-up' : deltaDir(s.data.capital) === 'down' ? 'delta-down' : ''"
+              >
+                <Lucide v-if="deltaDir(s.data.capital) === 'up'" icon="ArrowUp" class="w-[10px] h-[10px]" />
+                <Lucide v-else-if="deltaDir(s.data.capital) === 'down'" icon="ArrowDown" class="w-[10px] h-[10px]" />
+                {{ deltaAbs(s.data.capital) }}
+              </span>
             </div>
           </div>
         </template>
 
-        <!-- ================= NARRATIVE (governance / outlook) ================= -->
+        <!-- ================= NARRATIVE (governance) ================= -->
         <template v-else-if="pg.type === 'narrative'">
           <div class="page-header">
             <div>
-              <div class="page-section-title">{{ pg.key === 'governance' ? governance?.title : outlook?.title }}</div>
-              <div class="page-section-sub" dir="ltr">
-                {{ pg.key === 'governance' ? governance?.titleEn : outlook?.titleEn }}
-              </div>
+              <div class="page-section-title">{{ governance?.title }}</div>
+              <div class="page-section-sub" dir="ltr">{{ governance?.titleEn }}</div>
             </div>
             <div class="header-meta">
               <div class="hm-label">دوره</div>
@@ -554,31 +689,22 @@ async function downloadPDF() {
           </div>
           <div class="narrative-page">
             <div class="quote-mark">“</div>
-            <p class="narrative-long">
-              {{ pg.key === 'governance' ? governance?.description : outlook?.description }}
-            </p>
+            <p class="narrative-long">{{ governance?.description }}</p>
           </div>
-          <div v-if="pg.key === 'governance'" class="gov-bands">
+          <div class="gov-bands">
             <div class="gov-band">
-              <span class="gb-emoji">🎯</span>
+              <Lucide icon="Target" class="w-5 h-5 gb-icon" :style="{ color: '#0B5C43' }" />
               <div>
                 <div class="gb-title">راهبرد و نظارت</div>
                 <div class="gb-text">شفافیت، پاسخگویی و نظارت مستمر بر موضوعات پایداری در سطح هیئت‌مدیره</div>
               </div>
             </div>
             <div class="gov-band">
-              <span class="gb-emoji">⚖️</span>
+              <Lucide icon="Scale" class="w-5 h-5 gb-icon" :style="{ color: '#0B5C43' }" />
               <div>
                 <div class="gb-title">اخلاق و تطبیق</div>
                 <div class="gb-text">رعایت الزامات قانونی، استانداردهای رفتاری و مدیریت مسئولانه ریسک</div>
               </div>
-            </div>
-          </div>
-          <div v-else class="outlook-band">
-            <span class="gb-emoji">🚀</span>
-            <div>
-              <div class="gb-title">افق آینده</div>
-              <div class="gb-text">ارتقای سطح بلوغ هر یک از سرمایه‌های شش‌گانه در دوره‌های آتی گزارش‌گری</div>
             </div>
           </div>
         </template>
@@ -591,7 +717,13 @@ async function downloadPDF() {
                 <div
                     class="cap-emoji"
                     :style="{ background: hexToRgba(capitalMeta(capitalsByKey[pg.key].capitalType).color, 0.14) }"
-                >{{ capitalMeta(capitalsByKey[pg.key].capitalType).emoji }}</div>
+                >
+                  <Lucide
+                      :icon="capitalMeta(capitalsByKey[pg.key].capitalType).icon"
+                      class="w-5 h-5"
+                      :style="{ color: capitalMeta(capitalsByKey[pg.key].capitalType).color }"
+                  />
+                </div>
                 <div>
                   <div class="page-section-title">{{ capitalsByKey[pg.key].title }}</div>
                   <div class="page-section-sub" dir="ltr">{{ capitalsByKey[pg.key].titleEn }}</div>
@@ -603,13 +735,17 @@ async function downloadPDF() {
                     class="maturity-chip"
                     :style="maturityChipStyle(capitalsByKey[pg.key].maturity)"
                 >
-                  {{ capitalsByKey[pg.key].maturity.emoji }} {{ capitalsByKey[pg.key].maturity.labelFa }}
+                  <span class="mat-dot" :style="{ background: capitalsByKey[pg.key].maturity.color }" />
                 </div>
                 <span
-                    v-if="deltaValue(capitalsByKey[pg.key]) != null"
+                    v-if="deltaDir(capitalsByKey[pg.key]) !== 'none'"
                     class="delta-badge"
-                    :class="deltaValue(capitalsByKey[pg.key])! > 0 ? 'delta-up' : deltaValue(capitalsByKey[pg.key])! < 0 ? 'delta-down' : ''"
-                >{{ deltaBadge(capitalsByKey[pg.key]) }}</span>
+                    :class="deltaDir(capitalsByKey[pg.key]) === 'up' ? 'delta-up' : deltaDir(capitalsByKey[pg.key]) === 'down' ? 'delta-down' : ''"
+                >
+                  <Lucide v-if="deltaDir(capitalsByKey[pg.key]) === 'up'" icon="ArrowUp" class="w-[10px] h-[10px]" />
+                  <Lucide v-else-if="deltaDir(capitalsByKey[pg.key]) === 'down'" icon="ArrowDown" class="w-[10px] h-[10px]" />
+                  {{ deltaAbs(capitalsByKey[pg.key]) }}
+                </span>
               </div>
             </div>
 
@@ -646,6 +782,16 @@ async function downloadPDF() {
                   <div class="cq-num">{{ faNum(capitalsByKey[pg.key].indicatorsWithData) }}</div>
                   <div class="cq-lbl">با داده</div>
                 </div>
+                <div v-if="dataPct(capitalsByKey[pg.key]) != null" class="cq-item cq-compl">
+                  <div class="cq-num" :style="{ color: '#0B5C43' }">{{ faNum(dataPct(capitalsByKey[pg.key])) }}٪</div>
+                  <div class="cq-lbl">تکمیل داده</div>
+                  <div class="cq-mini-bar">
+                    <div
+                        class="cq-mini-fill"
+                        :style="{ width: Math.min(dataPct(capitalsByKey[pg.key]) ?? 0, 100) + '%' }"
+                    />
+                  </div>
+                </div>
               </div>
               <div class="cap-desc">{{ sectionsByKey[pg.key]?.description }}</div>
             </div>
@@ -658,9 +804,9 @@ async function downloadPDF() {
                     <span class="domain-title-en" dir="ltr">{{ dom.titleEn }}</span>
                   </div>
                   <div class="domain-right">
-                    <span v-if="dom.maturity" class="maturity-mini" :style="{ color: dom.maturity.color }">
-                      {{ dom.maturity.emoji }} {{ dom.maturity.labelFa }}
-                    </span>
+                  <span v-if="dom.maturity" class="maturity-mini" :style="{ color: dom.maturity.color }">
+                    <span class="mat-dot" :style="{ background: dom.maturity.color }" />
+                  </span>
                     <div class="mini-bar">
                       <div
                           class="mini-bar-fill"
@@ -671,18 +817,29 @@ async function downloadPDF() {
                       />
                     </div>
                     <span class="domain-score">{{ fmtScore(dom.score) }}</span>
-                    <span
-                        v-if="deltaValue(dom) != null"
-                        class="delta-mini"
-                        :class="deltaValue(dom)! > 0 ? 'delta-up' : deltaValue(dom)! < 0 ? 'delta-down' : ''"
-                    >{{ deltaBadge(dom) }}</span>
+                  <span
+                      v-if="deltaDir(dom) !== 'none'"
+                      class="delta-mini"
+                      :class="deltaDir(dom) === 'up' ? 'delta-up' : deltaDir(dom) === 'down' ? 'delta-down' : ''"
+                  >
+                    <Lucide v-if="deltaDir(dom) === 'up'" icon="ArrowUp" class="w-[10px] h-[10px]" />
+                    <Lucide v-else-if="deltaDir(dom) === 'down'" icon="ArrowDown" class="w-[10px] h-[10px]" />
+                    {{ deltaAbs(dom) }}
+                  </span>
                   </div>
                 </div>
 
                 <div v-if="dom.components?.length" class="components">
                   <div v-for="comp in dom.components" :key="comp.slug" class="comp-block">
                     <div class="comp-row">
-                      <span class="comp-name">◈ {{ comp.title }}</span>
+                      <span class="comp-name">
+                      <Lucide
+                          icon="ChevronLeft"
+                          class="w-3 h-3 flex-none"
+                          :style="{ color: capitalMeta(capitalsByKey[pg.key].capitalType).color }"
+                      />
+                      <span class="comp-title">{{ comp.title }}</span>
+                    </span>
                       <div class="mini-bar slim">
                         <div
                             class="mini-bar-fill"
@@ -690,17 +847,28 @@ async function downloadPDF() {
                         />
                       </div>
                       <span class="comp-score">{{ fmtScore(comp.score) }}</span>
-                      <span v-if="deltaValue(comp) != null" class="delta-mini" :class="deltaValue(comp)! > 0 ? 'delta-up' : deltaValue(comp)! < 0 ? 'delta-down' : ''">
-                        {{ deltaBadge(comp) }}
-                      </span>
+                    <span v-if="deltaDir(comp) !== 'none'" class="delta-mini" :class="deltaDir(comp) === 'up' ? 'delta-up' : deltaDir(comp) === 'down' ? 'delta-down' : ''">
+                      <Lucide v-if="deltaDir(comp) === 'up'" icon="ArrowUp" class="w-[10px] h-[10px]" />
+                      <Lucide v-else-if="deltaDir(comp) === 'down'" icon="ArrowDown" class="w-[10px] h-[10px]" />
+                      {{ deltaAbs(comp) }}
+                    </span>
                     </div>
                     <div v-if="comp.capabilities?.length" class="capab-list">
                       <div v-for="capab in comp.capabilities" :key="capab.slug" class="capab-row">
                         <span class="capab-name">{{ capab.title }}</span>
-                        <span v-if="capab.meetsTarget" class="target-ok" title="مطابق هدف">✓</span>
-                        <span v-if="capab.risks?.summary?.total" class="risk-chip">
-                          ⚠ {{ faNum(capab.risks.summary.total) }}
+                      <span v-if="capab.indicatorCount != null" class="capab-ind">
+                        <span class="capab-ind-num">{{ faNum(capab.indicatorsWithData) }}/{{ faNum(capab.indicatorCount) }}</span>
+                        <span v-if="dataPct(capab) != null" class="capab-ind-pct" :title="`تکمیل داده: ${dataPct(capab)}٪`">
+                          {{ faNum(dataPct(capab)) }}٪
                         </span>
+                      </span>
+                      <span v-if="capab.meetsTarget" class="target-ok" title="مطابق هدف">
+                        <Lucide icon="Check" class="w-3 h-3" />
+                      </span>
+                      <span v-if="capab.risks?.summary?.total" class="risk-chip">
+                        <Lucide icon="ShieldAlert" class="w-3 h-3" />
+                        {{ faNum(capab.risks.summary.total) }}
+                      </span>
                         <span class="capab-score">{{ fmtScore(capab.score) }}</span>
                       </div>
                     </div>
@@ -742,6 +910,8 @@ async function downloadPDF() {
           </div>
 
           <div v-if="riskData" class="risk-body">
+            <div class="narrative-box risk-desc">{{ riskSection?.description }}</div>
+
             <div class="risk-kpis">
               <div class="risk-kpi">
                 <div class="rk-num">{{ faNum(riskData.total) }}</div>
@@ -768,7 +938,7 @@ async function downloadPDF() {
                         :style="{ width: barPct(count, Math.max(...Object.values(riskData.byLevel ?? {}), 1)), background: RISK_LEVEL_COLOR[lvl] ?? '#94a3b8' }"
                     />
                   </div>
-                  <span class="bar-count">{{ faNum(count) }}</span>
+                  <span class="bar-count">{{ faNum(count) }} <span class="bar-pct">{{ pctOf(count, riskData.total) }}</span></span>
                 </div>
               </div>
               <div class="dist-card">
@@ -781,7 +951,7 @@ async function downloadPDF() {
                         :style="{ width: barPct(count, Math.max(...Object.values(riskData.byState ?? {}), 1)), background: RISK_STATE_COLOR[state] ?? '#94a3b8' }"
                     />
                   </div>
-                  <span class="bar-count">{{ faNum(count) }}</span>
+                  <span class="bar-count">{{ faNum(count) }} <span class="bar-pct">{{ pctOf(count, riskData.total) }}</span></span>
                 </div>
               </div>
             </div>
@@ -789,14 +959,76 @@ async function downloadPDF() {
             <div class="dist-card">
               <div class="dist-title">توزیع ریسک بر اساس سرمایه</div>
               <div v-for="item in capitalRisks" :key="item.slug" class="bar-row">
-                <span class="bar-label">{{ item.emoji }} {{ item.title }}</span>
+                <span class="bar-label">
+                  <Lucide :icon="item.icon" class="w-3.5 h-3.5" :style="{ color: item.color }" />
+                  {{ item.title }}
+                </span>
                 <div class="bar-bg">
                   <div
                       class="bar-fill"
                       :style="{ width: barPct(item.count, maxCount(capitalRisks.map((r) => r.count))), background: item.color }"
                   />
                 </div>
-                <span class="bar-count">{{ faNum(item.count) }}</span>
+                <span class="bar-count">{{ faNum(item.count) }} <span class="bar-pct">{{ pctOf(item.count, riskData.total) }}</span></span>
+              </div>
+            </div>
+
+            <div class="risk-register">
+              <div class="register-head">
+                <div class="register-title">ثبت تفصیلی ریسک‌ها</div>
+                <div class="register-total">{{ faNum(riskRegister.length) }} ریسک</div>
+              </div>
+              <div v-for="g in riskRegisterByCapital" :key="g.slug" class="register-group">
+                <div class="register-cap">
+                  <span class="csr-emoji" :style="{ background: hexToRgba(capitalMeta(g.capitalType).color, 0.14) }">
+                    <Lucide
+                        :icon="capitalMeta(g.capitalType).icon"
+                        class="w-3.5 h-3.5"
+                        :style="{ color: capitalMeta(g.capitalType).color }"
+                    />
+                  </span>
+                  <span class="register-cap-title">{{ g.title }}</span>
+                  <span class="register-cap-count">{{ faNum(g.total) }}</span>
+                </div>
+                <table class="register-table">
+                  <thead>
+                  <tr>
+                    <th>عنوان ریسک</th>
+                    <th>سطح</th>
+                    <th>وضعیت</th>
+                    <th>نوع</th>
+                    <th>شدت</th>
+                    <th>اثر × احتمال</th>
+                    <th>راهبرد</th>
+                    <th>مهلت</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  <tr v-for="r in g.risks" :key="r.slug" class="reg-row">
+                    <td class="reg-title">
+                      <div class="reg-title-main">{{ r.title }}</div>
+                      <div class="reg-title-sub">{{ r.domainTitle }} · {{ r.capabilityTitle }}</div>
+                    </td>
+                    <td>
+                      <span
+                          class="reg-level"
+                          :style="{ background: hexToRgba(RISK_LEVEL_COLOR[r.level] ?? '#94a3b8', 0.14), color: RISK_LEVEL_COLOR[r.level] ?? '#64748b' }"
+                      >{{ RISK_LEVEL_LABEL[r.level] ?? 'نامشخص' }}</span>
+                    </td>
+                    <td>
+                      <span
+                          class="reg-state"
+                          :style="{ background: hexToRgba(RISK_STATE_COLOR[r.state] ?? '#94a3b8', 0.14), color: RISK_STATE_COLOR[r.state] ?? '#64748b' }"
+                      >{{ RISK_STATE_LABEL[r.state] ?? r.state }}</span>
+                    </td>
+                    <td class="reg-type">{{ RISK_TYPE_LABEL[r.riskType] ?? (r.riskType ?? '—') }}</td>
+                    <td class="reg-score">{{ faNum(r.score) }}</td>
+                    <td class="reg-dim">{{ faNum(r.impact) }}×{{ faNum(r.likelihood) }}</td>
+                    <td class="reg-treat">{{ TREATMENT_LABEL[r.treatmentStrategy] ?? '—' }}</td>
+                    <td class="reg-deadline">{{ faDate(r.deadline) }}</td>
+                  </tr>
+                  </tbody>
+                </table>
               </div>
             </div>
           </div>
@@ -820,6 +1052,8 @@ async function downloadPDF() {
           </div>
 
           <template v-if="comparison">
+            <div class="narrative-box">{{ comparativeSection?.description }}</div>
+
             <div class="compare-summary">
               <div class="cs-item">
                 <div class="cs-lbl">دوره جاری</div>
@@ -844,25 +1078,30 @@ async function downloadPDF() {
               <tbody>
               <tr v-for="row in comparativeRows" :key="row.slug">
                 <td>
-                  <span class="ct-cap">
-                    <span class="csr-emoji" :style="{ background: hexToRgba(capitalMeta(row.capitalType).color, 0.14) }">
-                      {{ capitalMeta(row.capitalType).emoji }}
-                    </span>
-                    {{ row.title }}
+                <span class="ct-cap">
+                  <span class="csr-emoji" :style="{ background: hexToRgba(capitalMeta(row.capitalType).color, 0.14) }">
+                    <Lucide
+                        :icon="capitalMeta(row.capitalType).icon"
+                        class="w-3.5 h-3.5"
+                        :style="{ color: capitalMeta(row.capitalType).color }"
+                    />
                   </span>
+                  {{ row.title }}
+                </span>
                 </td>
                 <td class="ct-score">{{ row.current != null ? fmtScore(row.current) : '—' }}</td>
                 <td class="ct-score muted">{{ row.comparison != null ? fmtScore(row.comparison) : '—' }}</td>
                 <td>
-                  <span
-                      v-if="row.current != null && row.comparison != null"
-                      class="delta-badge"
-                      :class="row.current - row.comparison > 0 ? 'delta-up' : row.current - row.comparison < 0 ? 'delta-down' : ''"
-                  >
-                    {{ row.current - row.comparison > 0 ? '▲' : row.current - row.comparison < 0 ? '▼' : '' }}
-                    {{ faNum(Math.abs(round1(row.current - row.comparison))) }}
-                  </span>
-                  <span v-else class="delta-badge">—</span>
+                <span
+                    v-if="row.current != null && row.comparison != null"
+                    class="delta-badge"
+                    :class="row.current - row.comparison > 0 ? 'delta-up' : row.current - row.comparison < 0 ? 'delta-down' : ''"
+                >
+                  <Lucide v-if="row.current - row.comparison > 0" icon="ArrowUp" class="w-[10px] h-[10px]" />
+                  <Lucide v-else-if="row.current - row.comparison < 0" icon="ArrowDown" class="w-[10px] h-[10px]" />
+                  {{ faNum(Math.abs(round1(row.current - row.comparison))) }}
+                </span>
+                <span v-else class="delta-badge">—</span>
                 </td>
               </tr>
               </tbody>
@@ -1058,7 +1297,7 @@ async function downloadPDF() {
   text-align: justify;
 }
 .gov-bands { margin-top: 16px; display: flex; gap: 12px; }
-.gov-band, .outlook-band {
+.gov-band {
   flex: 1;
   display: flex;
   gap: 12px;
@@ -1068,10 +1307,9 @@ async function downloadPDF() {
   border-radius: 10px;
   padding: 14px 16px;
 }
-.gb-emoji { font-size: 20px; }
+.gb-icon { flex-shrink: 0; }
 .gb-title { font-size: 12.5px; font-weight: 700; color: #0F172A; }
 .gb-text { font-size: 10.5px; color: #64748B; margin-top: 4px; line-height: 1.9; }
-.outlook-band { max-width: 60%; }
 
 /* ---------------- KPI grid ---------------- */
 .kpi-grid {
@@ -1089,6 +1327,27 @@ async function downloadPDF() {
 }
 .kpi-label { font-size: 10.5px; color: #64748B; }
 .kpi-value { font-size: 22px; font-weight: 800; color: #0F172A; margin-top: 6px; }
+.kpi-sub { font-size: 9.5px; color: #94A3B8; margin-top: 4px; }
+
+/* target achievement bar (exec summary) */
+.target-bar {
+  margin-top: 14px;
+  background: #F6FAF8;
+  border: 1px solid #DCEAE3;
+  border-radius: 10px;
+  padding: 12px 16px;
+}
+.tb-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.tb-title { font-size: 12px; font-weight: 700; color: #0F172A; }
+.tb-num { font-size: 10.5px; font-weight: 700; color: #0B5C43; }
+.tb-bg { height: 10px; background: #E7EFEA; border-radius: 6px; overflow: hidden; }
+.tb-fill { height: 100%; border-radius: 6px; }
 
 /* ---------------- capital strip (exec summary) ---------------- */
 .strip-title {
@@ -1132,6 +1391,16 @@ async function downloadPDF() {
 }
 .csr-bar-fill { height: 100%; border-radius: 6px; }
 .csr-score { width: 44px; text-align: center; font-size: 13px; font-weight: 800; color: #0F172A; }
+.csr-compl {
+  font-size: 10px;
+  font-weight: 700;
+  color: #0B5C43;
+  background: #ECFDF5;
+  border: 1px solid #C6EBD8;
+  border-radius: 999px;
+  padding: 2px 9px;
+  flex-shrink: 0;
+}
 
 /* ---------------- delta + maturity chips ---------------- */
 .delta-badge {
@@ -1147,7 +1416,13 @@ async function downloadPDF() {
 }
 .delta-up { background: #ECFDF5; color: #059669; }
 .delta-down { background: #FEF2F2; color: #DC2626; }
-.delta-mini { font-size: 10px; font-weight: 700; }
+.delta-mini {
+  font-size: 10px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
 .maturity-chip {
   display: inline-flex;
   align-items: center;
@@ -1158,7 +1433,20 @@ async function downloadPDF() {
   border-radius: 999px;
   padding: 4px 12px;
 }
-.maturity-mini { font-size: 10px; font-weight: 600; }
+.maturity-mini {
+  font-size: 10px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.mat-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+}
 
 /* ---------------- cover ---------------- */
 .cover {
@@ -1234,7 +1522,6 @@ async function downloadPDF() {
   border-radius: 10px;
   padding: 9px 6px;
 }
-.cc-emoji { font-size: 15px; }
 .cc-score { font-size: 13px; font-weight: 800; }
 .cover-foot {
   margin-top: auto;
@@ -1293,6 +1580,15 @@ async function downloadPDF() {
 }
 .cq-num { font-size: 17px; font-weight: 800; color: #0F172A; }
 .cq-lbl { font-size: 9.5px; color: #94A3B8; margin-top: 2px; }
+.cq-compl { min-width: 96px; }
+.cq-mini-bar {
+  height: 4px;
+  background: #E7EFEA;
+  border-radius: 3px;
+  overflow: hidden;
+  margin-top: 5px;
+}
+.cq-mini-fill { height: 100%; background: #10B981; border-radius: 3px; }
 .cap-desc {
   flex: 1;
   font-size: 10px;
@@ -1345,7 +1641,21 @@ async function downloadPDF() {
 }
 .comp-block { padding: 5px 0 2px 10px; }
 .comp-row { display: flex; align-items: center; gap: 10px; }
-.comp-name { font-size: 11px; font-weight: 600; color: #334155; width: 250px; }
+.comp-name {
+  font-size: 11px;
+  font-weight: 600;
+  color: #334155;
+  width: 250px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.comp-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
 .comp-score { font-size: 11.5px; font-weight: 700; color: #0F172A; width: 30px; text-align: center; }
 .capab-list {
   margin: 4px 12px 2px 0;
@@ -1364,8 +1674,33 @@ async function downloadPDF() {
   padding: 2px 0;
 }
 .capab-name { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.capab-ind {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 999px;
+  padding: 1px 8px;
+  flex-shrink: 0;
+}
+.capab-ind-num { font-size: 9px; font-weight: 700; color: #475569; }
+.capab-ind-pct {
+  font-size: 8.5px;
+  font-weight: 700;
+  color: #0B5C43;
+  background: #ECFDF5;
+  border-radius: 999px;
+  padding: 0 5px;
+}
 .capab-score { font-weight: 700; color: #475569; width: 26px; text-align: center; }
-.target-ok { color: #059669; font-weight: 800; font-size: 10px; }
+.target-ok {
+  color: #059669;
+  font-weight: 800;
+  font-size: 10px;
+  display: inline-flex;
+  align-items: center;
+}
 .risk-chip {
   font-size: 9px;
   font-weight: 600;
@@ -1373,6 +1708,9 @@ async function downloadPDF() {
   background: #FEF2F2;
   border-radius: 999px;
   padding: 1px 7px;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
 }
 
 /* ---------------- risk page ---------------- */
@@ -1402,10 +1740,111 @@ async function downloadPDF() {
 }
 .dist-title { font-size: 12px; font-weight: 700; color: #0F172A; margin-bottom: 10px; }
 .bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 7px; }
-.bar-label { width: 110px; font-size: 10.5px; color: #334155; flex-shrink: 0; }
+.bar-label {
+  width: 110px;
+  font-size: 10.5px;
+  color: #334155;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
 .bar-bg { flex: 1; height: 12px; background: #F1F5F9; border-radius: 6px; overflow: hidden; }
 .bar-fill { height: 100%; border-radius: 6px; }
-.bar-count { width: 30px; text-align: center; font-size: 11.5px; font-weight: 700; color: #0F172A; }
+.bar-count { width: 64px; text-align: center; font-size: 11.5px; font-weight: 700; color: #0F172A; }
+.bar-pct { font-size: 9px; color: #94A3B8; font-weight: 600; }
+.risk-desc { margin-bottom: 14px; }
+
+/* ---------------- risk register ---------------- */
+.risk-register { margin-top: 12px; }
+.register-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.register-title { font-size: 13px; font-weight: 800; color: #0F172A; }
+.register-total {
+  font-size: 10px;
+  font-weight: 700;
+  color: #DC2626;
+  background: #FEF2F2;
+  border: 1px solid #FECACA;
+  border-radius: 999px;
+  padding: 3px 12px;
+}
+.register-group {
+  border: 1px solid #E2E8F0;
+  border-radius: 12px;
+  margin-bottom: 14px;
+  overflow: hidden;
+}
+.register-cap {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  background: #F8FAFC;
+  border-bottom: 1px solid #E2E8F0;
+  padding: 9px 14px;
+}
+.register-cap-title { font-size: 12px; font-weight: 800; color: #0F172A; }
+.register-cap-count {
+  font-size: 10px;
+  font-weight: 700;
+  color: #475569;
+  background: #fff;
+  border: 1px solid #E2E8F0;
+  border-radius: 999px;
+  padding: 1px 9px;
+}
+.register-table { width: 100%; border-collapse: collapse; }
+.register-table th {
+  font-size: 9.5px;
+  color: #64748B;
+  font-weight: 600;
+  text-align: right;
+  background: #FCFDFE;
+  border-bottom: 1px solid #E2E8F0;
+  padding: 8px 10px;
+  white-space: nowrap;
+}
+.register-table td {
+  font-size: 10px;
+  color: #334155;
+  border-bottom: 1px solid #F1F5F9;
+  padding: 8px 10px;
+  vertical-align: middle;
+}
+.register-table tr:last-child td { border-bottom: none; }
+.reg-row:hover td { background: #FAFBFC; }
+.reg-title { min-width: 200px; max-width: 260px; }
+.reg-title-main {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #0F172A;
+  line-height: 1.6;
+}
+.reg-title-sub {
+  font-size: 8.5px;
+  color: #94A3B8;
+  margin-top: 2px;
+  line-height: 1.6;
+}
+.reg-level,
+.reg-state {
+  display: inline-block;
+  font-size: 9px;
+  font-weight: 700;
+  border-radius: 999px;
+  padding: 2px 9px;
+  white-space: nowrap;
+}
+.reg-type { font-size: 9.5px; color: #64748B; white-space: nowrap; }
+.reg-score { font-size: 11px; font-weight: 800; color: #0F172A; white-space: nowrap; }
+.reg-dim { font-size: 9.5px; color: #64748B; white-space: nowrap; }
+.reg-treat { font-size: 9.5px; color: #475569; white-space: nowrap; }
+.reg-deadline { font-size: 9.5px; color: #64748B; white-space: nowrap; }
 
 /* ---------------- comparative ---------------- */
 .compare-summary {

@@ -2086,7 +2086,7 @@ function goToRisk(slug?: string | null) {
 
             <!-- hero score -->
             <div
-                class="group relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 text-center shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl dark:border-slate-700 dark:bg-slate-800"
+                class="group relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 text-center shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl lg:col-span-4 dark:border-slate-700 dark:bg-slate-800"
             >
               <div class="absolute inset-x-0 top-0 h-1" :style="{ backgroundColor: activeCapital.maturity.color }" />
               <div
@@ -2096,22 +2096,40 @@ function goToRisk(slug?: string | null) {
               <div class="mb-3 flex justify-center">
                 <div
                     class="inline-flex h-12 w-12 items-center justify-center rounded-xl"
-                    :style="{ backgroundColor: hexToRgba(activeCapital.maturity.color, 0.12) }"
+                    :style="{ backgroundColor: hexToRgba(capitalTheme(activeCapital.capitalType).main, 0.12) }"
                 >
-                  <Lucide :icon="capitalIcon(activeCapital.capitalType)" class="h-6 w-6" :style="{ color: activeCapital.maturity.color }" />
+                  <Lucide
+                      :icon="capitalIcon(activeCapital.capitalType)"
+                      class="h-6 w-6"
+                      :style="{ color: capitalTheme(activeCapital.capitalType).main }"
+                  />
                 </div>
               </div>
-              <p class="text-[11px] uppercase tracking-wide text-slate-400 dark:text-slate-500">
+              <p class="text-[11px] font-semibold uppercase tracking-wide text-slate-400 dark:text-slate-500">
                 {{ t('reports.capital-score') }}
               </p>
               <h3 class="mt-1 text-sm font-semibold text-slate-900 dark:text-white">
                 {{ activeCapital.title }}
               </h3>
               <p class="text-xs text-slate-400 dark:text-slate-500">{{ activeCapital.titleEn }}</p>
-              <div class="mx-auto my-4 text-4xl font-bold" :style="{ color: activeCapital.maturity.color }">
-                {{ round1(activeCapital.score) }}
+
+              <div class="my-3 flex flex-col items-center gap-2">
+                <div class="text-4xl font-bold leading-none" :style="{ color: activeCapital.maturity.color }">
+                  {{ round1(activeCapital.score) }}
+                </div>
+                <span
+                    class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-semibold"
+                    :style="{
+                      backgroundColor: hexToRgba(activeCapital.maturity.color, 0.12),
+                      color: activeCapital.maturity.color,
+                    }"
+                >
+                  <span class="h-1.5 w-1.5 rounded-full" :style="{ backgroundColor: activeCapital.maturity.color }" />
+                  {{ activeCapital.maturity.labelFa }}
+                </span>
               </div>
-              <div v-if="hasComparison && activeCapital.comparison?.value != null" class="mt-3 text-xs text-slate-500 dark:text-slate-400">
+
+              <div v-if="hasComparison && activeCapital.comparison?.value != null" class="mb-2 text-xs text-slate-500 dark:text-slate-400">
                 <Lucide icon="ArrowRightLeft" class="inline h-3 w-3" />
                 {{ comparisonLabel }}: <b class="text-slate-700 dark:text-white">{{ round1(activeCapital.comparison.value) }}</b>
                 <span
@@ -2123,6 +2141,24 @@ function goToRisk(slug?: string | null) {
                 </span>
               </div>
 
+              <div v-if="capitalStats" class="mt-3 space-y-2 border-t border-slate-100 pt-3 dark:border-slate-700">
+                <div class="flex items-center justify-between gap-2 text-xs">
+                  <span class="text-slate-500 dark:text-slate-400">{{ t('reports.domain-count') }}</span>
+                  <b class="text-slate-800 dark:text-white">{{ activeCapital.domains.length }}</b>
+                </div>
+                <div class="flex items-center justify-between gap-2 text-xs">
+                  <span class="text-slate-500 dark:text-slate-400">{{ t('reports.capability-count') }}</span>
+                  <b class="text-slate-800 dark:text-white">{{ capitalStats.capabilities }}</b>
+                </div>
+                <div class="flex items-center justify-between gap-2 text-xs">
+                  <span class="text-slate-500 dark:text-slate-400">{{ t('reports.meets-target') }}</span>
+                  <b class="text-slate-800 dark:text-white">{{ capitalStats.meetsTarget }}/{{ capitalStats.hasTarget }}</b>
+                </div>
+                <div class="flex items-center justify-between gap-2 text-xs">
+                  <span class="text-slate-500 dark:text-slate-400">{{ t('reports.data-completion') }}</span>
+                  <b class="text-emerald-600 dark:text-emerald-400">{{ round1(capitalStats.completion) }}%</b>
+                </div>
+              </div>
             </div>
 
             <!-- radar -->

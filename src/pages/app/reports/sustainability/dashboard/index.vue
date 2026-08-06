@@ -1764,7 +1764,7 @@ function goToRisk(slug?: string | null) {
 
             <!-- capital comparison bar + global maturity donut -->
             <div class="grid grid-cols-1 gap-5 lg:grid-cols-12">
-              <div class="lg:col-span-7 rounded-xl border border-slate-100 p-5 dark:border-darkmode-700">
+              <div class="lg:col-span-12 rounded-xl border border-slate-100 p-5 dark:border-darkmode-700">
                 <div class="mb-1 flex items-center gap-2">
                   <Lucide icon="BarChart3" class="h-4 w-4 text-slate-400" />
                   <h3 class="text-sm font-semibold text-slate-700 dark:text-slate-200">{{ t('reports.capital-comparison') }}</h3>
@@ -1773,6 +1773,7 @@ function goToRisk(slug?: string | null) {
                   <Bar :data="capitalBarData" :options="barOptionsHorizontal" />
                 </div>
               </div>
+              <!-- TODO: maturity distribution donut is temporarily disabled (its labels are maturity labels — decide later)
               <div class="lg:col-span-5 rounded-xl border border-slate-100 p-5 dark:border-darkmode-700">
                 <div class="mb-1 flex items-center gap-2">
                   <Lucide icon="PieChart" class="h-4 w-4 text-slate-400" />
@@ -1783,6 +1784,7 @@ function goToRisk(slug?: string | null) {
                   <Doughnut v-if="globalMaturityBuckets.length" :data="globalMaturityDonutData" :options="donutOptions" />
                 </div>
               </div>
+              -->
             </div>
 
             <!-- RISK PORTFOLIO OVERVIEW (appended risk data — does not affect scoring) -->
@@ -2019,7 +2021,7 @@ function goToRisk(slug?: string | null) {
             </div>
 
             <!-- component comparison bar + capital maturity donut -->
-            <div class="lg:col-span-7 rounded-xl border border-slate-100 p-5 dark:border-darkmode-700">
+            <div class="lg:col-span-12 rounded-xl border border-slate-100 p-5 dark:border-darkmode-700">
               <div class="mb-1 flex items-center gap-2">
                 <Lucide icon="BarChart3" class="h-4 w-4 text-slate-400" />
                 <h3 class="text-sm font-semibold text-slate-700 dark:text-slate-200">{{ t('reports.top-components') }}</h3>
@@ -2031,6 +2033,7 @@ function goToRisk(slug?: string | null) {
                 <Bar v-if="componentsInCapital.length" :data="componentBarData" :options="barOptionsHorizontal" />
               </div>
             </div>
+            <!-- TODO: capital maturity donut is temporarily disabled (its labels are maturity labels — decide later)
             <div class="lg:col-span-5 rounded-xl border border-slate-100 p-5 dark:border-darkmode-700">
               <div class="mb-1 flex items-center gap-2">
                 <Lucide icon="PieChart" class="h-4 w-4 text-slate-400" />
@@ -2040,6 +2043,7 @@ function goToRisk(slug?: string | null) {
                 <Doughnut v-if="capitalMaturityBuckets.length" :data="capitalMaturityDonutData" :options="donutOptions" />
               </div>
             </div>
+            -->
 
             <!-- gap analysis -->
             <div v-if="gapCapabilities.length" class="lg:col-span-12 rounded-xl border border-rose-100 bg-rose-50/40 p-5 dark:border-rose-900/30 dark:bg-rose-900/10">

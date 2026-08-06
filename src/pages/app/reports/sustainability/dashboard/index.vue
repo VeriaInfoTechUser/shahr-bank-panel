@@ -1969,16 +1969,6 @@ function goToRisk(slug?: string | null) {
               <div class="mx-auto my-4 text-4xl font-bold" :style="{ color: activeCapital.maturity.color }">
                 {{ round1(activeCapital.score) }}
               </div>
-              <span
-                  class="inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium"
-                  :style="{
-                  color: activeCapital.maturity.color,
-                  borderColor: hexToRgba(activeCapital.maturity.color, 0.4),
-                  backgroundColor: hexToRgba(activeCapital.maturity.color, 0.08),
-                }"
-              >
-                {{ activeCapital.maturity.emoji }} {{ activeCapital.maturity.labelFa }}
-              </span>
               <div v-if="hasComparison && activeCapital.comparison?.value != null" class="mt-3 text-xs text-slate-500 dark:text-slate-400">
                 <Lucide icon="ArrowRightLeft" class="inline h-3 w-3" />
                 {{ comparisonLabel }}: <b class="text-slate-700 dark:text-slate-200">{{ round1(activeCapital.comparison.value) }}</b>
@@ -2045,7 +2035,7 @@ function goToRisk(slug?: string | null) {
             </div>
             -->
 
-            <!-- gap analysis -->
+            <!-- TODO: gap analysis is temporarily disabled (a maturity-based concept — will live in the maturity dashboard)
             <div v-if="gapCapabilities.length" class="lg:col-span-12 rounded-xl border border-rose-100 bg-rose-50/40 p-5 dark:border-rose-900/30 dark:bg-rose-900/10">
               <div class="mb-3 flex items-center gap-2">
                 <Lucide icon="AlertOctagon" class="h-4 w-4 text-rose-500" />
@@ -2060,8 +2050,6 @@ function goToRisk(slug?: string | null) {
                   <tr class="border-b border-rose-100 text-right text-[10px] uppercase tracking-wide text-slate-400 dark:border-rose-900/30">
                     <th class="pb-2 font-medium">{{ t('reports.capability') }}</th>
                     <th class="pb-2 font-medium">{{ t('reports.domain') }} / {{ t('reports.component') }}</th>
-                    <th class="pb-2 text-center font-medium">{{ t('reports.current-maturity') }}</th>
-                    <th class="pb-2 text-center font-medium">{{ t('reports.required-maturity') }}</th>
                     <th class="pb-2 text-left font-medium">{{ t('reports.score') }}</th>
                     <th v-if="hasComparison" class="pb-2 text-left font-medium">{{ t('reports.comparison-score') }}</th>
                   </tr>
@@ -2070,12 +2058,6 @@ function goToRisk(slug?: string | null) {
                   <tr v-for="capa in gapCapabilities.slice(0, 10)" :key="capa.slug" class="border-b border-rose-50 last:border-0 dark:border-rose-900/20">
                     <td class="py-2 pr-2 text-slate-700 dark:text-slate-200">{{ capa.title }}</td>
                     <td class="py-2 pr-2 text-slate-400">{{ capa.domainTitle }} / {{ capa.componentTitle }}</td>
-                    <td class="py-2 text-center">
-                        <span class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium" :style="{ color: capa.maturity.color, backgroundColor: hexToRgba(capa.maturity.color, 0.1) }">
-                          {{ capa.maturity.emoji }} {{ capa.maturity.labelFa }}
-                        </span>
-                    </td>
-                    <td class="py-2 text-center font-semibold text-slate-600 dark:text-slate-300">{{ capa.requiredMaturity ?? '—' }}</td>
                     <td class="py-2 text-left font-semibold" :style="{ color: capa.maturity.color }">{{ round1(capa.score) }}</td>
                     <td v-if="hasComparison" class="py-2 text-left text-slate-400">{{ capa.comparison?.value != null ? round1(capa.comparison.value) : '—' }}</td>
                   </tr>
@@ -2086,6 +2068,7 @@ function goToRisk(slug?: string | null) {
                 </p>
               </div>
             </div>
+            -->
 
             <!-- RISK OVERVIEW (per capital, appended risk data) -->
             <div
@@ -2217,10 +2200,8 @@ function goToRisk(slug?: string | null) {
                         />
                         <span class="h-1.5 w-1.5 flex-none rounded-full" :style="{ backgroundColor: cap2.maturity.color }" />
                         <span class="min-w-0 flex-1 truncate text-slate-500 dark:text-slate-400">{{ cap2.title }}</span>
-                        <span class="flex-none text-[10px] text-slate-400 dark:text-slate-500">
-                          {{ t('reports.required-maturity') }} {{ cap2.requiredMaturity ?? '—' }}
+                        <span v-if="cap2.meetsTarget !== null && cap2.meetsTarget !== undefined" class="flex-none text-[10px]">
                           <Lucide
-                              v-if="cap2.meetsTarget !== null && cap2.meetsTarget !== undefined"
                               :icon="cap2.meetsTarget ? 'CheckCircle2' : 'XCircle'"
                               class="inline h-3 w-3"
                               :class="cap2.meetsTarget ? 'text-emerald-500' : 'text-rose-500'"

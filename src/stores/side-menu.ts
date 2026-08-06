@@ -316,6 +316,11 @@ export const useSideMenuStore = defineStore("sideMenu", {
                         pageName: "app-reports-sustainability-dashboard",
                         title: "menu.reports-sustainability-dashboard",
                     },
+                    {
+                        icon: "FileText",
+                        pageName: "app-reports-sustainability-report",
+                        title: "menu.reports-sustainability-report",
+                    },
                 ],
             },
             {

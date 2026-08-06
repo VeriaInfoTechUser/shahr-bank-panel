@@ -141,6 +141,14 @@ export class ReportRepo {
       data: params ?? {},
     });
   }
+
+  async getSustainabilitySections(params?: Record<string, unknown>) {
+    return grcHttpRequest({
+      method: 'GET',
+      url: `${this.base}/sections`,
+      params,
+    });
+  }
 }
 
 export const reportRepo = new ReportRepo();

@@ -71,6 +71,7 @@ import ReportsComparative from "@/pages/app/reports/comparative/index.vue";
 import ReportsComparativeDetail from "@/pages/app/reports/comparative/detail/index.vue";
 import ReportsComparativeDashboard from "@/pages/app/reports/comparative/dashboard/index.vue";
 import ReportsSustainabilityDashboard from "@/pages/app/reports/sustainability/dashboard/index.vue";
+import ReportsSustainabilityReport from "@/pages/app/reports/sustainability/report/index.vue";
 import DataEntry from "@/pages/app/data/entry/index.vue";
 import DataRaw from "@/pages/app/data/raw/index.vue";
 import DataLog from "@/pages/app/data/log/index.vue";
@@ -661,6 +662,12 @@ const routes = [
                             name: "app-reports-sustainability-dashboard",
                             component: ReportsSustainabilityDashboard,
                             meta: { breadcrumbLabel: 'reports.sustainability-dashboard' },
+                        },
+                        {
+                            path: "sustainability/report",
+                            name: "app-reports-sustainability-report",
+                            component: ReportsSustainabilityReport,
+                            meta: { breadcrumbLabel: 'reports.sustainability-report' },
                         },
                     ],
                 },

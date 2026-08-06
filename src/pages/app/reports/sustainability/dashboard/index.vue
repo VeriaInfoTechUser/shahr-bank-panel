@@ -281,7 +281,7 @@ const sectionSubtitle = computed(() => {
   }
   const cap = activeCapital.value;
   if (!cap) return '';
-  return cap.titleEn ? `${cap.titleEn} · ${cap.maturity.labelFa}` : cap.maturity.labelFa;
+  return cap.titleEn ?? '';
 });
 
 const CAPITAL_ICON: Record<string, string> = {
@@ -1340,26 +1340,6 @@ function goToRisk(slug?: string | null) {
 
 <template>
   <div class="mx-auto max-w-7xl px-1 pb-12 pt-2 md:px-2">
-    <!-- header -->
-    <div class="flex flex-wrap items-center justify-between gap-3 px-2 py-3">
-      <div class="flex items-center gap-3">
-        <button
-            type="button"
-            class="inline-flex h-8 w-8 items-center justify-center rounded-md border border-slate-200 bg-white text-slate-600 shadow-sm transition hover:bg-slate-50 hover:text-slate-900 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
-            @click="router.push({ name: 'app-reports-baseline' })"
-        >
-          <Lucide icon="ArrowRight" class="h-4 w-4" />
-        </button>
-        <div>
-          <p v-if="dashboardData" class="text-xs text-slate-500 dark:text-slate-400">
-            {{ periodLabel }}
-            <span v-if="hasComparison" class="text-indigo-500"> {{ t('reports.vs') }} {{ comparisonLabel }}</span>
-            <span v-if="slug"> · {{ slug }}</span>
-          </p>
-        </div>
-      </div>
-    </div>
-
     <!-- dashboard filter popover -->
     <Teleport to="body">
         <Transition name="sustainability-filter-pop">
@@ -2146,20 +2126,10 @@ function goToRisk(slug?: string | null) {
               </h3>
               <p class="text-xs text-slate-400 dark:text-slate-500">{{ activeCapital.titleEn }}</p>
 
-              <div class="my-3 flex flex-col items-center gap-2">
+              <div class="my-3">
                 <div class="text-4xl font-bold leading-none" :style="{ color: activeCapital.maturity.color }">
                   {{ round1(activeCapital.score) }}
                 </div>
-                <span
-                    class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-semibold"
-                    :style="{
-                      backgroundColor: hexToRgba(activeCapital.maturity.color, 0.12),
-                      color: activeCapital.maturity.color,
-                    }"
-                >
-                  <span class="h-1.5 w-1.5 rounded-full" :style="{ backgroundColor: activeCapital.maturity.color }" />
-                  {{ activeCapital.maturity.labelFa }}
-                </span>
               </div>
 
               <div v-if="hasComparison && activeCapital.comparison?.value != null" class="mb-2 text-xs text-slate-500 dark:text-slate-400">

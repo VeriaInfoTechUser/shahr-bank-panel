@@ -265,6 +265,25 @@ const activeCapital = computed<CapitalNode | undefined>(() =>
 const isOverview = computed(() => activeTab.value === OVERVIEW_TAB);
 const hasComparison = computed(() => !!dashboardData.value?.comparison_period);
 
+// section title shown under the tabs (ESG-dashboard style)
+const sectionIcon = computed(() =>
+    isOverview.value ? 'Radar' : capitalIcon(activeCapital.value?.capitalType),
+);
+const sectionColor = computed(() =>
+    isOverview.value ? '#6366f1' : capitalTheme(activeCapital.value?.capitalType).main,
+);
+const sectionTitle = computed(() =>
+    isOverview.value ? t('reports.all-capitals-overview') : (activeCapital.value?.title ?? ''),
+);
+const sectionSubtitle = computed(() => {
+  if (isOverview.value) {
+    return `${globalStats.value.capitals} ${t('reports.capitals')} · ${globalStats.value.indicators} ${t('reports.indicators')} · ${round1(globalStats.value.completion)}% ${t('reports.data-completion')}`;
+  }
+  const cap = activeCapital.value;
+  if (!cap) return '';
+  return cap.titleEn ? `${cap.titleEn} · ${cap.maturity.labelFa}` : cap.maturity.labelFa;
+});
+
 const CAPITAL_ICON: Record<string, string> = {
   NAT: 'Leaf',
   HUM: 'Users',
@@ -1320,102 +1339,29 @@ function goToRisk(slug?: string | null) {
 </script>
 
 <template>
-  <div class="mx-auto max-w-7xl px-2 pb-10 pt-2">
-    <div
-        class="rounded-xl border border-slate-200/70 bg-white shadow-sm dark:border-slate-700/80 dark:bg-slate-800"
-    >
-      <!-- header -->
-      <div
-          class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 px-6 py-4 dark:border-slate-700"
-      >
-        <div class="flex items-center gap-3">
-          <button
-              type="button"
-              class="inline-flex h-8 w-8 items-center justify-center rounded-md border border-slate-200 bg-white text-slate-600 shadow-sm transition hover:bg-slate-50 hover:text-slate-900 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
-              @click="router.push({ name: 'app-reports-baseline' })"
-          >
-            <Lucide icon="ArrowRight" class="h-4 w-4" />
-          </button>
-          <div>
-            <p v-if="dashboardData" class="text-xs text-slate-500 dark:text-slate-400">
-              {{ periodLabel }}
-              <span v-if="hasComparison" class="text-indigo-500"> {{ t('reports.vs') }} {{ comparisonLabel }}</span>
-              <span v-if="slug"> · {{ slug }}</span>
-            </p>
-          </div>
-        </div>
-        <div class="flex flex-shrink-0 flex-wrap items-center gap-1.5" dir="ltr">
-          <!-- filter toolbar cluster -->
-          <div
-              ref="filterClusterRef"
-              class="flex max-w-[min(100vw-6rem,36rem)] flex-shrink-0 flex-wrap items-center gap-0.5"
-          >
-            <div class="flex shrink-0 items-center gap-1">
-              <button
-                  ref="filterBtnRef"
-                  type="button"
-                  class="inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-md border shadow-sm transition"
-                  :class="filterOpen
-                    ? 'border-indigo-200 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 dark:border-indigo-800 dark:bg-indigo-900/20 dark:text-indigo-400'
-                    : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50 hover:text-primary dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-primary'"
-                  :aria-expanded="filterOpen"
-                  :aria-label="t('reports.dashboard-settings')"
-                  :title="t('reports.dashboard-settings')"
-                  @click="toggleFilter"
-              >
-                <Lucide icon="Filter" class="h-4 w-4" />
-              </button>
-              <button
-                  v-if="showClearFilters"
-                  type="button"
-                  class="inline-flex h-8 max-w-[min(100%,12rem)] shrink-0 items-center rounded-md border border-slate-200 bg-white px-2 text-xs font-medium text-slate-600 shadow-sm transition hover:bg-slate-50 hover:text-danger dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-danger"
-                  :aria-label="t('reports.toolbar-clear-filters')"
-                  :title="t('reports.toolbar-clear-filters')"
-                  @click="clearFilters"
-              >
-                <span class="truncate">{{ t('reports.toolbar-clear-filters') }}</span>
-              </button>
-            </div>
-
-            <div
-                v-if="activeFilterKeys.length > 0"
-                class="mx-1.5 flex min-w-0 flex-wrap items-center gap-1 sm:mx-2"
-            >
-              <div class="h-8 w-1 shrink-0 self-center rounded-full bg-slate-500 dark:bg-slate-400" aria-hidden="true" />
-              <div class="flex min-w-0 flex-wrap items-center gap-1">
-                <span
-                    v-for="chip in activeFilterChips"
-                    :key="chip.key"
-                    class="inline-flex max-w-[11rem] items-center gap-0.5 rounded-full border border-slate-200 bg-slate-50 py-0.5 pl-2 pr-0.5 text-[11px] font-medium text-slate-700 shadow-sm dark:border-slate-600 dark:bg-slate-700/80 dark:text-white"
-                >
-                  <span class="min-w-0 truncate" :title="chip.label">{{ chip.label }}</span>
-                  <button
-                      type="button"
-                      class="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-slate-500 transition hover:bg-slate-200 hover:text-slate-900 dark:hover:bg-slate-600 dark:hover:text-slate-100"
-                      :aria-label="t(chip.ariaKey)"
-                      :title="t(chip.ariaKey)"
-                      @click.stop="chip.onRemove()"
-                  >
-                    <Lucide icon="X" class="!h-3 !w-3" />
-                  </button>
-                </span>
-              </div>
-            </div>
-          </div>
-
-          <button
-              type="button"
-              class="inline-flex items-center gap-2 rounded-md border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 shadow-sm transition hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
-              @click="loadOverview"
-          >
-            <Lucide icon="RefreshCw" class="h-3.5 w-3.5" :class="{ 'animate-spin': loading }" />
-            {{ t('general.refresh') }}
-          </button>
+  <div class="mx-auto max-w-7xl px-1 pb-12 pt-2 md:px-2">
+    <!-- header -->
+    <div class="flex flex-wrap items-center justify-between gap-3 px-2 py-3">
+      <div class="flex items-center gap-3">
+        <button
+            type="button"
+            class="inline-flex h-8 w-8 items-center justify-center rounded-md border border-slate-200 bg-white text-slate-600 shadow-sm transition hover:bg-slate-50 hover:text-slate-900 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
+            @click="router.push({ name: 'app-reports-baseline' })"
+        >
+          <Lucide icon="ArrowRight" class="h-4 w-4" />
+        </button>
+        <div>
+          <p v-if="dashboardData" class="text-xs text-slate-500 dark:text-slate-400">
+            {{ periodLabel }}
+            <span v-if="hasComparison" class="text-indigo-500"> {{ t('reports.vs') }} {{ comparisonLabel }}</span>
+            <span v-if="slug"> · {{ slug }}</span>
+          </p>
         </div>
       </div>
+    </div>
 
-      <!-- dashboard filter popover -->
-      <Teleport to="body">
+    <!-- dashboard filter popover -->
+    <Teleport to="body">
         <Transition name="sustainability-filter-pop">
           <div
               v-if="filterOpen"
@@ -1605,10 +1551,10 @@ function goToRisk(slug?: string | null) {
             </div>
           </div>
         </Transition>
-      </Teleport>
+    </Teleport>
 
-      <div class="p-6">
-        <!-- loading -->
+    <div class="px-1 pt-1">
+      <!-- loading -->
         <div v-if="loading" class="space-y-5 py-2">
           <div class="h-12 animate-pulse rounded-xl bg-slate-100 dark:bg-slate-700" />
           <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
@@ -1670,12 +1616,99 @@ function goToRisk(slug?: string | null) {
                   ? 'bg-white text-slate-900 shadow-sm dark:bg-slate-800 dark:text-white'
                   : 'text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200'
               "
+                :style="activeTab === cap.slug
+                  ? { backgroundColor: hexToRgba(capitalTheme(cap.capitalType).main, 0.12) }
+                  : undefined"
                 @click="selectCapital(cap.slug)"
             >
               <Lucide :icon="capitalIcon(cap.capitalType)" class="h-4 w-4" :style="{ color: capitalTheme(cap.capitalType).main }" />
               {{ cap.title }}
               <span class="h-1.5 w-1.5 rounded-full" :style="{ backgroundColor: cap.maturity.color }" />
             </button>
+          </div>
+
+          <!-- filter toolbar -->
+          <div class="flex flex-shrink-0 flex-wrap items-center gap-1.5" dir="ltr">
+            <!-- filter toolbar cluster -->
+            <div
+                ref="filterClusterRef"
+                class="flex max-w-[min(100vw-6rem,36rem)] flex-shrink-0 flex-wrap items-center gap-0.5"
+            >
+              <div class="flex shrink-0 items-center gap-1">
+                <button
+                    ref="filterBtnRef"
+                    type="button"
+                    class="inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-md border shadow-sm transition"
+                    :class="filterOpen
+                      ? 'border-indigo-200 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 dark:border-indigo-800 dark:bg-indigo-900/20 dark:text-indigo-400'
+                      : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50 hover:text-primary dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-primary'"
+                    :aria-expanded="filterOpen"
+                    :aria-label="t('reports.dashboard-settings')"
+                    :title="t('reports.dashboard-settings')"
+                    @click="toggleFilter"
+                >
+                  <Lucide icon="Filter" class="h-4 w-4" />
+                </button>
+                <button
+                    v-if="showClearFilters"
+                    type="button"
+                    class="inline-flex h-8 max-w-[min(100%,12rem)] shrink-0 items-center rounded-md border border-slate-200 bg-white px-2 text-xs font-medium text-slate-600 shadow-sm transition hover:bg-slate-50 hover:text-danger dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-danger"
+                    :aria-label="t('reports.toolbar-clear-filters')"
+                    :title="t('reports.toolbar-clear-filters')"
+                    @click="clearFilters"
+                >
+                  <span class="truncate">{{ t('reports.toolbar-clear-filters') }}</span>
+                </button>
+              </div>
+
+              <div
+                  v-if="activeFilterKeys.length > 0"
+                  class="mx-1.5 flex min-w-0 flex-wrap items-center gap-1 sm:mx-2"
+              >
+                <div class="h-8 w-1 shrink-0 self-center rounded-full bg-slate-500 dark:bg-slate-400" aria-hidden="true" />
+                <div class="flex min-w-0 flex-wrap items-center gap-1">
+                  <span
+                      v-for="chip in activeFilterChips"
+                      :key="chip.key"
+                      class="inline-flex max-w-[11rem] items-center gap-0.5 rounded-full border border-slate-200 bg-slate-50 py-0.5 pl-2 pr-0.5 text-[11px] font-medium text-slate-700 shadow-sm dark:border-slate-600 dark:bg-slate-700/80 dark:text-white"
+                  >
+                    <span class="min-w-0 truncate" :title="chip.label">{{ chip.label }}</span>
+                    <button
+                        type="button"
+                        class="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-slate-500 transition hover:bg-slate-200 hover:text-slate-900 dark:hover:bg-slate-600 dark:hover:text-slate-100"
+                        :aria-label="t(chip.ariaKey)"
+                        :title="t(chip.ariaKey)"
+                        @click.stop="chip.onRemove()"
+                    >
+                      <Lucide icon="X" class="!h-3 !w-3" />
+                    </button>
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <button
+                type="button"
+                class="inline-flex items-center gap-2 rounded-md border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 shadow-sm transition hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
+                @click="loadOverview"
+            >
+              <Lucide icon="RefreshCw" class="h-3.5 w-3.5" :class="{ 'animate-spin': loading }" />
+              {{ t('general.refresh') }}
+            </button>
+          </div>
+
+          <!-- section title -->
+          <div class="flex flex-wrap items-center gap-3 px-1 pt-1">
+            <div
+                class="inline-flex h-10 w-10 flex-none items-center justify-center rounded-xl shadow-sm"
+                :style="{ backgroundColor: hexToRgba(sectionColor, 0.12), color: sectionColor }"
+            >
+              <Lucide :icon="sectionIcon" class="h-5 w-5" />
+            </div>
+            <div class="min-w-0">
+              <h1 class="text-xl font-semibold text-slate-900 dark:text-white">{{ sectionTitle }}</h1>
+              <p class="mt-0.5 truncate text-xs text-slate-500 dark:text-slate-400">{{ sectionSubtitle }}</p>
+            </div>
           </div>
 
           <!-- overview tab -->
@@ -2498,7 +2531,6 @@ function goToRisk(slug?: string | null) {
           </div>
         </div>
       </div>
-    </div>
   </div>
 </template>
 

@@ -1825,96 +1825,115 @@ function goToRisk(slug?: string | null) {
             </div>
 
             <!-- RISK PORTFOLIO OVERVIEW (appended risk data — does not affect scoring) -->
-            <div v-if="portfolioRisks.total > 0" class="space-y-5">
+            <div v-if="portfolioRisks.total > 0" class="space-y-4">
               <div class="flex flex-wrap items-center gap-2">
-                <Lucide icon="ShieldAlert" class="h-5 w-5 text-rose-500" />
-                <h2 class="text-sm font-semibold text-slate-900 dark:text-white">
-                  {{ t('reports.risk-portfolio-overview') }}
-                </h2>
-                <span class="rounded-full bg-rose-50 px-2 py-0.5 text-[10px] font-semibold text-rose-700 dark:bg-rose-900/30 dark:text-rose-300">
-                  {{ portfolioRisks.total }}
+                <span
+                    class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-rose-50 text-rose-500 dark:bg-rose-900/30 dark:text-rose-300"
+                >
+                  <Lucide icon="ShieldAlert" class="h-5 w-5" />
                 </span>
-              </div>
-
-              <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                <div class="group relative overflow-hidden rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl dark:border-slate-700 dark:bg-slate-800">
-                  <div
-                      class="pointer-events-none absolute inset-0 opacity-5 transition-opacity duration-300 group-hover:opacity-10"
-                      style="background: radial-gradient(circle at top right, #64748b, transparent 70%)"
-                  />
-                  <div class="flex items-center gap-2 text-slate-500 dark:text-slate-400">
-                    <Lucide icon="ListTodo" class="h-4 w-4" />
-                    <span class="text-[11px] font-medium">{{ t('reports.total-risks') }}</span>
-                  </div>
-                  <div class="mt-2 text-2xl font-bold tracking-tight text-slate-900 dark:text-white">{{ portfolioRisks.total }}</div>
-                </div>
-                <div class="group relative overflow-hidden rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl dark:border-slate-700 dark:bg-slate-800">
-                  <div
-                      class="pointer-events-none absolute inset-0 opacity-5 transition-opacity duration-300 group-hover:opacity-10"
-                      style="background: radial-gradient(circle at top right, #10b981, transparent 70%)"
-                  />
-                  <div class="flex items-center gap-2 text-slate-500 dark:text-slate-400">
-                    <Lucide icon="Activity" class="h-4 w-4 text-emerald-500" />
-                    <span class="text-[11px] font-medium">{{ t('reports.active-risks') }}</span>
-                  </div>
-                  <div class="mt-2 text-2xl font-bold text-emerald-600 dark:text-emerald-400">{{ portfolioRisks.active }}</div>
-                </div>
-                <div class="group relative overflow-hidden rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl dark:border-slate-700 dark:bg-slate-800">
-                  <div
-                      class="pointer-events-none absolute inset-0 opacity-5 transition-opacity duration-300 group-hover:opacity-10"
-                      style="background: radial-gradient(circle at top right, #64748b, transparent 70%)"
-                  />
-                  <div class="flex items-center gap-2 text-slate-500 dark:text-slate-400">
-                    <Lucide icon="Archive" class="h-4 w-4 text-slate-400" />
-                    <span class="text-[11px] font-medium">{{ t('reports.archived-risks') }}</span>
-                  </div>
-                  <div class="mt-2 text-2xl font-bold text-slate-500 dark:text-slate-400">{{ portfolioRisks.archived }}</div>
-                </div>
-                <div class="group relative overflow-hidden rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl dark:border-slate-700 dark:bg-slate-800">
-                  <div
-                      class="pointer-events-none absolute inset-0 opacity-5 transition-opacity duration-300 group-hover:opacity-10"
-                      style="background: radial-gradient(circle at top right, #f43f5e, transparent 70%)"
-                  />
-                  <div class="flex items-center gap-2 text-slate-500 dark:text-slate-400">
-                    <Lucide icon="ShieldAlert" class="h-4 w-4 text-rose-500" />
-                    <span class="text-[11px] font-medium">{{ t('reports.high-level-risks') }} + {{ t('reports.critical-risks') }}</span>
-                  </div>
-                  <div class="mt-2 text-2xl font-bold text-rose-600 dark:text-rose-400">{{ portfolioRiskCriticalHigh }}</div>
-                  <p class="mt-1 text-[11px] text-slate-400">
-                    {{ t('reports.risk-level-critical') }}: <b class="text-rose-500">{{ portfolioRiskCritical }}</b>
+                <div>
+                  <h2 class="text-sm font-bold text-slate-900 dark:text-white">
+                    {{ t('reports.risk-portfolio-overview') }}
+                  </h2>
+                  <p class="text-xs text-slate-500 dark:text-slate-400">
+                    {{ portfolioRisks.total }} {{ t('reports.risks') }}
                   </p>
                 </div>
               </div>
 
-              <div class="grid grid-cols-1 gap-5 lg:grid-cols-12">
-                <div class="lg:col-span-5 rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-800">
-                  <div class="mb-1 flex items-center gap-2">
-                    <Lucide icon="PieChart" class="h-4 w-4 text-slate-400" />
-                    <h3 class="text-sm font-semibold text-slate-900 dark:text-white">{{ t('reports.risks-by-level') }}</h3>
-                  </div>
-                  <div class="h-[240px]">
-                    <Doughnut v-if="riskLevelBuckets.length" :data="riskLevelDonutData" :options="riskDonutOptions" />
-                    <p v-else class="py-10 text-center text-xs text-slate-400">{{ t('reports.no-risk-data') }}</p>
+              <!-- KPI row (risk-dashboard StatCard style) -->
+              <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                <div class="relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800">
+                  <span class="absolute inset-y-0 right-0 w-1 bg-slate-400 dark:bg-slate-500" aria-hidden="true" />
+                  <div class="flex items-center justify-between gap-3">
+                    <div class="min-w-0">
+                      <p class="truncate text-xs font-medium text-slate-500 dark:text-slate-400">{{ t('reports.total-risks') }}</p>
+                      <p class="mt-1 text-2xl font-extrabold text-slate-900 dark:text-white">{{ portfolioRisks.total }}</p>
+                    </div>
+                    <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-500 dark:bg-slate-700 dark:text-slate-300">
+                      <Lucide icon="ListTodo" class="h-[22px] w-[22px]" />
+                    </span>
                   </div>
                 </div>
-                <div class="lg:col-span-7 rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-800">
-                  <div class="mb-1 flex items-center gap-2">
-                    <Lucide icon="ListChecks" class="h-4 w-4 text-slate-400" />
-                    <h3 class="text-sm font-semibold text-slate-900 dark:text-white">{{ t('reports.risks-by-state') }}</h3>
+                <div class="relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800">
+                  <span class="absolute inset-y-0 right-0 w-1 bg-emerald-400 dark:bg-emerald-500" aria-hidden="true" />
+                  <div class="flex items-center justify-between gap-3">
+                    <div class="min-w-0">
+                      <p class="truncate text-xs font-medium text-slate-500 dark:text-slate-400">{{ t('reports.active-risks') }}</p>
+                      <p class="mt-1 text-2xl font-extrabold text-emerald-600 dark:text-emerald-400">{{ portfolioRisks.active }}</p>
+                    </div>
+                    <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-500 dark:bg-emerald-900/30 dark:text-emerald-300">
+                      <Lucide icon="Activity" class="h-[22px] w-[22px]" />
+                    </span>
                   </div>
-                  <div class="mt-3" :style="{ height: Math.max(riskStateBarData.labels.length * 30, 160) + 'px' }">
-                    <Bar v-if="riskStateBarData.labels.length" :data="riskStateBarData" :options="riskBarOptions" />
-                    <p v-else class="py-10 text-center text-xs text-slate-400">{{ t('reports.no-risk-data') }}</p>
+                </div>
+                <div class="relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800">
+                  <span class="absolute inset-y-0 right-0 w-1 bg-slate-300 dark:bg-slate-600" aria-hidden="true" />
+                  <div class="flex items-center justify-between gap-3">
+                    <div class="min-w-0">
+                      <p class="truncate text-xs font-medium text-slate-500 dark:text-slate-400">{{ t('reports.archived-risks') }}</p>
+                      <p class="mt-1 text-2xl font-extrabold text-slate-500 dark:text-slate-400">{{ portfolioRisks.archived }}</p>
+                    </div>
+                    <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-400 dark:bg-slate-700 dark:text-slate-400">
+                      <Lucide icon="Archive" class="h-[22px] w-[22px]" />
+                    </span>
+                  </div>
+                </div>
+                <div class="relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800">
+                  <span class="absolute inset-y-0 right-0 w-1 bg-rose-400 dark:bg-rose-500" aria-hidden="true" />
+                  <div class="flex items-center justify-between gap-3">
+                    <div class="min-w-0">
+                      <p class="truncate text-xs font-medium text-slate-500 dark:text-slate-400">
+                        {{ t('reports.high-level-risks') }} + {{ t('reports.critical-risks') }}
+                      </p>
+                      <p class="mt-1 text-2xl font-extrabold text-rose-600 dark:text-rose-400">{{ portfolioRiskCriticalHigh }}</p>
+                      <p class="mt-1 truncate text-xs text-slate-400">
+                        {{ t('reports.risk-level-critical') }}: <b class="text-rose-500">{{ portfolioRiskCritical }}</b>
+                      </p>
+                    </div>
+                    <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-rose-50 text-rose-500 dark:bg-rose-900/30 dark:text-rose-300">
+                      <Lucide icon="ShieldAlert" class="h-[22px] w-[22px]" />
+                    </span>
                   </div>
                 </div>
               </div>
 
-              <!-- risk heatmap: capital × level -->
+              <!-- distributions: level donut + state bar (risk-dashboard DashboardCard style) -->
+              <div class="grid grid-cols-1 gap-4 lg:grid-cols-5">
+                <section class="flex flex-col rounded-2xl border border-slate-200 bg-white p-4 shadow-sm lg:col-span-2 dark:border-slate-700 dark:bg-slate-800">
+                  <header class="mb-3">
+                    <h3 class="text-sm font-bold text-slate-900 dark:text-white">{{ t('reports.risks-by-level') }}</h3>
+                    <p class="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
+                      {{ portfolioRisks.total }} {{ t('reports.risks') }}
+                    </p>
+                  </header>
+                  <div class="flex-1">
+                    <div class="h-[240px]">
+                      <Doughnut v-if="riskLevelBuckets.length" :data="riskLevelDonutData" :options="riskDonutOptions" />
+                      <p v-else class="py-10 text-center text-xs text-slate-400">{{ t('reports.no-risk-data') }}</p>
+                    </div>
+                  </div>
+                </section>
+                <section class="flex flex-col rounded-2xl border border-slate-200 bg-white p-4 shadow-sm lg:col-span-3 dark:border-slate-700 dark:bg-slate-800">
+                  <header class="mb-3">
+                    <h3 class="text-sm font-bold text-slate-900 dark:text-white">{{ t('reports.risks-by-state') }}</h3>
+                    <p class="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
+                      {{ portfolioRisks.total }} {{ t('reports.risks') }}
+                    </p>
+                  </header>
+                  <div class="flex-1" :style="{ height: Math.max(riskStateBarData.labels.length * 30, 160) + 'px' }">
+                    <Bar v-if="riskStateBarData.labels.length" :data="riskStateBarData" :options="riskBarOptions" />
+                    <p v-else class="py-10 text-center text-xs text-slate-400">{{ t('reports.no-risk-data') }}</p>
+                  </div>
+                </section>
+              </div>
+
+              <!-- risk heatmap: capital × level (table UI, matches the other tabs) -->
               <div v-if="riskHeatmapByCapital.length" class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-800">
                 <div class="mb-3 flex flex-wrap items-center gap-2">
                   <Lucide icon="Grid3x3" class="h-4 w-4 text-rose-500" />
                   <h3 class="text-sm font-semibold text-slate-900 dark:text-white">{{ t('reports.risk-heatmap-by-capital') }}</h3>
-                  <span class="mr-auto text-[11px] text-slate-400">{{ t('reports.risk-heatmap') }}</span>
                 </div>
                 <div class="overflow-x-auto">
                   <table class="w-full min-w-[560px] text-xs">
@@ -2266,7 +2285,7 @@ function goToRisk(slug?: string | null) {
                 </div>
               </div>
 
-              <!-- risk heatmap: domain × level -->
+              <!-- risk heatmap: domain × level (table UI) -->
               <div v-if="riskHeatmapByDomain.length" class="mt-4 overflow-x-auto rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-800">
                 <div class="mb-3 flex flex-wrap items-center gap-2">
                   <Lucide icon="Grid3x3" class="h-4 w-4 text-rose-500" />

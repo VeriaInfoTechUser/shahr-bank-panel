@@ -1,44 +1,54 @@
 <script setup lang="ts">
-import { computed, nextTick, onMounted, ref } from 'vue'
+import { computed, nextTick, ref, watch } from 'vue'
 import html2canvas from 'html2canvas'
 import { jsPDF } from 'jspdf'
 import Lucide from '@/base-components/Lucide'
 import { reportRepo } from '@/core/repositories/reportRepo'
+import PeriodSelectPanel from '@/components/PeriodSelectPanel.vue'
 
 // ---------------------------------------------------------------------------
 // data fetching
 // ---------------------------------------------------------------------------
 const data = ref<any>(null)
-const loading = ref(true)
+const loading = ref(false)
 const error = ref<string | null>(null)
 const reportType = ref<'baseline' | 'comparative'>('baseline')
 
 const isGenerating = ref(false)
 const progress = ref(0)
 
+// ---- report filter panel state (period + comparison, like the dashboard) ----
+interface SelectedPeriod {
+  type: string
+  startDate: string
+  endDate: string
+}
+const reportGenerated = ref(false)
+const selectedPeriod = ref<SelectedPeriod | null>(null)
+const compareEnabled = ref(false)
+const comparePeriod = ref<SelectedPeriod | null>(null)
+
 async function loadReport() {
   loading.value = true
   error.value = null
   try {
-    const res = await reportRepo.getSustainabilitySections({ reportType: reportType.value })
+    const params = buildReportParams()
+    const res = await reportRepo.getSustainabilitySections(params)
     let payload = res?.data ?? null
-    // For comparative reports: if the backend didn't resolve a comparison period
-    // (compare_* params were not sent), derive the previous year and re-request so
-    // the comparative-analysis page renders with real comparison data.
+    // Comparative report without an explicit comparison period: if the backend
+    // didn't resolve one, derive the previous year so the section isn't empty.
     if (
       reportType.value === 'comparative' &&
+      !(compareEnabled.value && comparePeriod.value) &&
       payload &&
       !payload.comparisonPeriod &&
       payload.period &&
       payload.period.type === 'YEARLY'
     ) {
-      // Best-effort: enrich with a previous-year comparison. If this extra call
-      // fails, keep the already-loaded comparative payload.
       try {
         const prev = payload.period.year - 1
         const res2 = await reportRepo.getSustainabilitySections({
-          reportType: 'comparative',
-          period_type: 'YEARLY',
+          ...params,
           compare_period_type: 'YEARLY',
           compare_date_from: `${prev}-01-01`,
           compare_date_to: `${prev}-12-31`,
@@ -66,11 +76,38 @@ async function loadReport() {
 function switchType(type: 'baseline' | 'comparative') {
   if (type === reportType.value) return
   reportType.value = type
+  if (type === 'comparative' && !comparePeriod.value && prevComparePeriod.value) {
+    // default the comparison to the previous period so the section has data
+    comparePeriod.value = prevComparePeriod.value
+    compareEnabled.value = true
+  }
   window.scrollTo({ top: 0 })
   loadReport()
 }
 
-onMounted(loadReport)
+/** Filter-panel type toggle: only updates the selection, does not fetch yet. */
+function setReportType(type: 'baseline' | 'comparative') {
+  if (type === reportType.value) return
+  reportType.value = type
+  if (type === 'baseline') {
+    compareEnabled.value = false
+    comparePeriod.value = null
+  }
+}
+
+/** Apply the configured filters and load the report. */
+function generateReport() {
+  if (!canGenerate.value) return
+  reportGenerated.value = true
+  loadReport()
+}
+
+/** Go back to the filter panel to change the configuration. */
+function backToSettings() {
+  reportGenerated.value = false
+  data.value = null
+  window.scrollTo({ top: 0 })
+}
 
 // ---------------------------------------------------------------------------
 // derived data
@@ -381,6 +418,174 @@ const riskRegisterByCapital = computed(() => {
   }
   return groups.sort((a, b) => b.total - a.total)
 })
+
+// ---------------------------------------------------------------------------
+// report filter panel (period + comparison — same UX as the sustainability
+// dashboard): the report is only fetched after the user applies these filters
+// ---------------------------------------------------------------------------
+const pad2 = (n: number) => String(n).padStart(2, '0')
+const lastDayOfMonth = (year: number, month: number) => new Date(year, month, 0).getDate()
+const currentYear = () => new Date().getFullYear()
+
+const yearStripRef = ref<HTMLElement | null>(null)
+
+const yearOptions = computed<number[]>(() => {
+  const base = selectedPeriod.value ? Number(selectedPeriod.value.startDate.slice(0, 4)) : currentYear() - 1
+  const min = Math.min(2015, base)
+  const max = Math.max(currentYear() + 1, base)
+  const years: number[] = []
+  for (let y = min; y <= max; y++) years.push(y)
+  return years
+})
+
+function scrollYears(direction: number) {
+  yearStripRef.value?.scrollBy({ left: direction * 220, behavior: 'smooth' })
+}
+
+function periodForYear(type: string, year: number): SelectedPeriod {
+  const month = selectedPeriod.value ? Number(selectedPeriod.value.startDate.slice(5, 7)) : 1
+  if (type === 'QUARTERLY') {
+    const q = Math.floor((month - 1) / 3) + 1
+    const fm = (q - 1) * 3 + 1
+    const lm = q * 3
+    return { type: 'QUARTERLY', startDate: `${year}-${pad2(fm)}-01`, endDate: `${year}-${pad2(lm)}-${pad2(lastDayOfMonth(year, lm))}` }
+  }
+  if (type === 'MONTHLY') {
+    const m = Math.min(month, 12)
+    return { type: 'MONTHLY', startDate: `${year}-${pad2(m)}-01`, endDate: `${year}-${pad2(m)}-${pad2(lastDayOfMonth(year, m))}` }
+  }
+  return { type: 'YEARLY', startDate: `${year}-01-01`, endDate: `${year}-12-31` }
+}
+
+function isQuickYearActive(year: number): boolean {
+  const p = selectedPeriod.value
+  return !!p && Number(p.startDate.slice(0, 4)) === year
+}
+
+function quickSelectYear(year: number) {
+  selectedPeriod.value = periodForYear(selectedPeriod.value?.type ?? 'YEARLY', year)
+}
+
+function formatPeriodLabel(p: SelectedPeriod): string {
+  const year = p.startDate.slice(0, 4)
+  if (p.type === 'YEARLY') return `${PERIOD_TYPE_FA.YEARLY} ${year}`
+  if (p.type === 'QUARTERLY') {
+    const q = Math.floor((Number(p.startDate.slice(5, 7)) - 1) / 3) + 1
+    return `فصل ${q} ${year}`
+  }
+  if (p.type === 'MONTHLY') {
+    const month = Number(p.startDate.slice(5, 7))
+    return `${PERIOD_TYPE_FA.MONTHLY} ${pad2(month)} ${year}`
+  }
+  return `${p.startDate} ← ${p.endDate}`
+}
+
+const selectedPeriodLabel = computed(() => (selectedPeriod.value ? formatPeriodLabel(selectedPeriod.value) : ''))
+const comparePeriodLabel = computed(() => (comparePeriod.value ? formatPeriodLabel(comparePeriod.value) : ''))
+
+const compareTypes = computed<string[]>(() => (selectedPeriod.value ? [selectedPeriod.value.type] : ['YEARLY']))
+const comparisonTypeLabel = computed(() => PERIOD_TYPE_FA[compareTypes.value[0]] ?? compareTypes.value[0])
+
+const prevComparePeriod = computed<SelectedPeriod | null>(() => {
+  const p = selectedPeriod.value
+  if (!p) return null
+  const year = Number(p.startDate.slice(0, 4))
+  const month = Number(p.startDate.slice(5, 7))
+  if (p.type === 'YEARLY') {
+    const y = year - 1
+    return { type: 'YEARLY', startDate: `${y}-01-01`, endDate: `${y}-12-31` }
+  }
+  if (p.type === 'QUARTERLY') {
+    const q = Math.floor((month - 1) / 3) + 1
+    let y = year
+    let pq = q - 1
+    if (pq === 0) { pq = 4; y -= 1 }
+    const fm = (pq - 1) * 3 + 1
+    const lm = pq * 3
+    return { type: 'QUARTERLY', startDate: `${y}-${pad2(fm)}-01`, endDate: `${y}-${pad2(lm)}-${pad2(lastDayOfMonth(y, lm))}` }
+  }
+  if (p.type === 'MONTHLY') {
+    let y = year
+    let m = month - 1
+    if (m === 0) { m = 12; y -= 1 }
+    return { type: 'MONTHLY', startDate: `${y}-${pad2(m)}-01`, endDate: `${y}-${pad2(m)}-${pad2(lastDayOfMonth(y, m))}` }
+  }
+  return null
+})
+
+const isComparingPrevious = computed(() => {
+  const prev = prevComparePeriod.value
+  return (
+    !!prev &&
+    !!comparePeriod.value &&
+    comparePeriod.value.startDate === prev.startDate &&
+    comparePeriod.value.endDate === prev.endDate
+  )
+})
+
+function compareWithPrevious() {
+  if (!prevComparePeriod.value) return
+  comparePeriod.value = prevComparePeriod.value
+  compareEnabled.value = true
+}
+
+const compareInvalid = computed(() => {
+  if (!compareEnabled.value || !comparePeriod.value || !selectedPeriod.value) return false
+  return (
+    comparePeriod.value.startDate === selectedPeriod.value.startDate &&
+    comparePeriod.value.endDate === selectedPeriod.value.endDate
+  )
+})
+
+// if the main period granularity changes, drop the now-incompatible comparison
+watch(
+    () => selectedPeriod.value?.type,
+    () => {
+      if (!compareEnabled.value) return
+      comparePeriod.value = null
+    },
+)
+
+// keep the active year chip visible in the scrollable strip
+watch(
+    () => selectedPeriod.value?.startDate,
+    () => {
+      void nextTick(() => {
+        yearStripRef.value
+            ?.querySelector('[data-active="true"]')
+            ?.scrollIntoView({ block: 'nearest', inline: 'center', behavior: 'smooth' })
+      })
+    },
+)
+
+const canGenerate = computed(() => {
+  if (!selectedPeriod.value) return false
+  if (reportType.value === 'comparative') {
+    if (!compareEnabled.value || !comparePeriod.value) return false
+    if (compareInvalid.value) return false
+  }
+  return true
+})
+
+function buildReportParams(): Record<string, unknown> {
+  const params: Record<string, unknown> = { reportType: reportType.value }
+  if (selectedPeriod.value) {
+    params.period_type = selectedPeriod.value.type
+    params.date_from = selectedPeriod.value.startDate
+    params.date_to = selectedPeriod.value.endDate
+  }
+  if (
+    reportType.value === 'comparative' &&
+    compareEnabled.value &&
+    comparePeriod.value &&
+    !compareInvalid.value
+  ) {
+    params.compare_period_type = comparePeriod.value.type
+    params.compare_date_from = comparePeriod.value.startDate
+    params.compare_date_to = comparePeriod.value.endDate
+  }
+  return params
+}
 
 // ---------------------------------------------------------------------------
 // A4 pagination: split each section's content across exact-A4 pages
@@ -704,20 +909,197 @@ async function downloadPDF() {
 </script>
 
 <template>
-  <div v-if="loading" class="py-12 text-center">{{ 'در حال دریافت گزارش…' }}</div>
-  <div v-else-if="error" class="py-12 text-center text-red-600">
-    {{ error }}
-    <div class="mt-3">
+  <!-- ======================= FILTER / SETUP ======================= -->
+  <div v-if="!reportGenerated" dir="rtl" style="font-family: 'Vazirmatn', sans-serif" class="report-setup">
+    <div class="setup-card">
+      <div class="setup-head">
+        <span class="setup-badge">
+          <Lucide icon="FileText" class="h-5 w-5" />
+        </span>
+        <div>
+          <div class="setup-title">گزارش پایداری</div>
+          <div class="setup-sub">دوره گزارش‌دهی را انتخاب کنید و سپس گزارش را تولید کنید</div>
+        </div>
+      </div>
+
+      <!-- report type -->
+      <div class="setup-field">
+        <div class="setup-label">
+          <Lucide icon="Layers" class="h-3.5 w-3.5" />
+          نوع گزارش
+        </div>
+        <div class="seg seg-wide">
+          <button
+              type="button"
+              :class="{ active: reportType === 'baseline' }"
+              @click="setReportType('baseline')"
+          >گزارش مبنا</button>
+          <button
+              type="button"
+              :class="{ active: reportType === 'comparative' }"
+              @click="setReportType('comparative')"
+          >گزارش مقایسه‌ای</button>
+        </div>
+        <p class="setup-hint">
+          گزارش مبنا عملکرد دوره جاری و گزارش مقایسه‌ای عملکرد دو دوره را نمایش می‌دهد.
+        </p>
+      </div>
+
+      <!-- period -->
+      <div class="setup-field">
+        <div class="setup-label">
+          <Lucide icon="CalendarRange" class="h-3.5 w-3.5" />
+          دوره گزارش‌دهی
+        </div>
+        <div class="mb-2 flex items-center gap-1">
+          <button
+              type="button"
+              class="year-nav"
+              title="سال قبل"
+              @click="scrollYears(-1)"
+          >
+            <Lucide icon="ChevronRight" class="h-3.5 w-3.5" />
+          </button>
+          <div ref="yearStripRef" class="year-strip">
+            <button
+                v-for="y in yearOptions"
+                :key="y"
+                type="button"
+                :data-active="isQuickYearActive(y)"
+                class="year-chip"
+                :class="{ active: isQuickYearActive(y) }"
+                @click="quickSelectYear(y)"
+            >{{ y }}</button>
+          </div>
+          <button
+              type="button"
+              class="year-nav"
+              title="سال بعد"
+              @click="scrollYears(1)"
+          >
+            <Lucide icon="ChevronLeft" class="h-3.5 w-3.5" />
+          </button>
+        </div>
+        <PeriodSelectPanel
+            v-model="selectedPeriod"
+            :label="selectedPeriodLabel"
+            placeholder="انتخاب دوره گزارش‌دهی"
+        />
+      </div>
+
+      <!-- comparison -->
+      <div class="setup-field">
+        <div class="setup-label-row">
+          <div class="setup-label">
+            <Lucide icon="GitCompare" class="h-3.5 w-3.5" />
+            دوره مقایسه
+          </div>
+          <button
+              type="button"
+              role="switch"
+              :aria-checked="compareEnabled"
+              class="toggle"
+              :class="{ on: compareEnabled }"
+              @click="compareEnabled = !compareEnabled"
+          >
+            <span class="toggle-knob" />
+          </button>
+        </div>
+
+        <button
+            type="button"
+            class="compare-prev"
+            :class="{ active: isComparingPrevious }"
+            @click="compareWithPrevious"
+        >
+          <Lucide icon="ArrowLeftRight" class="h-3.5 w-3.5" />
+          مقایسه با دوره قبل
+        </button>
+
+        <div v-if="!compareEnabled" class="setup-empty">
+          {{
+            reportType === 'comparative'
+              ? 'برای گزارش مقایسه‌ای، مقایسه را فعال و دوره مقایسه را انتخاب کنید'
+              : 'برای مقایسه دو دوره، مقایسه را فعال کنید'
+          }}
+        </div>
+        <template v-else>
+          <p class="setup-note">
+            <Lucide icon="Lock" class="me-1 inline h-3 w-3" />
+            مقایسه با دوره هم‌نوع ({{ comparisonTypeLabel }} ↔ {{ comparisonTypeLabel }}) انجام می‌شود
+          </p>
+          <PeriodSelectPanel
+              v-model="comparePeriod"
+              :label="comparePeriodLabel"
+              placeholder="انتخاب دوره مقایسه"
+              :types="compareTypes"
+          />
+          <p v-if="compareInvalid" class="setup-error">
+            <Lucide icon="AlertTriangle" class="h-3 w-3 flex-none" />
+            دوره مقایسه باید با دوره اصلی متفاوت باشد
+          </p>
+        </template>
+      </div>
+
+      <!-- summary + generate -->
+      <div class="setup-summary">
+        <div class="setup-summary-row">
+          <span class="ss-label">دوره جاری</span>
+          <span class="ss-value">{{ selectedPeriodLabel || '—' }}</span>
+          <span v-if="selectedPeriod" class="ss-type">{{ PERIOD_TYPE_FA[selectedPeriod.type] ?? selectedPeriod.type }}</span>
+        </div>
+        <div v-if="compareEnabled && comparePeriod && !compareInvalid" class="setup-summary-row">
+          <span class="ss-label">دوره مقایسه</span>
+          <span class="ss-value">{{ comparePeriodLabel }}</span>
+          <span class="ss-type">{{ PERIOD_TYPE_FA[comparePeriod.type] ?? comparePeriod.type }}</span>
+        </div>
+      </div>
+
       <button
-          class="rounded-md border border-slate-300 px-3 py-1.5 text-xs hover:bg-slate-50"
-          @click="loadReport"
-      >تلاش مجدد</button>
+          type="button"
+          class="setup-generate"
+          :disabled="!canGenerate"
+          @click="generateReport"
+      >
+        <Lucide icon="Sparkles" class="h-4 w-4" />
+        تولید گزارش
+      </button>
+      <p v-if="!selectedPeriod" class="setup-error center">ابتدا دوره گزارش‌دهی را انتخاب کنید</p>
+      <p
+          v-else-if="reportType === 'comparative' && (!compareEnabled || !comparePeriod)"
+          class="setup-error center"
+      >برای گزارش مقایسه‌ای، مقایسه را فعال و دوره مقایسه را انتخاب کنید</p>
     </div>
   </div>
-  <div v-else-if="!data" class="py-12 text-center text-slate-400">داده‌ای برای گزارش موجود نیست.</div>
 
-  <div v-else dir="rtl" style="font-family: 'Vazirmatn', sans-serif" id="sustainability-report-root">
-    <!-- ======================= TOOLBAR ======================= -->
+  <!-- ======================= REPORT ======================= -->
+  <template v-else>
+    <div v-if="loading" class="py-12 text-center">{{ 'در حال دریافت گزارش…' }}</div>
+    <div v-else-if="error" class="py-12 text-center text-red-600">
+      {{ error }}
+      <div class="mt-3 flex items-center justify-center gap-2">
+        <button
+            class="rounded-md border border-slate-300 px-3 py-1.5 text-xs hover:bg-slate-50"
+            @click="loadReport"
+        >تلاش مجدد</button>
+        <button
+            class="rounded-md border border-slate-300 px-3 py-1.5 text-xs hover:bg-slate-50"
+            @click="backToSettings"
+        >تغییر تنظیمات</button>
+      </div>
+    </div>
+    <div v-else-if="!data" class="py-12 text-center text-slate-400">
+      داده‌ای برای گزارش موجود نیست.
+      <div class="mt-3">
+        <button
+            class="rounded-md border border-slate-300 px-3 py-1.5 text-xs hover:bg-slate-50"
+            @click="backToSettings"
+        >تغییر تنظیمات</button>
+      </div>
+    </div>
+
+    <div v-else dir="rtl" style="font-family: 'Vazirmatn', sans-serif" id="sustainability-report-root">
+      <!-- ======================= TOOLBAR ======================= -->
     <div class="download-bar">
       <div class="seg">
         <button
@@ -733,6 +1115,10 @@ async function downloadPDF() {
       </div>
       <span class="download-note">گزارش پایداری · دوره: {{ periodLabel }}</span>
       <span class="flex-1" />
+      <button class="download-btn secondary" :disabled="isGenerating" @click="backToSettings">
+        <Lucide icon="Settings2" class="h-4 w-4" />
+        <span>تنظیمات دوره</span>
+      </button>
       <button class="download-btn" :disabled="isGenerating" @click="downloadPDF">
         <svg v-if="!isGenerating" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
@@ -1388,7 +1774,8 @@ async function downloadPDF() {
 
     <!-- paginated A4 pages are built here by buildPages() -->
     <div class="report-wrapper" id="sustainability-report-wrapper"></div>
-  </div>
+    </div>
+  </template>
 </template>
 
 <style scoped>
@@ -1473,6 +1860,222 @@ async function downloadPDF() {
 .download-note { font-size: 11px; color: #8892a0; }
 @keyframes spin { to { transform: rotate(360deg); } }
 .spin { animation: spin 1s linear infinite; }
+
+/* ---------------- report setup (filter panel) ---------------- */
+.report-setup {
+  min-height: 100vh;
+  background: linear-gradient(180deg, #f3f6f4 0%, #e9eeeb 100%);
+  padding: 44px 16px;
+}
+.setup-card {
+  width: 100%;
+  max-width: 620px;
+  margin: 0 auto;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.1);
+  padding: 28px 30px;
+}
+.setup-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid #f1f5f9;
+  margin-bottom: 22px;
+}
+.setup-badge {
+  width: 46px;
+  height: 46px;
+  flex: none;
+  border-radius: 13px;
+  background: linear-gradient(160deg, #064E3B, #0B5C43);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 18px rgba(11, 92, 67, 0.3);
+}
+.setup-title { font-size: 17px; font-weight: 800; color: #0f172a; }
+.setup-sub { font-size: 11.5px; color: #94a3b8; margin-top: 3px; }
+.setup-field { margin-bottom: 20px; }
+.setup-label-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 9px; }
+.setup-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #334155;
+  margin-bottom: 9px;
+}
+.setup-label-row .setup-label { margin-bottom: 0; }
+.setup-hint { font-size: 10.5px; color: #94a3b8; margin-top: 8px; line-height: 1.8; }
+.seg-wide button { flex: 1; }
+.year-strip {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 4px;
+  overflow-x: auto;
+  padding: 2px 0;
+  scrollbar-width: thin;
+}
+.year-chip {
+  flex: none;
+  border-radius: 999px;
+  border: 1px solid #e2e8f0;
+  background: #fff;
+  padding: 4px 11px;
+  font-size: 11px;
+  color: #64748b;
+  transition: all 0.15s;
+}
+.year-chip:hover { background: #f8fafc; }
+.year-chip.active { border-color: #a7d4c2; background: #eef7f2; color: #0B5C43; font-weight: 700; }
+.year-nav {
+  display: inline-flex;
+  height: 28px;
+  width: 24px;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  border-radius: 7px;
+  border: 1px solid #e2e8f0;
+  background: #fff;
+  color: #94a3b8;
+  transition: all 0.15s;
+}
+.year-nav:hover { background: #f8fafc; color: #475569; }
+.toggle {
+  position: relative;
+  display: inline-flex;
+  height: 22px;
+  width: 42px;
+  flex: none;
+  align-items: center;
+  border-radius: 999px;
+  background: #cbd5e1;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.toggle.on { background: #0B5C43; }
+.toggle-knob {
+  position: absolute;
+  right: 3px;
+  height: 16px;
+  width: 16px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s;
+}
+.toggle.on .toggle-knob { transform: translateX(-18px); }
+.compare-prev {
+  display: inline-flex;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-bottom: 10px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  background: #fff;
+  padding: 8px;
+  font-size: 11px;
+  font-weight: 500;
+  color: #64748b;
+  transition: all 0.15s;
+}
+.compare-prev:hover { background: #f8fafc; }
+.compare-prev.active { border-color: #a7d4c2; background: #eef7f2; color: #0B5C43; font-weight: 700; }
+.setup-empty {
+  display: flex;
+  min-height: 88px;
+  align-items: center;
+  justify-content: center;
+  border: 1px dashed #dbe2e9;
+  border-radius: 10px;
+  padding: 12px;
+  font-size: 11px;
+  color: #94a3b8;
+  text-align: center;
+  line-height: 1.9;
+}
+.setup-note {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 8px;
+  border-radius: 8px;
+  background: #eef7f2;
+  border: 1px solid #d7ebe0;
+  padding: 7px 10px;
+  font-size: 11px;
+  color: #0B5C43;
+}
+.setup-note svg { color: #2d9d74; }
+.setup-error {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 8px;
+  font-size: 11px;
+  color: #dc2626;
+}
+.setup-error.center { justify-content: center; margin-top: 10px; }
+.setup-summary {
+  margin-top: 4px;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.setup-summary-row { display: flex; align-items: center; gap: 10px; font-size: 12px; }
+.ss-label { color: #94a3b8; font-size: 10.5px; min-width: 64px; }
+.ss-value { font-weight: 700; color: #0f172a; }
+.ss-type {
+  margin-left: auto;
+  border-radius: 999px;
+  background: #eef7f2;
+  color: #0B5C43;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 9px;
+}
+.setup-generate {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 16px;
+  border: none;
+  border-radius: 11px;
+  background: #0B5C43;
+  color: #fff;
+  padding: 12px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s, opacity 0.2s, transform 0.1s;
+  box-shadow: 0 10px 24px rgba(11, 92, 67, 0.28);
+}
+.setup-generate:hover:not(:disabled) { background: #085041; }
+.setup-generate:active:not(:disabled) { transform: translateY(1px); }
+.setup-generate:disabled { opacity: 0.55; cursor: not-allowed; box-shadow: none; }
+.download-btn.secondary {
+  background: #fff;
+  color: #0B5C43;
+  border: 1px solid #c9dcd3;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
+}
+.download-btn.secondary:hover:not(:disabled) { background: #f4faf7; }
 
 /* ---------------- wrapper + page ---------------- */
 .report-wrapper {

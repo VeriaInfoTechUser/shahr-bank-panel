@@ -30,6 +30,86 @@ export const useSideMenuStore = defineStore("sideMenu", {
                 ],
             },
             {
+                icon: "Shield",
+                pageName: "app-governance",
+                title: "menu.organization-profile",
+                subMenu: [
+                    {
+                        icon: "Landmark",
+                        pageName: "app-governance-legislative-authority",
+                        title: "menu.governance-legislative-authority",
+                        requiredRole: "grc_admin",
+                    },
+                    {
+                        icon: "FileType",
+                        pageName: "app-governance-law-type",
+                        title: "menu.governance-law-type",
+                        requiredRole: "grc_admin",
+                    },
+                    {
+                        icon: "MapPin",
+                        pageName: "app-governance-geographic-regions",
+                        title: "menu.governance-geographic-regions",
+                    },
+                    {
+                        icon: "Factory",
+                        pageName: "app-governance-industry",
+                        title: "menu.governance-industry",
+                    },
+                    {
+                        icon: "UserCheck",
+                        pageName: "app-governance-key-stakeholders",
+                        title: "menu.governance-key-stakeholders",
+                    },
+                    {
+                        icon: "Building",
+                        pageName: "app-governance-operational-units",
+                        title: "menu.governance-operational-units",
+                    },
+                    {
+                        icon: "Maximize",
+                        pageName: "app-governance-organization-size",
+                        title: "menu.governance-organization-size",
+                    },
+                    {
+                        icon: "Network",
+                        pageName: "app-governance-organizational-structure",
+                        title: "menu.governance-organizational-structure",
+                    },
+                    {
+                        icon: "Package",
+                        pageName: "app-governance-products-services",
+                        title: "menu.governance-products-services",
+                    },
+                    {
+                        icon: "FileText",
+                        pageName: "app-governance-reporting-boundary",
+                        title: "menu.governance-reporting-boundary",
+                    },
+                    {
+                        icon: "GitBranch",
+                        pageName: "app-governance-subsidiaries",
+                        title: "menu.governance-subsidiaries",
+                    },
+                    {
+                        icon: "Link",
+                        pageName: "app-governance-value-chain",
+                        title: "menu.governance-value-chain",
+                    },
+                    {
+                        icon: "Users",
+                        pageName: "app-governance-liaisons",
+                        title: "menu.governance-liaisons",
+                        requiredRole: "grc_admin",
+                    },
+                    {
+                        icon: "BookOpen",
+                        pageName: "app-governance-guide",
+                        title: "menu.governance-guide",
+                    },
+                ],
+            },
+            {
                 icon: "Database",
                 pageName: "app-base-info",
                 title: "menu.base-info",
@@ -137,86 +217,6 @@ export const useSideMenuStore = defineStore("sideMenu", {
                 ],
             },
             {
-                icon: "Shield",
-                pageName: "app-governance",
-                title: "menu.organization-profile",
-                subMenu: [
-                    {
-                        icon: "Landmark",
-                        pageName: "app-governance-legislative-authority",
-                        title: "menu.governance-legislative-authority",
-                        requiredRole: "grc_admin",
-                    },
-                    {
-                        icon: "FileType",
-                        pageName: "app-governance-law-type",
-                        title: "menu.governance-law-type",
-                        requiredRole: "grc_admin",
-                    },
-                    {
-                        icon: "MapPin",
-                        pageName: "app-governance-geographic-regions",
-                        title: "menu.governance-geographic-regions",
-                    },
-                    {
-                        icon: "Factory",
-                        pageName: "app-governance-industry",
-                        title: "menu.governance-industry",
-                    },
-                    {
-                        icon: "UserCheck",
-                        pageName: "app-governance-key-stakeholders",
-                        title: "menu.governance-key-stakeholders",
-                    },
-                    {
-                        icon: "Building",
-                        pageName: "app-governance-operational-units",
-                        title: "menu.governance-operational-units",
-                    },
-                    {
-                        icon: "Maximize",
-                        pageName: "app-governance-organization-size",
-                        title: "menu.governance-organization-size",
-                    },
-                    {
-                        icon: "Network",
-                        pageName: "app-governance-organizational-structure",
-                        title: "menu.governance-organizational-structure",
-                    },
-                    {
-                        icon: "Package",
-                        pageName: "app-governance-products-services",
-                        title: "menu.governance-products-services",
-                    },
-                    {
-                        icon: "FileText",
-                        pageName: "app-governance-reporting-boundary",
-                        title: "menu.governance-reporting-boundary",
-                    },
-                    {
-                        icon: "GitBranch",
-                        pageName: "app-governance-subsidiaries",
-                        title: "menu.governance-subsidiaries",
-                    },
-                    {
-                        icon: "Link",
-                        pageName: "app-governance-value-chain",
-                        title: "menu.governance-value-chain",
-                    },
-                    {
-                        icon: "Users",
-                        pageName: "app-governance-liaisons",
-                        title: "menu.governance-liaisons",
-                        requiredRole: "grc_admin",
-                    },
-                    {
-                        icon: "BookOpen",
-                        pageName: "app-governance-guide",
-                        title: "menu.governance-guide",
-                    },
-                ],
-            },
-            {
                 icon: "Leaf",
                 pageName: "app-sustainability",
                 title: "menu.sustainability",
@@ -253,6 +253,34 @@ export const useSideMenuStore = defineStore("sideMenu", {
                     },
                 ],
             },
+            {
+                icon: "FileBarChart",
+                pageName: "app-reports",
+                title: "menu.reports",
+                subMenu: [
+                    {
+                        icon: "LayoutDashboard",
+                        pageName: "app-reports-sustainability-dashboard",
+                        title: "menu.reports-sustainability-dashboard",
+                    },
+                    {
+                        icon: "FileText",
+                        pageName: "app-reports-sustainability-report",
+                        title: "menu.reports-sustainability-report",
+                    },
+                    {
+                        icon: "FileText",
+                        pageName: "app-reports-baseline",
+                        title: "menu.reports-baseline",
+                    },
+                    {
+                        icon: "GitCompare",
+                        pageName: "app-reports-comparative",
+                        title: "menu.reports-comparative",
+                    },
+                ],
+            },
+
             {
                 icon: "Database",
                 pageName: "app-data",
@@ -292,34 +320,6 @@ export const useSideMenuStore = defineStore("sideMenu", {
                         icon: "FileText",
                         pageName: "app-data-log",
                         title: "menu.data-log",
-                    },
-                ],
-            },
-
-            {
-                icon: "FileBarChart",
-                pageName: "app-reports",
-                title: "menu.reports",
-                subMenu: [
-                    {
-                        icon: "FileText",
-                        pageName: "app-reports-baseline",
-                        title: "menu.reports-baseline",
-                    },
-                    {
-                        icon: "GitCompare",
-                        pageName: "app-reports-comparative",
-                        title: "menu.reports-comparative",
-                    },
-                    {
-                        icon: "LayoutDashboard",
-                        pageName: "app-reports-sustainability-dashboard",
-                        title: "menu.reports-sustainability-dashboard",
-                    },
-                    {
-                        icon: "FileText",
-                        pageName: "app-reports-sustainability-report",
-                        title: "menu.reports-sustainability-report",
                     },
                 ],
             },

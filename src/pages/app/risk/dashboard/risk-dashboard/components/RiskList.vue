@@ -46,7 +46,7 @@ defineProps<{
         </span>
         <span v-if="item.categoryTitle">دسته: {{ item.categoryTitle }}</span>
         <span>{{ ownerLabel(item.ownerId, memberNames) }}</span>
-        <span v-if="showFramework && item.frameworkTitle" class="text-sky-400">
+        <span v-if="showFramework && item.frameworkTitle" class="text-primary">
           {{ item.frameworkTitle }}
         </span>
         <span

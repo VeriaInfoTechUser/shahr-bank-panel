@@ -39,30 +39,30 @@ function cellStyle(impact: number, likelihood: number) {
 </script>
 
 <template>
-  <div class="flex flex-col justify-center">
-    <div class="flex">
+  <div class="flex h-full flex-col">
+    <div class="flex min-h-0 flex-1 items-stretch">
       <!-- ستون برچسب اثر -->
-      <div class="flex flex-col justify-around pl-2 text-left">
+      <div class="flex w-10 shrink-0 flex-col justify-between py-0.5 pl-2 text-left">
         <span
           v-for="(impact, i) in impacts"
           :key="impact"
-          class="text-[11px] leading-tight text-slate-500"
+          class="flex items-center text-[11px] leading-tight text-slate-500"
         >
           {{ impactLabels[impact - 1] }}
         </span>
       </div>
 
       <!-- شبکه سلول‌ها -->
-      <div class="flex-1">
+      <div class="flex min-h-0 flex-1 flex-col">
         <div
           v-for="impact in impacts"
           :key="impact"
-          class="grid grid-cols-5 gap-1.5 pb-1.5"
+          class="grid min-h-0 flex-1 grid-cols-5 gap-1.5"
         >
           <div
             v-for="likelihood in likelihoods"
             :key="likelihood"
-            class="flex h-12 items-center justify-center rounded-md border text-sm font-bold transition"
+            class="flex min-h-9 items-center justify-center rounded-md border text-sm font-bold transition"
             :style="cellStyle(impact, likelihood)"
             :title="`اثر ${impact} × احتمال ${likelihood}`"
           >
@@ -71,7 +71,7 @@ function cellStyle(impact: number, likelihood: number) {
         </div>
 
         <!-- برچسب احتمال -->
-        <div class="grid grid-cols-5 gap-1.5 pt-1">
+        <div class="grid shrink-0 grid-cols-5 gap-1.5 pt-1">
           <span
             v-for="likelihood in likelihoods"
             :key="likelihood"
@@ -83,7 +83,7 @@ function cellStyle(impact: number, likelihood: number) {
       </div>
     </div>
 
-    <div class="mt-3 flex items-center justify-center gap-4 text-[11px] text-slate-500">
+    <div class="mt-3 flex shrink-0 items-center justify-center gap-4 text-[11px] text-slate-500">
       <span class="flex items-center gap-1">
         <span class="h-2.5 w-2.5 rounded-sm" style="background-color: #34d399" /> کم‌خطر
       </span>

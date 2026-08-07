@@ -29,7 +29,7 @@ function clearFilter() {
   <header class="flex flex-wrap items-center justify-between gap-4">
     <div class="flex items-center gap-3">
       <span
-        class="flex h-12 w-12 items-center justify-center rounded-2xl bg-sky-100 text-sky-600"
+        class="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary-muted text-primary"
       >
         <IconShieldHalfFilled :size="26" />
       </span>
@@ -46,17 +46,17 @@ function clearFilter() {
         <input
           v-model="fromDate"
           type="date"
-          class="rounded-lg border border-slate-200 bg-slate-50 px-2 py-1 text-xs text-slate-700 outline-none focus:border-sky-400 focus:ring-1 focus:ring-sky-200"
+          class="rounded-lg border border-slate-200 bg-slate-50 px-2 py-1 text-xs text-slate-700 outline-none focus:border-primary focus:ring-1 focus:ring-primary/30"
         />
         <label class="text-xs text-slate-500">تا:</label>
         <input
           v-model="toDate"
           type="date"
-          class="rounded-lg border border-slate-200 bg-slate-50 px-2 py-1 text-xs text-slate-700 outline-none focus:border-sky-400 focus:ring-1 focus:ring-sky-200"
+          class="rounded-lg border border-slate-200 bg-slate-50 px-2 py-1 text-xs text-slate-700 outline-none focus:border-primary focus:ring-1 focus:ring-primary/30"
         />
         <button
           type="button"
-          class="rounded-lg bg-sky-500 px-3 py-1 text-xs font-medium text-white transition hover:bg-sky-600"
+          class="rounded-lg bg-primary px-3 py-1 text-xs font-medium text-white transition hover:bg-primary-hover"
           @click="applyFilter"
         >
           اعمال فیلتر

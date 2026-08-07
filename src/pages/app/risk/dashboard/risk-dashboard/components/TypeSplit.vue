@@ -25,7 +25,7 @@ const rows = computed(() =>
 </script>
 
 <template>
-  <div class="flex h-64 flex-col justify-center gap-4">
+  <div class="flex h-full min-h-56 flex-col justify-center gap-4">
     <div v-for="row in rows" :key="row.riskType" class="space-y-2">
       <div class="flex items-center justify-between">
         <span class="flex items-center gap-2 text-sm font-medium text-slate-700">

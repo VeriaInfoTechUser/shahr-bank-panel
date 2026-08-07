@@ -54,5 +54,5 @@ const option = computed(() => {
 </script>
 
 <template>
-  <VChart :option="option" autoresize class="h-64 w-full" />
+  <VChart :option="option" autoresize class="h-full min-h-56 w-full" />
 </template>

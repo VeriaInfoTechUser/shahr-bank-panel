@@ -23,7 +23,7 @@ const sorted = computed(() => [...props.data].sort((a, b) => b.totalRisks - a.to
       <div class="flex items-center gap-2">
         <div class="h-2.5 flex-1 overflow-hidden rounded-full bg-slate-200">
           <div
-            class="h-full rounded-full bg-sky-500"
+            class="h-full rounded-full bg-primary"
             :style="{ width: (owner.totalRisks / maxRisks) * 100 + '%' }"
           />
         </div>

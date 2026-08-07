@@ -31,7 +31,7 @@ const current = computed(() => props[active.value])
         class="flex-1 rounded-lg px-3 py-1.5 text-xs font-bold transition"
         :class="
           active === tab.key
-            ? 'bg-sky-500 text-white shadow'
+            ? 'bg-primary text-white shadow'
             : 'text-slate-500 hover:text-slate-800'
         "
         @click="active = tab.key"

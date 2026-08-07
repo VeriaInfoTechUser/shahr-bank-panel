@@ -6,8 +6,9 @@ import { useI18n } from 'vue-i18n';
 import BaseInput from '@/core/ui/base/BaseInput.vue';
 import BaseMultiSelect from '@/core/ui/base/BaseMultiSelect.vue';
 import BasePaginatedMultiSelect from '@/core/ui/base/BasePaginatedMultiSelect.vue';
-import { grcRepo } from '@/core/repositories/grcRepo';
+import { useSustainabilityCascadeFilters } from '@/composables/useSustainabilityCascadeFilters';
 import IndicatorFilterAutoApply from './IndicatorFilterAutoApply.vue';
+import IndicatorFilterCascadeSync, { type IndicatorFilterParents } from './IndicatorFilterCascadeSync.vue';
 
 const props = withDefaults(
   defineProps<{
@@ -39,65 +40,9 @@ const indicatorTypeOptions = computed(() => [
   { value: 'RES', label: 'RES' },
 ]);
 
-async function fetchCapitals(params: { page: number; limit: number; search?: string }) {
-  const res = await grcRepo.capitalList(params);
-  const list = res?.data?.list ?? [];
-  return {
-    list: (Array.isArray(list) ? list : []).map((item: Record<string, unknown>) => ({
-      value: String(item.slug ?? ''),
-      label: String(item.title ?? item.name ?? ''),
-    })),
-    count: res?.data?.paginator?.count ?? 0,
-  };
-}
-
-async function fetchDomains(params: { page: number; limit: number; search?: string }) {
-  const res = await grcRepo.domainList(params);
-  const list = res?.data?.list ?? [];
-  return {
-    list: (Array.isArray(list) ? list : []).map((item: Record<string, unknown>) => ({
-      value: String(item.slug ?? ''),
-      label: String(item.title ?? item.name ?? ''),
-    })),
-    count: res?.data?.paginator?.count ?? 0,
-  };
-}
-
-async function fetchComponents(params: { page: number; limit: number; search?: string }) {
-  const res = await grcRepo.componentList(params);
-  const list = res?.data?.list ?? [];
-  return {
-    list: (Array.isArray(list) ? list : []).map((item: Record<string, unknown>) => ({
-      value: String(item.slug ?? ''),
-      label: String(item.title ?? item.name ?? ''),
-    })),
-    count: res?.data?.paginator?.count ?? 0,
-  };
-}
-
-async function fetchCapabilities(params: { page: number; limit: number; search?: string }) {
-  const res = await grcRepo.capabilityList(params);
-  const list = res?.data?.list ?? [];
-  return {
-    list: (Array.isArray(list) ? list : []).map((item: Record<string, unknown>) => ({
-      value: String(item.slug ?? ''),
-      label: String(item.title ?? item.name ?? ''),
-    })),
-    count: res?.data?.paginator?.count ?? 0,
-  };
-}
-
-async function fetchClaims(params: { page: number; limit: number; search?: string }) {
-  const res = await grcRepo.claimList(params);
-  const list = res?.data?.list ?? [];
-  return {
-    list: (Array.isArray(list) ? list : []).map((item: Record<string, unknown>) => ({
-      value: String(item.slug ?? ''),
-      label: String(item.title ?? ''),
-    })),
-    count: res?.data?.paginator?.count ?? 0,
-  };
-}
+// ── Cascading levels (capital → domain → component → capability → claim) ──
+const { parents, onParentsSync, fetchCapitals, fetchDomains, fetchComponents, fetchCapabilities, fetchClaims } =
+  useSustainabilityCascadeFilters();
 
 function apiFiltersToFormValues(f: Record<string, unknown> | undefined | null) {
   const x = f ?? {};
@@ -161,6 +106,7 @@ function onAutoApply(payload: Record<string, unknown>) {
       :initial-values="formInitialValues"
       as="div"
     >
+      <IndicatorFilterCascadeSync @parents="onParentsSync" />
       <IndicatorFilterAutoApply
         :build-payload="buildPayload"
         @apply="onAutoApply"

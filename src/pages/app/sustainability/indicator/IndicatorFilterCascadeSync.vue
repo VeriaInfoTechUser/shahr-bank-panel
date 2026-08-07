@@ -3,10 +3,10 @@ import { watch } from 'vue';
 import { useFormContext, useFormValues } from 'vee-validate';
 import type { CascadeFilterParents } from '@/composables/useSustainabilityCascadeFilters';
 
-export type DataSourceFilterParents = CascadeFilterParents;
+export type IndicatorFilterParents = CascadeFilterParents;
 
 const emit = defineEmits<{
-  (e: 'parents', parents: DataSourceFilterParents): void;
+  (e: 'parents', parents: IndicatorFilterParents): void;
 }>();
 
 const values = useFormValues();
@@ -23,7 +23,7 @@ function sameArr(a: string[], b: string[]): boolean {
   return a.every((x, i) => x === b[i]);
 }
 
-function snapshot(): DataSourceFilterParents {
+function snapshot(): IndicatorFilterParents {
   return {
     capitalSlug: arr(values.value.capitalSlug),
     domainSlug: arr(values.value.domainSlug),
@@ -33,7 +33,7 @@ function snapshot(): DataSourceFilterParents {
   };
 }
 
-let prev: DataSourceFilterParents | null = null;
+let prev: IndicatorFilterParents | null = null;
 
 watch(
   snapshot,
@@ -49,25 +49,18 @@ watch(
       setFieldValue('componentSlug', [], false);
       setFieldValue('capabilitySlug', [], false);
       setFieldValue('claimSlug', [], false);
-      setFieldValue('indicatorSlug', [], false);
     }
     if (!sameArr(next.domainSlug, prev.domainSlug)) {
       setFieldValue('componentSlug', [], false);
       setFieldValue('capabilitySlug', [], false);
       setFieldValue('claimSlug', [], false);
-      setFieldValue('indicatorSlug', [], false);
     }
     if (!sameArr(next.componentSlug, prev.componentSlug)) {
       setFieldValue('capabilitySlug', [], false);
       setFieldValue('claimSlug', [], false);
-      setFieldValue('indicatorSlug', [], false);
     }
     if (!sameArr(next.capabilitySlug, prev.capabilitySlug)) {
       setFieldValue('claimSlug', [], false);
-      setFieldValue('indicatorSlug', [], false);
-    }
-    if (!sameArr(next.claimSlug, prev.claimSlug)) {
-      setFieldValue('indicatorSlug', [], false);
     }
     prev = next;
   },

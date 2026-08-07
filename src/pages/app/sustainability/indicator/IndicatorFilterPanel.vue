@@ -8,7 +8,7 @@ import BaseMultiSelect from '@/core/ui/base/BaseMultiSelect.vue';
 import BasePaginatedMultiSelect from '@/core/ui/base/BasePaginatedMultiSelect.vue';
 import { useSustainabilityCascadeFilters } from '@/composables/useSustainabilityCascadeFilters';
 import IndicatorFilterAutoApply from './IndicatorFilterAutoApply.vue';
-import IndicatorFilterCascadeSync, { type IndicatorFilterParents } from './IndicatorFilterCascadeSync.vue';
+import IndicatorFilterCascadeSync from './IndicatorFilterCascadeSync.vue';
 
 const props = withDefaults(
   defineProps<{
@@ -41,7 +41,7 @@ const indicatorTypeOptions = computed(() => [
 ]);
 
 // ── Cascading levels (capital → domain → component → capability → claim) ──
-const { parents, onParentsSync, fetchCapitals, fetchDomains, fetchComponents, fetchCapabilities, fetchClaims } =
+const { onParentsSync, fetchCapitals, fetchDomains, fetchComponents, fetchCapabilities, fetchClaims } =
   useSustainabilityCascadeFilters();
 
 function apiFiltersToFormValues(f: Record<string, unknown> | undefined | null) {

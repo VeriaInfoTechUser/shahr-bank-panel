@@ -7,7 +7,7 @@ import BaseInput from '@/core/ui/base/BaseInput.vue';
 import BasePaginatedMultiSelect from '@/core/ui/base/BasePaginatedMultiSelect.vue';
 import { useSustainabilityCascadeFilters } from '@/composables/useSustainabilityCascadeFilters';
 import DataSourceFilterAutoApply from './DataSourceFilterAutoApply.vue';
-import DataSourceFilterCascadeSync, { type DataSourceFilterParents } from './DataSourceFilterCascadeSync.vue';
+import DataSourceFilterCascadeSync from './DataSourceFilterCascadeSync.vue';
 
 const props = withDefaults(
   defineProps<{
@@ -33,7 +33,7 @@ const formKey = ref(0);
 const formId = 'data-source-filter-form';
 
 // ── Cascading levels (capital → domain → component → capability → claim → indicator) ──
-const { parents, onParentsSync, fetchCapitals, fetchDomains, fetchComponents, fetchCapabilities, fetchClaims, fetchIndicators } =
+const { onParentsSync, fetchCapitals, fetchDomains, fetchComponents, fetchCapabilities, fetchClaims, fetchIndicators } =
   useSustainabilityCascadeFilters();
 
 function apiFiltersToFormValues(f: Record<string, unknown> | undefined | null) {

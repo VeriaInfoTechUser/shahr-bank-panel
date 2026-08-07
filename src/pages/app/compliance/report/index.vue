@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, nextTick, ref } from 'vue'
 import Lucide from '@/base-components/Lucide'
+import Button from '@/base-components/Button'
 import { grcRepo } from '@/core/repositories/grcRepo'
 import { useReportPagination, faNum, fmtScore, round1, barPct, maxCount, pctWidth, hexToRgba, faDate } from '@/composables/useReportPagination'
 import '@/styles/grc-report.css'
@@ -215,10 +216,10 @@ function sharePct(part: number | null | undefined, total: number | null | undefi
           </div>
         </div>
 
-        <button type="button" class="setup-generate" @click="generateReport">
+        <Button type="button" variant="success" class="w-full gap-2 text-white" @click="generateReport">
           <Lucide icon="Sparkles" class="h-4 w-4" />
           تولید گزارش
-        </button>
+        </Button>
       </div>
     </div>
   </div>
@@ -229,14 +230,14 @@ function sharePct(part: number | null | undefined, total: number | null | undefi
     <div v-else-if="error" class="py-12 text-center text-red-600">
       {{ error }}
       <div class="mt-3 flex items-center justify-center gap-2">
-        <button class="rounded-md border border-slate-300 px-3 py-1.5 text-xs hover:bg-slate-50" @click="loadReport">تلاش مجدد</button>
-        <button class="rounded-md border border-slate-300 px-3 py-1.5 text-xs hover:bg-slate-50" @click="backToSettings">تغییر تنظیمات</button>
+        <Button type="button" variant="outline-secondary" size="sm" @click="loadReport">تلاش مجدد</Button>
+        <Button type="button" variant="outline-secondary" size="sm" @click="backToSettings">تغییر تنظیمات</Button>
       </div>
     </div>
     <div v-else-if="!data" class="py-12 text-center text-slate-400">
       داده‌ای برای گزارش موجود نیست.
       <div class="mt-3">
-        <button class="rounded-md border border-slate-300 px-3 py-1.5 text-xs hover:bg-slate-50" @click="backToSettings">تغییر تنظیمات</button>
+        <Button type="button" variant="outline-secondary" size="sm" @click="backToSettings">تغییر تنظیمات</Button>
       </div>
     </div>
 
@@ -247,11 +248,11 @@ function sharePct(part: number | null | undefined, total: number | null | undefi
           گزارش تطبیق · برنامه‌ها: {{ selectedPlans.length ? faNum(selectedPlans.length) + ' برنامه' : 'همه برنامه‌ها' }}
         </span>
         <span class="flex-1" />
-        <button class="download-btn secondary" :disabled="isGenerating" @click="backToSettings">
+        <Button type="button" variant="outline-secondary" class="gap-2" :disabled="isGenerating" @click="backToSettings">
           <Lucide icon="Settings2" class="h-4 w-4" />
           <span>تنظیمات گزارش</span>
-        </button>
-        <button class="download-btn" :disabled="isGenerating" @click="downloadPDF">
+        </Button>
+        <Button type="button" variant="success" class="gap-2 text-white" :disabled="isGenerating" @click="downloadPDF">
           <svg v-if="!isGenerating" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
             <polyline points="7 10 12 15 17 10" />
@@ -262,7 +263,7 @@ function sharePct(part: number | null | undefined, total: number | null | undefi
           </svg>
           <span v-if="!isGenerating">دانلود PDF گزارش</span>
           <span v-else>در حال تولید PDF... {{ progress }}%</span>
-        </button>
+        </Button>
         <div v-if="isGenerating" class="progress-bar-wrap">
           <div class="progress-bar-fill" :style="{ width: progress + '%' }" />
         </div>

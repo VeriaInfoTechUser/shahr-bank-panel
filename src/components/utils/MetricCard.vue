@@ -91,8 +91,8 @@ const trendClass = computed(() => {
 <style scoped lang="scss">
 .metric-card-wrapper {
   padding: 1.5rem;
-  background: white;
-  border: 2px solid #e5e7eb;
+  background: rgb(var(--color-surface));
+  border: 2px solid rgb(var(--color-border));
   border-radius: 0.5rem;
   transition: all 0.3s ease;
   display: flex;
@@ -100,63 +100,63 @@ const trendClass = computed(() => {
   gap: 1rem;
 
   &:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--shadow-md);
     transform: translateY(-2px);
   }
 
   // Color classes based on value range
   &.high-value {
-    border-left: 3px solid #10b981;
-    background: linear-gradient(135deg, #f0fdf4 0%, white 100%);
+    border-left: 3px solid rgb(var(--color-success));
+    background: linear-gradient(135deg, rgb(var(--color-success-muted)) 0%, white 100%);
 
     [dir='rtl'] & {
       border-left: none;
-      border-right: 3px solid #10b981;
+      border-right: 3px solid rgb(var(--color-success));
     }
 
     .metric-value {
-      color: #059669;
+      color: rgb(var(--color-success-hover));
     }
   }
 
   &.medium-value {
-    border-left: 3px solid #f59e0b;
-    background: linear-gradient(135deg, #fffbeb 0%, white 100%);
+    border-left: 3px solid rgb(var(--color-warning));
+    background: linear-gradient(135deg, rgb(var(--color-warning-muted)) 0%, white 100%);
 
     [dir='rtl'] & {
       border-left: none;
-      border-right: 3px solid #f59e0b;
+      border-right: 3px solid rgb(var(--color-warning));
     }
 
     .metric-value {
-      color: #b45309;
+      color: rgb(var(--color-warning-hover));
     }
   }
 
   &.low-value {
-    border-left: 3px solid #ef4444;
-    background: linear-gradient(135deg, #fef2f2 0%, white 100%);
+    border-left: 3px solid rgb(var(--color-error));
+    background: linear-gradient(135deg, rgb(var(--color-error-muted)) 0%, white 100%);
 
     [dir='rtl'] & {
       border-left: none;
-      border-right: 3px solid #ef4444;
+      border-right: 3px solid rgb(var(--color-error));
     }
 
     .metric-value {
-      color: #b91c1c;
+      color: rgb(var(--color-error-hover));
     }
   }
 
   &.neutral-value {
-    border-left: 3px solid #6b7280;
+    border-left: 3px solid rgb(var(--color-text-secondary));
 
     [dir='rtl'] & {
       border-left: none;
-      border-right: 3px solid #6b7280;
+      border-right: 3px solid rgb(var(--color-text-secondary));
     }
 
     .metric-value {
-      color: #374151;
+      color: rgb(var(--color-text-primary));
     }
   }
 }
@@ -179,13 +179,13 @@ const trendClass = computed(() => {
 .metric-title {
   font-size: 0.95rem;
   font-weight: 600;
-  color: #374151;
+  color: rgb(var(--color-text-primary));
   margin: 0 0 0.25rem 0;
 }
 
 .metric-subtitle {
   font-size: 0.8rem;
-  color: #9ca3af;
+  color: rgb(var(--color-text-muted));
   margin: 0;
 }
 
@@ -212,18 +212,18 @@ const trendClass = computed(() => {
   }
 
   &.trend-up {
-    background: #ecfdf5;
-    color: #059669;
+    background: rgb(var(--color-success-muted));
+    color: rgb(var(--color-success-hover));
   }
 
   &.trend-down {
-    background: #fef2f2;
-    color: #dc2626;
+    background: rgb(var(--color-error-muted));
+    color: rgb(var(--color-error));
   }
 
   &.trend-neutral {
-    background: #f3f4f6;
-    color: #6b7280;
+    background: rgb(var(--color-neutral-muted));
+    color: rgb(var(--color-text-secondary));
   }
 }
 
@@ -255,14 +255,14 @@ const trendClass = computed(() => {
 
 .metric-description {
   font-size: 0.85rem;
-  color: #6b7280;
+  color: rgb(var(--color-text-secondary));
   margin: 0;
   line-height: 1.5;
 }
 
 .metric-footer {
   padding-top: 0.5rem;
-  border-top: 1px solid #e5e7eb;
+  border-top: 1px solid rgb(var(--color-border));
 }
 
 // Responsive

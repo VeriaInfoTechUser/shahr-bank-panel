@@ -274,7 +274,7 @@ function fmtPct(v: number | null | undefined) {
               </div>
             </div>
 
-            <Button type="submit" variant="danger" class="w-full gap-2">
+            <Button type="submit" variant="primary" class="w-full gap-2">
               <Lucide icon="Sparkles" class="h-4 w-4" />
               تولید گزارش
             </Button>
@@ -310,7 +310,7 @@ function fmtPct(v: number | null | undefined) {
           <Lucide icon="Settings2" class="h-4 w-4" />
           <span>تنظیمات گزارش</span>
         </Button>
-        <Button type="button" variant="danger" class="gap-2" :disabled="isGenerating" @click="downloadPDF">
+        <Button type="button" variant="primary" class="gap-2" :disabled="isGenerating" @click="downloadPDF">
           <svg v-if="!isGenerating" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
             <polyline points="7 10 12 15 17 10" />

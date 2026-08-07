@@ -9,7 +9,16 @@
  *   REJECTED = 'rejected'
  *   DONE = 'done'
  *   CANCELLED = 'cancelled'
+ *
+ * Colours are sourced from `src/config/theme.ts` (status palette) and badge
+ * classes use the semantic `status-*` Tailwind tokens — changing the theme
+ * updates every badge application-wide.
  */
+import { theme } from '@/config/theme';
+
+/** Badge class built from the central `status-*` tokens (alpha tint on any bg). */
+const badgeFor = (key: string) =>
+  `inline-flex items-center justify-center rounded-md px-2 py-0.5 text-[10px] font-semibold leading-snug shadow-sm border bg-status-${key}/10 text-status-${key} border-status-${key}/40`;
 
 // ---------------------------------------------------------------------------
 // 1. Raw enum values (as const for literal type inference)
@@ -51,12 +60,11 @@ export const TaskStatusMetadata: Record<TaskStatusType, TaskStatusInfo> = {
   [TaskStatus.OPEN]: {
     key: 'open',
     label: 'task.status.open',
-    hex: '#6366f1',
-    bgClass: 'bg-indigo-50 dark:bg-indigo-950/40',
-    textClass: 'text-indigo-800 dark:text-indigo-100',
-    borderClass: 'border-indigo-300 dark:border-indigo-500/50',
-    badgeClass:
-      'inline-flex items-center justify-center rounded-md px-2 py-0.5 text-[10px] font-semibold leading-snug shadow-sm border bg-indigo-50 text-indigo-800 border-indigo-200 dark:bg-indigo-950/40 dark:text-indigo-100 dark:border-indigo-500/40',
+    hex: theme.status.open,
+    bgClass: 'bg-status-open/10 text-status-open',
+    textClass: 'text-status-open',
+    borderClass: 'border-status-open/40',
+    badgeClass: badgeFor('open'),
     severity: 'info',
     description: 'task.status.open.desc',
   },
@@ -64,12 +72,11 @@ export const TaskStatusMetadata: Record<TaskStatusType, TaskStatusInfo> = {
   [TaskStatus.IN_PROGRESS]: {
     key: 'in_progress',
     label: 'task.status.in_progress',
-    hex: '#8b5cf6',
-    bgClass: 'bg-violet-50 dark:bg-violet-950/40',
-    textClass: 'text-violet-800 dark:text-violet-100',
-    borderClass: 'border-violet-300 dark:border-violet-500/50',
-    badgeClass:
-      'inline-flex items-center justify-center rounded-md px-2 py-0.5 text-[10px] font-semibold leading-snug shadow-sm border bg-violet-50 text-violet-800 border-violet-200 dark:bg-violet-950/40 dark:text-violet-100 dark:border-violet-500/40',
+    hex: theme.status['in-progress'],
+    bgClass: 'bg-status-in-progress/10 text-status-in-progress',
+    textClass: 'text-status-in-progress',
+    borderClass: 'border-status-in-progress/40',
+    badgeClass: badgeFor('in-progress'),
     severity: 'warning',
     description: 'task.status.in_progress.desc',
   },
@@ -77,12 +84,11 @@ export const TaskStatusMetadata: Record<TaskStatusType, TaskStatusInfo> = {
   [TaskStatus.PENDING_REVIEW]: {
     key: 'pending_review',
     label: 'task.status.pending_review',
-    hex: '#f59e0b',
-    bgClass: 'bg-amber-50 dark:bg-amber-950/40',
-    textClass: 'text-amber-800 dark:text-amber-100',
-    borderClass: 'border-amber-300 dark:border-amber-500/50',
-    badgeClass:
-      'inline-flex items-center justify-center rounded-md px-2 py-0.5 text-[10px] font-semibold leading-snug shadow-sm border bg-amber-50 text-amber-800 border-amber-200 dark:bg-amber-950/40 dark:text-amber-100 dark:border-amber-500/40',
+    hex: theme.status.pending,
+    bgClass: 'bg-status-pending/10 text-status-pending',
+    textClass: 'text-status-pending',
+    borderClass: 'border-status-pending/40',
+    badgeClass: badgeFor('pending'),
     severity: 'warning',
     description: 'task.status.pending_review.desc',
   },
@@ -90,12 +96,11 @@ export const TaskStatusMetadata: Record<TaskStatusType, TaskStatusInfo> = {
   [TaskStatus.APPROVED]: {
     key: 'approved',
     label: 'task.status.approved',
-    hex: '#10b981',
-    bgClass: 'bg-emerald-50 dark:bg-emerald-950/40',
-    textClass: 'text-emerald-800 dark:text-emerald-100',
-    borderClass: 'border-emerald-300 dark:border-emerald-500/50',
-    badgeClass:
-      'inline-flex items-center justify-center rounded-md px-2 py-0.5 text-[10px] font-semibold leading-snug shadow-sm border bg-emerald-50 text-emerald-800 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-100 dark:border-emerald-500/40',
+    hex: theme.status.approved,
+    bgClass: 'bg-status-approved/10 text-status-approved',
+    textClass: 'text-status-approved',
+    borderClass: 'border-status-approved/40',
+    badgeClass: badgeFor('approved'),
     severity: 'success',
     description: 'task.status.approved.desc',
   },
@@ -103,12 +108,11 @@ export const TaskStatusMetadata: Record<TaskStatusType, TaskStatusInfo> = {
   [TaskStatus.REJECTED]: {
     key: 'rejected',
     label: 'task.status.rejected',
-    hex: '#ef4444',
-    bgClass: 'bg-red-50 dark:bg-red-950/40',
-    textClass: 'text-red-800 dark:text-red-100',
-    borderClass: 'border-red-300 dark:border-red-500/50',
-    badgeClass:
-      'inline-flex items-center justify-center rounded-md px-2 py-0.5 text-[10px] font-semibold leading-snug shadow-sm border bg-red-50 text-red-800 border-red-200 dark:bg-red-950/40 dark:text-red-100 dark:border-red-500/40',
+    hex: theme.status.rejected,
+    bgClass: 'bg-status-rejected/10 text-status-rejected',
+    textClass: 'text-status-rejected',
+    borderClass: 'border-status-rejected/40',
+    badgeClass: badgeFor('rejected'),
     severity: 'danger',
     description: 'task.status.rejected.desc',
   },
@@ -116,12 +120,11 @@ export const TaskStatusMetadata: Record<TaskStatusType, TaskStatusInfo> = {
   [TaskStatus.DONE]: {
     key: 'done',
     label: 'task.status.done',
-    hex: '#0ea5e9',
-    bgClass: 'bg-sky-50 dark:bg-sky-950/40',
-    textClass: 'text-sky-800 dark:text-sky-100',
-    borderClass: 'border-sky-300 dark:border-sky-500/50',
-    badgeClass:
-      'inline-flex items-center justify-center rounded-md px-2 py-0.5 text-[10px] font-semibold leading-snug shadow-sm border bg-sky-50 text-sky-800 border-sky-200 dark:bg-sky-950/40 dark:text-sky-100 dark:border-sky-500/40',
+    hex: theme.status.done,
+    bgClass: 'bg-status-done/10 text-status-done',
+    textClass: 'text-status-done',
+    borderClass: 'border-status-done/40',
+    badgeClass: badgeFor('done'),
     severity: 'contrast',
     description: 'task.status.done.desc',
   },
@@ -129,12 +132,11 @@ export const TaskStatusMetadata: Record<TaskStatusType, TaskStatusInfo> = {
   [TaskStatus.CANCELLED]: {
     key: 'cancelled',
     label: 'task.status.cancelled',
-    hex: '#64748b',
-    bgClass: 'bg-slate-100 dark:bg-slate-800/60',
-    textClass: 'text-slate-700 dark:text-slate-200',
-    borderClass: 'border-slate-300 dark:border-slate-500/50',
-    badgeClass:
-      'inline-flex items-center justify-center rounded-md px-2 py-0.5 text-[10px] font-semibold leading-snug shadow-sm border bg-slate-100 text-slate-700 border-slate-200 dark:bg-slate-800/60 dark:text-slate-200 dark:border-slate-500/40',
+    hex: theme.status.cancelled,
+    bgClass: 'bg-status-cancelled/10 text-status-cancelled',
+    textClass: 'text-status-cancelled',
+    borderClass: 'border-status-cancelled/40',
+    badgeClass: badgeFor('cancelled'),
     severity: 'secondary',
     description: 'task.status.cancelled.desc',
   },
@@ -161,12 +163,11 @@ export const TASK_STATUS_LIST: readonly TaskStatusType[] = [
 const FALLBACK: TaskStatusInfo = {
   key: 'open',
   label: 'task.status.unknown',
-  hex: '#94a3b8',
-  bgClass: 'bg-slate-100 dark:bg-slate-800/60',
-  textClass: 'text-slate-600 dark:text-slate-300',
-  borderClass: 'border-slate-300 dark:border-slate-500/50',
-  badgeClass:
-    'inline-flex items-center justify-center rounded-md px-2 py-0.5 text-[10px] font-semibold leading-snug shadow-sm border bg-slate-100 text-slate-600 border-slate-200 dark:bg-slate-800/60 dark:text-slate-300 dark:border-slate-500/40',
+  hex: theme.status.cancelled,
+  bgClass: 'bg-status-cancelled/10 text-status-cancelled',
+  textClass: 'text-status-cancelled',
+  borderClass: 'border-status-cancelled/40',
+  badgeClass: badgeFor('cancelled'),
   severity: 'secondary',
   description: '',
 };

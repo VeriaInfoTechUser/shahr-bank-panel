@@ -148,9 +148,9 @@ if (modelValueWatcher.value !== undefined) {
   gap: 0.5rem;
   flex-wrap: wrap;
   padding: 0.5rem;
-  background: #f9fafb;
+  background: rgb(var(--color-surface-hover));
   border-radius: 0.5rem;
-  border: 1px solid #e5e7eb;
+  border: 1px solid rgb(var(--color-border));
 
   [dir='rtl'] & {
     flex-direction: row-reverse;
@@ -169,15 +169,15 @@ if (modelValueWatcher.value !== undefined) {
     }
 
     &::-webkit-scrollbar-track {
-      background: #f3f4f6;
+      background: rgb(var(--color-neutral-muted));
     }
 
     &::-webkit-scrollbar-thumb {
-      background: #d1d5db;
+      background: rgb(var(--color-border-strong));
       border-radius: 2px;
 
       &:hover {
-        background: #9ca3af;
+        background: rgb(var(--color-text-muted));
       }
     }
   }
@@ -186,7 +186,7 @@ if (modelValueWatcher.value !== undefined) {
     flex-direction: column;
     width: fit-content;
     padding: 1rem 0.5rem;
-    border: 1px solid #e5e7eb;
+    border: 1px solid rgb(var(--color-border));
   }
 }
 
@@ -196,12 +196,12 @@ if (modelValueWatcher.value !== undefined) {
   justify-content: center;
   gap: 0.5rem;
   padding: 0.75rem 1rem;
-  background: white;
+  background: rgb(var(--color-surface));
   border: 2px solid transparent;
   border-radius: 0.375rem;
   font-size: 0.95rem;
   font-weight: 500;
-  color: #6b7280;
+  color: rgb(var(--color-text-secondary));
   cursor: pointer;
   transition: all 0.3s ease;
   white-space: nowrap;
@@ -212,16 +212,16 @@ if (modelValueWatcher.value !== undefined) {
   }
 
   &:hover:not(.active) {
-    background: #f3f4f6;
-    color: #374151;
+    background: rgb(var(--color-neutral-muted));
+    color: rgb(var(--color-text-primary));
   }
 
   &.active {
-    background: white;
-    border-color: #2563eb;
-    color: #2563eb;
+    background: rgb(var(--color-surface));
+    border-color: rgb(var(--color-primary));
+    color: rgb(var(--color-primary));
     font-weight: 600;
-    box-shadow: 0 2px 4px rgba(37, 99, 235, 0.1);
+    box-shadow: 0 2px 4px rgb(var(--color-primary) / 0.1);
   }
 
   .tab-icon {
@@ -239,7 +239,7 @@ if (modelValueWatcher.value !== undefined) {
     min-width: 20px;
     height: 20px;
     padding: 0 0.4rem;
-    background: #2563eb;
+    background: rgb(var(--color-primary));
     color: white;
     border-radius: 10px;
     font-size: 0.75rem;
@@ -279,12 +279,12 @@ if (modelValueWatcher.value !== undefined) {
   justify-content: space-between;
   gap: 0.75rem;
   padding: 0.75rem 1rem;
-  background: white;
-  border: 1px solid #d1d5db;
+  background: rgb(var(--color-surface));
+  border: 1px solid rgb(var(--color-border-strong));
   border-radius: 0.5rem;
   font-size: 0.95rem;
   font-weight: 500;
-  color: #1f2937;
+  color: rgb(var(--color-text-primary));
   cursor: pointer;
   transition: all 0.3s ease;
 
@@ -293,8 +293,8 @@ if (modelValueWatcher.value !== undefined) {
   }
 
   &:hover {
-    border-color: #2563eb;
-    box-shadow: 0 2px 4px rgba(37, 99, 235, 0.1);
+    border-color: rgb(var(--color-primary));
+    box-shadow: 0 2px 4px rgb(var(--color-primary) / 0.1);
   }
 
   .dropdown-icon {
@@ -326,10 +326,10 @@ if (modelValueWatcher.value !== undefined) {
   left: 0;
   right: 0;
   margin-top: 0.5rem;
-  background: white;
-  border: 1px solid #d1d5db;
+  background: rgb(var(--color-surface));
+  border: 1px solid rgb(var(--color-border-strong));
   border-radius: 0.5rem;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--shadow-lg);
   z-index: 10;
   overflow: hidden;
   animation: slideDown 0.2s ease;
@@ -346,12 +346,12 @@ if (modelValueWatcher.value !== undefined) {
   align-items: center;
   gap: 0.75rem;
   padding: 0.75rem 1rem;
-  background: white;
+  background: rgb(var(--color-surface));
   border: none;
   cursor: pointer;
   text-align: left;
   font-size: 0.95rem;
-  color: #6b7280;
+  color: rgb(var(--color-text-secondary));
   transition: all 0.2s ease;
 
   [dir='rtl'] & {
@@ -360,13 +360,13 @@ if (modelValueWatcher.value !== undefined) {
   }
 
   &:hover {
-    background: #f9fafb;
-    color: #374151;
+    background: rgb(var(--color-surface-hover));
+    color: rgb(var(--color-text-primary));
   }
 
   &.active {
-    background: #eff6ff;
-    color: #2563eb;
+    background: rgb(var(--color-primary-muted) / 0.6);
+    color: rgb(var(--color-primary));
     font-weight: 600;
 
     .item-icon {
@@ -398,7 +398,7 @@ if (modelValueWatcher.value !== undefined) {
 .swipe-indicator {
   text-align: center;
   font-size: 0.8rem;
-  color: #9ca3af;
+  color: rgb(var(--color-text-muted));
   margin-top: 0.5rem;
   animation: pulse 2s ease-in-out infinite;
 }
@@ -460,7 +460,7 @@ if (modelValueWatcher.value !== undefined) {
         border-bottom: 3px solid transparent;
 
         &.active {
-          border-bottom-color: #2563eb;
+          border-bottom-color: rgb(var(--color-primary));
           background: transparent;
         }
       }

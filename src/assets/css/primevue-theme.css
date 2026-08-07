@@ -1,29 +1,36 @@
-/* Minimal PrimeVue styling aligned to panel slate theme */
+/* PrimeVue styling aligned to the central theme (src/config/theme.ts).
+   All `--pv-*` values are aliases of the generated `--color-*` / `--radius-*`
+   / `--shadow-*` tokens — change the theme config, not this file. */
 
 :root {
-  --pv-surface: #ffffff;
-  --pv-surface-alt: #f8fafc;
-  --pv-surface-dark: #0f172a;
-  --pv-border: #e2e8f0;
-  --pv-border-dark: #1f2937;
-  --pv-text: #0f172a;
-  --pv-text-muted: #475569;
-  --pv-primary: #0f172a;
-  --pv-primary-contrast: #ffffff;
-  --pv-radius: 12px;
-  --pv-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+  --pv-surface: rgb(var(--color-surface));
+  --pv-surface-alt: rgb(var(--color-surface-hover));
+  --pv-surface-dark: rgb(var(--color-background));
+  --pv-border: rgb(var(--color-border));
+  --pv-border-dark: rgb(var(--color-border-strong));
+  --pv-text: rgb(var(--color-text-primary));
+  --pv-text-muted: rgb(var(--color-text-secondary));
+  --pv-primary: rgb(var(--color-primary));
+  --pv-primary-hover: rgb(var(--color-primary-hover));
+  --pv-primary-contrast: rgb(var(--color-primary-foreground));
+  --pv-focus: rgb(var(--color-focus));
+  --pv-radius: var(--radius-xl);
+  --pv-shadow: var(--shadow-lg);
 }
 
 .dark {
-  --pv-surface: #0b1220;
-  --pv-surface-alt: #111827;
-  --pv-border: #1f2937;
-  --pv-border-dark: #0b1220;
-  --pv-text: #e2e8f0;
-  --pv-text-muted: #94a3b8;
-  --pv-primary: #e2e8f0;
-  --pv-primary-contrast: #0b1220;
-  --pv-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+  --pv-surface: rgb(var(--color-surface));
+  --pv-surface-alt: rgb(var(--color-surface-hover));
+  --pv-border: rgb(var(--color-border));
+  --pv-border-dark: rgb(var(--color-border-strong));
+  --pv-text: rgb(var(--color-text-primary));
+  --pv-text-muted: rgb(var(--color-text-secondary));
+  --pv-primary: rgb(var(--color-primary));
+  --pv-primary-hover: rgb(var(--color-primary-hover));
+  --pv-primary-contrast: rgb(var(--color-primary-foreground));
+  --pv-focus: rgb(var(--color-focus));
+  --pv-radius: var(--radius-xl);
+  --pv-shadow: var(--shadow-lg);
 }
 
 /* Buttons */
@@ -37,11 +44,11 @@
   box-shadow: none;
 }
 .p-button:enabled:hover {
-  background: #1f2937;
-  border-color: #1f2937;
+  background: var(--pv-primary-hover);
+  border-color: var(--pv-primary-hover);
 }
 .p-button:enabled:focus-visible {
-  outline: 2px solid rgba(15, 23, 42, 0.35);
+  outline: 2px solid rgb(var(--color-focus-ring) / 0.35);
   outline-offset: 2px;
 }
 .p-button.p-button-secondary {
@@ -59,8 +66,8 @@
   padding: 0.65rem 0.85rem;
 }
 .p-inputtext:focus {
-  border-color: #1f2937;
-  box-shadow: 0 0 0 2px rgba(15, 23, 42, 0.12);
+  border-color: var(--pv-focus);
+  box-shadow: 0 0 0 2px rgb(var(--color-focus-ring) / 0.12);
 }
 
 /* Dropdown / Select */

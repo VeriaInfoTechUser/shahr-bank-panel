@@ -189,8 +189,8 @@ function sharePct(part: number | null | undefined, total: number | null | undefi
               class="rounded-full border px-3 py-1.5 text-[11px] font-medium transition"
               :class="
                 selectedPlans.includes(p.slug)
-                  ? 'border-emerald-600 bg-emerald-50 font-bold text-emerald-700'
-                  : 'border-slate-200 bg-white text-slate-600 hover:border-emerald-300 hover:bg-emerald-50/40'
+                  ? 'border-primary bg-primary-muted font-bold text-primary'
+                  : 'border-slate-200 bg-white text-slate-600 hover:border-primary/60 hover:bg-primary-muted/40'
               "
               @click="togglePlan(p.slug)"
             >
@@ -216,7 +216,7 @@ function sharePct(part: number | null | undefined, total: number | null | undefi
           </div>
         </div>
 
-        <Button type="button" variant="success" class="w-full gap-2 text-white" @click="generateReport">
+        <Button type="button" variant="primary" class="w-full gap-2" @click="generateReport">
           <Lucide icon="Sparkles" class="h-4 w-4" />
           تولید گزارش
         </Button>
@@ -252,7 +252,7 @@ function sharePct(part: number | null | undefined, total: number | null | undefi
           <Lucide icon="Settings2" class="h-4 w-4" />
           <span>تنظیمات گزارش</span>
         </Button>
-        <Button type="button" variant="success" class="gap-2 text-white" :disabled="isGenerating" @click="downloadPDF">
+        <Button type="button" variant="primary" class="gap-2" :disabled="isGenerating" @click="downloadPDF">
           <svg v-if="!isGenerating" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
             <polyline points="7 10 12 15 17 10" />

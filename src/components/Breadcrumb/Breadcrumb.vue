@@ -29,7 +29,7 @@ const extraContent = computed(() => breadcrumbExtra?.value ?? null);
         >
           <template v-if="index > 0">
             <span
-              class="pointer-events-none shrink-0 text-slate-400 dark:text-slate-500"
+              class="pointer-events-none shrink-0 text-text-muted"
               aria-hidden="true"
             >
               <svg
@@ -49,7 +49,7 @@ const extraContent = computed(() => breadcrumbExtra?.value ?? null);
           </template>
           <template v-if="item.isLast">
             <span
-              class="truncate font-medium text-slate-800 dark:text-slate-100"
+              class="truncate font-medium text-text-primary"
               :aria-current="'page'"
             >
               {{ t(item.labelKey) }}
@@ -58,7 +58,7 @@ const extraContent = computed(() => breadcrumbExtra?.value ?? null);
           <template v-else>
             <router-link
               :to="item.path"
-              class="truncate text-slate-500 transition hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-100"
+              class="truncate text-text-secondary transition hover:text-text-primary"
             >
               {{ t(item.labelKey) }}
             </router-link>

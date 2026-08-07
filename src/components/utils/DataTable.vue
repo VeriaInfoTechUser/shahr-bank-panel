@@ -245,7 +245,7 @@ const toggleSort = (key: string) => {
   .search-input {
     width: 100%;
     padding: 0.75rem 2.5rem 0.75rem 1rem;
-    border: 1px solid #d1d5db;
+    border: 1px solid rgb(var(--color-border-strong));
     border-radius: 0.5rem;
     font-size: 0.95rem;
     transition: all 0.3s ease;
@@ -258,8 +258,8 @@ const toggleSort = (key: string) => {
 
     &:focus {
       outline: none;
-      border-color: #2563eb;
-      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+      border-color: rgb(var(--color-primary));
+      box-shadow: 0 0 0 3px rgb(var(--color-primary) / 0.1);
     }
   }
 
@@ -279,12 +279,12 @@ const toggleSort = (key: string) => {
 .framework-filter {
   .filter-select {
     padding: 0.75rem;
-    border: 1px solid #d1d5db;
+    border: 1px solid rgb(var(--color-border-strong));
     border-radius: 0.5rem;
     font-size: 0.95rem;
     cursor: pointer;
     transition: all 0.3s ease;
-    background: white;
+    background: rgb(var(--color-surface));
 
     [dir='rtl'] & {
       direction: rtl;
@@ -293,8 +293,8 @@ const toggleSort = (key: string) => {
 
     &:focus {
       outline: none;
-      border-color: #2563eb;
-      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+      border-color: rgb(var(--color-primary));
+      box-shadow: 0 0 0 3px rgb(var(--color-primary) / 0.1);
     }
   }
 }
@@ -302,7 +302,7 @@ const toggleSort = (key: string) => {
 .view-toggle {
   display: flex;
   gap: 0.5rem;
-  background: #f3f4f6;
+  background: rgb(var(--color-neutral-muted));
   padding: 0.5rem;
   border-radius: 0.5rem;
 
@@ -316,22 +316,22 @@ const toggleSort = (key: string) => {
     transition: all 0.3s ease;
 
     &:hover {
-      background: white;
+      background: rgb(var(--color-surface));
     }
 
     &.active {
-      background: white;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      background: rgb(var(--color-surface));
+      box-shadow: var(--shadow-sm);
     }
   }
 }
 
 // Table View
 .table-wrapper {
-  border: 1px solid #e5e7eb;
+  border: 1px solid rgb(var(--color-border));
   border-radius: 0.5rem;
   overflow: hidden;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  box-shadow: var(--shadow-sm);
 }
 
 .table-responsive {
@@ -342,15 +342,15 @@ const toggleSort = (key: string) => {
   }
 
   &::-webkit-scrollbar-track {
-    background: #f3f4f6;
+    background: rgb(var(--color-neutral-muted));
   }
 
   &::-webkit-scrollbar-thumb {
-    background: #d1d5db;
+    background: rgb(var(--color-border-strong));
     border-radius: 3px;
 
     &:hover {
-      background: #9ca3af;
+      background: rgb(var(--color-text-muted));
     }
   }
 }
@@ -361,7 +361,7 @@ const toggleSort = (key: string) => {
   font-size: 0.9rem;
 
   thead {
-    background: linear-gradient(90deg, #f9fafb 0%, #f3f4f6 100%);
+    background: linear-gradient(90deg, rgb(var(--color-surface-hover)) 0%, rgb(var(--color-neutral-muted)) 100%);
     position: sticky;
     top: 0;
     z-index: 10;
@@ -370,8 +370,8 @@ const toggleSort = (key: string) => {
       padding: 1rem 0.75rem;
       text-align: left;
       font-weight: 600;
-      color: #374151;
-      border-bottom: 2px solid #e5e7eb;
+      color: rgb(var(--color-text-primary));
+      border-bottom: 2px solid rgb(var(--color-border));
       cursor: default;
       transition: background 0.2s ease;
 
@@ -383,7 +383,7 @@ const toggleSort = (key: string) => {
         cursor: pointer;
 
         &:hover {
-          background: rgba(37, 99, 235, 0.05);
+          background: rgb(var(--color-primary) / 0.05);
         }
       }
 
@@ -403,7 +403,7 @@ const toggleSort = (key: string) => {
 
           .active {
             opacity: 1;
-            color: #2563eb;
+            color: rgb(var(--color-primary));
           }
         }
       }
@@ -413,10 +413,10 @@ const toggleSort = (key: string) => {
   tbody {
     tr {
       transition: background-color 0.2s ease;
-      border-bottom: 1px solid #e5e7eb;
+      border-bottom: 1px solid rgb(var(--color-border));
 
       &:hover {
-        background-color: #f9fafb;
+        background-color: rgb(var(--color-surface-hover));
       }
 
       &.empty-row {
@@ -428,14 +428,14 @@ const toggleSort = (key: string) => {
 
         .empty-cell {
           padding: 2rem 1rem;
-          color: #9ca3af;
+          color: rgb(var(--color-text-muted));
           font-style: italic;
         }
       }
 
       .table-cell {
         padding: 0.75rem;
-        color: #1f2937;
+        color: rgb(var(--color-text-primary));
 
         .cell-content {
           word-break: break-word;
@@ -470,17 +470,17 @@ const toggleSort = (key: string) => {
 
 .data-card {
   padding: 1rem;
-  background: white;
-  border: 1px solid #e5e7eb;
+  background: rgb(var(--color-surface));
+  border: 1px solid rgb(var(--color-border));
   border-radius: 0.5rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  box-shadow: var(--shadow-sm);
   transition: all 0.3s ease;
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
 
   &:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    box-shadow: var(--shadow-md);
     transform: translateY(-2px);
   }
 
@@ -492,12 +492,12 @@ const toggleSort = (key: string) => {
     .field-label {
       font-size: 0.85rem;
       font-weight: 600;
-      color: #6b7280;
+      color: rgb(var(--color-text-secondary));
     }
 
     .field-value {
       font-size: 0.95rem;
-      color: #1f2937;
+      color: rgb(var(--color-text-primary));
       word-break: break-word;
     }
   }
@@ -506,7 +506,7 @@ const toggleSort = (key: string) => {
 .empty-state {
   text-align: center;
   padding: 2rem 1rem;
-  color: #9ca3af;
+  color: rgb(var(--color-text-muted));
   font-style: italic;
 }
 
@@ -514,7 +514,7 @@ const toggleSort = (key: string) => {
 .pagination-info {
   text-align: center;
   font-size: 0.9rem;
-  color: #6b7280;
+  color: rgb(var(--color-text-secondary));
 }
 
 // Responsive

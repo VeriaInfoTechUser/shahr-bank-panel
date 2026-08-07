@@ -1,6 +1,6 @@
 html {
   scroll-behavior: smooth;
-  background-color: #f8f9fa;
+  background-color: rgb(var(--color-background));
 }
 
 html.dark {
@@ -25,7 +25,7 @@ body {
   font-family: theme("fontFamily.public-sans");
   font-size: theme("fontSize.sm");
   line-height: theme("lineHeight.6");
-  color: theme("colors.slate.700");
+  color: rgb(var(--color-text-secondary));
 }
 
 .font-rtl,

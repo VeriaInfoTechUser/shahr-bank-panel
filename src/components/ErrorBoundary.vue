@@ -107,15 +107,15 @@ const goHome = async () => {
   justify-content: center;
   min-height: 100vh;
   padding: $space-6;
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  background: linear-gradient(135deg, rgb(var(--color-surface-hover)) 0%, rgb(var(--color-neutral-muted)) 100%);
 
   [data-theme='dark'] & {
-    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    background: linear-gradient(135deg, rgb(var(--color-background)) 0%, rgb(var(--color-surface-subtle)) 100%);
   }
 }
 
 .error-content {
-  background: white;
+  background: rgb(var(--color-surface));
   border-radius: $radius-lg;
   padding: $space-10;
   max-width: 500px;
@@ -123,7 +123,7 @@ const goHome = async () => {
   text-align: center;
 
   [data-theme='dark'] & {
-    background: var(--bg-primary);
+    background: rgb(var(--color-surface));
   }
 }
 
@@ -136,7 +136,7 @@ const goHome = async () => {
 
 .error-title {
   @include font-h2;
-  color: $error-color;
+  color: rgb(var(--color-error));
   margin-bottom: $space-4;
 }
 
@@ -180,7 +180,7 @@ const goHome = async () => {
     user-select: none;
 
     &:hover {
-      color: $primary-color;
+      color: rgb(var(--color-primary));
     }
   }
 

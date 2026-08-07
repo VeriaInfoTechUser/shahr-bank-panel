@@ -57,7 +57,7 @@ const labelTextClass = computed(() =>
       append-to="body"
       panel-class="base-multiselect-overlay-panel"
       :panel-style="multiPanelStyle"
-      class="base-multiselect-trigger select select-bordered w-full !h-8 !min-h-0 !max-h-8 py-0 pl-0.5 ps-0 text-xs font-light leading-snug [&_.p-multiselect-label]:text-xs [&_.p-multiselect-label]:font-light [&_.p-multiselect-label]:items-center [&_.p-placeholder]:text-slate-400 dark:[&_.p-placeholder]:text-slate-500"
+      class="base-multiselect-trigger select select-bordered w-full !h-8 !min-h-0 !max-h-8 py-0 pl-0.5 ps-0 text-xs font-light leading-snug [&_.p-multiselect-label]:text-xs [&_.p-multiselect-label]:font-light [&_.p-multiselect-label]:items-center [&_.p-placeholder]:text-text-muted dark:[&_.p-placeholder]:text-text-secondary"
       :class="{ 'select-error': errorMessage }"
       :filter="options.length > 6"
       @blur="handleBlur"

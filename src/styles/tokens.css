@@ -1,0 +1,64 @@
+/* ============================================================================
+   DESIGN TOKENS — CSS layer
+   ----------------------------------------------------------------------------
+   Every variable below is GENERATED from `src/config/theme.ts` (the single
+   source of truth) by the `tailwind.config.js` plugin — do not edit values
+   here; edit `src/config/theme.ts` instead.
+
+   Usage in plain CSS / SCSS components:
+     color:            rgb(var(--color-primary));
+     color (alpha):    rgb(var(--color-primary) / 0.1);
+     bg:               rgb(var(--color-surface));
+     border:           1px solid rgb(var(--color-border));
+     shadow:           var(--shadow-md);
+     radius:           var(--radius-xl);
+     spacing:          var(--space-lg);
+     font size:        var(--font-size-sm);
+     dims:             var(--size-header), var(--size-sidebar), var(--radius-card);
+   ============================================================================ */
+
+/* Color tokens: full semantic set is emitted by the tailwind.config.js
+   plugin (`:root` = light, `.dark` = dark) — do NOT re-declare raw `--color-*`
+   values here, or you will override the theme's dark-mode overrides.
+
+   Semantic aliases for legacy plain-CSS components (e.g. ErrorBoundary).
+   NOTE: the raw `--color-*` triplets are emitted by the theme plugin — do NOT
+   redefine those here (a self-reference would break the Tailwind utilities). */
+:root {
+  --bg-primary: rgb(var(--color-surface));
+  --bg-secondary: rgb(var(--color-background));
+  --bg-tertiary: rgb(var(--color-neutral-muted));
+  --text-primary: rgb(var(--color-text-primary));
+  --text-secondary: rgb(var(--color-text-secondary));
+  --text-tertiary: rgb(var(--color-text-muted));
+  --border-color: rgb(var(--color-border));
+  --color-primary-dark: rgb(var(--color-primary-hover));
+}
+
+/* --- The following documentation block shows the full generated set. ---
+   Colors (light)   : --color-primary, --color-primary-hover, --color-primary-active,
+                      --color-primary-foreground, --color-primary-muted, --color-secondary,
+                      --color-secondary-foreground, --color-success, --color-success-hover,
+                      --color-success-foreground, --color-success-muted, --color-warning,
+                      --color-warning-hover, --color-warning-foreground, --color-warning-muted,
+                      --color-error, --color-error-hover, --color-error-foreground,
+                      --color-error-muted, --color-info, --color-info-muted, --color-pending,
+                      --color-neutral, --color-neutral-muted, --color-background,
+                      --color-surface, --color-surface-subtle, --color-surface-hover,
+                      --color-border, --color-border-subtle, --color-border-strong,
+                      --color-text-primary, --color-text-secondary, --color-text-muted,
+                      --color-text-disabled, --color-focus, --color-focus-ring, --color-overlay,
+                      --color-light, --color-dark
+   Colors (dark)    : same keys re-defined under `.dark`
+   Status           : --color-status-open, --color-status-in-progress, --color-status-pending,
+                      --color-status-approved, --color-status-rejected, --color-status-done,
+                      --color-status-cancelled
+   Typography       : --font-family-base, --font-size-{xs,sm,base,lg,xl,2xl,3xl,4xl},
+                      --line-height-{tight,snug,normal,relaxed,loose},
+                      --letter-spacing-{tighter,tight,normal,wide,wider,widest}
+   Radius           : --radius-{none,sm,DEFAULT,md,lg,xl,2xl,3xl,full}
+   Spacing          : --space-{xs,sm,md,lg,xl,2xl}
+   Shadows          : --shadow-{sm,DEFAULT,md,lg,xl,2xl}
+   Dimensions       : --size-button, --size-input, --size-header, --size-sidebar,
+                      --size-sidebar-collapsed, --radius-card, --radius-modal
+   --------------------------------------------------------------------------- */

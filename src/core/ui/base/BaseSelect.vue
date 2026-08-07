@@ -85,7 +85,7 @@ const labelTextClass = computed(() =>
       scroll-height="16rem"
       panel-class="base-select-overlay-panel"
       :panel-style="selectPanelStyle"
-      class="base-select-trigger select select-bordered w-full !h-8 !min-h-0 pl-0.5 ps-0 text-xs font-light leading-snug [&_.p-select-label]:flex [&_.p-select-label]:items-center [&_.p-select-label]:pl-0 [&_.p-select-label]:text-xs [&_.p-select-label]:font-light [&_.p-select-label.p-placeholder]:text-slate-400 dark:[&_.p-select-label.p-placeholder]:text-slate-500"
+      class="base-select-trigger select select-bordered w-full !h-8 !min-h-0 pl-0.5 ps-0 text-xs font-light leading-snug [&_.p-select-label]:flex [&_.p-select-label]:items-center [&_.p-select-label]:pl-0 [&_.p-select-label]:text-xs [&_.p-select-label]:font-light [&_.p-select-label.p-placeholder]:text-text-muted dark:[&_.p-select-label.p-placeholder]:text-text-secondary"
       :class="{ 'select-error': errorMessage }"
       @blur="handleBlur"
       @change="onChange"
@@ -93,7 +93,7 @@ const labelTextClass = computed(() =>
       <template #option="{ option }">
         <div class="flex flex-col">
           <span>{{ option.label }}</span>
-          <span v-if="option.subtitle" class="text-[10px] font-light text-slate-400 dark:text-slate-500">{{ option.subtitle }}</span>
+          <span v-if="option.subtitle" class="text-[10px] font-light text-text-muted dark:text-text-muted">{{ option.subtitle }}</span>
         </div>
       </template>
     </Select>

@@ -582,11 +582,11 @@ function handleYearClick(y) {
 <style scoped>
 .dp-root {
   font-family: Vazirmatn, 'Vazir', Tahoma, sans-serif;
-  border: 1px solid #e2e8f0;
+  border: 1px solid rgb(var(--color-border));
   border-radius: 12px;
   overflow: hidden;
   width: 320px;
-  background: #fff;
+  background: rgb(var(--color-surface));
   box-shadow: 0 2px 12px rgba(0,0,0,0.07);
   user-select: none;
 }
@@ -594,8 +594,8 @@ function handleYearClick(y) {
 /* ── Calendar toggle ── */
 .dp-cal-toggle {
   display: flex;
-  border-bottom: 1px solid #f1f5f9;
-  background: #f8fafc;
+  border-bottom: 1px solid rgb(var(--color-surface-hover));
+  background: rgb(var(--color-surface-hover));
 }
 .dp-cal-btn {
   flex: 1;
@@ -603,18 +603,18 @@ function handleYearClick(y) {
   font-size: 13px;
   border: none;
   background: transparent;
-  color: #64748b;
+  color: rgb(var(--color-text-secondary));
   cursor: pointer;
   font-family: inherit;
   font-weight: 500;
   border-bottom: 2px solid transparent;
   transition: all 0.15s;
 }
-.dp-cal-btn:hover { color: #1e293b; }
+.dp-cal-btn:hover { color: rgb(var(--color-text-primary)); }
 .dp-cal-btn.active {
-  color: #2563eb;
-  border-bottom-color: #2563eb;
-  background: #fff;
+  color: rgb(var(--color-primary));
+  border-bottom-color: rgb(var(--color-primary));
+  background: rgb(var(--color-surface));
 }
 
 /* ── Mode tabs ── */
@@ -622,17 +622,17 @@ function handleYearClick(y) {
   display: flex;
   gap: 4px;
   padding: 8px 12px;
-  background: #f8fafc;
-  border-bottom: 1px solid #f1f5f9;
+  background: rgb(var(--color-surface-hover));
+  border-bottom: 1px solid rgb(var(--color-surface-hover));
   flex-wrap: wrap;
 }
 .dp-mode-btn {
   flex: 1;
   padding: 5px 2px;
   font-size: 11px;
-  border: 1px solid #e2e8f0;
-  background: #fff;
-  color: #64748b;
+  border: 1px solid rgb(var(--color-border));
+  background: rgb(var(--color-surface));
+  color: rgb(var(--color-text-secondary));
   border-radius: 6px;
   cursor: pointer;
   transition: all 0.15s;
@@ -640,11 +640,11 @@ function handleYearClick(y) {
   line-height: 1.3;
   min-width: 56px;
 }
-.dp-mode-btn:hover { background: #f1f5f9; color: #1e293b; }
+.dp-mode-btn:hover { background: rgb(var(--color-surface-hover)); color: rgb(var(--color-text-primary)); }
 .dp-mode-btn.active {
-  background: #eff6ff;
-  border-color: #93c5fd;
-  color: #2563eb;
+  background: rgb(var(--color-primary-muted) / 0.6);
+  border-color: rgb(var(--color-primary) / 0.5);
+  color: rgb(var(--color-primary));
   font-weight: 600;
 }
 
@@ -654,20 +654,20 @@ function handleYearClick(y) {
   align-items: center;
   justify-content: space-between;
   padding: 8px 12px;
-  border-bottom: 1px solid #f1f5f9;
+  border-bottom: 1px solid rgb(var(--color-surface-hover));
 }
 .dp-nav-btn {
   width: 28px; height: 28px;
-  border: 1px solid #e2e8f0;
-  background: #fff;
+  border: 1px solid rgb(var(--color-border));
+  background: rgb(var(--color-surface));
   border-radius: 6px;
   cursor: pointer;
   display: flex; align-items: center; justify-content: center;
-  font-size: 18px; color: #64748b;
+  font-size: 18px; color: rgb(var(--color-text-secondary));
   transition: all 0.12s; line-height: 1;
 }
-.dp-nav-btn:hover { background: #f8fafc; color: #1e293b; border-color: #94a3b8; }
-.dp-nav-title { font-size: 14px; font-weight: 600; color: #1e293b; }
+.dp-nav-btn:hover { background: rgb(var(--color-surface-hover)); color: rgb(var(--color-text-primary)); border-color: rgb(var(--color-text-muted)); }
+.dp-nav-title { font-size: 14px; font-weight: 600; color: rgb(var(--color-text-primary)); }
 
 /* ── Body ── */
 .dp-body { padding: 10px 12px; }
@@ -675,29 +675,29 @@ function handleYearClick(y) {
 /* ── Day grid ── */
 .dp-grid-7 { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
 .dp-weekdays-row { margin-bottom: 4px; }
-.dp-weekday { text-align: center; font-size: 10px; color: #94a3b8; padding: 2px 0 6px; }
+.dp-weekday { text-align: center; font-size: 10px; color: rgb(var(--color-text-muted)); padding: 2px 0 6px; }
 
 .dp-day {
   aspect-ratio: 1;
   display: flex; align-items: center; justify-content: center;
-  font-size: 12px; color: #1e293b;
+  font-size: 12px; color: rgb(var(--color-text-primary));
   border-radius: 6px; cursor: pointer;
   border: 1px solid transparent;
   transition: all 0.1s;
 }
-.dp-day:hover:not(.dp-day--other) { background: #f1f5f9; }
+.dp-day:hover:not(.dp-day--other) { background: rgb(var(--color-surface-hover)); }
 .dp-day--other { color: transparent; cursor: default; pointer-events: none; }
-.dp-day--today { border-color: #93c5fd; color: #2563eb; font-weight: 600; }
-.dp-day--selected { background: #2563eb; color: #fff; border-color: #2563eb; font-weight: 600; }
+.dp-day--today { border-color: rgb(var(--color-primary) / 0.5); color: rgb(var(--color-primary)); font-weight: 600; }
+.dp-day--selected { background: rgb(var(--color-primary)); color: rgb(var(--color-primary-foreground)); border-color: rgb(var(--color-primary)); font-weight: 600; }
 
 /* week-mode highlight */
-.dp-day--week-range { background: #dbeafe; color: #1e3a8a; border-radius: 4px; }
-.dp-day--week-start { background: #2563eb; color: #fff; border-color: #2563eb; font-weight: 600; }
+.dp-day--week-range { background: rgb(var(--color-primary-muted)); color: rgb(var(--color-primary-hover)); border-radius: 4px; }
+.dp-day--week-start { background: rgb(var(--color-primary)); color: rgb(var(--color-primary-foreground)); border-color: rgb(var(--color-primary)); font-weight: 600; }
 
 .dp-hint {
   margin: 8px 2px 0;
   font-size: 11px;
-  color: #94a3b8;
+  color: rgb(var(--color-text-muted));
   text-align: center;
   line-height: 1.5;
 }
@@ -709,17 +709,17 @@ function handleYearClick(y) {
 .dp-cell {
   padding: 8px 4px;
   text-align: center;
-  font-size: 13px; color: #1e293b;
+  font-size: 13px; color: rgb(var(--color-text-primary));
   border-radius: 8px; cursor: pointer;
-  border: 1px solid #e2e8f0; background: #fff;
+  border: 1px solid rgb(var(--color-border)); background: rgb(var(--color-surface));
   transition: all 0.12s; line-height: 1.4;
 }
-.dp-cell:hover:not(.dp-cell--selected) { background: #f8fafc; border-color: #94a3b8; }
-.dp-cell--selected { background: #2563eb; color: #fff; border-color: #2563eb; font-weight: 600; }
+.dp-cell:hover:not(.dp-cell--selected) { background: rgb(var(--color-surface-hover)); border-color: rgb(var(--color-text-muted)); }
+.dp-cell--selected { background: rgb(var(--color-primary)); color: rgb(var(--color-primary-foreground)); border-color: rgb(var(--color-primary)); font-weight: 600; }
 
 .dp-season-cell { padding: 10px 6px; }
 .dp-season-icon { font-size: 18px; margin-bottom: 3px; }
 .dp-season-name { font-size: 13px; font-weight: 600; }
-.dp-season-sub  { font-size: 10px; color: #94a3b8; margin-top: 2px; }
+.dp-season-sub  { font-size: 10px; color: rgb(var(--color-text-muted)); margin-top: 2px; }
 .dp-cell--selected .dp-season-sub { color: rgba(255,255,255,0.65); }
 </style>

@@ -43,19 +43,19 @@ const highlightedBody = computed(() => {
 <style scoped lang="scss">
 .narrative-card {
   padding: 1.5rem;
-  background: white;
+  background: rgb(var(--color-surface));
   border-radius: 0.5rem;
-  border-left: 3px solid #0891b2;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  border-left: 3px solid rgb(var(--color-info));
+  box-shadow: var(--shadow-sm);
   transition: all 0.3s ease;
 
   &[dir='rtl'] {
     border-left: none;
-    border-right: 3px solid #0891b2;
+    border-right: 3px solid rgb(var(--color-info));
   }
 
   &:hover {
-    box-shadow: 0 4px 12px rgba(8, 145, 178, 0.1);
+    box-shadow: 0 4px 12px rgb(var(--color-info) / 0.1);
     transform: translateY(-2px);
   }
 }
@@ -69,7 +69,7 @@ const highlightedBody = computed(() => {
 .narrative-title {
   font-size: 1.25rem;
   font-weight: 600;
-  color: #0f766e;
+  color: rgb(var(--color-primary));
   margin: 0;
   line-height: 1.5;
 }
@@ -77,7 +77,7 @@ const highlightedBody = computed(() => {
 .narrative-body {
   font-size: 0.95rem;
   line-height: 1.8;
-  color: #374151;
+  color: rgb(var(--color-text-primary));
   word-break: break-word;
 
   &[dir='rtl'] {
@@ -91,17 +91,17 @@ const highlightedBody = computed(() => {
 
 // Syntax highlighting for numbers
 :deep(.highlighted-number) {
-  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  background: linear-gradient(135deg, rgb(var(--color-warning-muted)) 0%, rgb(var(--color-warning) / 0.4) 100%);
   padding: 0.2rem 0.4rem;
   border-radius: 0.25rem;
   font-weight: 600;
-  color: #92400e;
+  color: rgb(var(--color-warning-hover));
   display: inline-block;
   transition: all 0.2s ease;
 
   &:hover {
-    background: linear-gradient(135deg, #fde68a 0%, #fcd34d 100%);
-    box-shadow: 0 2px 4px rgba(245, 158, 11, 0.2);
+    background: linear-gradient(135deg, rgb(var(--color-warning) / 0.4) 0%, rgb(var(--color-warning) / 0.55) 100%);
+    box-shadow: 0 2px 4px rgb(var(--color-warning) / 0.2);
   }
 }
 

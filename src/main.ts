@@ -8,6 +8,7 @@ import router from './router';
 import i18n from './utils/i18n';
 import { toPersianDigits } from './utils/persianDigits';
 import './assets/css/app.css';
+import './styles/tokens.css';
 import './assets/css/primevue-theme.css';
 import Shimmer from 'vue3-shimmer';
 import VueAwesomePaginate from "vue-awesome-paginate";

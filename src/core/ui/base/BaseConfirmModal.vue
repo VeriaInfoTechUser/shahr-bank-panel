@@ -67,7 +67,7 @@ const displayMessage = computed(() => {
 
 const mergedRootClass = computed(() => {
   const base =
-    'max-w-md w-[min(100%,28rem)] rounded-xl border border-slate-200 bg-white shadow-xl dark:border-darkmode-600 dark:bg-darkmode-800';
+    'max-w-md w-[min(100%,28rem)] rounded-modal border border-border bg-surface shadow-xl dark:border-border dark:bg-surface';
   return props.rootClass?.trim() ? `${base} ${props.rootClass}` : base;
 });
 
@@ -120,7 +120,7 @@ const confirmButtonVariant = computed(() => {
     :root-class="mergedRootClass"
     @update:visible="onDialogVisible"
   >
-    <p class="text-sm leading-relaxed text-slate-600 dark:text-slate-300">
+    <p class="text-sm leading-relaxed text-text-secondary dark:text-text-secondary">
       {{ displayMessage }}
     </p>
     <template #footer>

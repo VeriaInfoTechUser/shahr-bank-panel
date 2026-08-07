@@ -223,7 +223,7 @@ const labelTextClass = computed(() =>
         class="select select-bordered flex w-full items-center !min-h-0 !px-2 !py-1 text-xs font-light leading-snug"
         :class="[
           { 'select-error': errorMessage, 'opacity-50 cursor-not-allowed': disabled },
-          selectedCount ? 'text-slate-700 dark:text-slate-200' : 'text-slate-400 dark:text-slate-500'
+          selectedCount ? 'text-text-secondary' : 'text-text-muted dark:text-text-muted'
         ]"
         @click="toggle"
         @blur="handleBlur"
@@ -250,7 +250,7 @@ const labelTextClass = computed(() =>
         </span>
         <Lucide
           icon="ChevronDown"
-          class="h-4 w-4 shrink-0 text-slate-400 transition-transform ms-1"
+          class="h-4 w-4 shrink-0 text-text-muted transition-transform ms-1"
           :class="isOpen ? 'rotate-180' : ''"
         />
       </button>
@@ -261,26 +261,26 @@ const labelTextClass = computed(() =>
           v-if="isOpen"
           ref="panelRef"
           :style="posStyle"
-          class="base-paginated-select-panel overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl dark:border-darkmode-600 dark:bg-darkmode-800"
+          class="base-paginated-select-panel overflow-hidden rounded-xl border border-border bg-surface shadow-xl dark:border-border dark:bg-surface"
           @mousedown="onPanelMouseDown"
         >
           <!-- Search input -->
-          <div v-if="search" class="border-b border-slate-100 px-3 py-2 dark:border-darkmode-600">
+          <div v-if="search" class="border-b border-slate-100 px-3 py-2 dark:border-border">
             <div class="relative">
-              <Lucide icon="Search" class="absolute start-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400" />
+              <Lucide icon="Search" class="absolute start-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-text-muted" />
               <input
                 ref="searchInputRef"
                 v-model="searchText"
                 type="text"
-                class="w-full rounded-md border border-slate-200 bg-slate-50 py-1.5 pe-2.5 ps-8 text-xs text-slate-700 placeholder-slate-400 outline-none transition-colors focus:border-primary focus:bg-white dark:border-darkmode-600 dark:bg-darkmode-700 dark:text-slate-200 dark:placeholder-slate-500"
+                class="w-full rounded-md border border-border bg-surface-hover py-1.5 pe-2.5 ps-8 text-xs text-text-secondary placeholder:text-text-muted outline-none transition-colors focus:border-primary focus:bg-surface dark:border-border dark:bg-surface-subtle dark:text-text-primary dark:placeholder:text-text-muted"
                 :placeholder="resolvedSearchPlaceholder"
               />
             </div>
           </div>
 
           <!-- Selected count & clear -->
-          <div v-if="selectedCount" class="flex items-center justify-between border-b border-slate-100 px-3 py-1.5 dark:border-darkmode-600">
-            <span class="text-[11px] text-slate-500">{{ selectedCount }} {{ t('general.selected') }}</span>
+          <div v-if="selectedCount" class="flex items-center justify-between border-b border-slate-100 px-3 py-1.5 dark:border-border">
+            <span class="text-[11px] text-text-secondary">{{ selectedCount }} {{ t('general.selected') }}</span>
             <button
               type="button"
               class="text-[11px] text-primary hover:underline"
@@ -301,8 +301,8 @@ const labelTextClass = computed(() =>
               v-for="opt in options"
               :key="String(opt.value)"
               type="button"
-              class="flex w-full items-center gap-2 px-3 py-2 text-start text-xs transition-colors hover:bg-slate-50 dark:hover:bg-darkmode-700"
-              :class="isSelected(opt.value) ? 'bg-primary/10 font-medium text-primary' : 'text-slate-700 dark:text-slate-200'"
+              class="flex w-full items-center gap-2 px-3 py-2 text-start text-xs transition-colors hover:bg-surface-hover dark:hover:bg-darkmode-700"
+              :class="isSelected(opt.value) ? 'bg-primary/10 font-medium text-primary' : 'text-text-secondary'"
               @mousedown.prevent="toggleItem(opt.value)"
             >
               <span class="flex h-4 w-4 items-center justify-center rounded border" :class="isSelected(opt.value) ? 'border-primary bg-primary' : 'border-slate-300 dark:border-slate-600'">
@@ -313,32 +313,32 @@ const labelTextClass = computed(() =>
           </div>
 
           <!-- Empty -->
-          <div v-else class="py-6 text-center text-xs text-slate-400 dark:text-slate-500">
+          <div v-else class="py-6 text-center text-xs text-text-muted dark:text-text-muted">
             {{ t('general.no-data') }}
           </div>
 
           <!-- Pagination -->
           <div
             v-if="totalCount > limit"
-            class="flex items-center justify-between border-t border-slate-100 px-3 py-1.5 dark:border-darkmode-600"
+            class="flex items-center justify-between border-t border-slate-100 px-3 py-1.5 dark:border-border"
           >
             <button
               type="button"
               class="inline-flex items-center gap-1 rounded px-2 py-1 text-[11px] font-medium transition-colors"
-              :class="hasPrev ? 'text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-darkmode-700' : 'cursor-not-allowed text-slate-300 dark:text-darkmode-500'"
+              :class="hasPrev ? 'text-text-secondary hover:bg-surface-hover dark:text-text-secondary dark:hover:bg-darkmode-700' : 'cursor-not-allowed text-slate-300 dark:text-darkmode-500'"
               :disabled="!hasPrev"
               @mousedown.prevent="goPrev"
             >
               <Lucide icon="ChevronRight" class="h-3 w-3" />
               {{ t('general.previous') }}
             </button>
-            <span class="text-[11px] text-slate-400 dark:text-slate-500">
+            <span class="text-[11px] text-text-muted dark:text-text-muted">
               {{ page }} / {{ totalPages }}
             </span>
             <button
               type="button"
               class="inline-flex items-center gap-1 rounded px-2 py-1 text-[11px] font-medium transition-colors"
-              :class="hasNext ? 'text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-darkmode-700' : 'cursor-not-allowed text-slate-300 dark:text-darkmode-500'"
+              :class="hasNext ? 'text-text-secondary hover:bg-surface-hover dark:text-text-secondary dark:hover:bg-darkmode-700' : 'cursor-not-allowed text-slate-300 dark:text-darkmode-500'"
               :disabled="!hasNext"
               @mousedown.prevent="goNext"
             >

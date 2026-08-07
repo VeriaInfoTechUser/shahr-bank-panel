@@ -87,10 +87,10 @@ const responsiveStyles = computed(() => {
   max-width: v-bind('"' + maxWidth + '"');
   margin: 0 auto;
   padding: 1.5rem;
-  background: white;
-  border: 1px solid #e5e7eb;
+  background: rgb(var(--color-surface));
+  border: 1px solid rgb(var(--color-border));
   border-radius: 0.5rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  box-shadow: var(--shadow-sm);
   transition: all 0.3s ease;
   display: flex;
   flex-direction: column;
@@ -98,7 +98,7 @@ const responsiveStyles = computed(() => {
 
   &.has-data {
     &:hover {
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      box-shadow: var(--shadow-md);
     }
   }
 
@@ -110,7 +110,7 @@ const responsiveStyles = computed(() => {
       justify-content: center;
       gap: 1rem;
       padding: 2rem;
-      color: #9ca3af;
+      color: rgb(var(--color-text-muted));
 
       .empty-icon {
         font-size: 3rem;
@@ -131,18 +131,18 @@ const responsiveStyles = computed(() => {
   flex-direction: column;
   gap: 0.5rem;
   padding-bottom: 0.5rem;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid rgb(var(--color-border));
 
   .chart-title {
     font-size: 1.1rem;
     font-weight: 600;
-    color: #1f2937;
+    color: rgb(var(--color-text-primary));
     margin: 0;
   }
 
   .chart-subtitle {
     font-size: 0.85rem;
-    color: #6b7280;
+    color: rgb(var(--color-text-secondary));
     margin: 0;
   }
 }
@@ -154,7 +154,7 @@ const responsiveStyles = computed(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+  background: linear-gradient(135deg, rgb(var(--color-surface-hover)) 0%, rgb(var(--color-neutral-muted)) 100%);
   border-radius: 0.375rem;
   overflow: hidden;
   position: relative;
@@ -175,9 +175,9 @@ const responsiveStyles = computed(() => {
 
 .chart-footer {
   padding-top: 0.5rem;
-  border-top: 1px solid #e5e7eb;
+  border-top: 1px solid rgb(var(--color-border));
   font-size: 0.85rem;
-  color: #6b7280;
+  color: rgb(var(--color-text-secondary));
 }
 
 // Responsive

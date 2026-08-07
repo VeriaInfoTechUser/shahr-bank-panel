@@ -260,13 +260,13 @@ const tableColumns = computed(() => effectiveColumns.value);
         <input
           :value="searchInput"
           type="search"
-          class="w-full rounded-lg border border-slate-200 bg-white py-1.5 pl-9 pr-3 text-xs text-slate-800 placeholder-slate-400 shadow-sm transition focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/20 dark:border-darkmode-600 dark:bg-darkmode-800 dark:text-slate-100 dark:placeholder-slate-500"
+          class="w-full rounded-lg border border-border bg-surface py-1.5 pl-9 pr-3 text-xs text-text-primary placeholder:text-text-muted shadow-sm transition focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/20 dark:border-border dark:bg-surface dark:text-text-primary dark:placeholder:text-text-muted"
           :placeholder="searchPlaceholder"
           autocomplete="off"
           @input="onSearchInput(($event.target as HTMLInputElement).value)"
         />
         <span
-          class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500"
+          class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-text-muted dark:text-text-muted"
           aria-hidden="true"
         >
           <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -277,7 +277,7 @@ const tableColumns = computed(() => effectiveColumns.value);
     </div>
 
     <!-- Table card wrapper -->
-    <div class="base-table__card overflow-hidden rounded-xl border border-slate-200/60 bg-white shadow-sm dark:border-darkmode-700/60 dark:bg-darkmode-800">
+    <div class="base-table__card overflow-hidden rounded-xl border border-border/60 bg-surface shadow-sm dark:border-border/60 dark:bg-surface">
       <DataTable
         :value="effectiveRows"
         :loading="false"
@@ -301,25 +301,25 @@ const tableColumns = computed(() => effectiveColumns.value);
           wrapper: { class: 'overflow-x-auto' },
           header: {
             class: stickyHeader
-              ? 'sticky top-0 z-10 border-0 bg-slate-50/98 dark:bg-darkmode-800/98 backdrop-blur'
-              : 'border-0 bg-slate-50/98 dark:bg-darkmode-800/98',
+              ? 'sticky top-0 z-10 border-0 bg-surface-hover/98 dark:bg-surface/98 backdrop-blur'
+              : 'border-0 bg-surface-hover/98 dark:bg-surface/98',
           },
           column: {
             header: {
-              class: 'base-table__th min-w-0 px-3 py-2 text-left text-[11px] font-medium tracking-wide text-slate-500 dark:text-slate-400 align-middle border-0 border-b border-slate-200/70 dark:border-darkmode-600/80 overflow-hidden text-ellipsis whitespace-nowrap',
+              class: 'base-table__th min-w-0 px-3 py-2 text-left text-[11px] font-medium tracking-wide text-text-secondary align-middle border-0 border-b border-border/70 dark:border-border/80 overflow-hidden text-ellipsis whitespace-nowrap',
             },
-            sortIcon: { class: 'ml-1 inline-block shrink-0 text-slate-400 opacity-70' },
+            sortIcon: { class: 'ml-1 inline-block shrink-0 text-text-muted opacity-70' },
             bodyCell: {
-              class: 'base-table__td align-middle px-3 py-2 text-xs text-slate-700 dark:text-slate-200 border-0 border-b border-slate-100/80 dark:border-darkmode-700/50',
+              class: 'base-table__td align-middle px-3 py-2 text-xs text-text-secondary border-0 border-b border-border-subtle/80 dark:border-border-subtle/50',
             },
           },
           bodyRow: {
             class: 'base-table__row transition-colors [&.p-highlight]:bg-primary/10 dark:[&.p-highlight]:bg-primary/15',
           },
           paginator: {
-            class: 'border-0 border-t border-slate-200/60 dark:border-darkmode-700/60 bg-slate-50/50 dark:bg-darkmode-800/80 text-slate-600 dark:text-slate-400 px-3 py-2 text-[11px]',
+            class: 'border-0 border-t border-border/60 dark:border-border/60 bg-surface-hover/50 dark:bg-surface/80 text-text-secondary px-3 py-2 text-[11px]',
           },
-          emptyMessage: { class: 'text-center py-10 text-xs text-slate-500 dark:text-slate-400' },
+          emptyMessage: { class: 'text-center py-10 text-xs text-text-secondary' },
         }"
         @page="onPage"
         @sort="onSort"
@@ -333,7 +333,7 @@ const tableColumns = computed(() => effectiveColumns.value);
           <slot name="empty" :loading="effectiveLoading">
             <div
               v-if="effectiveLoading"
-              class="py-10 text-center text-sm font-medium text-slate-600 dark:text-slate-300"
+              class="py-10 text-center text-sm font-medium text-text-secondary dark:text-text-secondary"
               role="status"
               aria-live="polite"
             >
@@ -341,7 +341,7 @@ const tableColumns = computed(() => effectiveColumns.value);
             </div>
             <div
               v-else
-              class="py-10 text-center text-xs text-slate-500 dark:text-slate-400"
+              class="py-10 text-center text-xs text-text-secondary"
             >
               {{ emptyMessage }}
             </div>
@@ -439,19 +439,19 @@ const tableColumns = computed(() => effectiveColumns.value);
 /* Minimal row hover */
 .base-table__datatable :deep(.p-datatable-tbody .base-table__row:hover),
 .base-table__datatable :deep(.p-datatable-tbody tr:hover) {
-  background-color: rgb(248 250 252 / 0.7);
+  background-color: rgb(var(--color-surface-hover) / 0.7);
 }
 .dark .base-table__datatable :deep(.p-datatable-tbody .base-table__row:hover),
 .dark .base-table__datatable :deep(.p-datatable-tbody tr:hover) {
-  background-color: rgb(30 41 59 / 0.4);
+  background-color: rgb(var(--color-surface-hover) / 0.4);
 }
 
 /* Subtle stripe for striped rows */
 .base-table__datatable :deep(.p-datatable-tbody tr.p-row-odd) {
-  background-color: rgb(248 250 252 / 0.4);
+  background-color: rgb(var(--color-surface-hover) / 0.4);
 }
 .dark .base-table__datatable :deep(.p-datatable-tbody tr.p-row-odd) {
-  background-color: rgb(30 41 59 / 0.2);
+  background-color: rgb(var(--color-surface-hover) / 0.2);
 }
 
 /* Selection column: xs-size checkboxes (header + row) */

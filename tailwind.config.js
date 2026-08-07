@@ -1,10 +1,129 @@
+/**
+ * Tailwind configuration — consumed from the central design-system theme.
+ *
+ * EVERY color / radius / shadow / font / spacing / component-dimension value
+ * originates from `src/config/theme.ts` (the single source of truth).
+ * Changing a value there regenerates the CSS custom properties below and all
+ * semantic utilities (`bg-primary`, `text-text-primary`, `border-border`,
+ * `bg-surface`, `ring-focus-ring`, `h-btn`, `w-sidebar`, ...).
+ */
 const plugin = require("tailwindcss/plugin");
 const colors = require("tailwindcss/colors");
 const { parseColor } = require("tailwindcss/lib/util/color");
+const path = require("path");
 
-/** Converts HEX color to RGB */
+// Load the central theme (TS) through jiti (already a tailwindcss dependency).
+let loadTheme;
+try {
+  loadTheme = require("jiti")(__filename);
+} catch {
+  loadTheme = require(path.resolve(__dirname, "node_modules/jiti"))(__filename);
+}
+const { theme: THEME } = loadTheme(path.resolve(__dirname, "src/config/theme.ts"));
+
+/** Converts HEX color to an "r g b" triplet (used by rgb(var(--x) / a)). */
 const toRGB = (value) => {
-  return parseColor(value).color.join(" ");
+  try {
+    return parseColor(value).color.join(" ");
+  } catch {
+    return value;
+  }
+};
+
+// ---------------------------------------------------------------------------
+// Build CSS custom properties for a color scope ({light} -> :root, {dark} -> .dark)
+// ---------------------------------------------------------------------------
+function colorVars(scope) {
+  const vars = {};
+  for (const [key, value] of Object.entries(scope)) {
+    vars[`--color-${key}`] = toRGB(value);
+  }
+  return vars;
+}
+
+// ---------------------------------------------------------------------------
+// Semantic Tailwind color utilities from the central theme (light scope keys)
+// ---------------------------------------------------------------------------
+const semanticColors = {};
+for (const key of Object.keys(THEME.colors.light)) {
+  if (key === 'primary' || key === 'primary-muted') continue; // handled as object below
+  semanticColors[key] = `rgb(var(--color-${key}) / <alpha-value>)`;
+}
+// `primary` kept as an object (DEFAULT + muted) for theme("colors.primary.DEFAULT")
+// references in CSS components and `bg-primary-muted` utilities.
+semanticColors.primary = {
+  DEFAULT: "rgb(var(--color-primary) / <alpha-value>)",
+  muted: "rgb(var(--color-primary-muted) / <alpha-value>)",
+};
+// Back-compat alias: `danger` == `error` semantic token.
+semanticColors.danger = "rgb(var(--color-error) / <alpha-value>)";
+// Status (non-themed data-viz) palette.
+for (const [key, value] of Object.entries(THEME.status)) {
+  semanticColors[`status-${key}`] = `rgb(var(--color-status-${key}) / <alpha-value>)`;
+}
+// Legacy darkmode step palette (flat object form kept for `dark:bg-darkmode-*`).
+semanticColors.darkmode = {
+  50: "rgb(var(--color-darkmode-50) / <alpha-value>)",
+  100: "rgb(var(--color-darkmode-100) / <alpha-value>)",
+  200: "rgb(var(--color-darkmode-200) / <alpha-value>)",
+  300: "rgb(var(--color-darkmode-300) / <alpha-value>)",
+  400: "rgb(var(--color-darkmode-400) / <alpha-value>)",
+  500: "rgb(var(--color-darkmode-500) / <alpha-value>)",
+  600: "rgb(var(--color-darkmode-600) / <alpha-value>)",
+  700: "rgb(var(--color-darkmode-700) / <alpha-value>)",
+  800: "rgb(var(--color-darkmode-800) / <alpha-value>)",
+  900: "rgb(var(--color-darkmode-900) / <alpha-value>)",
+};
+
+// ---------------------------------------------------------------------------
+// Typography / radius / spacing / shadows derived from the theme
+// ---------------------------------------------------------------------------
+const px = (v) => `${v}px`;
+
+const fontSize = Object.fromEntries(
+  Object.entries(THEME.typography.sizes).map(([key, size]) => {
+    const lineHeights = {
+      xs: 16,
+      sm: 20,
+      base: 24,
+      lg: 28,
+      xl: 28,
+      "2xl": 32,
+      "3xl": 36,
+      "4xl": 40,
+    };
+    return [key, [px(size), { lineHeight: px(lineHeights[key] ?? 24) }]];
+  })
+);
+
+const borderRadius = {
+  ...Object.fromEntries(
+    Object.entries(THEME.radius).map(([key, value]) => [
+      key,
+      key === "full" ? "9999px" : px(value),
+    ])
+  ),
+  // Component radii driven by theme.components (consumed as rounded-card / rounded-modal)
+  card: px(THEME.components.cardRadius),
+  modal: px(THEME.components.modalRadius),
+};
+
+const boxShadow = { ...THEME.shadows };
+
+const spacing = Object.fromEntries(
+  Object.entries(THEME.spacing).map(([key, value]) => [key, px(value)])
+);
+
+const dimensions = {
+  height: {
+    btn: px(THEME.components.buttonHeight),
+    input: px(THEME.components.inputHeight),
+    header: px(THEME.components.headerHeight),
+  },
+  width: {
+    sidebar: px(THEME.components.sidebarWidth),
+    "sidebar-collapsed": px(THEME.components.sidebarCollapsedWidth),
+  },
 };
 
 /** @type {import('tailwindcss').Config} */
@@ -18,50 +137,16 @@ module.exports = {
   darkMode: "class",
   theme: {
     extend: {
-      colors: {
-        primary: {
-          DEFAULT: "rgb(var(--color-primary) / <alpha-value>)",
-          muted: "rgb(var(--color-primary-muted) / <alpha-value>)",
-        },
-        secondary: "rgb(var(--color-secondary) / <alpha-value>)",
-        success: "rgb(var(--color-success) / <alpha-value>)",
-        info: "rgb(var(--color-info) / <alpha-value>)",
-        warning: "rgb(var(--color-warning) / <alpha-value>)",
-        pending: "rgb(var(--color-pending) / <alpha-value>)",
-        danger: "rgb(var(--color-danger) / <alpha-value>)",
-        light: "rgb(var(--color-light) / <alpha-value>)",
-        dark: "rgb(var(--color-dark) / <alpha-value>)",
-        darkmode: {
-          50: "rgb(var(--color-darkmode-50) / <alpha-value>)",
-          100: "rgb(var(--color-darkmode-100) / <alpha-value>)",
-          200: "rgb(var(--color-darkmode-200) / <alpha-value>)",
-          300: "rgb(var(--color-darkmode-300) / <alpha-value>)",
-          400: "rgb(var(--color-darkmode-400) / <alpha-value>)",
-          500: "rgb(var(--color-darkmode-500) / <alpha-value>)",
-          600: "rgb(var(--color-darkmode-600) / <alpha-value>)",
-          700: "rgb(var(--color-darkmode-700) / <alpha-value>)",
-          800: "rgb(var(--color-darkmode-800) / <alpha-value>)",
-          900: "rgb(var(--color-darkmode-900) / <alpha-value>)",
-        },
-      },
-      fontWeight: {
-        normal: "500",
-        medium: "600",
-        semibold: "700",
-      },
+      colors: semanticColors,
+      fontWeight: THEME.typography.weights,
       fontFamily: {
-        "public-sans": [
-          "Vazirmatn Variable",
-          "Vazirmatn",
-          "system-ui",
-          "-apple-system",
-          "Segoe UI",
-          "Roboto",
-          "Helvetica Neue",
-          "Arial",
-          "sans-serif",
-        ],
+        "public-sans": THEME.typography.family,
       },
+      fontSize,
+      borderRadius,
+      boxShadow,
+      spacing,
+      ...dimensions,
       container: {
         center: true,
       },
@@ -144,36 +229,71 @@ module.exports = {
     require("daisyui"),
     plugin(function ({ addBase, matchUtilities }) {
       addBase({
-        // Teal palette: light theme per reference design (#00897b / #0f766e)
+        // Light theme: default values (sourced from src/config/theme.ts)
         ":root": {
-          "--color-primary": "15 118 110", // Teal-700 #0F766E (primary)
-          "--color-primary-muted": "204 251 241", // Teal-100 #CCFBF1 (icon backgrounds)
-          "--color-secondary": "241 245 249", // Slate-100 #f1f5f9
-          "--color-success": "22 163 74", // Green-600 #16a34a
-          "--color-info": toRGB(colors.cyan["500"]),
-          "--color-warning": toRGB(colors.amber["500"]),
-          "--color-pending": toRGB(colors.orange["500"]),
-          "--color-danger": "220 38 38", // Red-600 #dc2626
-          "--color-light": toRGB(colors.slate["100"]),
-          "--color-dark": "51 65 85", // Slate-700 #334155
+          ...colorVars(THEME.colors.light),
+          // Status (non-themed) palette
+          ...Object.fromEntries(
+            Object.entries(THEME.status).map(([key, value]) => [
+              `--color-status-${key}`,
+              toRGB(value),
+            ])
+          ),
+          // Typography tokens
+          "--font-family-base": THEME.typography.family.join(", "),
+          ...Object.fromEntries(
+            Object.entries(THEME.typography.sizes).map(([key, value]) => [
+              `--font-size-${key}`,
+              px(value),
+            ])
+          ),
+          ...Object.fromEntries(
+            Object.entries(THEME.typography.lineHeights).map(([key, value]) => [
+              `--line-height-${key}`,
+              String(value),
+            ])
+          ),
+          ...Object.fromEntries(
+            Object.entries(THEME.typography.letterSpacing).map(([key, value]) => [
+              `--letter-spacing-${key}`,
+              value,
+            ])
+          ),
+          // Radius tokens
+          ...Object.fromEntries(
+            Object.entries(THEME.radius).map(([key, value]) => [
+              `--radius-${key}`,
+              key === "full" ? "9999px" : px(value),
+            ])
+          ),
+          // Spacing tokens
+          ...Object.fromEntries(
+            Object.entries(THEME.spacing).map(([key, value]) => [
+              `--space-${key}`,
+              px(value),
+            ])
+          ),
+          // Shadow tokens
+          ...Object.fromEntries(
+            Object.entries(THEME.shadows).map(([key, value]) => [
+              `--shadow-${key}`,
+              value,
+            ])
+          ),
+          // Component dimension tokens
+          "--size-button": px(THEME.components.buttonHeight),
+          "--size-input": px(THEME.components.inputHeight),
+          "--size-header": px(THEME.components.headerHeight),
+          "--size-sidebar": px(THEME.components.sidebarWidth),
+          "--size-sidebar-collapsed": px(THEME.components.sidebarCollapsedWidth),
+          "--radius-card": px(THEME.components.cardRadius),
+          "--radius-modal": px(THEME.components.modalRadius),
         },
         // Default dark-mode colors
         ".dark": {
-          "--color-primary": "20 184 166", // Teal-500 #14B8A6 (active state)
-          "--color-primary-muted": "153 246 228", // Teal-200 #99F6E4 for dark mode
-          "--color-secondary": "51 65 85", // Slate-700
-          "--color-darkmode-50": "87 103 132",
-          "--color-darkmode-100": "74 90 121",
-          "--color-darkmode-200": "65 81 114",
-          "--color-darkmode-300": "53 69 103",
-          "--color-darkmode-400": "48 61 93",
-          "--color-darkmode-500": "41 53 82",
-          "--color-darkmode-600": "40 51 78",
-          "--color-darkmode-700": "35 45 69",
-          "--color-darkmode-800": "27 37 59",
-          "--color-darkmode-900": "15 23 42",
+          ...colorVars(THEME.colors.dark),
         },
-        // Theme 1 colors
+        // Theme 1 colors (legacy alternate theme presets)
         ".theme-1": {
           "--color-primary": toRGB(colors.emerald["900"]),
           "--color-primary-muted": toRGB(colors.emerald["300"]),

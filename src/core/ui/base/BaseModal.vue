@@ -6,7 +6,7 @@ import Dialog from 'primevue/dialog';
 export type BaseModalSize = 'default' | 'sm' | 'md' | 'lg' | 'xl';
 
 const MODAL_SKIN =
-  'rounded-xl border border-slate-200 bg-white shadow-xl dark:border-darkmode-600 dark:bg-darkmode-800';
+  'rounded-modal border border-border bg-surface shadow-xl dark:border-border dark:bg-surface';
 
 /** عرض محتوا: `default` همان حداکثر ~56rem قبلی؛ `sm` حدود ۴۰٪ باریک‌تر از آن (≈۳۳.۶rem). */
 const SIZE_WIDTH: Record<BaseModalSize, string> = {
@@ -95,7 +95,7 @@ function onDialogShow() {
       },
       title: {
         class:
-          'font-normal leading-tight text-slate-700 dark:text-slate-200 !text-[16px]',
+          'font-normal leading-tight text-text-secondary !text-[16px]',
       },
       content: { class: 'text-sm' },
       footer: {

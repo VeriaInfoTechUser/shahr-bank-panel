@@ -90,12 +90,6 @@ function syncCollapseWithViewport() {
   }
 }
 
-/** نشانِ تعداد برای برخی آیتم‌ها */
-const BADGE_MAP: Record<string, number> = {
-  "menu.data": 1,
-  "menu.reports": 1,
-};
-
 provide<ProvideForceActiveMenu>("forceActiveMenu", (pageName: string) => {
   forceActiveMenu(route, pageName);
   setFormattedMenu(sideMenu.value);
@@ -121,14 +115,14 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="min-h-screen bg-[#f8f9fa] flex flex-col">
+  <div class="min-h-screen bg-background flex flex-col">
     <TopBar />
     <div class="flex flex-1 items-stretch min-h-0">
       <!-- BEGIN: Sidebar -->
       <aside
         :class="[
-          'sidebar flex flex-col shrink-0 bg-[#f0f4f2] border-e border-slate-200/80 transition-all duration-300 overflow-hidden',
-          sidebarCollapsed ? 'w-[74px]' : 'w-[260px]',
+          'sidebar flex flex-col shrink-0 bg-surface-subtle border-e border-border/80 transition-all duration-300 overflow-hidden',
+          sidebarCollapsed ? 'w-sidebar-collapsed' : 'w-sidebar',
         ]"
       >
         <!-- BEGIN: Sidebar Header (collapse toggle) -->
@@ -138,7 +132,7 @@ onMounted(() => {
         >
           <button
             type="button"
-            class="flex items-center gap-2 rounded-xl px-2.5 py-2 text-slate-500 transition-colors hover:bg-slate-200/70 hover:text-primary"
+            class="flex items-center gap-2 rounded-xl px-2.5 py-2 text-text-secondary transition-colors hover:bg-surface-hover hover:text-primary"
             @click="sidebarCollapsed = !sidebarCollapsed"
             :title="$t(sidebarCollapsed ? 'panel.expand-menu' : 'panel.collapse-menu')"
           >
@@ -212,10 +206,6 @@ onMounted(() => {
                 </div>
                   <div class="side-menu__title">
                     <span class="truncate">{{ $t(menu.title) }}</span>
-                    <span
-                      v-if="BADGE_MAP[menu.title]"
-                      class="ms-1.5 inline-flex h-4.5 min-w-[18px] items-center justify-center rounded-full bg-danger px-1 text-[10px] font-bold text-white"
-                    >{{ BADGE_MAP[menu.title] }}</span>
                     <div
                       v-if="menu.subMenu"
                       :class="[
@@ -373,22 +363,22 @@ onMounted(() => {
 
       <!-- BEGIN: Content -->
       <main class="flex-1 min-w-0 flex flex-col">
-        <div class="sticky top-0 z-30 border-b border-slate-200/70 bg-white/95 backdrop-blur px-4 md:px-6 shadow-sm">
+        <div class="sticky top-0 z-30 border-b border-border/70 bg-surface/95 backdrop-blur px-4 md:px-6 shadow-sm">
           <Breadcrumb />
         </div>
         <div class="flex-1 px-4 md:px-6 py-5 md:py-6">
           <RouterView />
         </div>
         <!-- BEGIN: Footer -->
-        <footer class="border-t border-slate-200/70 bg-white/70 px-4 md:px-6 py-3.5">
-          <div class="flex flex-col sm:flex-row items-center justify-between gap-2 text-[11px] text-slate-400">
+        <footer class="border-t border-border/70 bg-surface/70 px-4 md:px-6 py-3.5">
+          <div class="flex flex-col sm:flex-row items-center justify-between gap-2 text-[11px] text-text-muted">
             <div class="flex items-center gap-2 min-w-0">
-              <span class="truncate font-semibold text-slate-500" :title="$t('title.web-title-short')">{{ $t('title.web-title-short') }}</span>
-              <span class="shrink-0 text-slate-300">·</span>
+              <span class="truncate font-semibold text-text-secondary" :title="$t('title.web-title-short')">{{ $t('title.web-title-short') }}</span>
+              <span class="shrink-0 text-text-disabled">·</span>
               <span>{{ $t('panel.footer-version') }}</span>
-              <span class="text-slate-300">·</span>
+              <span class="text-text-disabled">·</span>
               <button class="transition-colors hover:text-primary">{{ $t('panel.footer-support') }}</button>
-              <span class="text-slate-300">·</span>
+              <span class="text-text-disabled">·</span>
               <button class="transition-colors hover:text-primary">{{ $t('panel.footer-privacy') }}</button>
             </div>
             <span>© ۱۴۰۳ {{ $t('panel.footer-copyright') }}</span>

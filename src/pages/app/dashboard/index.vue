@@ -219,7 +219,7 @@ const statCards = computed(() => [
   {
     key: 'sustainability',
     icon: 'Leaf',
-    iconBg: 'bg-purple-100 text-purple-600',
+    iconBg: 'bg-info-muted text-info',
     title: t('dashboard-page.sustainability-maturity'),
     value: sustAvgScore.value === null ? '—' : formatNumber(Math.round(sustAvgScore.value)),
     delta:
@@ -234,7 +234,7 @@ const statCards = computed(() => [
   {
     key: 'risks',
     icon: 'AlertTriangle',
-    iconBg: 'bg-amber-100 text-amber-600',
+    iconBg: 'bg-warning-muted text-warning',
     title: t('dashboard-page.open-risks'),
     value: openRisks.value === null ? '—' : formatNumber(openRisks.value),
     delta:
@@ -246,7 +246,7 @@ const statCards = computed(() => [
   {
     key: 'requests',
     icon: 'ClipboardList',
-    iconBg: 'bg-sky-100 text-sky-600',
+    iconBg: 'bg-info-muted text-info',
     title: t('dashboard-page.pending-requests'),
     value: pendingTaskCount.value === null ? '—' : formatNumber(pendingTaskCount.value),
     delta:
@@ -286,14 +286,14 @@ const quickAccess = computed(() => [
   {
     route: 'app-reports-baseline',
     icon: 'FileBarChart',
-    iconBg: 'bg-purple-100 text-purple-600',
+    iconBg: 'bg-info-muted text-info',
     title: t('dashboard-page.qa-report'),
     desc: t('dashboard-page.qa-report-desc'),
   },
   {
     route: 'app-base-info-control',
     icon: 'ShieldCheck',
-    iconBg: 'bg-amber-100 text-amber-600',
+    iconBg: 'bg-warning-muted text-warning',
     title: t('dashboard-page.qa-controls'),
     desc:
       pendingTaskCount.value === null
@@ -339,18 +339,18 @@ function mapRiskRow(item: any): ActivityRow | null {
   if (!title) return null;
   const state: string | undefined = item?.state;
   let status = t('dashboard-page.status-in-progress');
-  let statusClass = 'bg-sky-100 text-sky-600';
+  let statusClass = 'bg-info-muted text-info';
   if (state === 'closed' || state === 'archived') {
     status = t('dashboard-page.status-completed');
     statusClass = 'bg-success/10 text-success';
   } else if (state === 'draft') {
     status = t('dashboard-page.status-todo');
-    statusClass = 'bg-slate-100 text-slate-500';
+    statusClass = 'bg-neutral-muted text-text-secondary';
   }
   const rel = formatRelativeTime(item?.updatedAt);
   return {
     icon: 'AlertTriangle',
-    iconBg: 'bg-amber-100 text-amber-600',
+    iconBg: 'bg-warning-muted text-warning',
     title: String(title),
     sub: item?.categoryTitle ?? item?.level ?? '',
     status,
@@ -367,21 +367,21 @@ function mapComplianceRow(item: any): ActivityRow | null {
   const state: string | undefined = item?.state;
   const answer: string | null | undefined = item?.answer;
   let status = t('dashboard-page.status-in-progress');
-  let statusClass = 'bg-sky-100 text-sky-600';
+  let statusClass = 'bg-info-muted text-info';
   if (answer === 'compliant' || state === 'approved' || state === 'done') {
     status = t('dashboard-page.status-completed');
     statusClass = 'bg-success/10 text-success';
   } else if (answer === 'non_compliant' || state === 'rejected') {
     status = t('dashboard-page.status-rejected');
-    statusClass = 'bg-rose-100 text-rose-600';
+    statusClass = 'bg-error-muted text-error';
   } else if (state === 'todo') {
     status = t('dashboard-page.status-todo');
-    statusClass = 'bg-slate-100 text-slate-500';
+    statusClass = 'bg-neutral-muted text-text-secondary';
   }
   const rel = formatRelativeTime(item?.updatedAt);
   return {
     icon: 'ShieldCheck',
-    iconBg: 'bg-sky-100 text-sky-600',
+    iconBg: 'bg-info-muted text-info',
     title: String(title),
     sub: item?.frameworkTitle ?? item?.domainTitle ?? '',
     status,
@@ -415,7 +415,7 @@ function go(name: string) {
     <!-- ===== Header ===== -->
     <header class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
       <div class="min-w-0 max-w-3xl">
-        <h1 class="text-xl font-extrabold leading-relaxed text-slate-900 md:text-2xl md:leading-relaxed">
+        <h1 class="text-xl font-extrabold leading-relaxed text-text-primary md:text-2xl md:leading-relaxed">
           {{ t('dashboard-page.subtitle') }}
         </h1>
       </div>
@@ -423,13 +423,13 @@ function go(name: string) {
       <div class="flex flex-wrap items-center gap-2.5">
         <span
           v-if="error"
-          class="inline-flex items-center gap-1.5 rounded-full border border-rose-200 bg-rose-50 px-3 py-1.5 text-xs font-medium text-rose-600 shadow-sm"
+          class="inline-flex items-center gap-1.5 rounded-full border border-error/30 bg-error-muted px-3 py-1.5 text-xs font-medium text-error shadow-sm"
         >
           <Lucide icon="AlertCircle" class="h-3.5 w-3.5" />
           {{ error }}
         </span>
         <span
-          class="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 shadow-sm"
+          class="inline-flex items-center gap-1.5 rounded-full border border-border bg-surface px-3 py-1.5 text-xs font-medium text-text-secondary shadow-sm"
         >
           <span class="relative flex h-2 w-2">
             <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-success opacity-60"></span>
@@ -439,7 +439,7 @@ function go(name: string) {
         </span>
         <button
           type="button"
-          class="inline-flex h-8 items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 text-xs font-medium text-slate-600 shadow-sm transition-colors hover:border-primary/40 hover:text-primary"
+          class="inline-flex h-8 items-center gap-1.5 rounded-lg border border-border bg-surface px-3 text-xs font-medium text-text-secondary shadow-sm transition-colors hover:border-primary/40 hover:text-primary"
           :disabled="loading"
           @click="loadDashboard"
         >
@@ -452,17 +452,17 @@ function go(name: string) {
     <!-- ===== Loading skeleton ===== -->
     <template v-if="loading">
       <section class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <div v-for="i in 4" :key="i" class="h-44 animate-pulse rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm">
-          <div class="h-11 w-11 rounded-xl bg-slate-100"></div>
-          <div class="mt-4 h-3 w-2/3 rounded bg-slate-100"></div>
-          <div class="mt-2 h-6 w-1/2 rounded bg-slate-100"></div>
+        <div v-for="i in 4" :key="i" class="h-44 animate-pulse rounded-2xl border border-border/80 bg-surface p-5 shadow-sm">
+          <div class="h-11 w-11 rounded-xl bg-surface-hover"></div>
+          <div class="mt-4 h-3 w-2/3 rounded bg-surface-hover"></div>
+          <div class="mt-2 h-6 w-1/2 rounded bg-surface-hover"></div>
         </div>
       </section>
       <section class="mt-5 grid grid-cols-1 gap-4 xl:grid-cols-3">
-        <div class="h-72 animate-pulse rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm xl:col-span-2"></div>
-        <div class="h-72 animate-pulse rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm"></div>
+        <div class="h-72 animate-pulse rounded-2xl border border-border/80 bg-surface p-5 shadow-sm xl:col-span-2"></div>
+        <div class="h-72 animate-pulse rounded-2xl border border-border/80 bg-surface p-5 shadow-sm"></div>
       </section>
-      <p class="mt-4 flex items-center justify-center gap-2 text-sm text-slate-400">
+      <p class="mt-4 flex items-center justify-center gap-2 text-sm text-text-muted">
         <Lucide icon="Loader2" class="h-4 w-4 animate-spin" />
         {{ t('dashboard-page.loading-dashboard') }}
       </p>
@@ -474,7 +474,7 @@ function go(name: string) {
         <div
           v-for="card in statCards"
           :key="card.key"
-          class="group rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg"
+          class="group rounded-2xl border border-border/80 bg-surface p-5 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg"
         >
           <div class="flex items-start justify-between">
             <span class="inline-flex h-11 w-11 items-center justify-center rounded-xl" :class="card.iconBg">
@@ -482,11 +482,11 @@ function go(name: string) {
             </span>
             <Lucide
               icon="MoreHorizontal"
-              class="h-4.5 w-4.5 text-slate-300 transition-colors group-hover:text-slate-400"
+              class="h-4.5 w-4.5 text-text-disabled transition-colors group-hover:text-text-muted"
             />
           </div>
-          <p class="mt-4 text-[13px] font-medium text-slate-500">{{ card.title }}</p>
-          <p class="mt-1 text-2xl font-extrabold text-slate-900">{{ card.value }}</p>
+          <p class="mt-4 text-[13px] font-medium text-text-secondary">{{ card.title }}</p>
+          <p class="mt-1 text-2xl font-extrabold text-text-primary">{{ card.value }}</p>
           <p class="mt-1 flex items-center gap-1 text-xs font-medium" :class="card.deltaClass">
             <Lucide v-if="card.delta !== '—'" icon="ArrowUpRight" class="h-3.5 w-3.5" />
             {{ card.delta }}
@@ -506,10 +506,10 @@ function go(name: string) {
 
           <!-- mini progress: sustainability (real data completion) -->
           <div v-else-if="card.key === 'sustainability' && sustCompletion !== null" class="mt-4">
-            <div class="h-1.5 w-full overflow-hidden rounded-full bg-slate-100">
-              <div class="h-full rounded-full bg-purple-500" :style="{ width: sustCompletion + '%' }"></div>
+            <div class="h-1.5 w-full overflow-hidden rounded-full bg-surface-hover">
+              <div class="h-full rounded-full bg-info" :style="{ width: sustCompletion + '%' }"></div>
             </div>
-            <p class="mt-2 text-[11px] text-slate-400">
+            <p class="mt-2 text-[11px] text-text-muted">
               {{ t('dashboard-page.data-completion', { pct: formatNumber(sustCompletion) }) }}
             </p>
           </div>
@@ -524,7 +524,7 @@ function go(name: string) {
                 stroke-width="2"
                 stroke-linecap="round"
                 stroke-linejoin="round"
-                class="text-amber-500"
+                class="text-warning"
               />
             </svg>
           </div>
@@ -532,21 +532,21 @@ function go(name: string) {
           <!-- mini counters: requests (real task states) -->
           <div v-else-if="card.key === 'requests' && complianceData" class="mt-4 flex gap-2">
             <span
-              class="inline-flex items-center gap-1 rounded-lg bg-sky-100 px-1.5 py-0.5 text-[11px] font-bold text-sky-700"
+              class="inline-flex items-center gap-1 rounded-lg bg-info-muted px-1.5 py-0.5 text-[11px] font-bold text-info"
               :title="t('dashboard-page.status-todo')"
             >
               <Lucide icon="Circle" class="h-2.5 w-2.5" />
               {{ formatNumber(todoTaskCount) }}
             </span>
             <span
-              class="inline-flex items-center gap-1 rounded-lg bg-amber-100 px-1.5 py-0.5 text-[11px] font-bold text-amber-700"
+              class="inline-flex items-center gap-1 rounded-lg bg-warning-muted px-1.5 py-0.5 text-[11px] font-bold text-warning"
               :title="t('dashboard-page.status-in-progress')"
             >
               <Lucide icon="Clock" class="h-2.5 w-2.5" />
               {{ formatNumber(inProgressTaskCount) }}
             </span>
             <span
-              class="inline-flex items-center gap-1 rounded-lg bg-rose-100 px-1.5 py-0.5 text-[11px] font-bold text-rose-700"
+              class="inline-flex items-center gap-1 rounded-lg bg-error-muted px-1.5 py-0.5 text-[11px] font-bold text-error"
               :title="t('dashboard-page.status-overdue')"
             >
               <Lucide icon="AlertCircle" class="h-2.5 w-2.5" />
@@ -559,15 +559,15 @@ function go(name: string) {
       <!-- ===== Middle: score chart + quick access ===== -->
       <section class="mt-5 grid grid-cols-1 gap-4 xl:grid-cols-3">
         <!-- Score chart -->
-        <div class="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm xl:col-span-2">
+        <div class="rounded-2xl border border-border/80 bg-surface p-5 shadow-sm xl:col-span-2">
           <div class="flex items-start justify-between gap-3">
             <div>
-              <h2 class="text-[15px] font-bold text-slate-900">{{ t('dashboard-page.score-trend') }}</h2>
-              <p class="mt-0.5 text-xs text-slate-400">{{ t('dashboard-page.score-trend-sub') }}</p>
+              <h2 class="text-[15px] font-bold text-text-primary">{{ t('dashboard-page.score-trend') }}</h2>
+              <p class="mt-0.5 text-xs text-text-muted">{{ t('dashboard-page.score-trend-sub') }}</p>
             </div>
             <span
               v-if="sustAvgScore !== null"
-              class="inline-flex h-8 items-center rounded-lg border border-slate-200 bg-white px-2.5 text-xs font-semibold text-primary"
+              class="inline-flex h-8 items-center rounded-lg border border-border bg-surface px-2.5 text-xs font-semibold text-primary"
             >
               {{ t('dashboard-page.total-score', { score: formatNumber(Math.round(sustAvgScore)) }) }}
             </span>
@@ -583,16 +583,16 @@ function go(name: string) {
                 :x2="CHART_W - PAD.right"
                 :y1="PAD.top + ((g - 1) * (CHART_H - PAD.top - PAD.bottom)) / 4"
                 :y2="PAD.top + ((g - 1) * (CHART_H - PAD.top - PAD.bottom)) / 4"
-                stroke="#eef2f6"
+                stroke="rgb(var(--color-border-subtle))"
                 stroke-width="1"
               />
               <!-- area -->
-              <path :d="areaPath" fill="rgb(15 118 110 / 0.08)" />
+              <path :d="areaPath" fill="rgb(var(--color-primary) / 0.08)" />
               <!-- line -->
               <polyline
                 :points="trendPoints"
                 fill="none"
-                stroke="#0f766e"
+                stroke="rgb(var(--color-primary))"
                 stroke-width="2.5"
                 stroke-linecap="round"
                 stroke-linejoin="round"
@@ -604,8 +604,8 @@ function go(name: string) {
                 :cx="xAt(i)"
                 :cy="yAt(p.score)"
                 r="4"
-                fill="#fff"
-                stroke="#0f766e"
+                fill="rgb(var(--color-surface))"
+                stroke="rgb(var(--color-primary))"
                 stroke-width="2"
               />
               <!-- x labels -->
@@ -622,19 +622,19 @@ function go(name: string) {
           </div>
 
           <div v-if="sustCapitals.length > 1" class="mt-3 flex flex-wrap items-center justify-between gap-3">
-            <div class="flex items-center gap-4 text-[11px] text-slate-500">
+            <div class="flex items-center gap-4 text-[11px] text-text-secondary">
               <span class="flex items-center gap-1.5">
-                <span class="inline-block h-1 w-4 rounded-full bg-[#0f766e]"></span>
+                <span class="inline-block h-1 w-4 rounded-full bg-primary"></span>
                 {{ t('dashboard-page.actual-score') }}
               </span>
             </div>
           </div>
 
-          <div v-else class="mt-4 flex h-52 flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-slate-200 bg-slate-50/50 text-center">
-            <span class="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-slate-100 text-slate-400">
+          <div v-else class="mt-4 flex h-52 flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-border bg-surface-hover text-center">
+            <span class="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-surface-hover text-text-muted">
               <Lucide icon="BarChart3" class="h-5 w-5" />
             </span>
-            <p class="text-sm text-slate-400">{{ t('dashboard-page.trend-empty') }}</p>
+            <p class="text-sm text-text-muted">{{ t('dashboard-page.trend-empty') }}</p>
           </div>
 
 
@@ -642,26 +642,26 @@ function go(name: string) {
 
         <!-- Quick access -->
         <div class="flex flex-col gap-4">
-          <div class="flex-1 rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm">
-            <h2 class="text-[15px] font-bold text-slate-900">{{ t('dashboard-page.quick-access') }}</h2>
-            <p class="mt-0.5 text-xs text-slate-400">{{ t('dashboard-page.quick-access-sub') }}</p>
+          <div class="flex-1 rounded-2xl border border-border/80 bg-surface p-5 shadow-sm">
+            <h2 class="text-[15px] font-bold text-text-primary">{{ t('dashboard-page.quick-access') }}</h2>
+            <p class="mt-0.5 text-xs text-text-muted">{{ t('dashboard-page.quick-access-sub') }}</p>
 
             <div class="mt-4 space-y-2.5">
               <button
                 v-for="qa in quickAccess"
                 :key="qa.route"
                 type="button"
-                class="flex w-full items-center gap-3 rounded-xl border border-transparent p-3 text-start transition-colors hover:border-slate-200 hover:bg-slate-50"
+                class="flex w-full items-center gap-3 rounded-xl border border-transparent p-3 text-start transition-colors hover:border-border hover:bg-surface-hover"
                 @click="go(qa.route)"
               >
                 <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl" :class="qa.iconBg">
                   <Lucide :icon="qa.icon" class="h-5 w-5" />
                 </span>
                 <span class="min-w-0 flex-1">
-                  <span class="block text-[13px] font-bold text-slate-800">{{ qa.title }}</span>
-                  <span class="block truncate text-[11px] text-slate-400">{{ qa.desc }}</span>
+                  <span class="block text-[13px] font-bold text-text-primary">{{ qa.title }}</span>
+                  <span class="block truncate text-[11px] text-text-muted">{{ qa.desc }}</span>
                 </span>
-                <Lucide icon="ChevronLeft" class="h-4 w-4 shrink-0 text-slate-300 rtl:rotate-180" />
+                <Lucide icon="ChevronLeft" class="h-4 w-4 shrink-0 text-text-disabled rtl:rotate-180" />
               </button>
             </div>
 
@@ -670,8 +670,8 @@ function go(name: string) {
               <span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-success/15 text-success">
                 <Lucide icon="Wand2" class="h-4.5 w-4.5" />
               </span>
-              <p class="text-xs leading-relaxed text-slate-600">
-                <span class="font-bold text-slate-800">{{ t('dashboard-page.suggestion-title') }}:</span>
+              <p class="text-xs leading-relaxed text-text-secondary">
+                <span class="font-bold text-text-primary">{{ t('dashboard-page.suggestion-title') }}:</span>
                 {{ suggestionText }}
               </p>
             </div>
@@ -680,11 +680,11 @@ function go(name: string) {
       </section>
 
       <!-- ===== Recent activities ===== -->
-      <section class="mt-5 rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm">
+      <section class="mt-5 rounded-2xl border border-border/80 bg-surface p-5 shadow-sm">
         <div class="flex items-center justify-between gap-3">
           <div>
-            <h2 class="text-[15px] font-bold text-slate-900">{{ t('dashboard-page.recent-activities') }}</h2>
-            <p class="mt-0.5 text-xs text-slate-400">{{ t('dashboard-page.recent-activities-sub') }}</p>
+            <h2 class="text-[15px] font-bold text-text-primary">{{ t('dashboard-page.recent-activities') }}</h2>
+            <p class="mt-0.5 text-xs text-text-muted">{{ t('dashboard-page.recent-activities-sub') }}</p>
           </div>
           <button
             v-if="activities.length > 0"
@@ -700,7 +700,7 @@ function go(name: string) {
         <div v-if="activities.length > 0" class="mt-4 overflow-x-auto">
           <table class="w-full min-w-[680px] border-collapse text-sm">
             <thead>
-              <tr class="border-b border-slate-100 text-[11px] font-medium text-slate-400">
+              <tr class="border-b border-border-subtle text-[11px] font-medium text-text-muted">
                 <th class="py-2.5 pe-4 text-start font-medium">{{ t('dashboard-page.col-activity') }}</th>
                 <th class="py-2.5 pe-4 text-start font-medium">{{ t('dashboard-page.col-status') }}</th>
                 <th class="py-2.5 pe-4 text-start font-medium">{{ t('dashboard-page.col-category') }}</th>
@@ -711,7 +711,7 @@ function go(name: string) {
               <tr
                 v-for="(row, i) in activities"
                 :key="i"
-                class="group border-b border-slate-50 transition-colors last:border-0 hover:bg-slate-50/60"
+                class="group border-b border-border-subtle transition-colors last:border-0 hover:bg-surface-hover"
               >
                 <td class="py-3 pe-4">
                   <div class="flex items-center gap-3">
@@ -719,8 +719,8 @@ function go(name: string) {
                       <Lucide :icon="row.icon" class="h-4.5 w-4.5" />
                     </span>
                     <div class="min-w-0">
-                      <p class="truncate text-[13px] font-bold text-slate-800">{{ row.title }}</p>
-                      <p v-if="row.sub" class="truncate text-[11px] text-slate-400">{{ row.sub }}</p>
+                      <p class="truncate text-[13px] font-bold text-text-primary">{{ row.title }}</p>
+                      <p v-if="row.sub" class="truncate text-[11px] text-text-muted">{{ row.sub }}</p>
                     </div>
                   </div>
                 </td>
@@ -734,21 +734,21 @@ function go(name: string) {
                   </span>
                 </td>
                 <td class="py-3 pe-4">
-                  <span class="rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-medium text-slate-500">
+                  <span class="rounded-full bg-neutral-muted px-2.5 py-1 text-[11px] font-medium text-text-secondary">
                     {{ row.cat }}
                   </span>
                 </td>
-                <td class="py-3 text-xs text-slate-400">{{ row.time }}</td>
+                <td class="py-3 text-xs text-text-muted">{{ row.time }}</td>
               </tr>
             </tbody>
           </table>
         </div>
 
-        <div v-else class="mt-4 flex flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-slate-200 bg-slate-50/50 py-10 text-center">
-          <span class="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-slate-100 text-slate-400">
+        <div v-else class="mt-4 flex flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-border bg-surface-hover py-10 text-center">
+          <span class="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-surface-hover text-text-muted">
             <Lucide icon="Inbox" class="h-5 w-5" />
           </span>
-          <p class="text-sm text-slate-400">{{ t('dashboard-page.activity-empty') }}</p>
+          <p class="text-sm text-text-muted">{{ t('dashboard-page.activity-empty') }}</p>
         </div>
       </section>
     </template>

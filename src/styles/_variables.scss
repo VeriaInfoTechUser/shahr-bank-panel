@@ -1,53 +1,57 @@
 // ============================================================================
 // DESIGN TOKENS & COLOR PALETTE
+// ----------------------------------------------------------------------------
+// LEGACY SCSS COPY — the single source of truth is `src/config/theme.ts`
+// (light scope). These SCSS variables exist only so old `@import 'variables'`
+// consumers compile; prefer `rgb(var(--color-*))` in new code.
 // ============================================================================
 
-// Primary Color Palette
-$primary-color: #2c5aa0;
-$primary-light: #3d6fb0;
-$primary-lighter: #4d7dc0;
-$primary-dark: #1a3860;
-$primary-darker: #0f2240;
+// Primary Color Palette (theme light)
+$primary-color: #0f766e;
+$primary-light: #115e59;
+$primary-lighter: #134e4a;
+$primary-dark: #115e59;
+$primary-darker: #134e4a;
 
 // Secondary Colors (Status)
-$success-color: #27ae60;
-$success-light: #45c577;
-$success-lighter: #5fd97d;
-$success-dark: #1a6f3a;
+$success-color: #16a34a;
+$success-light: #22c55e;
+$success-lighter: #4ade80;
+$success-dark: #15803d;
 
-$warning-color: #f39c12;
-$warning-light: #f7b533;
-$warning-lighter: #f9c555;
-$warning-dark: #c67c0e;
+$warning-color: #f59e0b;
+$warning-light: #fbbf24;
+$warning-lighter: #fcd34d;
+$warning-dark: #d97706;
 
-$error-color: #e74c3c;
-$error-light: #ec6e64;
-$error-lighter: #f18b84;
-$error-dark: #b92a1f;
+$error-color: #dc2626;
+$error-light: #ef4444;
+$error-lighter: #f87171;
+$error-dark: #b91c1c;
 
-$info-color: #3498db;
-$info-light: #5aaddc;
-$info-lighter: #7cc3e1;
-$info-dark: #2a7fb4;
+$info-color: #06b6d4;
+$info-light: #22d3ee;
+$info-lighter: #67e8f9;
+$info-dark: #0891b2;
 
 // Neutral Colors
-$neutral-dark: #34495e;
-$neutral-medium: #7f8c8d;
-$neutral-light: #bdc3c7;
-$neutral-lighter: #ecf0f1;
+$neutral-dark: #334155;
+$neutral-medium: #64748b;
+$neutral-light: #94a3b8;
+$neutral-lighter: #e2e8f0;
 
 // Background Colors
 $bg-primary: #ffffff;
 $bg-secondary: #f8f9fa;
-$bg-tertiary: #ecf0f1;
+$bg-tertiary: #f1f5f9;
 
 // Dark Mode Colors
-$dark-bg-primary: #1a1a1a;
-$dark-bg-secondary: #242424;
-$dark-bg-tertiary: #2d2d2d;
-$dark-text-primary: #ffffff;
-$dark-text-secondary: #e0e0e0;
-$dark-text-tertiary: #a0a0a0;
+$dark-bg-primary: #1b253b;
+$dark-bg-secondary: #232d45;
+$dark-bg-tertiary: #28334e;
+$dark-text-primary: #f1f5f9;
+$dark-text-secondary: #cbd5e1;
+$dark-text-tertiary: #64748b;
 
 // ============================================================================
 // TYPOGRAPHY

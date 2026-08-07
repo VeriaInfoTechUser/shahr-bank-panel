@@ -1776,37 +1776,37 @@ function goToRisk(slug?: string | null) {
 
           
 
-            <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-800">
-              <h2 class="text-sm font-semibold text-slate-900 dark:text-white">
-                {{ t('reports.all-capitals-overview') }}
-              </h2>
-              <div class="mt-4 h-[420px]">
-                <Radar v-if="capitalRadarData" :data="capitalRadarData" :options="radarOptions" />
-              </div>
-              <div class="mt-4 flex flex-wrap gap-3">
-                <span
-                    v-for="cap in capitals"
-                    :key="cap.slug"
-                    class="inline-flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400"
-                >
-                  <span class="h-2 w-2 rounded-full" :style="{ backgroundColor: cap.maturity.color }" />
-                  {{ cap.title }} — <b class="text-slate-700 dark:text-white">{{ round1(cap.score) }}</b>
-                  <span v-if="hasComparison" class="text-slate-400">
-                    <Lucide icon="ArrowRightLeft" class="inline h-3 w-3" />
-                    {{ cap.comparison?.value != null ? round1(cap.comparison.value) : '—' }}
+            <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
+              <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-800">
+                <h2 class="text-sm font-semibold text-slate-900 dark:text-white">
+                  {{ t('reports.all-capitals-overview') }}
+                </h2>
+                <div class="mt-4 h-[420px]">
+                  <Radar v-if="capitalRadarData" :data="capitalRadarData" :options="radarOptions" />
+                </div>
+                <div class="mt-4 flex flex-wrap gap-3">
+                  <span
+                      v-for="cap in capitals"
+                      :key="cap.slug"
+                      class="inline-flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400"
+                  >
+                    <span class="h-2 w-2 rounded-full" :style="{ backgroundColor: cap.maturity.color }" />
+                    {{ cap.title }} — <b class="text-slate-700 dark:text-white">{{ round1(cap.score) }}</b>
+                    <span v-if="hasComparison" class="text-slate-400">
+                      <Lucide icon="ArrowRightLeft" class="inline h-3 w-3" />
+                      {{ cap.comparison?.value != null ? round1(cap.comparison.value) : '—' }}
+                    </span>
                   </span>
-                </span>
+                </div>
               </div>
-            </div>
 
-            <!-- capital comparison bar + global maturity donut -->
-            <div class="grid grid-cols-1 gap-5 lg:grid-cols-12">
-              <div class="lg:col-span-12 rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-800">
+              <!-- capital comparison bar (same row as the capitals overview, from md up) -->
+              <div class="flex h-full flex-col rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-800">
                 <div class="mb-1 flex items-center gap-2">
                   <Lucide icon="BarChart3" class="h-4 w-4 text-slate-400" />
                   <h3 class="text-sm font-semibold text-slate-900 dark:text-white">{{ t('reports.capital-comparison') }}</h3>
                 </div>
-                <div class="mt-3" :style="{ height: Math.max(capitals.length * 46, 220) + 'px' }">
+                <div class="mt-3 min-h-[220px] flex-1">
                   <Bar :data="capitalBarData" :options="barOptionsHorizontal" />
                 </div>
               </div>

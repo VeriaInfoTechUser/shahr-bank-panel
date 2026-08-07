@@ -365,6 +365,7 @@
     "control": "التحكم",
     "governance": "الحوكمة",
     "governance-guide": "دليل الاستخدام",
+    "governance-risk-category": "فئة المخاطر",
     "governance-liaisons": "الجهات المرتبطة",
     "governance-legislative-authority": "الجهة التشريعية",
     "governance-law-type": "نوع القانون",
@@ -900,6 +901,24 @@
     "toolbar-clear-filters": "مسح الفلاتر",
     "toolbar-export": "تصدير",
     "filter-badge-remove-aria": "إزالة الفلتر {label}"
+  },
+  "risk-category-page": {
+    "description": "إدارة فئات المخاطر في المؤسسة",
+    "edit": "تعديل الفئة",
+    "add-child": "إضافة عنصر فرعي",
+    "add-root": "إضافة فئة",
+    "parent-label": "الأصل",
+    "col-title": "العنوان",
+    "col-description": "الوصف",
+    "validation-title": "العنوان مطلوب.",
+    "add-success": "تم إنشاء الفئة بنجاح.",
+    "add-error": "فشل إنشاء الفئة.",
+    "edit-success": "تم تحديث الفئة بنجاح.",
+    "edit-error": "فشل تحديث الفئة.",
+    "delete-title": "حذف الفئة",
+    "delete-message": "هل أنت متأكد من حذف \"{title}\"?",
+    "delete-success": "تم حذف الفئة بنجاح.",
+    "delete-error": "فشل حذف الفئة."
   },
   "sustainability-fundamental-capitals-page": {
     "description": "إدارة الأساسيات الجوهرية للمؤسسة",

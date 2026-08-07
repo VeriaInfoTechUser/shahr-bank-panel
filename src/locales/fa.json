@@ -551,6 +551,7 @@
     "control": "کنترل",
     "governance": "حاکمیت",
     "governance-guide": "راهنما",
+    "governance-risk-category": "دسته ریسک",
     "governance-liaisons": "رابطین",
     "governance-legislative-authority": "مرجع قانون گذار",
     "governance-law-type": "نوع قانون",
@@ -1166,6 +1167,24 @@
     "toolbar-clear-filters": "پاک کردن فیلترها",
     "toolbar-export": "خروجی",
     "filter-badge-remove-aria": "حذف فیلتر {label}"
+  },
+  "risk-category-page": {
+    "description": "مدیریت دسته‌بندی ریسک‌های سازمان",
+    "edit": "ویرایش دسته",
+    "add-child": "افزودن زیرمجموعه",
+    "add-root": "افزودن دسته",
+    "parent-label": "والد",
+    "col-title": "عنوان",
+    "col-description": "توضیحات",
+    "validation-title": "عنوان را وارد کنید.",
+    "add-success": "دسته با موفقیت ایجاد شد.",
+    "add-error": "خطا در ایجاد دسته.",
+    "edit-success": "دسته با موفقیت ویرایش شد.",
+    "edit-error": "خطا در ویرایش دسته.",
+    "delete-title": "حذف دسته",
+    "delete-message": "آیا از حذف «{title}» اطمینان دارید؟",
+    "delete-success": "دسته با موفقیت حذف شد.",
+    "delete-error": "خطا در حذف دسته."
   },
   "sustainability-fundamental-capitals-page": {
     "description": "مدیریت سرمایه‌های بنیادی سازمان",

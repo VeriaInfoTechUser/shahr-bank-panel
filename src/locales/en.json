@@ -530,6 +530,7 @@
     "control": "Control",
     "governance": "Governance",
     "governance-guide": "Guide",
+    "governance-risk-category": "Risk Category",
     "governance-liaisons": "Liaisons",
     "governance-legislative-authority": "Legislative authority",
     "governance-law-type": "Law type",
@@ -1144,6 +1145,24 @@
     "toolbar-clear-filters": "Clear Filters",
     "toolbar-export": "Export",
     "filter-badge-remove-aria": "Remove filter {label}"
+  },
+  "risk-category-page": {
+    "description": "Manage the organization's risk categories",
+    "edit": "Edit Category",
+    "add-child": "Add Child",
+    "add-root": "Add Category",
+    "parent-label": "Parent",
+    "col-title": "Title",
+    "col-description": "Description",
+    "validation-title": "Title is required.",
+    "add-success": "Category created successfully.",
+    "add-error": "Failed to create category.",
+    "edit-success": "Category updated successfully.",
+    "edit-error": "Failed to update category.",
+    "delete-title": "Delete Category",
+    "delete-message": "Are you sure you want to delete \"{title}\"?",
+    "delete-success": "Category deleted successfully.",
+    "delete-error": "Failed to delete category."
   },
   "sustainability-fundamental-capitals-page": {
     "description": "Manage organization's fundamental capitals",

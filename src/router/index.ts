@@ -21,6 +21,7 @@ import GovernanceGuide from "@/pages/app/governance/guide/index.vue";
 import GovernanceLiaisons from "@/pages/app/governance/liaisons/index.vue";
 import GovernanceLegislativeAuthority from "@/pages/app/governance/legislative-authority/index.vue";
 import GovernanceLawType from "@/pages/app/governance/law-type/index.vue";
+import GovernanceRiskCategory from "@/pages/app/governance/risk-category/index.vue";
 import GovernanceGeographicRegions from "@/pages/app/governance/geographic-regions/index.vue";
 import GovernanceIndustry from "@/pages/app/governance/industry/index.vue";
 import GovernanceKeyStakeholders from "@/pages/app/governance/key-stakeholders/index.vue";
@@ -222,6 +223,12 @@ const routes = [
                                 name: "app-governance-law-type",
                                 component: GovernanceLawType,
                                 meta: { breadcrumbLabel: 'menu.governance-law-type', requiredRole: 'grc_admin' },
+                            },
+                            {
+                                path: "risk-category",
+                                name: "app-governance-risk-category",
+                                component: GovernanceRiskCategory,
+                                meta: { breadcrumbLabel: 'menu.governance-risk-category' },
                             },
                             {
                                 path: "geographic-regions",

@@ -47,6 +47,11 @@ export const useSideMenuStore = defineStore("sideMenu", {
                         requiredRole: "grc_admin",
                     },
                     {
+                        icon: "Tags",
+                        pageName: "app-governance-risk-category",
+                        title: "menu.governance-risk-category",
+                    },
+                    {
                         icon: "MapPin",
                         pageName: "app-governance-geographic-regions",
                         title: "menu.governance-geographic-regions",

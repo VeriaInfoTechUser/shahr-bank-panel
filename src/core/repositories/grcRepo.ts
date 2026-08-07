@@ -320,6 +320,18 @@ export const grcRepo = {
     return grcHttpRequest({ method: 'GET', url: '/grc/risks/categories/list', params });
   },
 
+  riskCategoryCreate(data: Record<string, unknown>): Promise<GrcApiResponse<Record<string, unknown>>> {
+    return grcHttpRequest({ method: 'POST', url: '/grc/risks/categories', data });
+  },
+
+  riskCategoryUpdate(slug: string, data: Record<string, unknown>): Promise<GrcApiResponse<Record<string, unknown>>> {
+    return grcHttpRequest({ method: 'PUT', url: `/grc/risks/categories/${slug}`, data });
+  },
+
+  riskCategoryDelete(slug: string): Promise<GrcApiResponse<null>> {
+    return grcHttpRequest({ method: 'DELETE', url: `/grc/risks/categories/${slug}` });
+  },
+
   // Governance Categories
   governanceCategoriesTree(): Promise<GrcApiResponse<Record<string, unknown>[]>> {
     return grcHttpRequest({ method: 'GET', url: '/context/categories/tree' });

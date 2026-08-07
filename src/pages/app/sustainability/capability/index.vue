@@ -1,14 +1,21 @@
 <script setup lang="ts">
-import { onMounted } from 'vue';
+import { onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useDataTable, createColumn, type FetchFn } from '@core';
 import BaseTable from '@core/ui/base/BaseTable.vue';
+import Button from '@/base-components/Button';
+import Lucide from '@/base-components/Lucide';
 import { grcRepo } from '@/core/repositories/grcRepo';
 import { useBreadcrumbSlot } from '@/composables/useBreadcrumb';
+import CapabilityFormModal from '../fundamental-capitals/CapabilityFormModal.vue';
 import CapabilityBreadcrumbToolbar from './CapabilityBreadcrumbToolbar.vue';
 
 const { t } = useI18n();
 const { setContent: setBreadcrumbSlot } = useBreadcrumbSlot();
+
+const showAddModal = ref(false);
+const showEditModal = ref(false);
+const selectedCapability = ref<Record<string, unknown> | null>(null);
 
 function pickStr(row: Record<string, unknown>, ...keys: string[]) {
   for (const k of keys) {
@@ -95,10 +102,25 @@ function onExport() {
   table.exportCSV();
 }
 
+function onAddCapability() {
+  showAddModal.value = true;
+}
+
+function onEditCapability(row: Record<string, unknown>) {
+  selectedCapability.value = row;
+  showEditModal.value = true;
+}
+
+function onModalSuccess() {
+  table.invalidateListCache();
+  table.setPage(1);
+}
+
 onMounted(() => {
   table.invalidateListCache();
   table.fetch();
   setBreadcrumbSlot(CapabilityBreadcrumbToolbar, {
+    onAdd: onAddCapability,
     onExport,
     table,
   });
@@ -113,8 +135,44 @@ onMounted(() => {
         :selectable="false"
         :export-enabled="table.exportEnabled"
         :empty-message="t('general.no-data')"
+        :actions="true"
         :show-search="false"
-      />
+      >
+        <template #actions="{ row }">
+          <div class="flex items-center justify-center gap-3">
+            <Button
+              type="button"
+              variant="outline-secondary"
+              size="sm"
+              class="!h-7 !w-7 !px-0 !py-0"
+              :aria-label="t('title.update')"
+              :title="t('title.update')"
+              @click.stop="onEditCapability(row)"
+            >
+              <Lucide icon="Pencil" class="!h-3.5 !w-3.5" />
+            </Button>
+          </div>
+        </template>
+      </BaseTable>
     </div>
+
+    <CapabilityFormModal
+      :show="showAddModal"
+      @update:show="showAddModal = $event"
+      @success="onModalSuccess"
+    />
+
+    <CapabilityFormModal
+      v-if="selectedCapability"
+      :show="showEditModal"
+      :record="selectedCapability"
+      @update:show="
+        (v) => {
+          showEditModal = v;
+          if (!v) selectedCapability = null;
+        }
+      "
+      @success="onModalSuccess"
+    />
   </div>
 </template>

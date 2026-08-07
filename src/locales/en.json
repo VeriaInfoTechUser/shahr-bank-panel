@@ -1247,6 +1247,7 @@
     "col-capital": "Capital",
     "col-domain": "Domain",
     "col-component": "Component",
+    "toolbar-add": "Add Capability",
     "toolbar-export": "Export",
     "validation-slug": "Slug is required.",
     "validation-slug-pattern": "Slug must start with a letter and can contain letters, numbers, and hyphens",

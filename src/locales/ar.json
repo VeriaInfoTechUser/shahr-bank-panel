@@ -1003,6 +1003,7 @@
     "col-capital": "رأس المال",
     "col-domain": "المجال",
     "col-component": "المكون",
+    "toolbar-add": "إضافة قدرة",
     "toolbar-export": "تصدير",
     "validation-slug": "أدخل المعرف.",
     "validation-slug-pattern": "يجب أن يبدأ المعرف بحرف ويمكن أن يحتوي على أحرف وأرقام وشرطات",

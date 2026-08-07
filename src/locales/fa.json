@@ -1269,6 +1269,7 @@
     "col-capital": "سرمایه",
     "col-domain": "حوزه",
     "col-component": "مؤلفه",
+    "toolbar-add": "افزودن قابلیت",
     "toolbar-export": "خروجی",
     "validation-slug": "شناسه را وارد کنید.",
     "validation-slug-pattern": "شناسه باید با حروف شروع شده و می‌تواند شامل اعداد و خط تیره باشد",

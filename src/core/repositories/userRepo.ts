@@ -79,35 +79,26 @@ export interface EsgDashboardPillar {
   [key: string]: unknown;
 }
 
-export interface EsgDashboardPayload {
-  meta?: {
-    version?: string;
-    generated_at?: string;
-    chart_library?: string;
-    rtl?: boolean;
-    [key: string]: unknown;
-  };
+export interface EsgDashboardSection {
   summary?: {
-    overall_score?: number;
-    overall_completion?: number;
-    total_domains?: number;
-    total_controls?: number;
-    answered_controls?: number;
-    unanswered_controls?: number;
-    pillar_scores?: Record<string, {
-      score?: number;
-      i18n_key?: string;
-      color_theme?: string;
-      color_hex?: string;
-      icon?: string;
-      completion_pct?: number;
-      [key: string]: unknown;
-    }>;
-    completion_chart?: EsgChartConfig;
-    pillar_compare_chart?: EsgChartConfig;
+    total_kpis?: number;
+    answered?: number;
+    unanswered?: number;
+    completion?: number;
+    avg_score?: number;
     [key: string]: unknown;
   };
-  pillars?: EsgDashboardPillar[];
+  domains?: unknown[];
+  [key: string]: unknown;
+}
+
+export interface EsgDashboardPayload {
+  last_updated?: string;
+  reporting_period?: string;
+  total_kpis?: number;
+  governance?: EsgDashboardSection;
+  social?: EsgDashboardSection;
+  environmental?: EsgDashboardSection;
   [key: string]: unknown;
 }
 

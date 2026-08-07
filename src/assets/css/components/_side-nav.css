@@ -1,4 +1,20 @@
 .side-nav {
+  &.side-nav--collapsed {
+    .side-menu {
+      justify-content: center;
+      padding-right: 0;
+      .side-menu__title {
+        display: none;
+      }
+    }
+    & > ul {
+      & > li {
+        & > ul {
+          margin-inline: 0;
+        }
+      }
+    }
+  }
   &.side-nav--simple {
     .side-menu {
       .side-menu__title {
@@ -12,23 +28,25 @@
   .side-nav__divider {
     width: 100%;
     height: 1px;
-    background-color: theme("colors.white" / 8%);
+    background-color: theme("colors.slate.200" / 90%);
     z-index: 10;
     position: relative;
   }
   .side-menu__icon {
     @apply flex shrink-0 items-center justify-center;
+    color: theme("colors.slate.500");
+    transition: color 0.2s ease-in-out;
   }
   .side-menu__icon--root {
     width: theme("spacing.9");
     height: theme("spacing.9");
     border-radius: theme("borderRadius.lg");
-    background-color: theme("colors.white" / 10%);
+    background-color: theme("colors.slate.100");
     svg {
       width: theme("spacing.5");
       height: theme("spacing.5");
     }
-    @media screen(xl) {
+    @media (min-width: 1080px) {
       width: theme("spacing.10");
       height: theme("spacing.10");
       svg {
@@ -41,8 +59,8 @@
     width: theme("spacing.7");
     height: theme("spacing.7");
     border-radius: theme("borderRadius.md");
-    border: 1px solid theme("colors.white" / 12%);
-    background-color: theme("colors.white" / 5%);
+    border: 1px solid theme("colors.slate.200");
+    background-color: theme("colors.white");
     svg {
       width: theme("spacing.4");
       height: theme("spacing.4");
@@ -52,7 +70,7 @@
     width: theme("spacing.6");
     height: theme("spacing.6");
     border-radius: theme("borderRadius.DEFAULT");
-    border: 1px solid theme("colors.white" / 8%);
+    border: 1px solid theme("colors.slate.200");
     background-color: transparent;
     svg {
       width: 0.875rem;
@@ -64,31 +82,26 @@
     display: flex;
     align-items: center;
     padding-right: theme("spacing.2");
-    @media screen(xl) {
-      padding-right: theme("spacing.5");
+    @media (min-width: 1080px) {
+      padding-right: theme("spacing.3");
     }
-    color: white;
+    color: theme("colors.slate.600");
     margin-bottom: theme("spacing.1");
     position: relative;
     border-radius: theme("borderRadius.lg");
+    transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
     .side-menu__title {
-      display: none;
+      display: flex;
       align-items: center;
       width: 100%;
       margin-right: theme("spacing.3");
-      @media screen(xl) {
-        display: flex;
-      }
       .side-menu__sub-icon {
         transition-property: theme("transitionProperty.DEFAULT");
         transition-timing-function: theme("transitionTimingFunction.in");
         transition-duration: theme("transitionDuration.100");
         margin-right: auto;
-        margin-left: theme("spacing.5");
-        display: none;
-        @media screen(xl) {
-          display: block;
-        }
+        margin-left: theme("spacing.4");
+        display: block;
         svg {
           width: theme("spacing.4");
           height: theme("spacing.4");
@@ -101,69 +114,37 @@
       /* First level */
       & > .side-menu {
         &.side-menu--active {
-          background-color: theme("colors.slate.800");
+          background-color: rgb(var(--color-primary));
+          color: white;
           z-index: 10;
-          &:before {
-            content: "";
-            display: block;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: theme("colors.white" / 8%);
-            border-radius: theme("borderRadius.lg");
-            position: absolute;
-            border-bottom: 3px solid theme("colors.black" / 10%);
-          }
-          &:after {
-            content: "";
-            width: 20px;
-            height: 80px;
-            background-repeat: no-repeat;
-            background-size: cover;
-            position: absolute;
-            top: 0;
-            bottom: 0;
-            left: 0;
-            margin-top: auto;
-            margin-bottom: auto;
-            background-image: theme("backgroundImage.menu-active");
-            margin-left: -47px;
-            opacity: 0;
-            animation: 0.3s ease-in-out 1s active-side-menu-chevron;
-            animation-fill-mode: forwards;
-          }
+          box-shadow: 0 4px 10px -2px rgb(var(--color-primary) / 40%);
           .side-menu__icon {
-            z-index: 10;
+            color: white;
+            background-color: theme("colors.white" / 20%);
           }
           .side-menu__title {
-            font-weight: theme("fontWeight.medium");
+            font-weight: theme("fontWeight.semibold");
             z-index: 10;
+          }
+          .side-menu__sub-icon {
+            color: theme("colors.white" / 80%);
           }
         }
         &:hover {
           &:not(.side-menu--active):not(.side-menu--open) {
-            background-color: theme("colors.slate.700" / 60%);
-            &:before {
-              content: "";
-              display: block;
-              top: 0;
-              left: 0;
-              right: 0;
-              bottom: 0;
-              background-color: theme("colors.white" / 4%);
-              border-radius: theme("borderRadius.lg");
-              position: absolute;
-              z-index: -1;
+            background-color: theme("colors.slate.200" / 70%);
+            .side-menu__icon {
+              color: rgb(var(--color-primary));
             }
           }
         }
       }
       & > ul {
         padding: theme("spacing[1.5]") 0;
-        background-color: theme("colors.white" / 4%);
+        background-color: theme("colors.white" / 50%);
         border-radius: theme("borderRadius.lg");
         position: relative;
+        margin-inline: theme("spacing.3");
         &:before {
           content: "";
           display: block;
@@ -171,7 +152,7 @@
           left: 0;
           right: 0;
           bottom: 0;
-          background-color: theme("colors.slate.800" / 70%);
+          background-color: theme("colors.slate.50");
           border-radius: theme("borderRadius.lg");
           position: absolute;
           z-index: -1;
@@ -182,21 +163,35 @@
         & > li {
           /* Second level */
           & > .side-menu {
-            height: 48px;
-            &.side-menu--active {
-              .side-menu__title {
-                font-weight: theme("fontWeight.medium");
-              }
+            height: 46px;
+            padding-right: theme("spacing.1");
+          &.side-menu--active {
+            background-color: rgb(var(--color-primary) / 10%);
+            color: rgb(var(--color-primary));
+            box-shadow: none;
+            .side-menu__title {
+              font-weight: theme("fontWeight.semibold");
             }
+            .side-menu__icon {
+              color: rgb(var(--color-primary));
+              background-color: rgb(var(--color-primary) / 15%);
+              border-color: transparent;
+            }
+          }
             &:not(.side-menu--active) {
-              color: theme("colors.white" / 70%);
+              color: theme("colors.slate.500");
             }
             &:hover {
+              background-color: theme("colors.slate.100");
+              color: rgb(var(--color-primary));
+              .side-menu__icon {
+                color: rgb(var(--color-primary));
+              }
             }
           }
           & > ul {
             padding: theme("spacing[1.5]") 0;
-            background-color: theme("colors.white" / 4%);
+            background-color: theme("colors.white" / 50%);
             border-radius: theme("borderRadius.lg");
             position: relative;
             &:before {
@@ -206,7 +201,7 @@
               left: 0;
               right: 0;
               bottom: 0;
-              background-color: theme("colors.slate.800" / 70%);
+              background-color: theme("colors.slate.50");
               border-radius: theme("borderRadius.lg");
               position: absolute;
               z-index: -1;
@@ -217,16 +212,26 @@
             & > li {
               /* Third level */
               & > .side-menu {
-                height: 48px;
+                height: 44px;
+                padding-right: theme("spacing.1");
                 &.side-menu--active {
+                  background-color: rgb(var(--color-primary) / 10%);
+                  color: rgb(var(--color-primary));
                   .side-menu__title {
-                    font-weight: theme("fontWeight.medium");
+                    font-weight: theme("fontWeight.semibold");
+                  }
+                  .side-menu__icon {
+                    color: rgb(var(--color-primary));
+                    background-color: rgb(var(--color-primary) / 15%);
+                    border-color: transparent;
                   }
                 }
                 &:not(.side-menu--active) {
-                  color: theme("colors.white" / 70%);
+                  color: theme("colors.slate.500");
                 }
                 &:hover {
+                  background-color: theme("colors.slate.100");
+                  color: rgb(var(--color-primary));
                 }
               }
             }
@@ -237,47 +242,39 @@
   }
 }
 
-@keyframes active-side-menu-chevron {
-  100% {
-    opacity: 1;
-    margin-left: -27px;
-  }
-}
-
 .dark {
   .side-nav {
     .side-nav__divider {
-      background-color: theme("colors.white" / 7%);
+      background-color: theme("colors.white" / 8%);
+    }
+    .side-menu__icon {
+      color: theme("colors.slate.400");
     }
     .side-menu__icon--root {
-      background-color: theme("colors.white" / 8%);
-      border: 1px solid theme("colors.white" / 10%);
+      background-color: theme("colors.darkmode.700" / 60%);
     }
     .side-menu__icon--sub {
-      border-color: theme("colors.white" / 14%);
-      background-color: theme("colors.white" / 4%);
+      border-color: theme("colors.darkmode.600");
+      background-color: theme("colors.darkmode.800" / 60%);
     }
     .side-menu__icon--sub-nested {
-      border-color: theme("colors.white" / 10%);
+      border-color: theme("colors.darkmode.600" / 70%);
     }
     & > ul {
       & > li {
         /* First level */
         & > .side-menu {
+          color: theme("colors.slate.300");
           &.side-menu--active {
-            background-color: transparent;
-            &:before {
-              border-color: theme("colors.black" / 10%);
-              background-color: theme("colors.darkmode.700");
-            }
-            &:after {
-              background-image: theme("backgroundImage.menu-active-dark");
-            }
+            background-color: rgb(var(--color-primary));
+            color: white;
+            box-shadow: 0 4px 10px -2px rgb(var(--color-primary) / 40%);
             .side-menu__icon {
-              color: theme("colors.slate.300");
+              color: white;
+              background-color: theme("colors.white" / 20%);
             }
             .side-menu__title {
-              color: theme("colors.slate.300");
+              color: white;
             }
           }
           &:not(.side-menu--active) {
@@ -290,44 +287,46 @@
           }
           &:hover {
             &:not(.side-menu--active):not(.side-menu--open) {
-              &:before {
-                background-color: theme("colors.darkmode.700");
-              }
+              background-color: theme("colors.darkmode.700" / 50%);
             }
           }
         }
         & > ul {
           background-color: transparent;
           &:before {
-            background-color: theme("colors.darkmode.900" / 30%);
+            background-color: theme("colors.darkmode.800" / 50%);
           }
           & > li {
             /* Second level */
             & > .side-menu {
               &.side-menu--active {
-                color: theme("colors.slate.300");
+                background-color: rgb(var(--color-primary) / 20%);
+                color: theme("colors.teal.300");
               }
               &:not(.side-menu--active) {
                 color: theme("colors.slate.400");
               }
               &:hover {
+                background-color: theme("colors.darkmode.700" / 40%);
               }
             }
             & > ul {
               background-color: transparent;
               &:before {
-                background-color: theme("colors.darkmode.900" / 30%);
+                background-color: theme("colors.darkmode.800" / 50%);
               }
               & > li {
                 /* Third level */
                 & > .side-menu {
                   &.side-menu--active {
-                    color: theme("colors.slate.300");
+                    background-color: rgb(var(--color-primary) / 20%);
+                    color: theme("colors.teal.300");
                   }
                   &:not(.side-menu--active) {
                     color: theme("colors.slate.400");
                   }
                   &:hover {
+                    background-color: theme("colors.darkmode.700" / 40%);
                   }
                 }
               }

@@ -51,6 +51,8 @@ module.exports = {
       },
       fontFamily: {
         "public-sans": [
+          "Vazirmatn Variable",
+          "Vazirmatn",
           "system-ui",
           "-apple-system",
           "Segoe UI",
@@ -142,10 +144,10 @@ module.exports = {
     require("daisyui"),
     plugin(function ({ addBase, matchUtilities }) {
       addBase({
-        // Screenshot palette: deep purple sidebar, light purple accents
+        // Teal palette: light theme per reference design (#00897b / #0f766e)
         ":root": {
-          "--color-primary": "63 50 120", // Deep purple #3F3278 (sidebar)
-          "--color-primary-muted": "194 191 245", // Light purple #C2BFF5 (icon backgrounds)
+          "--color-primary": "15 118 110", // Teal-700 #0F766E (primary)
+          "--color-primary-muted": "204 251 241", // Teal-100 #CCFBF1 (icon backgrounds)
           "--color-secondary": "241 245 249", // Slate-100 #f1f5f9
           "--color-success": "22 163 74", // Green-600 #16a34a
           "--color-info": toRGB(colors.cyan["500"]),
@@ -157,8 +159,8 @@ module.exports = {
         },
         // Default dark-mode colors
         ".dark": {
-          "--color-primary": "109 92 156", // Lighter purple #6D5C9C (active state)
-          "--color-primary-muted": "147 141 219", // Slightly darker muted for dark mode
+          "--color-primary": "20 184 166", // Teal-500 #14B8A6 (active state)
+          "--color-primary-muted": "153 246 228", // Teal-200 #99F6E4 for dark mode
           "--color-secondary": "51 65 85", // Slate-700
           "--color-darkmode-50": "87 103 132",
           "--color-darkmode-100": "74 90 121",

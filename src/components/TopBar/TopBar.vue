@@ -1,64 +1,18 @@
 <script setup>
-import {computed, onMounted, onUnmounted, ref} from "vue";
+import {computed} from "vue";
 import {useI18n} from "vue-i18n";
 import Lucide from "../../base-components/Lucide";
-import logoUrl from "@/assets/grc-logo.png";
-import Breadcrumb from "../../base-components/Breadcrumb";
 import {Menu} from "../../base-components/Headless";
 import {useLogout} from "@/composables/useLogout.js";
 import {useUserStore} from "@/stores/user";
-import {useRoute} from "vue-router";
-import {useFetch} from "@/composables/useFetch.js";
-import {localeOptions, setting, uri} from "@/constants/config.js";
-import {useNumberFormat} from "@/composables/useNumberFormat.js";
-import { getDirection} from "@/utils/index.js";
+import {localeOptions} from "@/constants/config.js";
+import {getDirection} from "@/utils/index.js";
 import {useLocaleStore} from "@/stores/locale.js";
-import BaseButton from "@/base-components/Button";
 import router from "@/router/index";
 
 
 const userStore = useUserStore();
-const {formatNumber} = useNumberFormat();
 const {locale} = useI18n();
-
-const now = ref(new Date());
-let clockIntervalId = null;
-
-const headerDateTime = computed(() => {
-  const loc = locale.value;
-  const tag = loc === "fa" ? "fa-IR" : loc === "ar" ? "ar" : "en-US";
-  const d = now.value;
-  const dateStr = d.toLocaleDateString(tag, {dateStyle: "long"});
-  const timeStr = d.toLocaleTimeString(tag, {
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-    hour12: false,
-  });
-  return {dateStr, timeStr, iso: d.toISOString()};
-});
-
-const route = useRoute()
-const id = ref(route.params.id)
-const loadingFlag = ref(false)
-const wallet = ref({})
-
-async function getWallet() {
-  loadingFlag.value = true
-  try {
-    // Await the result of useFetch
-    const {data, error} = await useFetch(uri.api?.wallet?.view, {method: "GET"});
-    if (error) {
-    } else {
-      wallet.value = data
-    }
-  } catch (err) {
-    console.log(err)
-  } finally {
-    loadingFlag.value = false;
-  }
-}
-
 
 const localeStore = useLocaleStore()
 function changeLanguage(data) {
@@ -70,123 +24,120 @@ function changeLanguage(data) {
   localeStore.changeLang(locale)
 }
 
-onMounted(() => {
-  clockIntervalId = setInterval(() => {
-    now.value = new Date();
-  }, 1000);
-  if (setting.wallet.isActive) {
-    getWallet();
-  }
-});
+const displayName = computed(() => {
+  const u = userStore.currentUser
+  if (!u) return ""
+  return [u.first_name ?? u.firstName, u.last_name ?? u.lastName].filter(Boolean).join(" ") || u.name || u.email || ""
+})
 
-onUnmounted(() => {
-  if (clockIntervalId) {
-    clearInterval(clockIntervalId);
-  }
-});
+const initials = computed(() => {
+  const name = displayName.value.trim()
+  if (!name) return "؟"
+  const parts = name.split(/\s+/)
+  return ((parts[0]?.[0] || "") + (parts[1]?.[0] || "")).toUpperCase() || "؟"
+})
 
 </script>
 
 <template>
   <section>
     <!-- BEGIN: Top Bar -->
-    <div
-        class="top-bar-boxed h-[64px] z-[51] relative bg-slate-900 border border-white/10 my-1 px-4 md:px-6 rounded-xl shadow-md"
+    <header
+        class="top-bar h-[64px] z-[60] relative bg-white/90 backdrop-blur-md border-b border-slate-200/80 px-4 md:px-6"
     >
-      <div class="flex items-center h-full">
-        <!-- BEGIN: Logo -->
+      <div class="flex items-center h-full gap-3 md:gap-4">
+        <!-- BEGIN: Logo + brand badge -->
         <RouterLink
             :to="{ name: 'app-dashboard' }"
-            class="hidden -intro-x md:flex"
+            class="flex items-center gap-2.5 shrink-0"
         >
-          <img
-              :alt="$t('title.logo-alt')"
-              class="w-9"
-              :src="logoUrl"
-          />
-          <span class="ms-3 text-lg text-white"> {{ $t("title.web-title") }} </span>
+          <span
+              class="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-teal-600 text-white shadow-md shadow-primary/25"
+          >
+            <Lucide icon="Landmark" class="h-5 w-5"/>
+          </span>
+          <span class="hidden md:flex flex-col leading-none min-w-0">
+            <span
+                class="max-w-[240px] truncate text-sm font-extrabold text-slate-900 lg:text-base"
+                :title="$t('title.web-title-short')"
+            >{{ $t("title.web-title-short") }}</span>
+            <span class="text-[10px] font-semibold tracking-[0.18em] text-primary mt-0.5">GNC PLATFORM</span>
+          </span>
         </RouterLink>
-        <!-- END: Logo -->
-        <!-- BEGIN: Breadcrumb -->
-        <Breadcrumb
-            light
-            class="h-full md:ms-10 md:ps-10 md:border-l border-white/[0.08] me-auto -intro-x"
-        >
-          <Breadcrumb.Link to="/"></Breadcrumb.Link>
-          <Breadcrumb.Link to="/" :active="true"></Breadcrumb.Link>
-        </Breadcrumb>
-        <!-- END: Breadcrumb -->
+        <!-- END: Logo + brand badge -->
 
-        <!-- BEGIN: Live date/time (کنار منوی کاربر) -->
-        <div
-            class="me-2 flex flex-col items-end justify-center tabular-nums text-white/85 sm:me-3 rtl:items-start"
-        >
-          <time
-              class="max-w-[11rem] truncate text-end text-[10px] leading-tight opacity-90 sm:max-w-none sm:text-xs"
-              :datetime="headerDateTime.iso"
-          >
-            {{ headerDateTime.dateStr }}
-          </time>
-          <time
-              class="text-end text-[11px] font-semibold leading-tight text-white sm:text-sm"
-              :datetime="headerDateTime.iso"
-          >
-            {{ headerDateTime.timeStr }}
-          </time>
+        <div class="ms-auto flex items-center gap-1 md:gap-2">
+          <!-- BEGIN: Language Menu -->
+          <Menu>
+            <Menu.Button
+                class="relative outline-none block"
+            >
+              <span
+                  class="flex h-10 items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 text-sm font-bold text-slate-700 transition-colors hover:border-primary/40 hover:text-primary"
+              >
+                {{ $i18n.locale.toUpperCase() }}
+                <Lucide icon="ChevronDown" class="h-3.5 w-3.5"/>
+              </span>
+            </Menu.Button>
+            <Menu.Items
+                class="w-32 mt-1 relative bg-white border border-slate-200/80 shadow-xl rounded-xl text-slate-700"
+            >
+              <Menu.Item
+                  class="hover:bg-primary/5 hover:text-primary"
+                  v-for="lang in localeOptions"
+                  :key="lang.id"
+                  @click="changeLanguage(lang)"
+              >
+                <Lucide icon="Languages" class="w-4 h-4 me-2"/>
+                {{ lang.name }}
+              </Menu.Item>
+            </Menu.Items>
+          </Menu>
+          <!-- END: Language Menu -->
+
+          <!-- BEGIN: Account Menu -->
+          <Menu>
+            <Menu.Button class="relative outline-none block">
+              <span
+                  class="flex h-10 items-center gap-2 rounded-xl border border-slate-200 bg-white ps-1.5 pe-2.5 transition-colors hover:border-primary/40"
+              >
+                <span
+                    class="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-xs font-bold text-white"
+                >{{ initials }}</span>
+                <span class="hidden md:flex flex-col text-start leading-tight">
+                  <span class="text-sm font-bold text-slate-800">{{ displayName || $t('panel.manager-role') }}</span>
+                  <span class="text-[10px] text-slate-400">{{ $t('panel.manager-role') }}</span>
+                </span>
+                <Lucide icon="ChevronDown" class="h-3.5 w-3.5 text-slate-400"/>
+              </span>
+            </Menu.Button>
+            <Menu.Items
+                class="w-56 mt-1 relative bg-white border border-slate-200/80 shadow-xl rounded-xl text-slate-700"
+            >
+              <Menu.Header class="font-normal">
+                <div class="font-medium text-slate-800">
+                  {{ displayName }}
+                </div>
+                <div class="text-xs text-slate-400 mt-0.5">
+                  {{ userStore.currentUser ? userStore.currentUser.email : "" }}
+                </div>
+              </Menu.Header>
+              <Menu.Divider class="bg-slate-200/70"/>
+              <Menu.Item class="hover:bg-primary/5 hover:text-primary" @click="router.push({name:'app-account-profile'})">
+                <Lucide icon="User" class="w-4 h-4 me-2"/>
+                {{ $t('menu.profile') }}
+              </Menu.Item>
+              <Menu.Divider class="bg-slate-200/70"/>
+              <Menu.Item class="hover:bg-danger/10 hover:text-danger" @click="useLogout">
+                <Lucide icon="ToggleRight" class="w-4 h-4 me-2"/>
+                {{ $t('menu.logout') }}
+              </Menu.Item>
+            </Menu.Items>
+          </Menu>
+          <!-- END: Account Menu -->
         </div>
-        <!-- END: Live date/time -->
-        <!-- BEGIN: Account Menu -->
-        <Menu>
-          <Menu.Button
-              class="relative text-white/70 outline-none block"
-          >
-            <Lucide icon="User" class="w-8 h-8 dark:text-slate-500"/>
-          </Menu.Button>
-          <Menu.Items
-              class="w-56 mt-px relative bg-slate-900/95 before:block before:absolute before:bg-black before:inset-0 before:rounded-md before:z-[-1] text-white"
-          >
-            <Menu.Header class="font-normal">
-              <div class="font-medium">
-                {{ userStore.currentUser ? userStore.currentUser.firstName : "" }}
-              </div>
-              <div class="text-xs text-white/70 mt-0.5 dark:text-slate-500">
-                {{ userStore.currentUser ? userStore.currentUser.email : "" }}
-              </div>
-            </Menu.Header>
-            <Menu.Divider class="bg-white/[0.08]"/>
-            <Menu.Item class="hover:bg-white/5" @click="router.push({name:'app-account-profile'})">
-              <Lucide icon="User" class="w-4 h-4 me-2"/>
-              {{ $t('menu.profile') }}
-            </Menu.Item>
-            <Menu.Divider class="bg-white/[0.08]"/>
-            <Menu.Item class="hover:bg-white/5" @click="useLogout">
-              <Lucide icon="ToggleRight" class="w-4 h-4 me-2"/>
-              {{ $t('menu.logout') }}
-            </Menu.Item>
-          </Menu.Items>
-        </Menu>
-        <!-- END: Account Menu -->
-        <!-- BEGIN: Language Menu -->
-        <Menu>
-          <Menu.Button
-              class="relative text-white/70 outline-none block"
-          >
-            <BaseButton variant="outline-secondary"  size="sm" class="mx-3 text-white font-bold text-base">
-            {{ $i18n.locale.toUpperCase() }}
-            </BaseButton>
-          </Menu.Button>
-          <Menu.Items
-              class="w-24 mt-px relative bg-slate-900/95 before:block before:absolute before:bg-black before:inset-0 before:rounded-md before:z-[-1] text-white"
-          >
-            <Menu.Item class="hover:bg-white/5" v-for="lang in localeOptions" :key="lang.id" @click="changeLanguage(lang)">
-              <Lucide icon="Languages" class="w-4 h-4 me-2"/>
-              {{ lang.name }}
-            </Menu.Item>
-          </Menu.Items>
-        </Menu>
-        <!-- END: Language Menu -->
       </div>
-    </div>
+    </header>
     <!-- END: Top Bar -->
   </section>
 </template>

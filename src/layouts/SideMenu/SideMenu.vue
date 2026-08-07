@@ -18,6 +18,7 @@ import {
   leave,
 } from "./side-menu";
 import { watch, reactive, ref, shallowRef, computed, onMounted, provide } from "vue";
+import { useI18n } from "vue-i18n";
 import type { BreadcrumbSlotContent } from "@/composables/useBreadcrumb";
 
 /** Ref for breadcrumb slot: pages can set a component to render at the end of the breadcrumb row. shallowRef avoids making the component reactive. */
@@ -26,6 +27,14 @@ provide("breadcrumbExtra", breadcrumbExtraRef);
 
 const route: Route = useRoute();
 const router = useRouter();
+const { locale } = useI18n();
+
+/** آیکون دکمه‌ی جمع/بازکردن منو، متناسب با جهت چیدمان (RTL: سایدبار سمت راست) */
+const collapseIcon = computed(() => {
+  const rtl = locale.value === "fa" || locale.value === "ar";
+  if (sidebarCollapsed.value) return rtl ? "ChevronsLeft" : "SidebarOpen";
+  return rtl ? "ChevronsRight" : "SidebarClose";
+});
 let formattedMenu = reactive<Array<FormattedMenu | "divider">>([]);
 const setFormattedMenu = (
   computedFormattedMenu: Array<FormattedMenu | "divider">
@@ -66,6 +75,26 @@ function filterMenu(items: typeof sideMenuStore.menu): typeof sideMenuStore.menu
 const filteredMenu = ref(filterMenu(sideMenuStore.menu));
 const sideMenu = computed(() => nestedMenu(filteredMenu.value, route));
 const windowWidth = ref(window.innerWidth);
+/** آستانه‌ی عرض: در نمایشگرهای باریک‌تر از ۱۰۸۰px منو به‌صورت خودکار بسته می‌شود */
+const SM_BREAKPOINT = 1080;
+const sidebarCollapsed = ref(false);
+/** آخرین وضعیت اندازه‌ی صفحه: فقط هنگام عبور از آستانه، وضعیت منو را خودکار تنظیم می‌کنیم */
+let lastSmallViewport: boolean | null = null;
+
+function syncCollapseWithViewport() {
+  const small = window.innerWidth < SM_BREAKPOINT;
+  if (lastSmallViewport === null || small !== lastSmallViewport) {
+    // در اندازه‌های کوچک منو بسته شروع می‌شود؛ کاربر می‌تواند آن را باز کند
+    sidebarCollapsed.value = small;
+    lastSmallViewport = small;
+  }
+}
+
+/** نشانِ تعداد برای برخی آیتم‌ها */
+const BADGE_MAP: Record<string, number> = {
+  "menu.data": 1,
+  "menu.reports": 1,
+};
 
 provide<ProvideForceActiveMenu>("forceActiveMenu", (pageName: string) => {
   forceActiveMenu(route, pageName);
@@ -82,40 +111,49 @@ watch(
 
 onMounted(() => {
   setFormattedMenu(sideMenu.value);
+  syncCollapseWithViewport();
 
   window.addEventListener("resize", () => {
     windowWidth.value = window.innerWidth;
+    syncCollapseWithViewport();
   });
 });
 </script>
 
 <template>
-  <div
-    class="pb-8 min-h-screen before:content-[''] before:absolute before:inset-0 before:bg-fixed before:bg-no-repeat before:bg-skew-pattern dark:before:bg-skew-pattern-dark"
-  >
-<!--    <MobileMenu />-->
+  <div class="min-h-screen bg-[#f8f9fa] flex flex-col">
     <TopBar />
-    <div
+    <div class="flex flex-1 items-stretch min-h-0">
+      <!-- BEGIN: Sidebar -->
+      <aside
         :class="[
-          'relative',
-          'before:content-[\'\'] before:w-[95%] before:z-[-1] before:rounded-xl before:bg-white/5 before:h-full before:-mt-4 before:absolute before:mx-auto before:inset-x-0 before:dark:bg-darkmode-600/30',
-
-          // Animation
-          'before:translate-y-[35px] before:opacity-0 before:animate-[0.4s_ease-in-out_0.1s_intro-wrapper] before:animate-fill-mode-forwards',
-        ]"
-    >
-      <div
-        :class="[
-          'translate-y-0 bg-slate-900 flex rounded-xl -mt-[4px] md:mt-0 dark:bg-darkmode-800 shadow-xl',
-          'before:block before:absolute before:inset-0 before:bg-black/[0.12] before:rounded-xl before:z-[-1]',
-
-          // Animation
-          'animate-[0.4s_ease-in-out_0.2s_intro-wrapper] animate-fill-mode-forwards translate-y-[35px]',
+          'sidebar flex flex-col shrink-0 bg-[#f0f4f2] border-e border-slate-200/80 transition-all duration-300 overflow-hidden',
+          sidebarCollapsed ? 'w-[74px]' : 'w-[260px]',
         ]"
       >
+        <!-- BEGIN: Sidebar Header (collapse toggle) -->
+        <div
+          class="flex pt-3 px-3"
+          :class="sidebarCollapsed ? 'justify-center' : 'justify-between'"
+        >
+          <button
+            type="button"
+            class="flex items-center gap-2 rounded-xl px-2.5 py-2 text-slate-500 transition-colors hover:bg-slate-200/70 hover:text-primary"
+            @click="sidebarCollapsed = !sidebarCollapsed"
+            :title="$t(sidebarCollapsed ? 'panel.expand-menu' : 'panel.collapse-menu')"
+          >
+            <Lucide :icon="collapseIcon" class="h-4.5 w-4.5" />
+            <span v-if="!sidebarCollapsed" class="text-xs font-medium">{{ $t('panel.collapse-menu') }}</span>
+          </button>
+        </div>
+        <!-- END: Sidebar Header -->
+
         <!-- BEGIN: Side Menu -->
         <nav
-          class="side-nav   md:block w-[65px] xl:w-[220px] ps-1 pe-2 pt-8 pb-10 xl:ps-0 xl:pe-5 xl:pb-16 overflow-x-hidden"
+          :class="[
+            'side-nav flex-1 overflow-y-auto overflow-x-hidden px-3 pb-4',
+            sidebarCollapsed && 'side-nav--collapsed',
+          ]"
         >
           <ul>
             <!-- BEGIN: First Child -->
@@ -124,7 +162,7 @@ onMounted(() => {
                 v-if="menu == 'divider'"
                 type="li"
                 :class="[
-                  'side-nav__divider my-6',
+                  'side-nav__divider my-4',
                   // Animation
                   `opacity-0 animate-[0.4s_ease-in-out_0.1s_intro-divider] animate-fill-mode-forwards animate-delay-${
                     (menuKey + 1) * 10
@@ -139,7 +177,7 @@ onMounted(() => {
                   :options="{
                     placement: 'right',
                   }"
-                  :disable="windowWidth > 1260"
+                  :disable="!sidebarCollapsed"
                   :href="
                   menu.subMenu
                     ? '#'
@@ -173,7 +211,11 @@ onMounted(() => {
                   <Lucide :icon="menu.icon" />
                 </div>
                   <div class="side-menu__title">
-                    {{ $t(menu.title) }}
+                    <span class="truncate">{{ $t(menu.title) }}</span>
+                    <span
+                      v-if="BADGE_MAP[menu.title]"
+                      class="ms-1.5 inline-flex h-4.5 min-w-[18px] items-center justify-center rounded-full bg-danger px-1 text-[10px] font-bold text-white"
+                    >{{ BADGE_MAP[menu.title] }}</span>
                     <div
                       v-if="menu.subMenu"
                       :class="[
@@ -200,7 +242,7 @@ onMounted(() => {
                         :options="{
                           placement: 'right',
                         }"
-                        :disable="windowWidth > 1260"
+                        :disable="!sidebarCollapsed"
                         :href="
                         subMenu.subMenu
                           ? '#'
@@ -236,7 +278,7 @@ onMounted(() => {
                       <Lucide :icon="subMenu.icon" />
                     </div>
                         <div class="side-menu__title">
-                          {{ $t(subMenu.title) }}
+                          <span class="truncate">{{ $t(subMenu.title) }}</span>
                           <div
                             v-if="subMenu.subMenu"
                             :class="[
@@ -273,7 +315,7 @@ onMounted(() => {
                               :options="{
                                 placement: 'right',
                               }"
-                              :disable="windowWidth > 1260"
+                              :disable="!sidebarCollapsed"
                               :href="
                               lastSubMenu.subMenu
                                 ? '#'
@@ -309,7 +351,7 @@ onMounted(() => {
                           <Lucide :icon="lastSubMenu.icon" />
                         </div>
                               <div class="side-menu__title">
-                                {{$t(lastSubMenu.title) }}
+                                <span class="truncate">{{$t(lastSubMenu.title) }}</span>
                               </div>
                             </Tippy>
                           </li>
@@ -324,17 +366,37 @@ onMounted(() => {
           </ul>
         </nav>
         <!-- END: Side Menu -->
-        <!-- BEGIN: Content -->
-        <div
-          class="pt-2 max-w-full md:max-w-auto rounded-xl flex-1 min-w-0 min-h-[90vh] bg-white dark:bg-darkmode-800 before:content-[''] before:w-full before:h-px before:block border border-slate-200/70 dark:border-darkmode-700/80 shadow-sm"
-        >
-          <div class="border-b border-slate-200/60 px-4 md:px-6 dark:border-darkmode-700/60">
-            <Breadcrumb />
-          </div>
+
+
+      </aside>
+      <!-- END: Sidebar -->
+
+      <!-- BEGIN: Content -->
+      <main class="flex-1 min-w-0 flex flex-col">
+        <div class="sticky top-0 z-30 border-b border-slate-200/70 bg-white/95 backdrop-blur px-4 md:px-6 shadow-sm">
+          <Breadcrumb />
+        </div>
+        <div class="flex-1 px-4 md:px-6 py-5 md:py-6">
           <RouterView />
         </div>
-        <!-- END: Content -->
-      </div>
+        <!-- BEGIN: Footer -->
+        <footer class="border-t border-slate-200/70 bg-white/70 px-4 md:px-6 py-3.5">
+          <div class="flex flex-col sm:flex-row items-center justify-between gap-2 text-[11px] text-slate-400">
+            <div class="flex items-center gap-2 min-w-0">
+              <span class="truncate font-semibold text-slate-500" :title="$t('title.web-title-short')">{{ $t('title.web-title-short') }}</span>
+              <span class="shrink-0 text-slate-300">·</span>
+              <span>{{ $t('panel.footer-version') }}</span>
+              <span class="text-slate-300">·</span>
+              <button class="transition-colors hover:text-primary">{{ $t('panel.footer-support') }}</button>
+              <span class="text-slate-300">·</span>
+              <button class="transition-colors hover:text-primary">{{ $t('panel.footer-privacy') }}</button>
+            </div>
+            <span>© ۱۴۰۳ {{ $t('panel.footer-copyright') }}</span>
+          </div>
+        </footer>
+        <!-- END: Footer -->
+      </main>
+      <!-- END: Content -->
     </div>
   </div>
 </template>

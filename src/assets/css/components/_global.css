@@ -1,6 +1,6 @@
 html {
   scroll-behavior: smooth;
-  background-color: #f8f8f8;
+  background-color: #f8f9fa;
 }
 
 html.dark {
@@ -26,6 +26,11 @@ body {
   font-size: theme("fontSize.sm");
   line-height: theme("lineHeight.6");
   color: theme("colors.slate.700");
+}
+
+.font-rtl,
+.font-ltr {
+  font-family: 'Vazirmatn Variable', 'Vazirmatn', system-ui, sans-serif !important;
 }
 
 @media screen(sm) {

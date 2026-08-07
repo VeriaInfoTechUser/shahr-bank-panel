@@ -109,7 +109,7 @@ const routes = [
             {
                 path: "app",
                 component: SideMenu,
-                meta: {requiresAuth: true},
+                meta: {requiresAuth: true, breadcrumbLabel: 'menu.workspace'},
                 children: [
                     {
                         path: "dashboard",

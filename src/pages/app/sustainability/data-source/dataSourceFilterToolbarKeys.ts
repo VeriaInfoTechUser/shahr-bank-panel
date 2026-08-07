@@ -6,9 +6,6 @@ export const DATA_SOURCE_FILTER_PARAM_ORDER = [
   'capabilitySlug',
   'claimSlug',
   'indicatorSlug',
-  'dataSourceType',
-  'source',
-  'status',
 ] as const;
 
 export type DataSourceFilterParamKey = (typeof DATA_SOURCE_FILTER_PARAM_ORDER)[number];
@@ -21,9 +18,6 @@ export const DATA_SOURCE_FILTER_PARAM_LABEL_KEYS: Record<DataSourceFilterParamKe
   capabilitySlug: 'sustainability-data-source-page.col-capability',
   claimSlug: 'sustainability-data-source-page.col-claim',
   indicatorSlug: 'sustainability-data-source-page.col-indicator',
-  dataSourceType: 'sustainability-data-source-page.col-data-source-type',
-  source: 'sustainability-data-source-page.col-source',
-  status: 'sustainability-data-source-page.col-status',
 };
 
 export function isDataSourceFilterValueSet(value: unknown): boolean {

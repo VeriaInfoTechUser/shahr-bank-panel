@@ -7,6 +7,7 @@ import { grcRepo } from '@/core/repositories/grcRepo';
 import { reportRepo } from '@/core/repositories/reportRepo';
 import { useNumberFormat } from '@/composables/useNumberFormat';
 import { theme } from '@/config/theme';
+import BarChart from '@/components/dashboard/BarChart.vue';
 
 const { t, locale } = useI18n();
 const { formatNumber } = useNumberFormat();
@@ -255,17 +256,6 @@ const statCards = computed(() => [
 ]);
 
 /* ---------------- bar chart (real fundamental-capital scores) ---------------- */
-const CHART_W = 640;
-const CHART_H = 240;
-const PAD = { top: 24, bottom: 34, left: 30, right: 12 };
-
-const plotW = computed(() => CHART_W - PAD.left - PAD.right);
-const plotH = computed(() => CHART_H - PAD.top - PAD.bottom);
-const slotW = computed(() => plotW.value / Math.max(sustCapitals.value.length, 1));
-const barW = computed(() => Math.min(slotW.value * 0.5, 46));
-const barX = (i: number) => PAD.left + slotW.value * i + (slotW.value - barW.value) / 2;
-const barY = (score: number) => PAD.top + ((100 - score) / 100) * plotH.value;
-
 /** رنگ هر میله بر اساس امتیاز (رنگ فقط برای داده) — از تم مرکزی */
 function scoreColor(score: number): string {
   if (score >= 75) return theme.status.low;
@@ -273,27 +263,18 @@ function scoreColor(score: number): string {
   return theme.status.high;
 }
 
-/** مسیر میله با گوشه‌های بالایی گرد و قاعده تخت */
-function barPath(score: number, i: number): string {
-  const x = barX(i);
-  const w = barW.value;
-  const yTop = barY(score);
-  const yBottom = PAD.top + plotH.value;
-  const r = Math.min(6, w / 2);
-  return [
-    `M${x},${yBottom}`,
-    `L${x},${yTop + r}`,
-    `Q${x},${yTop} ${x + r},${yTop}`,
-    `L${x + w - r},${yTop}`,
-    `Q${x + w},${yTop} ${x + w},${yTop + r}`,
-    `L${x + w},${yBottom}`,
-    'Z',
-  ].join(' ');
-}
-
 function shortLabel(title: string): string {
   return title.length > 14 ? `${title.slice(0, 14)}…` : title;
 }
+
+/** سری میله‌ای امتیاز سرمایه‌های بنیادین — برای کامپوننت مشترک BarChart */
+const homeBarSeries = computed(() => [
+  {
+    values: sustCapitals.value.map((c) => c.score),
+    color: sustCapitals.value.map((c) => scoreColor(c.score)),
+  },
+]);
+const homeLabelColors = computed(() => sustCapitals.value.map((c) => scoreColor(c.score)));
 
 const scoreLegend = computed(() => [
   { label: t('dashboard-page.score-band-excellent'), color: theme.status.low },
@@ -609,50 +590,13 @@ function go(name: string) {
           </div>
 
           <div v-if="sustCapitals.length > 0" class="mt-4">
-            <svg :viewBox="`0 0 ${CHART_W} ${CHART_H}`" class="w-full">
-              <!-- horizontal grid -->
-              <line
-                v-for="g in 5"
-                :key="g"
-                :x1="PAD.left"
-                :x2="CHART_W - PAD.right"
-                :y1="PAD.top + ((g - 1) * plotH) / 4"
-                :y2="PAD.top + ((g - 1) * plotH) / 4"
-                stroke="#e2e8f0"
-                stroke-width="1"
-              />
-              <!-- bars -->
-              <path
-                v-for="(p, i) in sustCapitals"
-                :key="'b' + i"
-                :d="barPath(p.score, i)"
-                :fill="scoreColor(p.score)"
-                opacity="0.92"
-              />
-              <!-- value labels -->
-              <text
-                v-for="(p, i) in sustCapitals"
-                :key="'v' + i"
-                :x="barX(i) + barW / 2"
-                :y="barY(p.score) - 7"
-                text-anchor="middle"
-                :fill="scoreColor(p.score)"
-                font-size="11"
-                font-weight="700"
-                direction="rtl"
-              >{{ formatNumber(Math.round(p.score)) }}</text>
-              <!-- x labels -->
-              <text
-                v-for="(p, i) in sustCapitals"
-                :key="'m' + i"
-                :x="barX(i) + barW / 2"
-                :y="CHART_H - 8"
-                text-anchor="middle"
-                direction="rtl"
-                class="fill-slate-400"
-                font-size="10"
-              >{{ shortLabel(p.title) }}</text>
-            </svg>
+            <BarChart
+              :labels="sustCapitals.map((c) => shortLabel(c.title))"
+              :series="homeBarSeries"
+              :label-colors="homeLabelColors"
+              :max="100"
+              class="h-64"
+            />
 
             <!-- legend: score bands (color = data) -->
             <div class="mt-2 flex flex-wrap items-center gap-4 text-[11px] text-slate-500">

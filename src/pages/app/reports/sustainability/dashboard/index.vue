@@ -3,76 +3,14 @@ import { ref, computed, reactive, nextTick, onBeforeUnmount, onMounted, watch } 
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
 import { useElementBounding, onClickOutside, useEventListener } from '@vueuse/core';
-import {
-  Chart as ChartJS,
-  RadialLinearScale,
-  PointElement,
-  LineElement,
-  Filler,
-  Tooltip,
-  Legend,
-  BarElement,
-  CategoryScale,
-  LinearScale,
-  ArcElement,
-  BarController,
-  DoughnutController,
-} from 'chart.js';
-import { Radar, Bar, Doughnut } from 'vue-chartjs';
+import BarChart, { type BarSeries } from '@/components/dashboard/BarChart.vue';
+import RadarChart, { type RadarSeries } from '@/components/dashboard/RadarChart.vue';
+import DonutChart from '@/components/dashboard/DonutChart.vue';
+import StateBar from '@/components/dashboard/StateBar.vue';
 import Lucide from '@/base-components/Lucide';
 import PeriodSelectPanel from '@/components/PeriodSelectPanel.vue';
 import { reportRepo } from '@/core/repositories/reportRepo';
 import { theme } from '@/config/theme';
-
-ChartJS.register(
-    RadialLinearScale,
-    PointElement,
-    LineElement,
-    Filler,
-    Tooltip,
-    Legend,
-    BarElement,
-    CategoryScale,
-    LinearScale,
-    ArcElement,
-    BarController,
-    DoughnutController,
-);
-
-/**
- * Custom plugin: draws the value at the end of each horizontal bar
- * (like the risk dashboard's StateBar) — RTL-aware.
- */
-const barValueLabelsPlugin = {
-  id: 'barValueLabels',
-  afterDatasetsDraw(chart: any) {
-    const { ctx } = chart;
-    const isDark = document.documentElement.classList.contains('dark');
-    const labelColor = isDark ? '#cbd5e1' : '#475569';
-    ctx.save();
-    chart.data.datasets.forEach((dataset: any, di: number) => {
-      if (dataset.barValueLabels === false) return;
-      const meta = chart.getDatasetMeta(di);
-      if (!meta.data || meta.type !== 'bar') return;
-      meta.data.forEach((bar: any, i: number) => {
-        const value = dataset.data[i];
-        if (value == null || value === 0) return;
-        ctx.font = "600 10px 'Vazirmatn Variable', Vazirmatn, sans-serif";
-        ctx.fillStyle = labelColor;
-        ctx.textBaseline = 'middle';
-        if (bar.x > bar.base) {
-          ctx.textAlign = 'left';
-          ctx.fillText(String(value), bar.x + 5, bar.y);
-        } else {
-          ctx.textAlign = 'right';
-          ctx.fillText(String(value), bar.x - 5, bar.y);
-        }
-      });
-    });
-    ctx.restore();
-  },
-};
-ChartJS.register(barValueLabelsPlugin);
 
 const { t } = useI18n();
 const route = useRoute();
@@ -854,95 +792,57 @@ onMounted(async () => {
 watch(selectedPeriod, scrollActiveYearIntoView);
 
 // ---------- radar: domains under the active capital ----------
-const domainRadarData = computed(() => {
+const domainRadar = computed<{ labels: string[]; series: RadarSeries[] } | null>(() => {
   const cap = activeCapital.value;
   if (!cap) return null;
-  const datasets: any[] = [
+  const series: RadarSeries[] = [
     {
-      label: t('reports.sustainability-score'),
-      data: cap.domains.map((d) => d.score),
-      backgroundColor: hexToRgba(cap.maturity.color, 0.12),
-      borderColor: cap.maturity.color,
-      borderWidth: 2,
-      pointBackgroundColor: cap.domains.map((d) => d.maturity.color),
-      pointBorderColor: '#fff',
-      pointRadius: 4,
-      pointHoverRadius: 6,
+      name: t('reports.sustainability-score'),
+      values: cap.domains.map((d) => d.score),
+      color: cap.maturity.color,
+      fillAlpha: 0.12,
+      pointColors: cap.domains.map((d) => d.maturity.color),
     },
   ];
   if (hasComparison.value) {
-    datasets.push({
-      label: t('reports.comparison-score'),
-      data: cap.domains.map((d) => (d.comparison?.value != null ? round1(d.comparison.value) : null)),
-      backgroundColor: 'transparent',
-      borderColor: '#94a3b8',
-      borderDash: [5, 5],
-      borderWidth: 1.5,
-      pointBackgroundColor: '#94a3b8',
-      pointBorderColor: '#fff',
-      pointRadius: 3,
-      pointHoverRadius: 5,
-    });
+    const cmpValues = cap.domains.map((d) => (d.comparison?.value != null ? round1(d.comparison.value) : null));
+    if (cmpValues.some((v) => v != null)) {
+      series.push({
+        name: t('reports.comparison-score'),
+        values: cmpValues,
+        color: '#94a3b8',
+        dashed: true,
+      });
+    }
   }
-  return {
-    labels: cap.domains.map((d) => d.title),
-    datasets,
-  };
+  return { labels: cap.domains.map((d) => d.title), series };
 });
 
 // ---------- radar: all capitals, overview tab ----------
-const capitalRadarData = computed(() => {
+const capitalRadar = computed<{ labels: string[]; series: RadarSeriesInput[] } | null>(() => {
   if (!capitals.value.length) return null;
-  const datasets: any[] = [
+  const series: RadarSeries[] = [
     {
-      label: t('reports.sustainability-score'),
-      data: capitals.value.map((c) => c.score),
-      backgroundColor: hexToRgba(theme.colors.light.primary, 0.12),
-      borderColor: theme.colors.light.primary,
-      borderWidth: 2,
-      pointBackgroundColor: capitals.value.map((c) => c.maturity.color),
-      pointBorderColor: '#fff',
-      pointRadius: 5,
-      pointHoverRadius: 7,
+      name: t('reports.sustainability-score'),
+      values: capitals.value.map((c) => c.score),
+      color: theme.colors.light.primary,
+      fillAlpha: 0.12,
+      pointColors: capitals.value.map((c) => c.maturity.color),
     },
   ];
   if (hasComparison.value) {
-    datasets.push({
-      label: t('reports.comparison-score'),
-      data: capitals.value.map((c) => (c.comparison?.value != null ? round1(c.comparison.value) : null)),
-      backgroundColor: 'transparent',
-      borderColor: '#94a3b8',
-      borderDash: [5, 5],
-      borderWidth: 1.5,
-      pointBackgroundColor: '#94a3b8',
-      pointBorderColor: '#fff',
-      pointRadius: 4,
-      pointHoverRadius: 6,
-    });
+    const cmpValues = capitals.value.map((c) => (c.comparison?.value != null ? round1(c.comparison.value) : null));
+    if (cmpValues.some((v) => v != null)) {
+      series.push({
+        name: t('reports.comparison-score'),
+        values: cmpValues,
+        color: '#94a3b8',
+        dashed: true,
+      });
+    }
   }
-  return {
-    labels: capitals.value.map((c) => c.title),
-    datasets,
-  };
+  return { labels: capitals.value.map((c) => c.title), series };
 });
-
-const radarOptions = {
-  maintainAspectRatio: false,
-  scales: {
-    r: {
-      min: 0,
-      max: 100,
-      ticks: { display: false, stepSize: 20 },
-      grid: { color: 'rgba(148, 163, 184, 0.25)' },
-      angleLines: { color: 'rgba(148, 163, 184, 0.25)' },
-      pointLabels: { font: { size: 11 } },
-    },
-  },
-  plugins: {
-    legend: { display: true, position: 'bottom' as const, labels: { boxWidth: 10, font: { size: 10 } } },
-    tooltip: { callbacks: { label: (ctx: any) => ` ${ctx.dataset.label}: ${round1(ctx.raw)} / 100` } },
-  },
-};
 
 // ============================================================
 // global (all-capitals) aggregates for the top KPI strip
@@ -999,44 +899,6 @@ const globalStats = computed(() => {
   return { capitals: capitals.value.length, domains, components, capabilities, indicators, withData, avgScore, completion, hasTarget, meetsTarget, targetRate };
 });
 
-// ---------- maturity bucket helper (reused for global + per-capital donuts) ----------
-interface MaturityBucket { level: number; labelFa: string; color: string; count: number }
-function buildMaturityBuckets(domains: DomainNode[]): MaturityBucket[] {
-  const map = new Map<number, MaturityBucket>();
-  for (const d of domains) {
-    const lvl = d.maturity.level;
-    if (!map.has(lvl)) {
-      map.set(lvl, { level: lvl, labelFa: d.maturity.labelFa, color: d.maturity.color, count: 0 });
-    }
-    map.get(lvl)!.count += 1;
-  }
-  return [...map.values()].sort((a, b) => a.level - b.level);
-}
-function maturityDonutChartData(buckets: MaturityBucket[]) {
-  return {
-    labels: buckets.map((b) => b.labelFa),
-    datasets: [
-      {
-        data: buckets.map((b) => b.count),
-        backgroundColor: buckets.map((b) => b.color),
-        borderColor: '#fff',
-        borderWidth: 2,
-      },
-    ],
-  };
-}
-const donutOptions = {
-  maintainAspectRatio: false,
-  cutout: '62%',
-  plugins: {
-    legend: { position: 'bottom' as const, labels: { boxWidth: 10, font: { size: 10 }, padding: 12 } },
-    tooltip: { callbacks: { label: (ctx: any) => ` ${ctx.label}: ${ctx.raw} دامنه` } },
-  },
-};
-
-const globalMaturityBuckets = computed(() => buildMaturityBuckets(capitals.value.flatMap((c) => c.domains)));
-const globalMaturityDonutData = computed(() => maturityDonutChartData(globalMaturityBuckets.value));
-
 // comparison aggregate used in the KPI strip (frontend mean of capital comparison values)
 const globalComparisonAvg = computed<number | null>(() => {
   if (!hasComparison.value) return null;
@@ -1057,111 +919,28 @@ function compareFillFor(color: string): string {
   return hexToRgba(color, 0.32);
 }
 
-const capitalBarData = computed(() => {
+const capitalBars = computed(() => {
   const comparing = hasComparison.value;
-  const datasets: any[] = [
+  const series: BarSeries[] = [
     {
-      label: t('reports.sustainability-score'),
-      data: capitals.value.map((c) => round1(c.score)),
-      backgroundColor: capitals.value.map((c) => c.maturity.color),
-      borderRadius: 6,
-      barThickness: comparing ? 12 : 18,
-      barPercentage: 0.92,
-      categoryPercentage: comparing ? 0.72 : 0.9,
-      maxBarThickness: 22,
+      name: t('reports.sustainability-score'),
+      values: capitals.value.map((c) => round1(c.score)),
+      color: capitals.value.map((c) => c.maturity.color),
+      barWidth: comparing ? 12 : 18,
     },
   ];
   if (comparing) {
-    datasets.push({
-      label: t('reports.comparison-score'),
-      data: capitals.value.map((c) => (c.comparison?.value != null ? round1(c.comparison.value) : null)),
-      backgroundColor: capitals.value.map((c) => compareFillFor(c.maturity.color)),
+    series.push({
+      name: t('reports.comparison-score'),
+      values: capitals.value.map((c) => (c.comparison?.value != null ? round1(c.comparison.value) : null)),
+      color: capitals.value.map((c) => compareFillFor(c.maturity.color)),
       borderColor: capitals.value.map((c) => hexToRgba(c.maturity.color, 0.55)),
-      borderWidth: 1.5,
-      borderRadius: 6,
-      barThickness: 12,
-      barPercentage: 0.92,
-      categoryPercentage: 0.72,
-      maxBarThickness: 22,
-      barValueLabels: false,
+      barWidth: 12,
+      valueLabels: false,
     });
   }
-  return {
-    labels: capitals.value.map((c) => c.title),
-    datasets,
-  };
+  return { labels: capitals.value.map((c) => c.title), series };
 });
-const barOptionsHorizontal = {
-  indexAxis: 'y' as const,
-  maintainAspectRatio: false,
-  layout: { padding: { right: 6 } },
-  scales: {
-    x: {
-      min: 0,
-      max: 100,
-      grid: { color: 'rgba(148, 163, 184, 0.12)' },
-      border: { display: false },
-      ticks: { font: { size: 10 }, color: '#94a3b8', padding: 4 },
-    },
-    y: {
-      grid: { display: false },
-      border: { display: false },
-      ticks: { font: { size: 11 }, color: '#475569' },
-    },
-  },
-  plugins: {
-    legend: { display: true, position: 'bottom' as const, labels: { boxWidth: 10, boxHeight: 10, font: { size: 10 }, padding: 14 } },
-    tooltip: {
-      backgroundColor: 'rgba(15, 23, 42, 0.9)',
-      padding: 10,
-      cornerRadius: 8,
-      titleFont: { size: 11 },
-      bodyFont: { size: 11 },
-      displayColors: false,
-      callbacks: { label: (ctx: any) => ` ${ctx.dataset.label}: ${round1(ctx.raw)} / 100` },
-    },
-  },
-};
-
-// risk section chart options (counts, not 0-100 scores)
-const riskDonutOptions = {
-  maintainAspectRatio: false,
-  cutout: '62%',
-  plugins: {
-    legend: { position: 'bottom' as const, labels: { boxWidth: 10, font: { size: 10 }, padding: 12 } },
-    tooltip: { callbacks: { label: (ctx: any) => ` ${ctx.label}: ${ctx.raw}` } },
-  },
-};
-const riskBarOptions = {
-  indexAxis: 'y' as const,
-  maintainAspectRatio: false,
-  layout: { padding: { right: 6 } },
-  scales: {
-    x: {
-      beginAtZero: true,
-      grid: { color: 'rgba(148, 163, 184, 0.12)' },
-      border: { display: false },
-      ticks: { font: { size: 10 }, color: '#94a3b8', padding: 4 },
-    },
-    y: {
-      grid: { display: false },
-      border: { display: false },
-      ticks: { font: { size: 11 }, color: '#475569' },
-    },
-  },
-  plugins: {
-    legend: { display: false },
-    tooltip: {
-      backgroundColor: 'rgba(15, 23, 42, 0.9)',
-      padding: 10,
-      cornerRadius: 8,
-      titleFont: { size: 11 },
-      bodyFont: { size: 11 },
-      displayColors: false,
-      callbacks: { label: (ctx: any) => ` ${ctx.dataset.label ?? ctx.label}: ${ctx.raw} ریسک` },
-    },
-  },
-};
 
 // ---------- global leaderboard: best/worst domains across all capitals ----------
 interface DomainWithCapital extends DomainNode { capitalTitle: string }
@@ -1208,9 +987,6 @@ const capitalStats = computed(() => {
   return { components, capabilities, indicators, withData, completion, hasTarget, meetsTarget };
 });
 
-const capitalMaturityBuckets = computed(() => (activeCapital.value ? buildMaturityBuckets(activeCapital.value.domains) : []));
-const capitalMaturityDonutData = computed(() => maturityDonutChartData(capitalMaturityBuckets.value));
-
 interface ComponentWithDomain extends ComponentNode { domainTitle: string }
 const componentsInCapital = computed<ComponentWithDomain[]>(() => {
   const cap = activeCapital.value;
@@ -1219,39 +995,30 @@ const componentsInCapital = computed<ComponentWithDomain[]>(() => {
   cap.domains.forEach((d) => d.components.forEach((c) => list.push({ ...c, domainTitle: d.title })));
   return list.sort((a, b) => b.score - a.score);
 });
-const componentBarData = computed(() => {
+const componentBars = computed(() => {
   const list = componentsInCapital.value.slice(0, 12);
   const comparing = hasComparison.value;
-  const datasets: any[] = [
+  const series: BarSeries[] = [
     {
-      label: t('reports.sustainability-score'),
-      data: list.map((c) => round1(c.score)),
-      backgroundColor: list.map((c) => c.maturity.color),
-      borderRadius: 5,
-      barThickness: comparing ? 9 : 13,
-      barPercentage: 0.92,
-      categoryPercentage: comparing ? 0.7 : 0.88,
-      maxBarThickness: 16,
+      name: t('reports.sustainability-score'),
+      values: list.map((c) => round1(c.score)),
+      color: list.map((c) => c.maturity.color),
+      barWidth: comparing ? 9 : 13,
     },
   ];
   if (comparing) {
-    datasets.push({
-      label: t('reports.comparison-score'),
-      data: list.map((c) => (c.comparison?.value != null ? round1(c.comparison.value) : null)),
-      backgroundColor: list.map((c) => compareFillFor(c.maturity.color)),
+    series.push({
+      name: t('reports.comparison-score'),
+      values: list.map((c) => (c.comparison?.value != null ? round1(c.comparison.value) : null)),
+      color: list.map((c) => compareFillFor(c.maturity.color)),
       borderColor: list.map((c) => hexToRgba(c.maturity.color, 0.55)),
-      borderWidth: 1.5,
-      borderRadius: 5,
-      barThickness: 9,
-      barPercentage: 0.92,
-      categoryPercentage: 0.7,
-      maxBarThickness: 16,
-      barValueLabels: false,
+      barWidth: 9,
+      valueLabels: false,
     });
   }
   return {
     labels: list.map((c) => (c.title.length > 22 ? c.title.slice(0, 22) + '…' : c.title)),
-    datasets,
+    series,
   };
 });
 
@@ -1307,29 +1074,16 @@ const riskLevelBuckets = computed<[string, number][]>(() =>
     RISK_LEVELS.map((lvl) => [lvl, portfolioRisks.value.byLevel?.[lvl] ?? 0] as [string, number])
         .filter(([, n]) => n > 0),
 );
-const riskLevelDonutData = computed(() => ({
-  labels: riskLevelBuckets.value.map(([lvl]) => riskLevelLabel(lvl)),
-  datasets: [{
-    data: riskLevelBuckets.value.map(([, n]) => n),
-    backgroundColor: riskLevelBuckets.value.map(([lvl]) => riskLevelColor(lvl)),
-    borderColor: '#fff',
-    borderWidth: 2,
-  }],
-}));
+const riskLevelLabels = computed<Record<string, string>>(() =>
+    Object.fromEntries(RISK_LEVELS.map((lvl) => [lvl, riskLevelLabel(lvl)])));
+const riskLevelDonutRows = computed(() =>
+    riskLevelBuckets.value.map(([lvl, n]) => ({ key: lvl, count: n })));
 
-const riskStateBarData = computed(() => {
+const riskStateLabels = computed<Record<string, string>>(() =>
+    Object.fromEntries(RISK_STATES.map((s) => [s, riskStateLabel(s)])));
+const riskStateRows = computed(() => {
   const by = portfolioRisks.value.byState ?? {};
-  const entries = RISK_STATES.filter((s) => (by[s] ?? 0) > 0);
-  return {
-    labels: entries.map((s) => riskStateLabel(s)),
-    datasets: [{
-      label: t('reports.risks'),
-      data: entries.map((s) => by[s] ?? 0),
-      backgroundColor: entries.map((s) => RISK_STATE_COLOR[s] ?? '#94a3b8'),
-      borderRadius: 6,
-      barThickness: 18,
-    }],
-  };
+  return RISK_STATES.filter((s) => (by[s] ?? 0) > 0).map((s) => ({ state: s, count: by[s] ?? 0 }));
 });
 
 const riskHeatmapByCapital = computed<RiskHeatRow[]>(() => {
@@ -1372,33 +1126,14 @@ const capitalRiskSummary = computed<{ total: number; byState: Record<string, num
   return { total, byState, byLevel };
 });
 
-const capitalRiskLevelDonutData = computed(() => {
+const capitalRiskLevelDonutRows = computed(() => {
   const by = capitalRiskSummary.value?.byLevel ?? {};
-  const entries = RISK_LEVELS.map((lvl) => [lvl, by[lvl] ?? 0] as [string, number]).filter(([, n]) => n > 0);
-  return {
-    labels: entries.map(([lvl]) => riskLevelLabel(lvl)),
-    datasets: [{
-      data: entries.map(([, n]) => n),
-      backgroundColor: entries.map(([lvl]) => riskLevelColor(lvl)),
-      borderColor: '#fff',
-      borderWidth: 2,
-    }],
-  };
+  return RISK_LEVELS.filter((lvl) => (by[lvl] ?? 0) > 0).map((lvl) => ({ key: lvl, count: by[lvl] ?? 0 }));
 });
 
-const capitalRiskStateBarData = computed(() => {
+const capitalRiskStateRows = computed(() => {
   const by = capitalRiskSummary.value?.byState ?? {};
-  const entries = RISK_STATES.filter((s) => (by[s] ?? 0) > 0);
-  return {
-    labels: entries.map((s) => riskStateLabel(s)),
-    datasets: [{
-      label: t('reports.risks'),
-      data: entries.map((s) => by[s] ?? 0),
-      backgroundColor: entries.map((s) => RISK_STATE_COLOR[s] ?? '#94a3b8'),
-      borderRadius: 6,
-      barThickness: 18,
-    }],
-  };
+  return RISK_STATES.filter((s) => (by[s] ?? 0) > 0).map((s) => ({ state: s, count: by[s] ?? 0 }));
 });
 
 const riskHeatmapByDomain = computed<RiskHeatRow[]>(() => {
@@ -1881,7 +1616,7 @@ function goToRisk(slug?: string | null) {
                   {{ t('reports.all-capitals-overview') }}
                 </h2>
                 <div class="mt-4 h-[420px]">
-                  <Radar v-if="capitalRadarData" :data="capitalRadarData" :options="radarOptions" />
+                  <RadarChart v-if="capitalRadar" :labels="capitalRadar.labels" :series="capitalRadar.series" />
                 </div>
                 <div class="mt-4 flex flex-wrap gap-3">
                   <span
@@ -1906,21 +1641,9 @@ function goToRisk(slug?: string | null) {
                   <h3 class="text-sm font-semibold text-slate-900 dark:text-white">{{ t('reports.capital-comparison') }}</h3>
                 </div>
                 <div class="mt-3 min-h-[220px] flex-1">
-                  <Bar :data="capitalBarData" :options="barOptionsHorizontal" />
+                  <BarChart :labels="capitalBars.labels" :series="capitalBars.series" horizontal show-legend :max="100" tooltip-suffix=" / 100" />
                 </div>
               </div>
-              <!-- TODO: maturity distribution donut is temporarily disabled (its labels are maturity labels — decide later)
-              <div class="lg:col-span-5 rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-800">
-                <div class="mb-1 flex items-center gap-2">
-                  <Lucide icon="PieChart" class="h-4 w-4 text-slate-400" />
-                  <h3 class="text-sm font-semibold text-slate-900 dark:text-white">{{ t('reports.maturity-distribution') }}</h3>
-                </div>
-                <p class="mb-2 text-[11px] text-slate-400">{{ t('reports.domains-by-maturity-level') }}</p>
-                <div class="h-[260px]">
-                  <Doughnut v-if="globalMaturityBuckets.length" :data="globalMaturityDonutData" :options="donutOptions" />
-                </div>
-              </div>
-              -->
             </div>
 
             <!-- RISK PORTFOLIO OVERVIEW (appended risk data — does not affect scoring) -->
@@ -2016,12 +1739,14 @@ function goToRisk(slug?: string | null) {
                     </div>
                   </header>
                   <div class="flex-1">
-                    <div v-if="riskLevelBuckets.length" class="relative h-[240px]">
-                      <Doughnut :data="riskLevelDonutData" :options="riskDonutOptions" />
-                      <div class="pointer-events-none absolute inset-x-0 top-[38%] -translate-y-1/2 text-center">
-                        <p class="text-2xl font-extrabold text-slate-900 dark:text-white">{{ portfolioRisks.total }}</p>
-                        <p class="text-xs text-slate-500 dark:text-slate-400">{{ t('reports.risks') }}</p>
-                      </div>
+                    <div v-if="riskLevelBuckets.length" class="h-[240px]">
+                      <DonutChart
+                        :data="riskLevelDonutRows"
+                        :labels="riskLevelLabels"
+                        :colors="RISK_LEVEL_COLOR"
+                        item-word="ریسک"
+                        :center-label="t('reports.risks')"
+                      />
                     </div>
                     <p v-else class="py-10 text-center text-xs text-slate-400">{{ t('reports.no-risk-data') }}</p>
                   </div>
@@ -2040,8 +1765,8 @@ function goToRisk(slug?: string | null) {
                       </div>
                     </div>
                   </header>
-                  <div class="flex-1" :style="{ height: Math.max(riskStateBarData.labels.length * 30, 160) + 'px' }">
-                    <Bar v-if="riskStateBarData.labels.length" :data="riskStateBarData" :options="riskBarOptions" />
+                  <div class="flex-1" :style="{ height: Math.max(riskStateRows.length * 30, 160) + 'px' }">
+                    <StateBar v-if="riskStateRows.length" :data="riskStateRows" :labels="riskStateLabels" :colors="RISK_STATE_COLOR" item-word="ریسک" />
                     <p v-else class="py-10 text-center text-xs text-slate-400">{{ t('reports.no-risk-data') }}</p>
                   </div>
                 </section>
@@ -2309,7 +2034,7 @@ function goToRisk(slug?: string | null) {
                 {{ t('reports.domain-distribution') }}
               </h3>
               <div class="mt-3 h-[320px]">
-                <Radar v-if="domainRadarData" :data="domainRadarData" :options="radarOptions" />
+                <RadarChart v-if="domainRadar" :labels="domainRadar.labels" :series="domainRadar.series" />
               </div>
             </div>
 
@@ -2323,20 +2048,9 @@ function goToRisk(slug?: string | null) {
                 {{ Math.min(componentsInCapital.length, 12) }} / {{ componentsInCapital.length }} {{ t('reports.component-count') }}
               </p>
               <div :style="{ height: Math.max(Math.min(componentsInCapital.length, 12) * 32, 200) + 'px' }">
-                <Bar v-if="componentsInCapital.length" :data="componentBarData" :options="barOptionsHorizontal" />
+                <BarChart v-if="componentsInCapital.length" :labels="componentBars.labels" :series="componentBars.series" horizontal show-legend :max="100" tooltip-suffix=" / 100" />
               </div>
             </div>
-            <!-- TODO: capital maturity donut is temporarily disabled (its labels are maturity labels — decide later)
-            <div class="lg:col-span-5 rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-800">
-              <div class="mb-1 flex items-center gap-2">
-                <Lucide icon="PieChart" class="h-4 w-4 text-slate-400" />
-                <h3 class="text-sm font-semibold text-slate-900 dark:text-white">{{ t('reports.maturity-distribution') }}</h3>
-              </div>
-              <div class="h-[220px]">
-                <Doughnut v-if="capitalMaturityBuckets.length" :data="capitalMaturityDonutData" :options="donutOptions" />
-              </div>
-            </div>
-            -->
 
             <!-- TODO: gap analysis is temporarily disabled (a maturity-based concept — will live in the maturity dashboard)
             <div v-if="gapCapabilities.length" class="lg:col-span-12 rounded-xl border border-rose-100 bg-rose-50/40 p-5 dark:border-rose-900/30 dark:bg-rose-900/10">
@@ -2395,12 +2109,14 @@ function goToRisk(slug?: string | null) {
                 <div class="lg:col-span-5">
                   <h4 class="mb-2 text-xs font-medium text-slate-500 dark:text-slate-400">{{ t('reports.risks-by-level') }}</h4>
                   <div class="rounded-xl border border-slate-200/80 bg-white p-3.5 shadow-sm dark:border-slate-700 dark:bg-slate-800">
-                    <div v-if="capitalRiskLevelDonutData.labels.length" class="relative h-[220px]">
-                      <Doughnut :data="capitalRiskLevelDonutData" :options="riskDonutOptions" />
-                      <div class="pointer-events-none absolute inset-x-0 top-[38%] -translate-y-1/2 text-center">
-                        <p class="text-2xl font-extrabold text-slate-900 dark:text-white">{{ capitalRiskSummary.total }}</p>
-                        <p class="text-xs text-slate-500 dark:text-slate-400">{{ t('reports.risks') }}</p>
-                      </div>
+                    <div v-if="capitalRiskLevelDonutRows.length" class="h-[220px]">
+                      <DonutChart
+                        :data="capitalRiskLevelDonutRows"
+                        :labels="riskLevelLabels"
+                        :colors="RISK_LEVEL_COLOR"
+                        item-word="ریسک"
+                        :center-label="t('reports.risks')"
+                      />
                     </div>
                     <p v-else class="py-10 text-center text-xs text-slate-400">{{ t('reports.no-risk-data') }}</p>
                   </div>
@@ -2408,8 +2124,8 @@ function goToRisk(slug?: string | null) {
                 <div class="lg:col-span-7">
                   <h4 class="mb-2 text-xs font-medium text-slate-500 dark:text-slate-400">{{ t('reports.risks-by-state') }}</h4>
                   <div class="rounded-xl border border-slate-200/80 bg-white p-3.5 shadow-sm dark:border-slate-700 dark:bg-slate-800">
-                    <div :style="{ height: Math.max(capitalRiskStateBarData.labels.length * 30, 180) + 'px' }">
-                      <Bar v-if="capitalRiskStateBarData.labels.length" :data="capitalRiskStateBarData" :options="riskBarOptions" />
+                    <div :style="{ height: Math.max(capitalRiskStateRows.length * 30, 180) + 'px' }">
+                      <StateBar v-if="capitalRiskStateRows.length" :data="capitalRiskStateRows" :labels="riskStateLabels" :colors="RISK_STATE_COLOR" item-word="ریسک" />
                       <p v-else class="py-10 text-center text-xs text-slate-400">{{ t('reports.no-risk-data') }}</p>
                     </div>
                   </div>

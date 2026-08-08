@@ -301,6 +301,7 @@ function trendKey(tr: string): string {
             :labels="domainBars.labels"
             :series="domainBars.series"
             show-legend
+            zoom
             :max="100"
             tooltip-suffix=" / 100"
           />

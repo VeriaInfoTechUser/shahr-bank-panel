@@ -15,6 +15,7 @@ import {
   VisualMapComponent,
   TitleComponent,
   RadarComponent,
+  DataZoomComponent,
 } from "echarts/components"
 
 /**
@@ -35,6 +36,7 @@ use([
   VisualMapComponent,
   TitleComponent,
   RadarComponent,
+  DataZoomComponent,
 ])
 
 export const chartFont = "Vazirmatn, system-ui, sans-serif"

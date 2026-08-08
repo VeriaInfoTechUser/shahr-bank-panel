@@ -43,6 +43,10 @@ const props = withDefaults(
     truncateLabels?: number
     /** رنگ برچسب مقدار به ازای هر آیتم (اختیاری) */
     labelColors?: (string | null)[]
+    /** اسکرول و زوم محور دسته‌ها (dataZoom — اسلایدر + چرخ موس) */
+    zoom?: boolean
+    /** حداکثر دسته‌های قابل نمایش هم‌زمان وقتی zoom فعال است */
+    zoomLimit?: number
   }>(),
   {
     horizontal: false,
@@ -53,6 +57,8 @@ const props = withDefaults(
     axisSuffix: "",
     truncateLabels: undefined,
     labelColors: undefined,
+    zoom: false,
+    zoomLimit: 12,
   },
 )
 
@@ -70,8 +76,48 @@ const option = computed(() => {
       ? { width: props.truncateLabels, overflow: "truncate" as const }
       : {}),
   }
+
+  // ---------- dataZoom (اسکرول + زوم محور دسته‌ها) ----------
+  const zoomLimit = props.zoomLimit ?? 12
+  const zoomEnabled = !!props.zoom && props.labels.length > zoomLimit
+  const zoomEnd = Math.min(100, Math.max(15, Math.round((zoomLimit / Math.max(1, props.labels.length)) * 100)))
+  const zoomAxisIndex = props.horizontal ? 1 : 0
+  const zoomAxisKey = props.horizontal ? "yAxisIndex" : "xAxisIndex"
+  const dataZoom = zoomEnabled
+    ? [
+        {
+          type: "slider" as const,
+          [zoomAxisKey]: zoomAxisIndex,
+          start: 0,
+          end: zoomEnd,
+          height: props.horizontal ? undefined : 14,
+          width: props.horizontal ? 14 : undefined,
+          right: props.horizontal ? 0 : undefined,
+          bottom: props.horizontal ? undefined : 0,
+          borderColor: "transparent",
+          backgroundColor: "#f1f5f9",
+          fillerColor: "rgba(15, 118, 110, 0.15)",
+          moveHandleStyle: { color: "#0f766e", opacity: 0.2 },
+          handleStyle: { color: "#0f766e", borderColor: "#0f766e" },
+          textStyle: { color: "#64748b", fontFamily: chartFont, fontSize: 10 },
+        },
+        {
+          type: "inside" as const,
+          [zoomAxisKey]: zoomAxisIndex,
+          zoomOnMouseWheel: true,
+          moveOnMouseMove: true,
+        },
+      ]
+    : undefined
+
   return {
-    grid: { top: 16, right: 16, bottom: 8, left: 8, containLabel: true },
+    grid: {
+      top: 16,
+      right: zoomEnabled && props.horizontal ? 24 : 16,
+      bottom: zoomEnabled && !props.horizontal ? 40 : 8,
+      left: 8,
+      containLabel: true,
+    },
     tooltip: {
       trigger: "axis",
       axisPointer: { type: "shadow" },
@@ -87,11 +133,12 @@ const option = computed(() => {
     },
     legend: {
       show: props.showLegend,
-      bottom: 0,
+      bottom: zoomEnabled && !props.horizontal ? 24 : 0,
       textStyle: { color: "#334155", fontFamily: chartFont },
       itemWidth: 10,
       itemHeight: 10,
     },
+    dataZoom,
     xAxis: props.horizontal
       ? {
           type: "value",

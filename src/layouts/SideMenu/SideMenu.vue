@@ -127,7 +127,7 @@ onMounted(() => {
       >
         <!-- BEGIN: Sidebar Header (collapse toggle) -->
         <div
-          class="flex pt-3 px-3"
+          class="flex pt-2.5 px-2"
           :class="sidebarCollapsed ? 'justify-center' : 'justify-between'"
         >
           <button
@@ -145,7 +145,7 @@ onMounted(() => {
         <!-- BEGIN: Side Menu -->
         <nav
           :class="[
-            'side-nav flex-1 overflow-y-auto overflow-x-hidden px-3 pb-4',
+            'side-nav flex-1 overflow-y-auto overflow-x-hidden px-2 pb-3',
             sidebarCollapsed && 'side-nav--collapsed',
           ]"
         >
@@ -156,7 +156,7 @@ onMounted(() => {
                 v-if="menu == 'divider'"
                 type="li"
                 :class="[
-                  'side-nav__divider my-4',
+                  'side-nav__divider my-2.5',
                   // Animation
                   `opacity-0 animate-[0.4s_ease-in-out_0.1s_intro-divider] animate-fill-mode-forwards animate-delay-${
                     (menuKey + 1) * 10

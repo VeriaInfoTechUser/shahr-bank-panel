@@ -38,20 +38,20 @@
     transition: color 0.2s ease-in-out;
   }
   .side-menu__icon--root {
-    width: theme("spacing.9");
-    height: theme("spacing.9");
+    width: theme("spacing.8");
+    height: theme("spacing.8");
     border-radius: theme("borderRadius.lg");
     background-color: theme("colors.slate.100");
     svg {
-      width: theme("spacing.5");
-      height: theme("spacing.5");
+      width: 1.125rem;
+      height: 1.125rem;
     }
     @media (min-width: 1080px) {
-      width: theme("spacing.10");
-      height: theme("spacing.10");
+      width: theme("spacing.9");
+      height: theme("spacing.9");
       svg {
-        width: theme("spacing.6");
-        height: theme("spacing.6");
+        width: theme("spacing.5");
+        height: theme("spacing.5");
       }
     }
   }
@@ -78,23 +78,23 @@
     }
   }
   .side-menu {
-    height: 50px;
+    height: 44px;
     display: flex;
     align-items: center;
-    padding-right: theme("spacing.2");
+    padding-right: theme("spacing.1");
     @media (min-width: 1080px) {
-      padding-right: theme("spacing.3");
+      padding-right: theme("spacing.2");
     }
     color: theme("colors.slate.600");
-    margin-bottom: theme("spacing.1");
+    margin-bottom: 2px;
     position: relative;
     border-radius: theme("borderRadius.lg");
-    transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+    transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
     .side-menu__title {
       display: flex;
       align-items: center;
       width: 100%;
-      margin-right: theme("spacing.3");
+      margin-right: theme("spacing[2.5]");
       .side-menu__sub-icon {
         transition-property: theme("transitionProperty.DEFAULT");
         transition-timing-function: theme("transitionTimingFunction.in");
@@ -114,13 +114,25 @@
       /* First level */
       & > .side-menu {
         &.side-menu--active {
-          background-color: rgb(var(--color-primary));
+          background-image: linear-gradient(135deg, rgb(var(--color-primary)) 0%, rgb(var(--color-primary-hover)) 100%);
           color: white;
           z-index: 10;
-          box-shadow: 0 4px 10px -2px rgb(var(--color-primary) / 40%);
+          box-shadow: 0 6px 16px -6px rgb(var(--color-primary) / 50%);
+          &::before {
+            content: "";
+            position: absolute;
+            inset-inline-start: -2px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 4px;
+            height: 56%;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.92);
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+          }
           .side-menu__icon {
             color: white;
-            background-color: theme("colors.white" / 20%);
+            background-color: theme("colors.white" / 18%);
           }
           .side-menu__title {
             font-weight: theme("fontWeight.semibold");
@@ -144,7 +156,7 @@
         background-color: theme("colors.white" / 50%);
         border-radius: theme("borderRadius.lg");
         position: relative;
-        margin-inline: theme("spacing.3");
+        margin-inline: theme("spacing.2");
         &:before {
           content: "";
           display: block;
@@ -163,12 +175,23 @@
         & > li {
           /* Second level */
           & > .side-menu {
-            height: 46px;
+            height: 40px;
             padding-right: theme("spacing.1");
           &.side-menu--active {
             background-color: rgb(var(--color-primary) / 10%);
             color: rgb(var(--color-primary));
             box-shadow: none;
+            &::before {
+              content: "";
+              position: absolute;
+              inset-inline-start: -1px;
+              top: 50%;
+              transform: translateY(-50%);
+              width: 3px;
+              height: 45%;
+              border-radius: 999px;
+              background: rgb(var(--color-primary));
+            }
             .side-menu__title {
               font-weight: theme("fontWeight.semibold");
             }
@@ -212,11 +235,22 @@
             & > li {
               /* Third level */
               & > .side-menu {
-                height: 44px;
+                height: 38px;
                 padding-right: theme("spacing.1");
                 &.side-menu--active {
                   background-color: rgb(var(--color-primary) / 10%);
                   color: rgb(var(--color-primary));
+                  &::before {
+                    content: "";
+                    position: absolute;
+                    inset-inline-start: -1px;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    width: 3px;
+                    height: 45%;
+                    border-radius: 999px;
+                    background: rgb(var(--color-primary));
+                  }
                   .side-menu__title {
                     font-weight: theme("fontWeight.semibold");
                   }

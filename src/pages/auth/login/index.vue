@@ -38,10 +38,10 @@ const loginMutation = useMutation({
       } catch (err) {
         userStore.setLogout();
         if (err instanceof ApiError && err.code === 401) {
-          errorMessage.value = 'احراز هویت نامعتبر است.';
+          errorMessage.value = $t('title.auth.verifyInvalid');
           return;
         }
-        errorMessage.value = 'احراز هویت ناموفق بود.';
+        errorMessage.value = $t('title.auth.verifyFailed');
         return;
       }
 
@@ -53,7 +53,7 @@ const loginMutation = useMutation({
     }
   },
   onError: (err) => {
-    errorMessage.value = err.message || 'An error occurred while logging in.';
+    errorMessage.value = err.message || $t('title.auth.loginError');
   },
 });
 
@@ -68,6 +68,12 @@ const login = async (values) => {
     //
   }
 };
+
+const featureItems = [
+  { icon: 'ShieldCheck', label: 'title.auth.feature-risk' },
+  { icon: 'Leaf', label: 'title.auth.feature-sustainability' },
+  { icon: 'Activity', label: 'title.auth.feature-resilience' },
+];
 </script>
 
 <template>
@@ -79,46 +85,65 @@ const login = async (values) => {
     <div class="login-orb login-orb--two" aria-hidden="true"></div>
     <div class="login-orb login-orb--three" aria-hidden="true"></div>
 
-    <div class="w-full max-w-6xl flex flex-col xl:flex-row xl:items-center xl:gap-12 relative z-10">
-      <!-- Left: Branding -->
-      <div class="hidden xl:flex xl:flex-1 flex-col justify-center items-start gap-6">
+    <div class="w-full max-w-6xl flex flex-col lg:flex-row lg:items-center lg:gap-12 relative z-10">
+      <!-- Left: Branding panel (lg and up) -->
+      <div class="hidden lg:flex lg:flex-1 flex-col justify-center items-start gap-7">
         <div class="login-logo-badge flex items-center justify-center rounded-3xl p-6">
           <img
               :alt="$t('title.logo-alt')"
-              class="w-40 h-40 object-contain drop-shadow-lg"
+              class="w-32 h-32 object-contain drop-shadow-lg"
               :src="logoUrl"
           />
         </div>
         <div>
-          <h1 class="text-3xl font-bold text-slate-900 dark:text-white">
-            سامانه یکپارچه پایداری، مدیریت ریسک و تاب آوری
+          <h1 class="text-xl font-extrabold text-primary dark:text-white leading-snug">
+            {{ $t('title.panel-title') }}
           </h1>
-          <p class="mt-3 max-w-md text-slate-600 dark:text-slate-300 leading-relaxed">
-            مدیریت یکپارچه پایداری، شناسایی و پایش ریسک‌ها و ارتقای تاب‌آوری سازمانی در یک پلتفرم امن.
-          </p>
         </div>
+        <ul class="space-y-3">
+          <li
+              v-for="item in featureItems"
+              :key="item.label"
+              class="flex items-center gap-3"
+          >
+            <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary-muted text-primary">
+              <Lucide :icon="item.icon" class="h-4.5 w-4.5" />
+            </span>
+            <span class="text-sm font-medium text-slate-700 dark:text-slate-200">{{ $t(item.label) }}</span>
+          </li>
+        </ul>
       </div>
 
-      <!-- Right: Login form (glassmorphism card) -->
+      <!-- Right: Login form card -->
       <div class="flex-1 flex items-center justify-center">
         <div class="w-full max-w-md">
-          <div class="xl:hidden flex flex-col items-center gap-3 mb-6">
+          <!-- Compact branding below lg -->
+          <div class="lg:hidden flex flex-col items-center gap-4 mb-8 text-center">
             <div class="login-logo-badge flex items-center justify-center rounded-2xl p-4">
-              <img :alt="$t('title.logo-alt')" class="w-24 h-24 object-contain drop-shadow-lg" :src="logoUrl" />
+              <img :alt="$t('title.logo-alt')" class="w-20 h-20 object-contain drop-shadow-lg" :src="logoUrl" />
             </div>
-            <h1 class="text-lg font-bold text-slate-900 dark:text-white text-center">
-              سامانه یکپارچه پایداری، مدیریت ریسک و تاب آوری
-            </h1>
+            <div>
+              <h1 class="text-lg font-extrabold text-slate-900 dark:text-white leading-snug">
+                {{ $t('title.panel-title') }}
+              </h1>
+              <p class="mt-2 max-w-md text-xs sm:text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+                {{ $t('title.auth.heroDescription') }}
+              </p>
+            </div>
           </div>
 
-          <div class="login-glass-card rounded-2xl p-8">
-            <h2 class="text-xl font-semibold text-slate-900 dark:text-white mb-6">
-              ورود به پنل
+          <div class="login-card rounded-xl border border-slate-200/80 bg-white p-8 shadow-sm dark:border-slate-700/60 dark:bg-darkmode-800">
+            <h2 class="text-xl font-extrabold text-slate-900 dark:text-white">
+              {{ $t('title.auth.loginTitle') }}
             </h2>
+            <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">
+              {{ $t('title.auth.loginDescription') }}
+            </p>
 
             <div
                 v-if="errorMessage"
-                class="mb-4 p-4 rounded-lg bg-danger/15 border border-danger/30 text-danger text-sm backdrop-blur-sm"
+                class="mt-4 p-4 rounded-xl bg-danger/15 border border-danger/30 text-danger text-sm backdrop-blur-sm"
+                role="alert"
             >
               {{ errorMessage }}
             </div>
@@ -127,7 +152,7 @@ const login = async (values) => {
                 :validation-schema="validationSchema"
                 @submit="login"
                 v-slot="{ isSubmitting }"
-                class="space-y-4"
+                class="mt-6 space-y-5"
             >
               <Field name="identity" v-slot="{ field, errors }">
                 <label class="block mb-2 text-sm font-medium text-slate-700 dark:text-slate-200" dir="rtl">
@@ -136,9 +161,9 @@ const login = async (values) => {
                 <FormInput
                     v-bind="field"
                     type="text"
-                    class="login-glass-input block w-full px-4 py-3 rounded-lg transition-colors"
+                    class="login-input block w-full px-4 rounded-lg border-slate-300 dark:border-slate-600"
                     dir="ltr"
-                    :class="{ 'border-danger': errors.length > 0 }"
+                    :class="{ 'border-danger focus:border-danger': errors.length > 0 }"
                     :placeholder="$t('input.username')"
                 />
                 <FormErrorMessage name="identity" />
@@ -151,25 +176,25 @@ const login = async (values) => {
                 <FormInput
                     v-bind="field"
                     type="password"
-                    class="login-glass-input block w-full px-4 py-3 rounded-lg transition-colors"
+                    class="login-input block w-full px-4 rounded-lg border-slate-300 dark:border-slate-600"
                     dir="ltr"
-                    :class="{ 'border-danger': errors.length > 0 }"
+                    :class="{ 'border-danger focus:border-danger': errors.length > 0 }"
                     :placeholder="$t('input.password')"
                 />
                 <FormErrorMessage name="credential" />
               </Field>
 
-              <div class="pt-2">
+              <div class="pt-1">
                 <Button
                     v-if="!loginMutation.isLoading.value && !isSubmitting"
                     variant="primary"
-                    class="w-full py-3 rounded-lg font-medium login-glass-btn"
+                    class="w-full !h-12 rounded-lg font-semibold"
                     type="submit"
                 >
                   {{ $t('button.login') }}
                   <Lucide icon="ArrowLeft" class="inline-block ms-2 h-4 w-4" />
                 </Button>
-                <free-style-shimmer v-else width="100%" height="44px" class="rounded-lg" />
+                <free-style-shimmer v-else width="100%" height="48px" class="rounded-lg" />
               </div>
             </Form>
           </div>
@@ -181,75 +206,53 @@ const login = async (values) => {
 
 <style scoped>
 .login-page-bg {
-  background: linear-gradient(135deg, #e0e7ff 0%, #f1f5f9 45%, #cffafe 100%);
+  background: linear-gradient(135deg, #f0fdfa 0%, #f8fafc 45%, #ecfeff 100%);
 }
 .dark .login-page-bg {
-  background: linear-gradient(135deg, #0b1220 0%, #111827 45%, #0f172a 100%);
+  background: linear-gradient(135deg, #0b1220 0%, #0f172a 45%, #134e4a 100%);
 }
 
-/* Glass card */
-.login-glass-card {
-  background: rgba(255, 255, 255, 0.45);
-  backdrop-filter: blur(18px) saturate(160%);
-  -webkit-backdrop-filter: blur(18px) saturate(160%);
-  border: 1px solid rgba(255, 255, 255, 0.6);
-  box-shadow: 0 8px 32px rgba(15, 23, 42, 0.18);
+/* Card — matches dashboard cards (bg-surface, slate border, shadow-sm) */
+.login-card {
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  box-shadow: 0 8px 32px rgba(15, 23, 42, 0.1);
 }
-.dark .login-glass-card {
-  background: rgba(30, 41, 59, 0.45);
-  border: 1px solid rgba(148, 163, 184, 0.18);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
-}
-
-/* Glass logo badge */
-.login-logo-badge {
-  background: rgba(255, 255, 255, 0.4);
-  backdrop-filter: blur(14px) saturate(150%);
-  -webkit-backdrop-filter: blur(14px) saturate(150%);
-  border: 1px solid rgba(255, 255, 255, 0.55);
-  box-shadow: 0 8px 32px rgba(15, 23, 42, 0.15);
-}
-.dark .login-logo-badge {
-  background: rgba(30, 41, 59, 0.4);
-  border: 1px solid rgba(148, 163, 184, 0.18);
+.dark .login-card {
+  background: rgba(27, 37, 59, 0.9);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
 }
 
-/* Glass inputs */
-.login-glass-input {
-  background: rgba(255, 255, 255, 0.55) !important;
-  border: 1px solid rgba(255, 255, 255, 0.7) !important;
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
+/* Logo badge — primary-muted tint (dashboard header style) */
+.login-logo-badge {
+  background: rgba(204, 251, 241, 0.6);
+  backdrop-filter: blur(14px) saturate(150%);
+  -webkit-backdrop-filter: blur(14px) saturate(150%);
+  border: 1px solid rgba(153, 246, 228, 0.8);
+  box-shadow: 0 8px 32px rgba(15, 118, 110, 0.12);
 }
-.login-glass-input:focus {
-  box-shadow: 0 0 0 2px rgba(15, 23, 42, 0.18);
-  border-color: rgba(148, 163, 184, 0.9) !important;
-}
-.dark .login-glass-input {
-  background: rgba(15, 23, 42, 0.45) !important;
-  border: 1px solid rgba(148, 163, 184, 0.25) !important;
-  color: #e2e8f0;
+.dark .login-logo-badge {
+  background: rgba(45, 212, 191, 0.1);
+  border: 1px solid rgba(45, 212, 191, 0.25);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
 }
 
-/* Glass button */
-.login-glass-btn {
-  background: rgba(15, 23, 42, 0.85);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
-  color: #fff;
+/* Inputs — solid surface with teal focus ring (FormInput base) */
+.login-input {
+  height: 3rem !important;
+  background: #fff;
 }
-.login-glass-btn:hover {
-  background: rgba(15, 23, 42, 0.95);
+.dark .login-input {
+  background: #0f172a;
 }
 
-/* Decorative blurred orbs */
+/* Decorative blurred orbs — brand palette (teal / cyan) */
 .login-orb {
   position: absolute;
   border-radius: 9999px;
   filter: blur(80px);
-  opacity: 0.55;
+  opacity: 0.5;
   pointer-events: none;
 }
 .login-orb--one {
@@ -257,7 +260,7 @@ const login = async (values) => {
   height: 26rem;
   top: -6rem;
   inset-inline-start: -6rem;
-  background: #6366f1;
+  background: #0f766e;
 }
 .login-orb--two {
   width: 22rem;
@@ -271,7 +274,7 @@ const login = async (values) => {
   height: 18rem;
   top: 40%;
   inset-inline-end: 30%;
-  background: #38bdf8;
-  opacity: 0.35;
+  background: #2dd4bf;
+  opacity: 0.3;
 }
 </style>

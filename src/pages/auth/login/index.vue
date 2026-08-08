@@ -78,7 +78,7 @@ const featureItems = [
 
 <template>
   <div
-      class="login-page-bg min-h-screen flex items-center justify-center -m-3 sm:-mx-8 p-3 sm:px-8 relative overflow-hidden"
+      class="login-page-bg min-h-screen flex items-center justify-center -mx-3 sm:-mx-8 p-3 sm:px-8 relative overflow-hidden"
   >
     <!-- Decorative blurred color orbs behind the glass -->
     <div class="login-orb login-orb--one" aria-hidden="true"></div>

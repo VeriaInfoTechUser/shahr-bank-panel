@@ -259,6 +259,28 @@ export const useSideMenuStore = defineStore("sideMenu", {
                 ],
             },
             {
+                icon: "TrendingUp",
+                pageName: "app-maturity",
+                title: "menu.maturity",
+                subMenu: [
+                    {
+                        icon: "LayoutDashboard",
+                        pageName: "app-maturity-dashboard",
+                        title: "menu.maturity-dashboard",
+                    },
+                    {
+                        icon: "ListChecks",
+                        pageName: "app-maturity-capabilities",
+                        title: "menu.maturity-capabilities",
+                    },
+                    {
+                        icon: "FileText",
+                        pageName: "app-maturity-report",
+                        title: "menu.maturity-report",
+                    },
+                ],
+            },
+            {
                 icon: "FileBarChart",
                 pageName: "app-reports",
                 title: "menu.reports",

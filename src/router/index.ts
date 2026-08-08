@@ -73,6 +73,10 @@ import ReportsComparativeDetail from "@/pages/app/reports/comparative/detail/ind
 import ReportsComparativeDashboard from "@/pages/app/reports/comparative/dashboard/index.vue";
 import ReportsSustainabilityDashboard from "@/pages/app/reports/sustainability/dashboard/index.vue";
 import ReportsSustainabilityReport from "@/pages/app/reports/sustainability/report/index.vue";
+import MaturityDashboard from "@/pages/app/maturity/dashboard/index.vue";
+import MaturityCapabilities from "@/pages/app/maturity/capabilities/index.vue";
+import MaturityCapabilityDetail from "@/pages/app/maturity/capabilities/detail/index.vue";
+import MaturityReport from "@/pages/app/maturity/report/index.vue";
 import DataEntry from "@/pages/app/data/entry/index.vue";
 import DataRaw from "@/pages/app/data/raw/index.vue";
 import DataLog from "@/pages/app/data/log/index.vue";
@@ -619,6 +623,46 @@ const routes = [
                                 name: "app-sustainability-data-source",
                                 component: SustainabilityDataSource,
                                 meta: { breadcrumbLabel: 'menu.sustainability-data-source' },
+                            },
+                        ],
+                    },
+                    {
+                        path: "maturity",
+                        name: "app-maturity",
+                        redirect: { name: "app-maturity-dashboard" },
+                        meta: { breadcrumbLabel: 'menu.maturity' },
+                        children: [
+                            {
+                                path: "dashboard",
+                                name: "app-maturity-dashboard",
+                                component: MaturityDashboard,
+                                meta: { breadcrumbLabel: 'menu.maturity-dashboard' },
+                            },
+                            {
+                                path: "capabilities",
+                                name: "app-maturity-capabilities",
+                                component: MaturityCapabilities,
+                                meta: { breadcrumbLabel: 'menu.maturity-capabilities' },
+                            },
+                            {
+                                path: "capabilities/:slug",
+                                name: "app-maturity-capability-detail",
+                                component: MaturityCapabilityDetail,
+                                meta: {
+                                    breadcrumbLabel: 'maturity.detail-title',
+                                    breadcrumbPrefix: [
+                                        {
+                                            routeName: 'app-maturity-capabilities',
+                                            labelKey: 'menu.maturity-capabilities',
+                                        },
+                                    ],
+                                },
+                            },
+                            {
+                                path: "report",
+                                name: "app-maturity-report",
+                                component: MaturityReport,
+                                meta: { breadcrumbLabel: 'menu.maturity-report' },
                             },
                         ],
                     },

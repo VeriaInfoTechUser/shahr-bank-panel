@@ -23,8 +23,20 @@ import {
   IconListCheck,
   IconGauge,
   IconCalendarExclamation,
+  IconChartDonut,
+  IconGitBranch,
+  IconChartHistogram,
+  IconChartBar,
+  IconGrid3x3,
+  IconChartDots,
+  IconChartScatter,
+  IconStack2,
+  IconUser,
+  IconUsers,
+  IconActivity,
 } from "@tabler/icons-vue"
 
+import { theme } from "@/config/theme"
 import { ermRepo } from "@/core/repositories/ermRepo"
 import { fetchMemberLightListCached } from "@/core/erm/ruleAuthorTypeOptionsCache"
 
@@ -81,21 +93,21 @@ const overdueCount = computed(() => props.data.overdueTasks.length)
           label="کل برنامه‌ها"
           :value="summary.totalPlans"
           :icon="IconClipboardCheck"
-          accent="#38bdf8"
+          :accent="theme.status.done"
           :hint="`${toFa(summary.totalTasks)} وظیفه`"
         />
         <StatCard
           label="کل وظایف"
           :value="summary.totalTasks"
           :icon="IconListCheck"
-          accent="#2dd4bf"
+          :accent="theme.status.monitoring"
           hint="در همه برنامه‌ها"
         />
         <StatCard
           label="امتیاز کلی تطبیق"
           :value="Math.round(summary.overallScore * 10) / 10"
           :icon="IconGauge"
-          accent="#34d399"
+          :accent="theme.status.low"
           suffix="٪"
           :hint="`نرخ تکمیل ${toFa(Math.round(summary.completionRate))}٪`"
         />
@@ -103,20 +115,20 @@ const overdueCount = computed(() => props.data.overdueTasks.length)
           label="وظایف دارای تأخیر"
           :value="overdueCount"
           :icon="IconCalendarExclamation"
-          accent="#fb923c"
+          :accent="theme.status.high"
           hint="مهلت سپری‌شده"
         />
       </div>
 
       <!-- distributions -->
       <div class="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-3">
-        <DashboardCard title="وضعیت تطبیق وظایف" subtitle="تفکیک پاسخ‌های ارزیابی">
+        <DashboardCard title="وضعیت تطبیق وظایف" subtitle="تفکیک پاسخ‌های ارزیابی" :icon="IconChartDonut">
           <AnswerDonut :data="summary.tasksByAnswer" />
         </DashboardCard>
-        <DashboardCard title="وضعیت چرخه کاری" subtitle="تعداد وظیفه در هر وضعیت">
+        <DashboardCard title="وضعیت چرخه کاری" subtitle="تعداد وظیفه در هر وضعیت" :icon="IconGitBranch">
           <StateBar :data="summary.tasksByState" />
         </DashboardCard>
-        <DashboardCard title="توزیع امتیاز تطبیق" subtitle="بازه‌بندی امتیاز وظایف">
+        <DashboardCard title="توزیع امتیاز تطبیق" subtitle="بازه‌بندی امتیاز وظایف" :icon="IconChartHistogram">
           <ScoreHistogram :data="data.scoreDistribution" />
         </DashboardCard>
       </div>
@@ -127,10 +139,11 @@ const overdueCount = computed(() => props.data.overdueTasks.length)
           class="lg:col-span-3"
           title="مقایسه چارچوب‌ها"
           subtitle="میانگین امتیاز در برابر نرخ تطبیق"
+          :icon="IconChartBar"
         >
           <FrameworkScores :data="data.frameworkCompliance" />
         </DashboardCard>
-        <DashboardCard class="lg:col-span-2" title="نقشه حرارتی چارچوب‌ها" subtitle="پراکندگی پاسخ‌ها در هر چارچوب">
+        <DashboardCard class="lg:col-span-2" title="نقشه حرارتی چارچوب‌ها" subtitle="پراکندگی پاسخ‌ها در هر چارچوب" :icon="IconGrid3x3">
           <FrameworkHeatmap :heatmap="data.frameworkHeatmap" />
         </DashboardCard>
       </div>
@@ -141,6 +154,7 @@ const overdueCount = computed(() => props.data.overdueTasks.length)
           class="lg:col-span-3"
           title="تطبیق بر اساس دامنه کنترلی"
           subtitle="ترکیب پاسخ‌ها در هر دامنه"
+          :icon="IconChartDots"
         >
           <DomainStacked :data="data.domainCompliance" />
         </DashboardCard>
@@ -148,6 +162,7 @@ const overdueCount = computed(() => props.data.overdueTasks.length)
           class="lg:col-span-2"
           title="موقعیت برنامه‌ها"
           subtitle="نرخ تکمیل × میانگین امتیاز (اندازه: تعداد وظایف)"
+          :icon="IconChartScatter"
         >
           <PlanScatter :data="data.topPlans" />
         </DashboardCard>
@@ -159,29 +174,30 @@ const overdueCount = computed(() => props.data.overdueTasks.length)
           class="lg:col-span-3"
           title="ترکیب وضعیت وظایف برنامه‌ها"
           subtitle="تفکیک وضعیت کاری وظایف هر برنامه"
+          :icon="IconStack2"
         >
           <PlanTaskStates :data="data.topPlans" />
         </DashboardCard>
-        <DashboardCard class="lg:col-span-2" title="عملکرد مالکان برنامه" subtitle="میانگین نرخ تکمیل">
+        <DashboardCard class="lg:col-span-2" title="عملکرد مالکان برنامه" subtitle="میانگین نرخ تکمیل" :icon="IconUser">
           <OwnerPanel :data="data.ownerDistribution" :member-names="memberNames" />
         </DashboardCard>
       </div>
 
       <!-- assignees -->
       <div class="mt-4 grid grid-cols-1 gap-4">
-        <DashboardCard title="بار کاری مسئولان وظایف" subtitle="تعداد وظایف و میانگین امتیاز هر مسئول">
+        <DashboardCard title="بار کاری مسئولان وظایف" subtitle="تعداد وظایف و میانگین امتیاز هر مسئول" :icon="IconUsers">
           <AssigneePanel :data="data.assigneeDistribution" :member-names="memberNames" />
         </DashboardCard>
       </div>
 
       <!-- overdue + recent -->
       <div class="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <DashboardCard title="وظایف دارای تأخیر" :subtitle="`${toFa(overdueCount)} مورد`">
+        <DashboardCard title="وظایف دارای تأخیر" :subtitle="`${toFa(overdueCount)} مورد`" :icon="IconCalendarExclamation">
           <div class="max-h-96 overflow-y-auto pl-1">
             <TaskList :items="data.overdueTasks" show-deadline show-framework :member-names="memberNames" />
           </div>
         </DashboardCard>
-        <DashboardCard title="فعالیت‌های اخیر" subtitle="آخرین تغییرات وظایف">
+        <DashboardCard title="فعالیت‌های اخیر" subtitle="آخرین تغییرات وظایف" :icon="IconActivity">
           <div class="max-h-96 overflow-y-auto pl-1">
             <TaskList :items="data.recentActivity" show-framework :member-names="memberNames" />
           </div>

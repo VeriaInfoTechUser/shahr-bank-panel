@@ -1,3 +1,4 @@
+import { theme } from "@/config/theme"
 import type { ComplianceAnswer, TaskState } from "./types"
 
 export const answerLabels: Record<ComplianceAnswer, string> = {
@@ -15,21 +16,21 @@ export const stateLabels: Record<TaskState, string> = {
   rejected: "ردشده",
 }
 
-/** رنگ متناظر هر پاسخ تطبیق */
+/** رنگ متناظر هر پاسخ تطبیق — از تم مرکزی (src/config/theme.ts) */
 export const answerColors: Record<ComplianceAnswer, string> = {
-  compliant: "#34d399",
-  partially_compliant: "#facc15",
-  non_compliant: "#f43f5e",
-  not_started: "#94a3b8",
+  compliant: theme.status.low,
+  partially_compliant: theme.status.medium,
+  non_compliant: theme.status.critical,
+  not_started: theme.status.draft,
 }
 
-/** رنگ متناظر هر وضعیت کاری */
+/** رنگ متناظر هر وضعیت کاری — از تم مرکزی */
 export const stateColors: Record<TaskState, string> = {
-  todo: "#94a3b8",
-  in_progress: "#60a5fa",
-  done: "#2dd4bf",
-  approved: "#34d399",
-  rejected: "#f43f5e",
+  todo: theme.status.draft,
+  in_progress: theme.status.registered,
+  done: theme.status.monitoring,
+  approved: theme.status.low,
+  rejected: theme.status.critical,
 }
 
 /** ترتیب نمایش پاسخ‌ها (از بهترین تا بدترین) */

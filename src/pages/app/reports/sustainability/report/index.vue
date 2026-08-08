@@ -3,6 +3,7 @@ import { computed, nextTick, ref, watch } from 'vue'
 import html2canvas from 'html2canvas'
 import { jsPDF } from 'jspdf'
 import Lucide from '@/base-components/Lucide'
+import { theme } from '@/config/theme'
 import { reportRepo } from '@/core/repositories/reportRepo'
 import PeriodSelectPanel from '@/components/PeriodSelectPanel.vue'
 
@@ -242,11 +243,11 @@ const RISK_LEVEL_LABEL: Record<string, string> = {
   unknown: 'نامشخص',
 }
 const RISK_LEVEL_COLOR: Record<string, string> = {
-  critical: '#dc2626',
-  high: '#f97316',
-  medium: '#f59e0b',
-  low: '#16a34a',
-  unknown: '#94a3b8',
+  critical: theme.status.critical,
+  high: theme.status.high,
+  medium: theme.status.medium,
+  low: theme.status.low,
+  unknown: theme.status.draft,
 }
 const RISK_STATE_LABEL: Record<string, string> = {
   draft: 'پیش‌نویس',
@@ -259,14 +260,14 @@ const RISK_STATE_LABEL: Record<string, string> = {
   unknown: 'نامشخص',
 }
 const RISK_STATE_COLOR: Record<string, string> = {
-  draft: '#94a3b8',
-  registered: '#6366f1',
-  analysis: '#0ea5e9',
-  response: '#f59e0b',
-  monitoring: '#8b5cf6',
-  closed: '#16a34a',
-  archived: '#64748b',
-  unknown: '#94a3b8',
+  draft: theme.status.draft,
+  registered: theme.status.registered,
+  analysis: theme.status.analysis,
+  response: theme.status.response,
+  monitoring: theme.status.monitoring,
+  closed: theme.status.closed,
+  archived: theme.status.archived,
+  unknown: theme.status.draft,
 }
 const RISK_TYPE_LABEL: Record<string, string> = {
   threat: 'تهدید',
@@ -1248,12 +1249,12 @@ async function downloadPDF() {
           <div class="kpi-grid">
             <div class="kpi-card">
               <div class="kpi-label">امتیاز میانگین</div>
-              <div class="kpi-value" style="color:#0B5C43">{{ fmtScore(summary?.avgScore) }}</div>
+              <div class="kpi-value" style="color: rgb(var(--color-primary))">{{ fmtScore(summary?.avgScore) }}</div>
               <div class="kpi-sub">از ۱۰۰</div>
             </div>
             <div class="kpi-card">
               <div class="kpi-label">تکمیل داده</div>
-              <div class="kpi-value" style="color:#0B5C43">{{ fmtScore(summary?.dataCompletion) }}٪</div>
+              <div class="kpi-value" style="color: rgb(var(--color-primary))">{{ fmtScore(summary?.dataCompletion) }}٪</div>
               <div class="kpi-sub">{{ faNum(summary?.indicatorsWithData) }} از {{ faNum(summary?.indicators) }} شاخص</div>
             </div>
             <div class="kpi-card">
@@ -1286,7 +1287,7 @@ async function downloadPDF() {
             <div class="tb-bg">
               <div
                   class="tb-fill"
-                  :style="{ width: pctWidth(summary?.targetsMet, summary?.targetsTotal), background: '#0B5C43' }"
+                  :style="{ width: pctWidth(summary?.targetsMet, summary?.targetsTotal), background: theme.colors.light.primary }"
               />
             </div>
           </div>
@@ -1345,14 +1346,14 @@ async function downloadPDF() {
           </div>
           <div class="gov-bands">
             <div class="gov-band">
-              <Lucide icon="Target" class="w-5 h-5 gb-icon" :style="{ color: '#0B5C43' }" />
+              <Lucide icon="Target" class="w-5 h-5 gb-icon" :style="{ color: theme.colors.light.primary }" />
               <div>
                 <div class="gb-title">راهبرد و نظارت</div>
                 <div class="gb-text">شفافیت، پاسخگویی و نظارت مستمر بر موضوعات پایداری در سطح هیئت‌مدیره</div>
               </div>
             </div>
             <div class="gov-band">
-              <Lucide icon="Scale" class="w-5 h-5 gb-icon" :style="{ color: '#0B5C43' }" />
+              <Lucide icon="Scale" class="w-5 h-5 gb-icon" :style="{ color: theme.colors.light.primary }" />
               <div>
                 <div class="gb-title">اخلاق و تطبیق</div>
                 <div class="gb-text">رعایت الزامات قانونی، استانداردهای رفتاری و مدیریت مسئولانه ریسک</div>
@@ -1435,7 +1436,7 @@ async function downloadPDF() {
                   <div class="cq-lbl">با داده</div>
                 </div>
                 <div v-if="dataPct(capitalsByKey[pg.key]) != null" class="cq-item cq-compl">
-                  <div class="cq-num" :style="{ color: '#0B5C43' }">{{ faNum(dataPct(capitalsByKey[pg.key])) }}٪</div>
+                  <div class="cq-num" :style="{ color: theme.colors.light.primary }">{{ faNum(dataPct(capitalsByKey[pg.key])) }}٪</div>
                   <div class="cq-lbl">تکمیل داده</div>
                   <div class="cq-mini-bar">
                     <div
@@ -1793,13 +1794,15 @@ async function downloadPDF() {
   display: flex;
   align-items: center;
   gap: 14px;
-  padding: 12px 24px;
-  background: #fff;
-  border-bottom: 1px solid #e5e5e5;
+  padding: 10px 22px;
+  background: rgba(255, 255, 255, 0.92);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid #e2e8f0;
   position: sticky;
   top: 0;
   z-index: 100;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
 }
 .seg {
   display: inline-flex;
@@ -1822,7 +1825,7 @@ async function downloadPDF() {
 }
 .seg button.active {
   background: #fff;
-  color: #0B5C43;
+  color: rgb(var(--color-primary));
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   font-weight: 700;
 }
@@ -1830,7 +1833,7 @@ async function downloadPDF() {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  background: #0B5C43;
+  background: rgb(var(--color-primary));
   color: #fff;
   border: none;
   border-radius: 8px;
@@ -1841,7 +1844,7 @@ async function downloadPDF() {
   cursor: pointer;
   transition: background 0.2s, opacity 0.2s;
 }
-.download-btn:hover:not(:disabled) { background: #085041; }
+.download-btn:hover:not(:disabled) { background: rgb(var(--color-primary-hover)); }
 .download-btn:disabled { opacity: 0.7; cursor: not-allowed; }
 .progress-bar-wrap {
   flex: 1;
@@ -1853,7 +1856,7 @@ async function downloadPDF() {
 }
 .progress-bar-fill {
   height: 100%;
-  background: #10B981;
+  background: rgb(var(--color-primary));
   border-radius: 3px;
   transition: width 0.3s;
 }
@@ -1864,38 +1867,37 @@ async function downloadPDF() {
 /* ---------------- report setup (filter panel) ---------------- */
 .report-setup {
   min-height: 100vh;
-  background: linear-gradient(180deg, #f3f6f4 0%, #e9eeeb 100%);
+  background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
   padding: 44px 16px;
 }
 .setup-card {
   width: 100%;
-  max-width: 620px;
+  max-width: 640px;
   margin: 0 auto;
   background: #fff;
   border: 1px solid #e2e8f0;
-  border-radius: 18px;
-  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.1);
-  padding: 28px 30px;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px -1px rgba(15, 23, 42, 0.05), 0 2px 4px -2px rgba(15, 23, 42, 0.05);
+  padding: 24px 26px;
 }
 .setup-head {
   display: flex;
   align-items: center;
-  gap: 14px;
-  padding-bottom: 18px;
+  gap: 13px;
+  padding-bottom: 16px;
   border-bottom: 1px solid #f1f5f9;
-  margin-bottom: 22px;
+  margin-bottom: 20px;
 }
 .setup-badge {
-  width: 46px;
-  height: 46px;
+  width: 42px;
+  height: 42px;
   flex: none;
-  border-radius: 13px;
-  background: linear-gradient(160deg, #064E3B, #0B5C43);
-  color: #fff;
+  border-radius: 10px;
+  background: rgb(var(--color-primary-muted));
+  color: rgb(var(--color-primary));
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 8px 18px rgba(11, 92, 67, 0.3);
 }
 .setup-title { font-size: 17px; font-weight: 800; color: #0f172a; }
 .setup-sub { font-size: 11.5px; color: #94a3b8; margin-top: 3px; }
@@ -1933,7 +1935,7 @@ async function downloadPDF() {
   transition: all 0.15s;
 }
 .year-chip:hover { background: #f8fafc; }
-.year-chip.active { border-color: #a7d4c2; background: #eef7f2; color: #0B5C43; font-weight: 700; }
+.year-chip.active { border-color: rgb(var(--color-primary) / 0.4); background: rgb(var(--color-primary-muted)); color: rgb(var(--color-primary)); font-weight: 700; }
 .year-nav {
   display: inline-flex;
   height: 28px;
@@ -1961,7 +1963,7 @@ async function downloadPDF() {
   cursor: pointer;
   transition: background 0.2s;
 }
-.toggle.on { background: #0B5C43; }
+.toggle.on { background: rgb(var(--color-primary)); }
 .toggle-knob {
   position: absolute;
   right: 3px;
@@ -1990,7 +1992,7 @@ async function downloadPDF() {
   transition: all 0.15s;
 }
 .compare-prev:hover { background: #f8fafc; }
-.compare-prev.active { border-color: #a7d4c2; background: #eef7f2; color: #0B5C43; font-weight: 700; }
+.compare-prev.active { border-color: rgb(var(--color-primary) / 0.4); background: rgb(var(--color-primary-muted)); color: rgb(var(--color-primary)); font-weight: 700; }
 .setup-empty {
   display: flex;
   min-height: 88px;
@@ -2010,13 +2012,13 @@ async function downloadPDF() {
   gap: 4px;
   margin-bottom: 8px;
   border-radius: 8px;
-  background: #eef7f2;
-  border: 1px solid #d7ebe0;
+  background: rgb(var(--color-primary-muted));
+  border: 1px solid rgb(var(--color-primary) / 0.3);
   padding: 7px 10px;
   font-size: 11px;
-  color: #0B5C43;
+  color: rgb(var(--color-primary));
 }
-.setup-note svg { color: #2d9d74; }
+.setup-note svg { color: rgb(var(--color-primary)); }
 .setup-error {
   display: flex;
   align-items: center;
@@ -2042,8 +2044,8 @@ async function downloadPDF() {
 .ss-type {
   margin-left: auto;
   border-radius: 999px;
-  background: #eef7f2;
-  color: #0B5C43;
+  background: rgb(var(--color-primary-muted));
+  color: rgb(var(--color-primary));
   font-size: 10px;
   font-weight: 700;
   padding: 2px 9px;
@@ -2056,26 +2058,26 @@ async function downloadPDF() {
   gap: 8px;
   margin-top: 16px;
   border: none;
-  border-radius: 11px;
-  background: #0B5C43;
+  border-radius: 10px;
+  background: rgb(var(--color-primary));
   color: #fff;
   padding: 12px;
   font-size: 13px;
   font-weight: 700;
   cursor: pointer;
   transition: background 0.2s, opacity 0.2s, transform 0.1s;
-  box-shadow: 0 10px 24px rgba(11, 92, 67, 0.28);
+  box-shadow: 0 8px 20px rgba(15, 118, 110, 0.25);
 }
-.setup-generate:hover:not(:disabled) { background: #085041; }
+.setup-generate:hover:not(:disabled) { background: rgb(var(--color-primary-hover)); }
 .setup-generate:active:not(:disabled) { transform: translateY(1px); }
 .setup-generate:disabled { opacity: 0.55; cursor: not-allowed; box-shadow: none; }
 .download-btn.secondary {
   background: #fff;
-  color: #0B5C43;
-  border: 1px solid #c9dcd3;
+  color: rgb(var(--color-primary));
+  border: 1px solid #cbd5e1;
   box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
 }
-.download-btn.secondary:hover:not(:disabled) { background: #f4faf7; }
+.download-btn.secondary:hover:not(:disabled) { background: #f8fafc; }
 
 /* ---------------- wrapper + page ---------------- */
 .report-wrapper {
@@ -2121,7 +2123,7 @@ async function downloadPDF() {
   justify-content: space-between;
   gap: 16px;
   padding-bottom: 12px;
-  border-bottom: 2px solid #0B5C43;
+  border-bottom: 2px solid rgb(var(--color-primary));
   margin-bottom: 14px;
 }
 .page-section-title {
@@ -2147,9 +2149,9 @@ async function downloadPDF() {
 
 /* ---------------- narrative ---------------- */
 .narrative-box {
-  background: #F6FAF8;
-  border: 1px solid #DCEAE3;
-  border-right: 3px solid #10B981;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-right: 3px solid rgb(var(--color-primary));
   border-radius: 10px;
   padding: 14px 16px;
   font-size: 11.5px;
@@ -2167,7 +2169,7 @@ async function downloadPDF() {
 .quote-mark {
   font-size: 56px;
   font-family: Georgia, serif;
-  color: #0B5C43;
+  color: rgb(var(--color-primary));
   line-height: 0.6;
   height: 40px;
   opacity: 0.35;
@@ -2204,7 +2206,7 @@ async function downloadPDF() {
 .kpi-card {
   background: #fff;
   border: 1px solid #E2E8F0;
-  border-top: 3px solid #0B5C43;
+  border-top: 3px solid rgb(var(--color-primary));
   border-radius: 10px;
   padding: 12px 14px;
 }
@@ -2215,8 +2217,8 @@ async function downloadPDF() {
 /* target achievement bar (exec summary) */
 .target-bar {
   margin-top: 14px;
-  background: #F6FAF8;
-  border: 1px solid #DCEAE3;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
   border-radius: 10px;
   padding: 12px 16px;
 }
@@ -2228,8 +2230,8 @@ async function downloadPDF() {
   margin-bottom: 8px;
 }
 .tb-title { font-size: 12px; font-weight: 700; color: #0F172A; }
-.tb-num { font-size: 10.5px; font-weight: 700; color: #0B5C43; }
-.tb-bg { height: 10px; background: #E7EFEA; border-radius: 6px; overflow: hidden; }
+.tb-num { font-size: 10.5px; font-weight: 700; color: rgb(var(--color-primary)); }
+.tb-bg { height: 10px; background: #EEF2F6; border-radius: 6px; overflow: hidden; }
 .tb-fill { height: 100%; border-radius: 6px; }
 
 /* ---------------- capital strip (exec summary) ---------------- */
@@ -2277,9 +2279,9 @@ async function downloadPDF() {
 .csr-compl {
   font-size: 10px;
   font-weight: 700;
-  color: #0B5C43;
-  background: #ECFDF5;
-  border: 1px solid #C6EBD8;
+  color: rgb(var(--color-primary));
+  background: rgb(var(--color-primary-muted));
+  border: 1px solid rgb(var(--color-primary) / 0.3);
   border-radius: 999px;
   padding: 2px 9px;
   flex-shrink: 0;
@@ -2297,8 +2299,8 @@ async function downloadPDF() {
   background: #F1F5F9;
   color: #64748B;
 }
-.delta-up { background: #ECFDF5; color: #059669; }
-.delta-down { background: #FEF2F2; color: #DC2626; }
+.delta-up { background: rgb(var(--color-status-low) / 0.12); color: rgb(var(--color-status-low)); }
+.delta-down { background: rgb(var(--color-status-critical) / 0.1); color: rgb(var(--color-status-critical)); }
 .delta-mini {
   font-size: 10px;
   font-weight: 700;
@@ -2466,12 +2468,12 @@ async function downloadPDF() {
 .cq-compl { min-width: 96px; }
 .cq-mini-bar {
   height: 4px;
-  background: #E7EFEA;
+  background: #EEF2F6;
   border-radius: 3px;
   overflow: hidden;
   margin-top: 5px;
 }
-.cq-mini-fill { height: 100%; background: #10B981; border-radius: 3px; }
+.cq-mini-fill { height: 100%; background: rgb(var(--color-primary)); border-radius: 3px; }
 .cap-desc {
   flex: 1;
   font-size: 10px;
@@ -2571,8 +2573,8 @@ async function downloadPDF() {
 .capab-ind-pct {
   font-size: 8.5px;
   font-weight: 700;
-  color: #0B5C43;
-  background: #ECFDF5;
+  color: rgb(var(--color-primary));
+  background: rgb(var(--color-primary-muted));
   border-radius: 999px;
   padding: 0 5px;
 }
@@ -2587,8 +2589,8 @@ async function downloadPDF() {
 .risk-chip {
   font-size: 9px;
   font-weight: 600;
-  color: #DC2626;
-  background: #FEF2F2;
+  color: rgb(var(--color-status-critical));
+  background: rgb(var(--color-status-critical) / 0.1);
   border-radius: 999px;
   padding: 1px 7px;
   display: inline-flex;
@@ -2605,14 +2607,12 @@ async function downloadPDF() {
 }
 .risk-kpi {
   border: 1px solid #E2E8F0;
-  border-top: 3px solid #DC2626;
+  border-top: 3px solid rgb(var(--color-primary));
   border-radius: 10px;
   padding: 14px;
   text-align: center;
   background: #fff;
 }
-.risk-kpi:nth-child(2) { border-top-color: #F59E0B; }
-.risk-kpi:nth-child(3) { border-top-color: #64748B; }
 .rk-num { font-size: 24px; font-weight: 800; color: #0F172A; }
 .rk-lbl { font-size: 10.5px; color: #64748B; margin-top: 4px; }
 .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
@@ -2651,9 +2651,9 @@ async function downloadPDF() {
 .register-total {
   font-size: 10px;
   font-weight: 700;
-  color: #DC2626;
-  background: #FEF2F2;
-  border: 1px solid #FECACA;
+  color: rgb(var(--color-status-critical));
+  background: rgb(var(--color-status-critical) / 0.1);
+  border: 1px solid rgb(var(--color-status-critical) / 0.3);
   border-radius: 999px;
   padding: 3px 12px;
 }
@@ -2755,7 +2755,7 @@ async function downloadPDF() {
 .cs-item { text-align: center; }
 .cs-lbl { font-size: 10px; color: #94A3B8; }
 .cs-val { font-size: 14px; font-weight: 800; color: #0F172A; margin-top: 3px; }
-.cs-arrow { font-size: 20px; color: #10B981; }
+.cs-arrow { font-size: 20px; color: rgb(var(--color-primary)); }
 .compare-table { width: 100%; border-collapse: collapse; }
 .compare-table th {
   font-size: 10.5px;

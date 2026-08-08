@@ -41,7 +41,7 @@ watch(selectedPlan, (val) => {
 <template>
   <header class="flex flex-wrap items-center justify-between gap-4">
     <div class="flex items-center gap-3">
-      <span class="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-600">
+      <span class="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary-muted text-primary">
         <IconCircleCheck :size="26" />
       </span>
       <div>
@@ -56,7 +56,7 @@ watch(selectedPlan, (val) => {
         <label class="text-xs text-slate-500">برنامه:</label>
         <select
           v-model="selectedPlan"
-          class="rounded-lg border border-slate-200 bg-slate-50 px-2 py-1 text-xs text-slate-700 outline-none focus:border-emerald-400 focus:ring-1 focus:ring-emerald-200"
+          class="rounded-lg border border-slate-200 bg-slate-50 px-2 py-1 text-xs text-slate-700 outline-none focus:border-primary focus:ring-1 focus:ring-primary/30"
         >
           <option value="">همه برنامه‌ها</option>
           <option v-for="plan in plans" :key="plan.slug" :value="plan.slug">

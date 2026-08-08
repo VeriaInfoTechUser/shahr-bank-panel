@@ -47,7 +47,7 @@ const option = computed(() => ({
 
 <template>
   <div class="relative">
-    <VChart :option="option" autoresize class="h-64 w-full" />
+    <VChart :option="option" autoresize class="h-full min-h-56 w-full" />
     <div class="pointer-events-none absolute inset-x-0 top-[38%] -translate-y-1/2 text-center">
       <p class="text-2xl font-extrabold text-slate-900">{{ toFa(total) }}</p>
       <p class="text-xs text-slate-500">کل وظایف</p>

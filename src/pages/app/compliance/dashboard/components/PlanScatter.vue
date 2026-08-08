@@ -4,16 +4,17 @@ import VChart from "vue-echarts"
 import "../echarts"
 import { chartFont, tooltipStyle, splitLineColor } from "../echarts"
 import { toFa } from "../helpers"
+import { theme } from "@/config/theme"
 import type { PlanItem } from "../types"
 
 const props = defineProps<{ data: PlanItem[] }>()
 
-/** رنگ نقطه بر اساس میانگین امتیاز */
+/** رنگ نقطه بر اساس میانگین امتیاز — از تم مرکزی */
 function color(score: number): string {
-  if (score >= 75) return "#34d399"
-  if (score >= 50) return "#facc15"
-  if (score >= 25) return "#fb923c"
-  return "#f43f5e"
+  if (score >= 75) return theme.status.low
+  if (score >= 50) return theme.status.medium
+  if (score >= 25) return theme.status.high
+  return theme.status.critical
 }
 
 const option = computed(() => ({
@@ -65,5 +66,5 @@ const option = computed(() => ({
 </script>
 
 <template>
-  <VChart :option="option" autoresize class="h-72 w-full" />
+  <VChart :option="option" autoresize class="h-full min-h-64 w-full" />
 </template>

@@ -4,6 +4,7 @@ import VChart from "vue-echarts"
 import "../echarts"
 import { chartFont, tooltipStyle, splitLineColor } from "../echarts"
 import { toFa } from "../helpers"
+import { theme } from "@/config/theme"
 import type { FrameworkCompliance } from "../types"
 
 const props = defineProps<{ data: FrameworkCompliance[] }>()
@@ -44,14 +45,14 @@ const option = computed(() => ({
       type: "bar",
       barGap: "10%",
       barWidth: "28%",
-      itemStyle: { color: "#38bdf8", borderRadius: [6, 6, 0, 0] },
+      itemStyle: { color: theme.status.done, borderRadius: [6, 6, 0, 0] },
       data: props.data.map((d) => Math.round(d.avgScore * 10) / 10),
     },
     {
       name: "نرخ تطبیق",
       type: "bar",
       barWidth: "28%",
-      itemStyle: { color: "#34d399", borderRadius: [6, 6, 0, 0] },
+      itemStyle: { color: theme.status.low, borderRadius: [6, 6, 0, 0] },
       data: props.data.map((d) => Math.round(d.complianceRate * 10) / 10),
     },
   ],
@@ -59,5 +60,5 @@ const option = computed(() => ({
 </script>
 
 <template>
-  <VChart :option="option" autoresize class="h-72 w-full" />
+  <VChart :option="option" autoresize class="h-full min-h-64 w-full" />
 </template>

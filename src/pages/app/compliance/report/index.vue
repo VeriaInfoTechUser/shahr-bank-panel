@@ -4,6 +4,7 @@ import Lucide from '@/base-components/Lucide'
 import Button from '@/base-components/Button'
 import { grcRepo } from '@/core/repositories/grcRepo'
 import { useReportPagination, faNum, fmtScore, round1, barPct, maxCount, pctWidth, hexToRgba, faDate } from '@/composables/useReportPagination'
+import { theme } from '@/config/theme'
 import '@/styles/grc-report.css'
 
 // ---------------------------------------------------------------------------
@@ -89,19 +90,19 @@ function backToSettings() {
 // labels + colors
 // ---------------------------------------------------------------------------
 const ANSWER_META: Record<string, { label: string; color: string }> = {
-  compliant: { label: 'منطبق', color: '#16a34a' },
-  partially_compliant: { label: 'نسبتاً منطبق', color: '#f59e0b' },
-  non_compliant: { label: 'نامنطبق', color: '#dc2626' },
-  not_started: { label: 'شروع‌نشده', color: '#94a3b8' },
-  unknown: { label: 'نامشخص', color: '#94a3b8' },
+  compliant: { label: 'منطبق', color: theme.status.low },
+  partially_compliant: { label: 'نسبتاً منطبق', color: theme.status.medium },
+  non_compliant: { label: 'نامنطبق', color: theme.status.critical },
+  not_started: { label: 'شروع‌نشده', color: theme.status.draft },
+  unknown: { label: 'نامشخص', color: theme.status.draft },
 }
 const STATE_META: Record<string, { label: string; color: string }> = {
-  todo: { label: 'در صف', color: '#94a3b8' },
-  in_progress: { label: 'در حال انجام', color: '#0ea5e9' },
-  done: { label: 'انجام‌شده', color: '#16a34a' },
-  approved: { label: 'تأییدشده', color: '#6366f1' },
-  rejected: { label: 'ردشده', color: '#dc2626' },
-  unknown: { label: 'نامشخص', color: '#94a3b8' },
+  todo: { label: 'در صف', color: theme.status.draft },
+  in_progress: { label: 'در حال انجام', color: theme.status.registered },
+  done: { label: 'انجام‌شده', color: theme.status.monitoring },
+  approved: { label: 'تأییدشده', color: theme.status.low },
+  rejected: { label: 'ردشده', color: theme.status.critical },
+  unknown: { label: 'نامشخص', color: theme.status.draft },
 }
 const ANSWER_ORDER = ['compliant', 'partially_compliant', 'non_compliant', 'not_started']
 const STATE_ORDER = ['todo', 'in_progress', 'done', 'approved', 'rejected']
@@ -196,8 +197,7 @@ function sharePct(part: number | null | undefined, total: number | null | undefi
             >
               {{ p.title ?? p.slug }}
             </button>
-          </div>
-          <div v-else class="setup-empty" style="border: 1px dashed #dbe2e9; border-radius: 10px; padding: 14px; text-align: center; color: #94a3b8; font-size: 11px">
+          </div>            <div v-else class="setup-empty" style="border: 1px dashed #cbd5e1; border-radius: 10px; padding: 14px; text-align: center; color: #94a3b8; font-size: 11px">
             برنامه‌ای یافت نشد. گزارش بر اساس همه برنامه‌ها تهیه می‌شود.
           </div>
           <p class="setup-hint">
@@ -381,9 +381,9 @@ function sharePct(part: number | null | undefined, total: number | null | undefi
                   <td class="score-val">{{ faNum(Number(row.totalTasks) || 0) }}</td>
                   <td>
                     <div class="mini-bar" style="display: inline-block; vertical-align: middle">
-                      <div class="mini-bar-fill" :style="{ width: pctWidth(row.completionRate, 100), background: '#0B5C43' }" />
+                      <div class="mini-bar-fill" :style="{ width: pctWidth(row.completionRate, 100), background: theme.colors.light.primary }" />
                     </div>
-                    <span style="font-size: 9px; margin-right: 4px; color: #0B5C43; font-weight: 700">{{ fmtPct(row.completionRate) }}</span>
+                    <span :style="{ fontSize: '9px', marginRight: '4px', color: theme.colors.light.primary, fontWeight: 700 }">{{ fmtPct(row.completionRate) }}</span>
                   </td>
                   <td class="score-val">{{ fmtScore(row.avgScore) }}</td>
                   <td>
@@ -414,12 +414,12 @@ function sharePct(part: number | null | undefined, total: number | null | undefi
             <div v-for="(row, idx) in sec.data?.frameworkCompliance ?? []" :key="idx" class="dist-card" style="margin-top: 10px">
               <div class="dist-title" style="display: flex; justify-content: space-between">
                 <span>{{ row.frameworkTitle ?? '—' }}</span>
-                <span style="font-size: 10px; font-weight: 700; color: #0B5C43">{{ fmtPct(row.complianceRate) }} تطبیق</span>
+                <span :style="{ fontSize: '10px', fontWeight: 700, color: theme.colors.light.primary }">{{ fmtPct(row.complianceRate) }} تطبیق</span>
               </div>
               <div class="bar-row">
                 <span class="bar-label">وظایف</span>
                 <div class="bar-bg">
-                  <div class="bar-fill" :style="{ width: pctWidth(row.totalTasks, Math.max(execTotalTasks, 1)), background: '#0B5C43' }" />
+                  <div class="bar-fill" :style="{ width: pctWidth(row.totalTasks, Math.max(execTotalTasks, 1)), background: theme.colors.light.primary }" />
                 </div>
                 <span class="bar-count">{{ faNum(Number(row.totalTasks) || 0) }}</span>
               </div>
@@ -438,7 +438,7 @@ function sharePct(part: number | null | undefined, total: number | null | undefi
             <div v-for="(row, idx) in sec.data?.domainCompliance ?? []" :key="idx" class="dist-card" style="margin-top: 10px">
               <div class="dist-title" style="display: flex; justify-content: space-between">
                 <span>{{ row.domainTitle ?? '—' }}</span>
-                <span style="font-size: 10px; font-weight: 700; color: #0B5C43">{{ fmtPct(row.complianceRate) }} تطبیق</span>
+                <span :style="{ fontSize: '10px', fontWeight: 700, color: theme.colors.light.primary }">{{ fmtPct(row.complianceRate) }} تطبیق</span>
               </div>
               <div v-for="a in ANSWER_ORDER" :key="a" class="bar-row">
                 <span class="bar-label">{{ answerMeta(a).label }}</span>
@@ -487,7 +487,7 @@ function sharePct(part: number | null | undefined, total: number | null | undefi
                       />
                     </span>
                   </td>
-                  <td class="score-val" style="color: #0B5C43">{{ fmtPct(row.complianceRate) }}</td>
+                  <td class="score-val" :style="{ color: theme.colors.light.primary }">{{ fmtPct(row.complianceRate) }}</td>
                 </tr>
               </tbody>
             </table>
@@ -513,10 +513,10 @@ function sharePct(part: number | null | undefined, total: number | null | undefi
                   <td class="score-val">{{ faNum(Number(row.totalTasks) || 0) }}</td>
                   <td class="score-val">{{ fmtScore(row.avgScore) }}</td>
                   <td>
-                    <span class="pill" style="background: rgba(22, 163, 74, 0.12); color: #16a34a">{{ faNum(Number(row.compliantCount) || 0) }}</span>
+                    <span class="pill" :style="{ background: hexToRgba(answerMeta('compliant').color, 0.12), color: answerMeta('compliant').color }">{{ faNum(Number(row.compliantCount) || 0) }}</span>
                   </td>
                   <td>
-                    <span class="pill" style="background: rgba(220, 38, 38, 0.12); color: #dc2626">{{ faNum(Number(row.nonCompliantCount) || 0) }}</span>
+                    <span class="pill" :style="{ background: hexToRgba(answerMeta('non_compliant').color, 0.12), color: answerMeta('non_compliant').color }">{{ faNum(Number(row.nonCompliantCount) || 0) }}</span>
                   </td>
                 </tr>
               </tbody>
@@ -543,9 +543,9 @@ function sharePct(part: number | null | undefined, total: number | null | undefi
                   <td class="score-val">{{ faNum(Number(row.totalTasks) || 0) }}</td>
                   <td>
                     <div class="mini-bar" style="display: inline-block; vertical-align: middle">
-                      <div class="mini-bar-fill" :style="{ width: pctWidth(row.avgCompletionRate, 100), background: '#0B5C43' }" />
+                      <div class="mini-bar-fill" :style="{ width: pctWidth(row.avgCompletionRate, 100), background: theme.colors.light.primary }" />
                     </div>
-                    <span style="font-size: 9px; margin-right: 4px; color: #0B5C43; font-weight: 700">{{ fmtPct(row.avgCompletionRate) }}</span>
+                    <span :style="{ fontSize: '9px', marginRight: '4px', color: theme.colors.light.primary, fontWeight: 700 }">{{ fmtPct(row.avgCompletionRate) }}</span>
                   </td>
                 </tr>
               </tbody>
@@ -574,7 +574,7 @@ function sharePct(part: number | null | undefined, total: number | null | undefi
               <div v-for="(row, idx) in sec.data?.scoreDistribution ?? []" :key="idx" class="bar-row">
                 <span class="bar-label">{{ row.range ?? '—' }}</span>
                 <div class="bar-bg">
-                  <div class="bar-fill" :style="{ width: barPct(Number(row.count) || 0, maxCount((sec.data?.scoreDistribution ?? []).map((x: any) => Number(x.count) || 0))), background: '#0B5C43' }" />
+                  <div class="bar-fill" :style="{ width: barPct(Number(row.count) || 0, maxCount((sec.data?.scoreDistribution ?? []).map((x: any) => Number(x.count) || 0))), background: theme.colors.light.primary }" />
                 </div>
                 <span class="bar-count">{{ faNum(Number(row.count) || 0) }}</span>
               </div>
@@ -621,7 +621,7 @@ function sharePct(part: number | null | undefined, total: number | null | undefi
                       {{ answerMeta(r.answer).label }}
                     </span>
                   </td>
-                  <td class="score-val" style="color: #dc2626">{{ faDate(r.deadline) }}</td>
+                  <td class="score-val" :style="{ color: stateMeta('rejected').color }">{{ faDate(r.deadline) }}</td>
                   <td class="muted">{{ faDate(r.updatedAt) }}</td>
                   <td>
                     <span class="pill" :style="{ background: hexToRgba(stateMeta(r.state).color, 0.12), color: stateMeta(r.state).color }">

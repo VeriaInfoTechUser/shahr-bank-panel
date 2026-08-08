@@ -85,7 +85,8 @@ function createHttpClient(): AxiosInstance {
       if (normalized.code === 401) {
         const url = error.config?.url ?? '';
         const isLogout = LOGOUT_ENDPOINTS.some((ep) => url.includes(ep));
-        if (!isLogout) {
+        // درخواست‌های اختیاری/پس‌زمینه (مثل lookup اسامی اعضا) نباید نشست کاربر را باطل کنند
+        if (!isLogout && !silent) {
           handleUnauthorized();
         }
       }

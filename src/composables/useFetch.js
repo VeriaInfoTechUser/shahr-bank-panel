@@ -1,4 +1,3 @@
-import "vue3-toastify/dist/index.css";
 import { ref } from "vue";
 import { base_url } from "../constants/config.js";
 import { toast } from "vue3-toastify";

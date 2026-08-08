@@ -6,6 +6,7 @@ import Button from '@/base-components/Button'
 import BaseDateRangePicker from '@/core/ui/base/BaseDateRangePicker.vue'
 import { grcRepo } from '@/core/repositories/grcRepo'
 import { useReportPagination, faNum, fmtScore, round1, barPct, maxCount, hexToRgba, faDate } from '@/composables/useReportPagination'
+import { theme } from '@/config/theme'
 import '@/styles/grc-report.css'
 
 // ---------------------------------------------------------------------------
@@ -79,25 +80,25 @@ function backToSettings() {
 // labels + colors
 // ---------------------------------------------------------------------------
 const LEVEL_META: Record<string, { label: string; color: string }> = {
-  critical: { label: 'بحرانی', color: '#dc2626' },
-  high: { label: 'بالا', color: '#f97316' },
-  medium: { label: 'متوسط', color: '#f59e0b' },
-  low: { label: 'پایین', color: '#16a34a' },
-  unknown: { label: 'نامشخص', color: '#94a3b8' },
+  critical: { label: 'بحرانی', color: theme.status.critical },
+  high: { label: 'بالا', color: theme.status.high },
+  medium: { label: 'متوسط', color: theme.status.medium },
+  low: { label: 'پایین', color: theme.status.low },
+  unknown: { label: 'نامشخص', color: theme.status.draft },
 }
 const STATE_META: Record<string, { label: string; color: string }> = {
-  draft: { label: 'پیش‌نویس', color: '#94a3b8' },
-  registered: { label: 'ثبت‌شده', color: '#6366f1' },
-  analysis: { label: 'تحلیل', color: '#0ea5e9' },
-  response: { label: 'در حال پاسخ', color: '#f59e0b' },
-  monitoring: { label: 'پایش', color: '#8b5cf6' },
-  closed: { label: 'بسته', color: '#16a34a' },
-  archived: { label: 'بایگانی‌شده', color: '#64748b' },
-  unknown: { label: 'نامشخص', color: '#94a3b8' },
+  draft: { label: 'پیش‌نویس', color: theme.status.draft },
+  registered: { label: 'ثبت‌شده', color: theme.status.registered },
+  analysis: { label: 'تحلیل', color: theme.status.analysis },
+  response: { label: 'در حال پاسخ', color: theme.status.response },
+  monitoring: { label: 'پایش', color: theme.status.monitoring },
+  closed: { label: 'بسته', color: theme.status.closed },
+  archived: { label: 'بایگانی‌شده', color: theme.status.archived },
+  unknown: { label: 'نامشخص', color: theme.status.draft },
 }
 const TYPE_META: Record<string, { label: string; color: string }> = {
-  threat: { label: 'تهدید', color: '#dc2626' },
-  opportunity: { label: 'فرصت', color: '#16a34a' },
+  threat: { label: 'تهدید', color: theme.status.threat },
+  opportunity: { label: 'فرصت', color: theme.status.opportunity },
 }
 const LEVEL_ORDER = ['critical', 'high', 'medium', 'low', 'unknown']
 
@@ -443,7 +444,7 @@ function fmtPct(v: number | null | undefined) {
                     <div class="mini-bar" style="display: inline-block; vertical-align: middle">
                       <div
                         class="mini-bar-fill"
-                        :style="{ width: barPct(countOf(row.byLevel, 'critical') + countOf(row.byLevel, 'high'), Number(row.totalRisks) || 1), background: '#dc2626' }"
+                        :style="{ width: barPct(countOf(row.byLevel, 'critical') + countOf(row.byLevel, 'high'), Number(row.totalRisks) || 1), background: levelMeta('critical').color }"
                       />
                     </div>
                     <span class="muted" style="font-size: 9px; margin-right: 6px">
@@ -518,9 +519,9 @@ function fmtPct(v: number | null | undefined) {
           <!-- ============ top-risks ============ -->
           <template v-else-if="sec.key === 'top-risks'">
             <div v-for="grp in [
-              { key: 'topAnalysis', title: 'ریسک‌های در حال تحلیل', color: '#0ea5e9' },
-              { key: 'topResponse', title: 'ریسک‌های در حال پاسخ', color: '#f59e0b' },
-              { key: 'topMonitoring', title: 'ریسک‌های در حال پایش', color: '#8b5cf6' },
+              { key: 'topAnalysis', title: 'ریسک‌های در حال تحلیل', color: stateMeta('analysis').color },
+              { key: 'topResponse', title: 'ریسک‌های در حال پاسخ', color: stateMeta('response').color },
+              { key: 'topMonitoring', title: 'ریسک‌های در حال پایش', color: stateMeta('monitoring').color },
             ]" :key="grp.key" class="dist-card" style="margin-top: 12px">
               <div class="dist-title" :style="{ borderRight: `3px solid ${grp.color}`, paddingRight: '8px' }">{{ grp.title }}</div>
               <table class="rpt-table">
@@ -596,7 +597,7 @@ function fmtPct(v: number | null | undefined) {
                   <td class="score-val">{{ fmtScore(row.avgScore) }}</td>
                   <td>
                     <div class="mini-bar" style="display: inline-block; vertical-align: middle">
-                      <div class="mini-bar-fill" :style="{ width: barPct(Number(row.highRiskCount) || 0, Number(row.totalRisks) || 1), background: '#dc2626' }" />
+                      <div class="mini-bar-fill" :style="{ width: barPct(Number(row.highRiskCount) || 0, Number(row.totalRisks) || 1), background: levelMeta('critical').color }" />
                     </div>
                     <span class="muted" style="font-size: 9px; margin-right: 6px">{{ faNum(Number(row.highRiskCount) || 0) }}</span>
                   </td>
@@ -629,7 +630,7 @@ function fmtPct(v: number | null | undefined) {
               <div v-for="(row, idx) in sec.data?.scoreDistribution ?? []" :key="idx" class="bar-row">
                 <span class="bar-label">{{ row.range ?? '—' }}</span>
                 <div class="bar-bg">
-                  <div class="bar-fill" :style="{ width: barPct(Number(row.count) || 0, maxCount((sec.data?.scoreDistribution ?? []).map((x: any) => Number(x.count) || 0))), background: '#1a4470' }" />
+                  <div class="bar-fill" :style="{ width: barPct(Number(row.count) || 0, maxCount((sec.data?.scoreDistribution ?? []).map((x: any) => Number(x.count) || 0))), background: theme.colors.light.primary }" />
                 </div>
                 <span class="bar-count">{{ faNum(Number(row.count) || 0) }}</span>
               </div>
@@ -652,10 +653,10 @@ function fmtPct(v: number | null | undefined) {
                 </div>
               </div>
               <div class="legend">
-                <span><i style="background: #16a34a" />کم</span>
-                <span><i style="background: #f59e0b" />متوسط</span>
-                <span><i style="background: #f97316" />بالا</span>
-                <span><i style="background: #dc2626" />بحرانی</span>
+                <span><i style="background: levelMeta('low').color" />کم</span>
+                <span><i style="background: levelMeta('medium').color" />متوسط</span>
+                <span><i style="background: levelMeta('high').color" />بالا</span>
+                <span><i style="background: levelMeta('critical').color" />بحرانی</span>
               </div>
             </div>
           </template>
@@ -665,12 +666,12 @@ function fmtPct(v: number | null | undefined) {
             <div class="trend-chart">
               <svg viewBox="0 0 320 110">
                 <line v-for="y in [1, 2, 3, 4]" :key="y" x1="0" :y1="y * 24" x2="320" :y2="y * 24" stroke="#EEF2F6" stroke-width="1" />
-                <polyline :points="polyline(sec.data?.trendOverTime, 'threat')" fill="none" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
-                <polyline :points="polyline(sec.data?.trendOverTime, 'opportunity')" fill="none" stroke="#16a34a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+                <polyline :points="polyline(sec.data?.trendOverTime, 'threat')" fill="none" :stroke="typeMeta('threat').color" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+                <polyline :points="polyline(sec.data?.trendOverTime, 'opportunity')" fill="none" :stroke="typeMeta('opportunity').color" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
               </svg>
               <div class="legend-trend">
-                <span><i style="background: #dc2626" />تهدید</span>
-                <span><i style="background: #16a34a" />فرصت</span>
+                <span><i :style="{ background: typeMeta('threat').color }" />تهدید</span>
+                <span><i :style="{ background: typeMeta('opportunity').color }" />فرصت</span>
                 <span class="muted" style="font-size: 9px">
                   حداکثر: {{ faNum(round1(trendMax(sec.data?.trendOverTime))) }} · آخرین ۹۰ روز
                 </span>

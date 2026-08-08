@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from "vue"
 import { toFa, toPct, personLabel } from "../helpers"
+import { theme } from "@/config/theme"
 import type { OwnerDistribution } from "../types"
 
 const props = defineProps<{ data: OwnerDistribution[]; memberNames?: Map<string, string> }>()
@@ -8,9 +9,9 @@ const props = defineProps<{ data: OwnerDistribution[]; memberNames?: Map<string,
 const sorted = computed(() => [...props.data].sort((a, b) => b.avgCompletionRate - a.avgCompletionRate))
 
 function barColor(rate: number): string {
-  if (rate >= 50) return "#34d399"
-  if (rate >= 30) return "#facc15"
-  return "#fb923c"
+  if (rate >= 50) return theme.status.low
+  if (rate >= 30) return theme.status.medium
+  return theme.status.high
 }
 </script>
 

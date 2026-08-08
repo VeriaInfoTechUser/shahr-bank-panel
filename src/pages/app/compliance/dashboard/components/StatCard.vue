@@ -13,9 +13,9 @@ defineProps<{
 </script>
 
 <template>
-  <div class="relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+  <div class="relative overflow-hidden rounded-xl border border-slate-200/80 bg-white p-3.5 shadow-sm">
     <span
-      class="absolute inset-y-0 right-0 w-1"
+      class="absolute inset-y-0 right-0 w-0.5"
       :style="{ backgroundColor: accent }"
       aria-hidden="true"
     />
@@ -25,13 +25,13 @@ defineProps<{
         <p class="mt-1 text-2xl font-extrabold text-slate-900">
           {{ toFa(value) }}<span v-if="suffix" class="mr-0.5 text-base font-bold">{{ suffix }}</span>
         </p>
-        <p v-if="hint" class="mt-1 truncate text-xs text-slate-400">{{ hint }}</p>
+        <p v-if="hint" class="mt-1 truncate text-[11px] text-slate-400">{{ hint }}</p>
       </div>
       <span
-        class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl"
-        :style="{ backgroundColor: accent + '22', color: accent }"
+        class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg"
+        :style="{ backgroundColor: accent + '1a', color: accent }"
       >
-        <component :is="icon" :size="22" stroke-width="2" />
+        <component :is="icon" :size="20" stroke-width="2" />
       </span>
     </div>
   </div>

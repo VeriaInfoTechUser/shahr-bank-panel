@@ -22,6 +22,7 @@ import { Radar, Bar, Doughnut } from 'vue-chartjs';
 import Lucide from '@/base-components/Lucide';
 import PeriodSelectPanel from '@/components/PeriodSelectPanel.vue';
 import { reportRepo } from '@/core/repositories/reportRepo';
+import { theme } from '@/config/theme';
 
 ChartJS.register(
     RadialLinearScale,
@@ -270,7 +271,7 @@ const sectionIcon = computed(() =>
     isOverview.value ? 'Radar' : capitalIcon(activeCapital.value?.capitalType),
 );
 const sectionColor = computed(() =>
-    isOverview.value ? '#6366f1' : capitalTheme(activeCapital.value?.capitalType).main,
+    isOverview.value ? theme.colors.light.primary : capitalTheme(activeCapital.value?.capitalType).main,
 );
 const sectionTitle = computed(() =>
     isOverview.value ? t('reports.all-capitals-overview') : (activeCapital.value?.title ?? ''),
@@ -323,22 +324,23 @@ function round1(n: number | null | undefined) {
 const RISK_LEVELS = ['critical', 'high', 'medium', 'low', 'unknown'];
 const RISK_STATES = ['draft', 'registered', 'analysis', 'response', 'monitoring', 'closed', 'archived', 'unknown'];
 
+/** رنگ‌های ریسک — از تم مرکزی (src/config/theme.ts) */
 const RISK_LEVEL_COLOR: Record<string, string> = {
-  critical: '#dc2626',
-  high: '#f97316',
-  medium: '#f59e0b',
-  low: '#16a34a',
-  unknown: '#94a3b8',
+  critical: theme.status.critical,
+  high: theme.status.high,
+  medium: theme.status.medium,
+  low: theme.status.low,
+  unknown: theme.status.draft,
 };
 const RISK_STATE_COLOR: Record<string, string> = {
-  draft: '#94a3b8',
-  registered: '#6366f1',
-  analysis: '#0ea5e9',
-  response: '#f59e0b',
-  monitoring: '#8b5cf6',
-  closed: '#16a34a',
-  archived: '#64748b',
-  unknown: '#94a3b8',
+  draft: theme.status.draft,
+  registered: theme.status.registered,
+  analysis: theme.status.analysis,
+  response: theme.status.response,
+  monitoring: theme.status.monitoring,
+  closed: theme.status.closed,
+  archived: theme.status.archived,
+  unknown: theme.status.draft,
 };
 
 function riskLevelColor(level: string | null | undefined): string {
@@ -860,8 +862,8 @@ const capitalRadarData = computed(() => {
     {
       label: t('reports.sustainability-score'),
       data: capitals.value.map((c) => c.score),
-      backgroundColor: 'rgba(99, 102, 241, 0.12)',
-      borderColor: '#6366f1',
+      backgroundColor: hexToRgba(theme.colors.light.primary, 0.12),
+      borderColor: theme.colors.light.primary,
       borderWidth: 2,
       pointBackgroundColor: capitals.value.map((c) => c.maturity.color),
       pointBorderColor: '#fff',
@@ -1404,7 +1406,7 @@ function goToRisk(slug?: string | null) {
                         :data-active="isQuickYearActive(y)"
                         class="flex-none rounded-full border px-2.5 py-1 text-[11px] font-medium transition"
                         :class="isQuickYearActive(y)
-                          ? 'border-indigo-300 bg-indigo-50 text-indigo-600 dark:border-indigo-800 dark:bg-indigo-900/20 dark:text-indigo-400'
+                          ? 'border-primary/30 bg-primary-muted text-primary dark:border-primary/40 dark:bg-primary/10 dark:text-primary'
                           : 'border-slate-200 bg-white text-slate-500 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700'"
                         @click="quickSelectYear(y)"
                     >{{ y }}</button>
@@ -1439,7 +1441,7 @@ function goToRisk(slug?: string | null) {
                       :aria-checked="compareEnabled"
                       :aria-label="compareEnabled ? t('reports.disable-compare') : t('reports.enable-compare')"
                       class="relative inline-flex h-5 w-10 flex-none items-center rounded-full transition-colors"
-                      :class="compareEnabled ? 'bg-indigo-500' : 'bg-slate-300 dark:bg-slate-600'"
+                      :class="compareEnabled ? 'bg-primary' : 'bg-slate-300 dark:bg-slate-600'"
                       @click="compareEnabled = !compareEnabled"
                   >
                     <span
@@ -1453,7 +1455,7 @@ function goToRisk(slug?: string | null) {
                     type="button"
                     class="mb-2 inline-flex w-full items-center justify-center gap-1.5 rounded-md border px-2.5 py-1.5 text-[11px] font-medium transition"
                     :class="isComparingPrevious
-                      ? 'border-indigo-300 bg-indigo-50 text-indigo-600 dark:border-indigo-800 dark:bg-indigo-900/20 dark:text-indigo-400'
+                      ? 'border-primary/30 bg-primary-muted text-primary dark:border-primary/40 dark:bg-primary/10 dark:text-primary'
                       : 'border-slate-200 bg-white text-slate-500 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700'"
                     @click="compareWithPrevious"
                 >
@@ -1465,8 +1467,8 @@ function goToRisk(slug?: string | null) {
                   {{ t('reports.compare-hint') }}
                 </div>
                 <template v-else>
-                  <p class="mb-2 rounded-md border border-indigo-100 bg-indigo-50/50 px-2.5 py-1.5 text-[11px] text-slate-500 dark:border-indigo-900/30 dark:bg-indigo-900/10 dark:text-slate-400">
-                    <Lucide icon="Lock" class="me-1 inline h-3 w-3 text-indigo-400" />
+                  <p class="mb-2 rounded-md border border-primary/20 bg-primary-muted/50 px-2.5 py-1.5 text-[11px] text-slate-500 dark:border-primary/30 dark:bg-primary/10 dark:text-slate-400">
+                    <Lucide icon="Lock" class="me-1 inline h-3 w-3 text-primary" />
                     {{ t('reports.comparison-same-type', { type: comparisonTypeLabel }) }}
                   </p>
                   <PeriodSelectPanel
@@ -1492,7 +1494,7 @@ function goToRisk(slug?: string | null) {
                   <div class="flex items-center justify-between gap-2">
                     <span class="text-sm font-semibold text-slate-900 dark:text-white">{{ periodLabel }}</span>
                     <span
-                        class="rounded-full bg-indigo-50 px-2 py-0.5 text-[10px] font-semibold text-indigo-600 dark:bg-indigo-900/20 dark:text-indigo-400"
+                        class="rounded-full bg-primary-muted px-2 py-0.5 text-[10px] font-semibold text-primary dark:bg-primary/10 dark:text-primary"
                     >{{ selectedPeriod?.type }}</span>
                   </div>
                   <div v-if="dashboardData" class="mt-1 flex items-center justify-between text-[11px] text-slate-400">
@@ -1500,7 +1502,7 @@ function goToRisk(slug?: string | null) {
                     <Lucide icon="ArrowLeftRight" class="mx-1 h-3 w-3 flex-none text-slate-300" />
                     <span dir="ltr">{{ dashboardData.date_to }}</span>
                   </div>
-                  <div v-if="hasComparison" class="mt-3 rounded-md border border-indigo-100 bg-indigo-50/50 px-2.5 py-2 text-[11px] leading-5 text-slate-500 dark:border-indigo-900/30 dark:bg-indigo-900/10 dark:text-slate-400">
+                  <div v-if="hasComparison" class="mt-3 rounded-md border border-primary/20 bg-primary-muted/50 px-2.5 py-2 text-[11px] leading-5 text-slate-500 dark:border-primary/30 dark:bg-primary/10 dark:text-slate-400">
                     <div class="flex items-center justify-between">
                       <span>{{ t('reports.current-period') }}</span>
                       <b class="text-slate-700 dark:text-white">{{ periodLabel }}</b>
@@ -1538,7 +1540,7 @@ function goToRisk(slug?: string | null) {
         <div v-if="loading" class="space-y-5 py-2">
           <div class="h-12 animate-pulse rounded-xl bg-slate-100 dark:bg-slate-700" />
           <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-            <div v-for="i in 5" :key="i" class="h-28 animate-pulse rounded-2xl bg-slate-100 dark:bg-slate-700" />
+            <div v-for="i in 5" :key="i" class="h-28 animate-pulse rounded-xl bg-slate-100 dark:bg-slate-700" />
           </div>
           <div class="h-96 animate-pulse rounded-xl bg-slate-100 dark:bg-slate-700" />
           <div class="h-64 animate-pulse rounded-xl bg-slate-100 dark:bg-slate-700" />
@@ -1583,7 +1585,7 @@ function goToRisk(slug?: string | null) {
               "
                 @click="activeTab = OVERVIEW_TAB"
             >
-              <Lucide icon="Radar" class="h-4 w-4" :class="isOverview ? 'text-indigo-500' : ''" />
+              <Lucide icon="Radar" class="h-4 w-4" :class="isOverview ? 'text-primary' : ''" />
               {{ t('reports.all-capitals-overview') }}
             </button>
             <button
@@ -1633,7 +1635,7 @@ function goToRisk(slug?: string | null) {
                       type="button"
                       class="inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-md border shadow-sm transition"
                       :class="filterOpen
-                        ? 'border-indigo-200 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 dark:border-indigo-800 dark:bg-indigo-900/20 dark:text-indigo-400'
+                        ? 'border-primary/30 bg-primary-muted text-primary hover:bg-primary/10 dark:border-primary/40 dark:bg-primary/10 dark:text-primary'
                         : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50 hover:text-primary dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-primary'"
                       :aria-expanded="filterOpen"
                       :aria-label="t('reports.dashboard-settings')"
@@ -1695,13 +1697,13 @@ function goToRisk(slug?: string | null) {
           <div v-if="isOverview" class="space-y-5">
             <!-- GLOBAL KPI STRIP -->
             <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-              <div class="group relative overflow-hidden rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl dark:border-slate-700 dark:bg-slate-800">
+              <div class="group relative overflow-hidden rounded-xl border border-slate-200/80 bg-white p-3.5 shadow-sm transition-shadow hover:shadow-md dark:border-slate-700 dark:bg-slate-800">
                 <div
                     class="pointer-events-none absolute inset-0 opacity-5 transition-opacity duration-300 group-hover:opacity-10"
-                    style="background: radial-gradient(circle at top right, #6366f1, transparent 70%)"
+                    style="background: radial-gradient(circle at top right, #0f766e, transparent 70%)"
                 />
                 <div class="flex items-center gap-2 text-slate-500 dark:text-slate-400">
-                  <Lucide icon="Layers" class="h-4 w-4 text-indigo-500" />
+                  <Lucide icon="Layers" class="h-4 w-4 text-primary" />
                   <span class="text-[11px] font-medium">{{ t('reports.average-score') }}</span>
                 </div>
                 <div class="mt-2 text-2xl font-bold tracking-tight text-slate-900 dark:text-white">{{ round1(globalStats.avgScore) }}</div>
@@ -1717,28 +1719,28 @@ function goToRisk(slug?: string | null) {
                   </span>
                 </div>
                 <div class="mt-2 h-2 rounded-full bg-slate-100 dark:bg-slate-700">
-                  <div class="h-full rounded-full bg-indigo-500 transition-all duration-700" :style="{ width: Math.min(globalStats.avgScore, 100) + '%' }" />
+                  <div class="h-full rounded-full bg-primary transition-all duration-700" :style="{ width: Math.min(globalStats.avgScore, 100) + '%' }" />
                 </div>
               </div>
-              <div class="group relative overflow-hidden rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl dark:border-slate-700 dark:bg-slate-800">
+              <div class="group relative overflow-hidden rounded-xl border border-slate-200/80 bg-white p-3.5 shadow-sm transition-shadow hover:shadow-md dark:border-slate-700 dark:bg-slate-800">
                 <div
                     class="pointer-events-none absolute inset-0 opacity-5 transition-opacity duration-300 group-hover:opacity-10"
-                    style="background: radial-gradient(circle at top right, #0ea5e9, transparent 70%)"
+                    style="background: radial-gradient(circle at top right, #0f766e, transparent 70%)"
                 />
                 <div class="flex items-center gap-2 text-slate-500 dark:text-slate-400">
-                  <Lucide icon="Grid3x3" class="h-4 w-4 text-sky-500" />
+                  <Lucide icon="Grid3x3" class="h-4 w-4 text-primary" />
                   <span class="text-[11px] font-medium">{{ t('reports.domain-count') }}</span>
                 </div>
                 <div class="mt-2 text-2xl font-bold tracking-tight text-slate-900 dark:text-white">{{ globalStats.domains }}</div>
                 <p class="mt-2 text-[11px] text-slate-400">{{ globalStats.components }} {{ t('reports.component-count') }}</p>
               </div>
-              <div class="group relative overflow-hidden rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl dark:border-slate-700 dark:bg-slate-800">
+              <div class="group relative overflow-hidden rounded-xl border border-slate-200/80 bg-white p-3.5 shadow-sm transition-shadow hover:shadow-md dark:border-slate-700 dark:bg-slate-800">
                 <div
                     class="pointer-events-none absolute inset-0 opacity-5 transition-opacity duration-300 group-hover:opacity-10"
-                    style="background: radial-gradient(circle at top right, #8b5cf6, transparent 70%)"
+                    style="background: radial-gradient(circle at top right, #0f766e, transparent 70%)"
                 />
                 <div class="flex items-center gap-2 text-slate-500 dark:text-slate-400">
-                  <Lucide icon="Target" class="h-4 w-4 text-violet-500" />
+                  <Lucide icon="Target" class="h-4 w-4 text-primary" />
                   <span class="text-[11px] font-medium">{{ t('reports.capability-count') }}</span>
                 </div>
                 <div class="mt-2 text-2xl font-bold tracking-tight text-slate-900 dark:text-white">{{ globalStats.capabilities }}</div>
@@ -1746,19 +1748,19 @@ function goToRisk(slug?: string | null) {
                   {{ globalStats.meetsTarget }}/{{ globalStats.hasTarget }} {{ t('reports.meets-target') }}
                 </p>
               </div>
-              <div class="group relative overflow-hidden rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl dark:border-slate-700 dark:bg-slate-800">
+              <div class="group relative overflow-hidden rounded-xl border border-slate-200/80 bg-white p-3.5 shadow-sm transition-shadow hover:shadow-md dark:border-slate-700 dark:bg-slate-800">
                 <div
                     class="pointer-events-none absolute inset-0 opacity-5 transition-opacity duration-300 group-hover:opacity-10"
-                    style="background: radial-gradient(circle at top right, #14b8a6, transparent 70%)"
+                    style="background: radial-gradient(circle at top right, #0f766e, transparent 70%)"
                 />
                 <div class="flex items-center gap-2 text-slate-500 dark:text-slate-400">
-                  <Lucide icon="Database" class="h-4 w-4 text-teal-500" />
+                  <Lucide icon="Database" class="h-4 w-4 text-primary" />
                   <span class="text-[11px] font-medium">{{ t('reports.indicator-count') }}</span>
                 </div>
                 <div class="mt-2 text-2xl font-bold tracking-tight text-slate-900 dark:text-white">{{ globalStats.indicators }}</div>
                 <p class="mt-2 text-[11px] text-slate-400">{{ globalStats.withData }} {{ t('reports.with-data') }}</p>
               </div>
-              <div class="group relative overflow-hidden rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl dark:border-slate-700 dark:bg-slate-800">
+              <div class="group relative overflow-hidden rounded-xl border border-slate-200/80 bg-white p-3.5 shadow-sm transition-shadow hover:shadow-md dark:border-slate-700 dark:bg-slate-800">
                 <div
                     class="pointer-events-none absolute inset-0 opacity-5 transition-opacity duration-300 group-hover:opacity-10"
                     style="background: radial-gradient(circle at top right, #10b981, transparent 70%)"
@@ -1777,7 +1779,7 @@ function goToRisk(slug?: string | null) {
           
 
             <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
-              <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-800">
+              <div class="rounded-xl border border-slate-200/80 bg-white p-3.5 shadow-sm transition-shadow hover:shadow-md dark:border-slate-700 dark:bg-slate-800">
                 <h2 class="text-sm font-semibold text-slate-900 dark:text-white">
                   {{ t('reports.all-capitals-overview') }}
                 </h2>
@@ -1801,7 +1803,7 @@ function goToRisk(slug?: string | null) {
               </div>
 
               <!-- capital comparison bar (same row as the capitals overview, from md up) -->
-              <div class="flex h-full flex-col rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-800">
+              <div class="flex h-full flex-col rounded-xl border border-slate-200/80 bg-white p-3.5 shadow-sm dark:border-slate-700 dark:bg-slate-800">
                 <div class="mb-1 flex items-center gap-2">
                   <Lucide icon="BarChart3" class="h-4 w-4 text-slate-400" />
                   <h3 class="text-sm font-semibold text-slate-900 dark:text-white">{{ t('reports.capital-comparison') }}</h3>
@@ -1844,44 +1846,44 @@ function goToRisk(slug?: string | null) {
 
               <!-- KPI row (risk-dashboard StatCard style) -->
               <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-                <div class="relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800">
-                  <span class="absolute inset-y-0 right-0 w-1 bg-slate-400 dark:bg-slate-500" aria-hidden="true" />
+                <div class="relative overflow-hidden rounded-xl border border-slate-200/80 bg-white p-3.5 shadow-sm dark:border-slate-700 dark:bg-slate-800">
+                  <span class="absolute inset-y-0 right-0 w-0.5 bg-slate-400 dark:bg-slate-500" aria-hidden="true" />
                   <div class="flex items-center justify-between gap-3">
                     <div class="min-w-0">
                       <p class="truncate text-xs font-medium text-slate-500 dark:text-slate-400">{{ t('reports.total-risks') }}</p>
                       <p class="mt-1 text-2xl font-extrabold text-slate-900 dark:text-white">{{ portfolioRisks.total }}</p>
                     </div>
-                    <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-500 dark:bg-slate-700 dark:text-slate-300">
-                      <Lucide icon="ListTodo" class="h-[22px] w-[22px]" />
+                    <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-500 dark:bg-slate-700 dark:text-slate-300">
+                      <Lucide icon="ListTodo" class="h-5 w-5" />
                     </span>
                   </div>
                 </div>
-                <div class="relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800">
-                  <span class="absolute inset-y-0 right-0 w-1 bg-emerald-400 dark:bg-emerald-500" aria-hidden="true" />
+                <div class="relative overflow-hidden rounded-xl border border-slate-200/80 bg-white p-3.5 shadow-sm dark:border-slate-700 dark:bg-slate-800">
+                  <span class="absolute inset-y-0 right-0 w-0.5 bg-emerald-400 dark:bg-emerald-500" aria-hidden="true" />
                   <div class="flex items-center justify-between gap-3">
                     <div class="min-w-0">
                       <p class="truncate text-xs font-medium text-slate-500 dark:text-slate-400">{{ t('reports.active-risks') }}</p>
                       <p class="mt-1 text-2xl font-extrabold text-emerald-600 dark:text-emerald-400">{{ portfolioRisks.active }}</p>
                     </div>
-                    <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-500 dark:bg-emerald-900/30 dark:text-emerald-300">
-                      <Lucide icon="Activity" class="h-[22px] w-[22px]" />
+                    <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-emerald-50 text-emerald-500 dark:bg-emerald-900/30 dark:text-emerald-300">
+                      <Lucide icon="Activity" class="h-5 w-5" />
                     </span>
                   </div>
                 </div>
-                <div class="relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800">
-                  <span class="absolute inset-y-0 right-0 w-1 bg-slate-300 dark:bg-slate-600" aria-hidden="true" />
+                <div class="relative overflow-hidden rounded-xl border border-slate-200/80 bg-white p-3.5 shadow-sm dark:border-slate-700 dark:bg-slate-800">
+                  <span class="absolute inset-y-0 right-0 w-0.5 bg-slate-300 dark:bg-slate-600" aria-hidden="true" />
                   <div class="flex items-center justify-between gap-3">
                     <div class="min-w-0">
                       <p class="truncate text-xs font-medium text-slate-500 dark:text-slate-400">{{ t('reports.archived-risks') }}</p>
                       <p class="mt-1 text-2xl font-extrabold text-slate-500 dark:text-slate-400">{{ portfolioRisks.archived }}</p>
                     </div>
-                    <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-400 dark:bg-slate-700 dark:text-slate-400">
-                      <Lucide icon="Archive" class="h-[22px] w-[22px]" />
+                    <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-400 dark:bg-slate-700 dark:text-slate-400">
+                      <Lucide icon="Archive" class="h-5 w-5" />
                     </span>
                   </div>
                 </div>
-                <div class="relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800">
-                  <span class="absolute inset-y-0 right-0 w-1 bg-rose-400 dark:bg-rose-500" aria-hidden="true" />
+                <div class="relative overflow-hidden rounded-xl border border-slate-200/80 bg-white p-3.5 shadow-sm dark:border-slate-700 dark:bg-slate-800">
+                  <span class="absolute inset-y-0 right-0 w-0.5 bg-rose-400 dark:bg-rose-500" aria-hidden="true" />
                   <div class="flex items-center justify-between gap-3">
                     <div class="min-w-0">
                       <p class="truncate text-xs font-medium text-slate-500 dark:text-slate-400">
@@ -1892,8 +1894,8 @@ function goToRisk(slug?: string | null) {
                         {{ t('reports.risk-level-critical') }}: <b class="text-rose-500">{{ portfolioRiskCritical }}</b>
                       </p>
                     </div>
-                    <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-rose-50 text-rose-500 dark:bg-rose-900/30 dark:text-rose-300">
-                      <Lucide icon="ShieldAlert" class="h-[22px] w-[22px]" />
+                    <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-rose-50 text-rose-500 dark:bg-rose-900/30 dark:text-rose-300">
+                      <Lucide icon="ShieldAlert" class="h-5 w-5" />
                     </span>
                   </div>
                 </div>
@@ -1901,12 +1903,19 @@ function goToRisk(slug?: string | null) {
 
               <!-- distributions: level donut + state bar (risk-dashboard DashboardCard style) -->
               <div class="grid grid-cols-1 gap-4 lg:grid-cols-5">
-                <section class="flex flex-col rounded-2xl border border-slate-200 bg-white p-4 shadow-sm lg:col-span-2 dark:border-slate-700 dark:bg-slate-800">
-                  <header class="mb-3">
-                    <h3 class="text-sm font-bold text-slate-900 dark:text-white">{{ t('reports.risks-by-level') }}</h3>
-                    <p class="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
-                      {{ portfolioRisks.total }} {{ t('reports.risks') }}
-                    </p>
+                <section class="flex flex-col rounded-xl border border-slate-200/80 bg-white p-3.5 shadow-sm lg:col-span-2 dark:border-slate-700 dark:bg-slate-800">
+                  <header class="mb-2.5 flex items-start justify-between gap-2">
+                    <div class="flex items-center gap-2.5">
+                      <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-500">
+                        <Lucide icon="ChartPie" class="h-4 w-4" />
+                      </span>
+                      <div>
+                        <h3 class="text-sm font-semibold text-slate-900 dark:text-white">{{ t('reports.risks-by-level') }}</h3>
+                        <p class="mt-0.5 text-[11px] text-slate-400 dark:text-slate-500">
+                          {{ portfolioRisks.total }} {{ t('reports.risks') }}
+                        </p>
+                      </div>
+                    </div>
                   </header>
                   <div class="flex-1">
                     <div class="h-[240px]">
@@ -1915,12 +1924,19 @@ function goToRisk(slug?: string | null) {
                     </div>
                   </div>
                 </section>
-                <section class="flex flex-col rounded-2xl border border-slate-200 bg-white p-4 shadow-sm lg:col-span-3 dark:border-slate-700 dark:bg-slate-800">
-                  <header class="mb-3">
-                    <h3 class="text-sm font-bold text-slate-900 dark:text-white">{{ t('reports.risks-by-state') }}</h3>
-                    <p class="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
-                      {{ portfolioRisks.total }} {{ t('reports.risks') }}
-                    </p>
+                <section class="flex flex-col rounded-xl border border-slate-200/80 bg-white p-3.5 shadow-sm lg:col-span-3 dark:border-slate-700 dark:bg-slate-800">
+                  <header class="mb-2.5 flex items-start justify-between gap-2">
+                    <div class="flex items-center gap-2.5">
+                      <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-500">
+                        <Lucide icon="ChartBar" class="h-4 w-4" />
+                      </span>
+                      <div>
+                        <h3 class="text-sm font-semibold text-slate-900 dark:text-white">{{ t('reports.risks-by-state') }}</h3>
+                        <p class="mt-0.5 text-[11px] text-slate-400 dark:text-slate-500">
+                          {{ portfolioRisks.total }} {{ t('reports.risks') }}
+                        </p>
+                      </div>
+                    </div>
                   </header>
                   <div class="flex-1" :style="{ height: Math.max(riskStateBarData.labels.length * 30, 160) + 'px' }">
                     <Bar v-if="riskStateBarData.labels.length" :data="riskStateBarData" :options="riskBarOptions" />
@@ -1930,7 +1946,7 @@ function goToRisk(slug?: string | null) {
               </div>
 
               <!-- risk heatmap: capital × level (table UI, matches the other tabs) -->
-              <div v-if="riskHeatmapByCapital.length" class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-800">
+              <div v-if="riskHeatmapByCapital.length" class="rounded-xl border border-slate-200/80 bg-white p-3.5 shadow-sm transition-shadow hover:shadow-md dark:border-slate-700 dark:bg-slate-800">
                 <div class="mb-3 flex flex-wrap items-center gap-2">
                   <Lucide icon="Grid3x3" class="h-4 w-4 text-rose-500" />
                   <h3 class="text-sm font-semibold text-slate-900 dark:text-white">{{ t('reports.risk-heatmap-by-capital') }}</h3>
@@ -1968,7 +1984,7 @@ function goToRisk(slug?: string | null) {
 
             <!-- global leaderboard tables -->
             <div class="grid grid-cols-1 gap-5 lg:grid-cols-2">
-              <div class="rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-800">
+              <div class="rounded-xl border border-slate-200/80 bg-white p-3.5 shadow-sm dark:border-slate-700 dark:bg-slate-800">
                 <div class="flex items-center gap-2 border-b border-slate-100 px-5 py-3 dark:border-slate-700">
                   <Lucide icon="Trophy" class="h-4 w-4 text-emerald-500" />
                   <h3 class="text-sm font-semibold text-slate-900 dark:text-white">{{ t('reports.top-domains') }}</h3>
@@ -1995,7 +2011,7 @@ function goToRisk(slug?: string | null) {
                   </tbody>
                 </table>
               </div>
-              <div class="rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-800">
+              <div class="rounded-xl border border-slate-200/80 bg-white p-3.5 shadow-sm dark:border-slate-700 dark:bg-slate-800">
                 <div class="flex items-center gap-2 border-b border-slate-100 px-5 py-3 dark:border-slate-700">
                   <Lucide icon="TrendingDown" class="h-4 w-4 text-rose-500" />
                   <h3 class="text-sm font-semibold text-slate-900 dark:text-white">{{ t('reports.bottom-domains') }}</h3>
@@ -2029,7 +2045,7 @@ function goToRisk(slug?: string | null) {
           <div v-else-if="activeCapital" class="grid grid-cols-1 gap-5 lg:grid-cols-12">
             <!-- capital KPI strip -->
             <div v-if="capitalStats" class="grid gap-3 sm:grid-cols-2 lg:col-span-12 lg:grid-cols-3 xl:grid-cols-6">
-              <div class="group relative overflow-hidden rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl dark:border-slate-700 dark:bg-slate-800">
+              <div class="group relative overflow-hidden rounded-xl border border-slate-200/80 bg-white p-3.5 shadow-sm transition-shadow hover:shadow-md dark:border-slate-700 dark:bg-slate-800">
                 <div
                     class="pointer-events-none absolute inset-0 opacity-5 transition-opacity duration-300 group-hover:opacity-10"
                     :style="{ background: `radial-gradient(circle at top right, ${activeCapital.maturity.color}, transparent 70%)` }"
@@ -2047,38 +2063,38 @@ function goToRisk(slug?: string | null) {
                 </div>
               </div>
 
-              <div class="group relative overflow-hidden rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl dark:border-slate-700 dark:bg-slate-800">
+              <div class="group relative overflow-hidden rounded-xl border border-slate-200/80 bg-white p-3.5 shadow-sm transition-shadow hover:shadow-md dark:border-slate-700 dark:bg-slate-800">
                 <div
                     class="pointer-events-none absolute inset-0 opacity-5 transition-opacity duration-300 group-hover:opacity-10"
-                    style="background: radial-gradient(circle at top right, #0ea5e9, transparent 70%)"
+                    style="background: radial-gradient(circle at top right, #0f766e, transparent 70%)"
                 />
                 <div class="flex items-center gap-2 text-slate-500 dark:text-slate-400">
-                  <Lucide icon="Grid3x3" class="h-4 w-4 text-sky-500" />
+                  <Lucide icon="Grid3x3" class="h-4 w-4 text-primary" />
                   <span class="text-[11px] font-medium">{{ t('reports.domain-count') }}</span>
                 </div>
                 <div class="mt-2 text-2xl font-bold tracking-tight text-slate-900 dark:text-white">{{ activeCapital.domains.length }}</div>
                 <p class="mt-2 text-[11px] text-slate-400">{{ activeCapital.titleEn || activeCapital.title }}</p>
               </div>
 
-              <div class="group relative overflow-hidden rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl dark:border-slate-700 dark:bg-slate-800">
+              <div class="group relative overflow-hidden rounded-xl border border-slate-200/80 bg-white p-3.5 shadow-sm transition-shadow hover:shadow-md dark:border-slate-700 dark:bg-slate-800">
                 <div
                     class="pointer-events-none absolute inset-0 opacity-5 transition-opacity duration-300 group-hover:opacity-10"
-                    style="background: radial-gradient(circle at top right, #3b82f6, transparent 70%)"
+                    style="background: radial-gradient(circle at top right, #0f766e, transparent 70%)"
                 />
                 <div class="flex items-center gap-2 text-slate-500 dark:text-slate-400">
-                  <Lucide icon="Boxes" class="h-4 w-4 text-blue-500" />
+                  <Lucide icon="Boxes" class="h-4 w-4 text-primary" />
                   <span class="text-[11px] font-medium">{{ t('reports.component-count') }}</span>
                 </div>
                 <div class="mt-2 text-2xl font-bold tracking-tight text-slate-900 dark:text-white">{{ capitalStats.components }}</div>
               </div>
 
-              <div class="group relative overflow-hidden rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl dark:border-slate-700 dark:bg-slate-800">
+              <div class="group relative overflow-hidden rounded-xl border border-slate-200/80 bg-white p-3.5 shadow-sm transition-shadow hover:shadow-md dark:border-slate-700 dark:bg-slate-800">
                 <div
                     class="pointer-events-none absolute inset-0 opacity-5 transition-opacity duration-300 group-hover:opacity-10"
-                    style="background: radial-gradient(circle at top right, #8b5cf6, transparent 70%)"
+                    style="background: radial-gradient(circle at top right, #0f766e, transparent 70%)"
                 />
                 <div class="flex items-center gap-2 text-slate-500 dark:text-slate-400">
-                  <Lucide icon="Target" class="h-4 w-4 text-violet-500" />
+                  <Lucide icon="Target" class="h-4 w-4 text-primary" />
                   <span class="text-[11px] font-medium">{{ t('reports.capability-count') }}</span>
                 </div>
                 <div class="mt-2 text-2xl font-bold tracking-tight text-slate-900 dark:text-white">{{ capitalStats.capabilities }}</div>
@@ -2087,20 +2103,20 @@ function goToRisk(slug?: string | null) {
                 </p>
               </div>
 
-              <div class="group relative overflow-hidden rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl dark:border-slate-700 dark:bg-slate-800">
+              <div class="group relative overflow-hidden rounded-xl border border-slate-200/80 bg-white p-3.5 shadow-sm transition-shadow hover:shadow-md dark:border-slate-700 dark:bg-slate-800">
                 <div
                     class="pointer-events-none absolute inset-0 opacity-5 transition-opacity duration-300 group-hover:opacity-10"
-                    style="background: radial-gradient(circle at top right, #14b8a6, transparent 70%)"
+                    style="background: radial-gradient(circle at top right, #0f766e, transparent 70%)"
                 />
                 <div class="flex items-center gap-2 text-slate-500 dark:text-slate-400">
-                  <Lucide icon="Database" class="h-4 w-4 text-teal-500" />
+                  <Lucide icon="Database" class="h-4 w-4 text-primary" />
                   <span class="text-[11px] font-medium">{{ t('reports.indicator-count') }}</span>
                 </div>
                 <div class="mt-2 text-2xl font-bold tracking-tight text-slate-900 dark:text-white">{{ capitalStats.indicators }}</div>
                 <p class="mt-2 text-[11px] text-slate-400">{{ capitalStats.withData }} {{ t('reports.with-data') }}</p>
               </div>
 
-              <div class="group relative overflow-hidden rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl dark:border-slate-700 dark:bg-slate-800">
+              <div class="group relative overflow-hidden rounded-xl border border-slate-200/80 bg-white p-3.5 shadow-sm transition-shadow hover:shadow-md dark:border-slate-700 dark:bg-slate-800">
                 <div
                     class="pointer-events-none absolute inset-0 opacity-5 transition-opacity duration-300 group-hover:opacity-10"
                     style="background: radial-gradient(circle at top right, #10b981, transparent 70%)"
@@ -2118,7 +2134,7 @@ function goToRisk(slug?: string | null) {
 
             <!-- hero score -->
             <div
-                class="group relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 text-center shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl lg:col-span-4 dark:border-slate-700 dark:bg-slate-800"
+                class="group relative overflow-hidden rounded-xl border border-slate-200/80 bg-white p-4 text-center shadow-sm transition-shadow hover:shadow-md lg:col-span-4 dark:border-slate-700 dark:bg-slate-800"
             >
               <div class="absolute inset-x-0 top-0 h-1" :style="{ backgroundColor: activeCapital.maturity.color }" />
               <div
@@ -2184,7 +2200,7 @@ function goToRisk(slug?: string | null) {
             </div>
 
             <!-- radar -->
-            <div class="lg:col-span-8 rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-800">
+            <div class="lg:col-span-8 rounded-xl border border-slate-200/80 bg-white p-3.5 shadow-sm dark:border-slate-700 dark:bg-slate-800">
               <h3 class="text-sm font-semibold text-slate-900 dark:text-white">
                 {{ t('reports.domain-distribution') }}
               </h3>
@@ -2194,7 +2210,7 @@ function goToRisk(slug?: string | null) {
             </div>
 
             <!-- component comparison bar + capital maturity donut -->
-            <div class="lg:col-span-12 rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-800">
+            <div class="lg:col-span-12 rounded-xl border border-slate-200/80 bg-white p-3.5 shadow-sm dark:border-slate-700 dark:bg-slate-800">
               <div class="mb-1 flex items-center gap-2">
                 <Lucide icon="BarChart3" class="h-4 w-4 text-slate-400" />
                 <h3 class="text-sm font-semibold text-slate-900 dark:text-white">{{ t('reports.top-components') }}</h3>
@@ -2486,7 +2502,7 @@ function goToRisk(slug?: string | null) {
                                 <button
                                     v-if="risk.slug"
                                     type="button"
-                                    class="text-right font-medium text-indigo-600 hover:underline dark:text-indigo-400"
+                                    class="text-right font-medium text-primary hover:underline dark:text-primary"
                                     @click="goToRisk(risk.slug)"
                                 >
                                   {{ risk.title || '—' }}

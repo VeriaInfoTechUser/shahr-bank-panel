@@ -4,17 +4,18 @@ import VChart from "vue-echarts"
 import "../echarts"
 import { chartFont, tooltipStyle, splitLineColor } from "../echarts"
 import { toFa } from "../helpers"
+import { theme } from "@/config/theme"
 import type { ScoreRange } from "../types"
 
 const props = defineProps<{ data: ScoreRange[] }>()
 
-/** رنگ هر بازه امتیاز تطبیق: ۰ خاکستری (شروع‌نشده) تا ۱۰۰ سبز */
+/** رنگ هر بازه امتیاز تطبیق: ۰ خاکستری (شروع‌نشده) تا ۱۰۰ سبز — از تم مرکزی */
 const rangeColors: Record<string, string> = {
-  "0": "#94a3b8",
-  "1-25": "#f43f5e",
-  "26-50": "#fb923c",
-  "51-75": "#facc15",
-  "76-100": "#34d399",
+  "0": theme.status.draft,
+  "1-25": theme.status.critical,
+  "26-50": theme.status.high,
+  "51-75": theme.status.medium,
+  "76-100": theme.status.low,
 }
 
 const option = computed(() => ({
@@ -59,5 +60,5 @@ const option = computed(() => ({
 </script>
 
 <template>
-  <VChart :option="option" autoresize class="h-72 w-full" />
+  <VChart :option="option" autoresize class="h-full min-h-64 w-full" />
 </template>

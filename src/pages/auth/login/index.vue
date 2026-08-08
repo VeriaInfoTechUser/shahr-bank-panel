@@ -123,12 +123,9 @@ const featureItems = [
               <img :alt="$t('title.logo-alt')" class="w-20 h-20 object-contain drop-shadow-lg" :src="logoUrl" />
             </div>
             <div>
-              <h1 class="text-lg font-extrabold text-slate-900 dark:text-white leading-snug">
+              <h1 class="text-lg font-extrabold text-primary dark:text-white leading-snug">
                 {{ $t('title.panel-title') }}
               </h1>
-              <p class="mt-2 max-w-md text-xs sm:text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-                {{ $t('title.auth.heroDescription') }}
-              </p>
             </div>
           </div>
 

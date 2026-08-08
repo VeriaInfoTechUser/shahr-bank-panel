@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from "vue"
-import { toFa } from "../helpers"
+import { toFa, withAlpha } from "../helpers"
+import { theme } from "@/config/theme"
 import type { MatrixCell } from "../types"
 
 const props = defineProps<{ data: MatrixCell[] }>()
@@ -17,22 +18,22 @@ function cellOf(impact: number, likelihood: number): MatrixCell | undefined {
   return props.data.find((d) => d.impact === impact && d.likelihood === likelihood)
 }
 
-/** رنگ پایه سلول بر اساس حاصل‌ضرب احتمال × اثر */
+/** رنگ پایه سلول بر اساس حاصل‌ضرب احتمال × اثر — از سطوح ریسک تم مرکزی */
 function baseColor(score: number): string {
-  if (score >= 15) return "244, 63, 94" // rose
-  if (score >= 10) return "251, 146, 60" // orange
-  if (score >= 5) return "250, 204, 21" // amber
-  return "52, 211, 153" // emerald
+  if (score >= 15) return theme.status.critical
+  if (score >= 10) return theme.status.high
+  if (score >= 5) return theme.status.medium
+  return theme.status.low
 }
 
 function cellStyle(impact: number, likelihood: number) {
   const cell = cellOf(impact, likelihood)
   const count = cell?.count ?? 0
-  const rgb = baseColor(impact * likelihood)
+  const color = baseColor(impact * likelihood)
   const intensity = count === 0 ? 0.08 : 0.28 + (count / maxCount.value) * 0.6
   return {
-    backgroundColor: `rgba(${rgb}, ${intensity})`,
-    borderColor: `rgba(${rgb}, ${count === 0 ? 0.15 : 0.5})`,
+    backgroundColor: withAlpha(color, intensity),
+    borderColor: withAlpha(color, count === 0 ? 0.15 : 0.5),
     color: count === 0 ? "#94a3b8" : "#0f172a",
   }
 }
@@ -85,16 +86,16 @@ function cellStyle(impact: number, likelihood: number) {
 
     <div class="mt-3 flex shrink-0 items-center justify-center gap-4 text-[11px] text-slate-500">
       <span class="flex items-center gap-1">
-        <span class="h-2.5 w-2.5 rounded-sm" style="background-color: #34d399" /> کم‌خطر
+        <span class="h-2.5 w-2.5 rounded-sm" :style="{ backgroundColor: theme.status.low }" /> کم‌خطر
       </span>
       <span class="flex items-center gap-1">
-        <span class="h-2.5 w-2.5 rounded-sm" style="background-color: #facc15" /> متوسط
+        <span class="h-2.5 w-2.5 rounded-sm" :style="{ backgroundColor: theme.status.medium }" /> متوسط
       </span>
       <span class="flex items-center gap-1">
-        <span class="h-2.5 w-2.5 rounded-sm" style="background-color: #fb923c" /> بالا
+        <span class="h-2.5 w-2.5 rounded-sm" :style="{ backgroundColor: theme.status.high }" /> بالا
       </span>
       <span class="flex items-center gap-1">
-        <span class="h-2.5 w-2.5 rounded-sm" style="background-color: #f43f5e" /> بحرانی
+        <span class="h-2.5 w-2.5 rounded-sm" :style="{ backgroundColor: theme.status.critical }" /> بحرانی
       </span>
     </div>
   </div>

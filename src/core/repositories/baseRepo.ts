@@ -20,8 +20,12 @@ export abstract class BaseRepo {
     return this.client.get<T>(endpoint, params);
   }
 
-  protected async post<T>(endpoint: string, body?: unknown): Promise<T> {
-    return this.client.post<T>(endpoint, body);
+  protected async post<T>(
+    endpoint: string,
+    body?: unknown,
+    options?: { silent?: boolean }
+  ): Promise<T> {
+    return this.client.post<T>(endpoint, body, options);
   }
 
   protected async put<T>(endpoint: string, body?: unknown): Promise<T> {

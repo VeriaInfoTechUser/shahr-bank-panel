@@ -47,6 +47,7 @@ import {
 
 import { ermRepo } from "@/core/repositories/ermRepo"
 import { fetchMemberLightListCached } from "@/core/erm/ruleAuthorTypeOptionsCache"
+import { theme } from "@/config/theme"
 
 const props = defineProps<{
   data: DashboardData
@@ -114,12 +115,12 @@ const threatCount = computed(
  * فقط تفکیک سطح و ماهیت را نشان می‌دهد.
  */
 const bannerItems = computed(() => [
-  { label: "کل ریسک‌ها", value: summary.value.total, icon: IconLayersIntersect, color: "#0ea5e9" },
-  { label: "بالا", value: highCount.value, icon: IconAlertTriangle, color: "#fb923c" },
-  { label: "متوسط", value: mediumCount.value, icon: IconRadar2, color: "#facc15" },
-  { label: "پایین", value: lowCount.value, icon: IconTrendingDown, color: "#34d399" },
-  { label: "تهدیدها", value: threatCount.value, icon: IconAlertHexagon, color: "#f43f5e" },
-  { label: "فرصت‌ها", value: opportunityCount.value, icon: IconTrendingUp, color: "#2dd4bf" },
+  { label: "کل ریسک‌ها", value: summary.value.total, icon: IconLayersIntersect, color: theme.status.done },
+  { label: "بالا", value: highCount.value, icon: IconAlertTriangle, color: theme.status.high },
+  { label: "متوسط", value: mediumCount.value, icon: IconRadar2, color: theme.status.medium },
+  { label: "پایین", value: lowCount.value, icon: IconTrendingDown, color: theme.status.low },
+  { label: "تهدیدها", value: threatCount.value, icon: IconAlertHexagon, color: theme.status.threat },
+  { label: "فرصت‌ها", value: opportunityCount.value, icon: IconTrendingUp, color: theme.status.opportunity },
 ])
 </script>
 
@@ -134,28 +135,28 @@ const bannerItems = computed(() => [
           label="کل ریسک‌ها"
           :value="summary.total"
           :icon="IconLayersIntersect"
-          accent="#0ea5e9"
+          :accent="theme.status.done"
           :hint="`${toFa(highCount + criticalCount)} مورد پرخطر`"
         />
         <StatCard
           label="ریسک‌های بحرانی"
           :value="criticalCount"
           :icon="IconAlertHexagon"
-          accent="#f43f5e"
+          :accent="theme.status.critical"
           hint="نیازمند اقدام فوری"
         />
         <StatCard
           label="دارای تأخیر"
           :value="overdueCount"
           :icon="IconCalendarExclamation"
-          accent="#fb923c"
+          :accent="theme.status.high"
           hint="مهلت سپری‌شده"
         />
         <StatCard
           label="در حال پایش"
           :value="monitoringCount"
           :icon="IconActivityHeartbeat"
-          accent="#2dd4bf"
+          :accent="theme.status.monitoring"
           hint="تحت کنترل"
         />
       </div>
@@ -171,7 +172,6 @@ const bannerItems = computed(() => [
           title="ماتریس ریسک (احتمال × اثر)"
           subtitle="تراکم ریسک‌ها بر اساس شدت"
           :icon="IconRadar2"
-          accent="#0ea5e9"
         >
           <RiskMatrix :data="data.riskMatrix" />
         </DashboardCard>
@@ -180,7 +180,6 @@ const bannerItems = computed(() => [
           title="توزیع امتیاز ریسک"
           subtitle="بازه‌بندی امتیاز"
           :icon="IconChartHistogram"
-          accent="#8b5cf6"
         >
           <ScoreHistogram :data="data.scoreDistribution" />
         </DashboardCard>
@@ -192,7 +191,6 @@ const bannerItems = computed(() => [
           title="دسته‌های اصلی ریسک"
           subtitle="دسته‌بندی‌های پرتکرار ریسک"
           :icon="IconListNumbers"
-          accent="#f43f5e"
         >
           <TopDrivers :data="data.categoryDistribution" />
         </DashboardCard>
@@ -201,7 +199,6 @@ const bannerItems = computed(() => [
           title="توزیع بر اساس دسته‌بندی"
           subtitle="تفکیک سطح ریسک در هر دسته"
           :icon="IconCategory"
-          accent="#0ea5e9"
         >
           <CategoryStacked :data="data.categoryDistribution" />
         </DashboardCard>
@@ -209,16 +206,16 @@ const bannerItems = computed(() => [
 
       <!-- ============ Status donuts row ============ -->
       <div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <DashboardCard title="توزیع بر اساس سطح ریسک" subtitle="پراکندگی شدت ریسک‌ها" :icon="IconPalette" accent="#f43f5e">
+        <DashboardCard title="توزیع بر اساس سطح ریسک" subtitle="پراکندگی شدت ریسک‌ها" :icon="IconPalette">
           <LevelDonut :data="summary.byLevel" />
         </DashboardCard>
-        <DashboardCard title="وضعیت چرخه عمر" subtitle="تعداد ریسک در هر مرحله" :icon="IconGitBranch" accent="#8b5cf6">
+        <DashboardCard title="وضعیت چرخه عمر" subtitle="تعداد ریسک در هر مرحله" :icon="IconGitBranch">
           <StateBar :data="summary.byState" />
         </DashboardCard>
-        <DashboardCard title="ماهیت ریسک" subtitle="تفکیک تهدید و فرصت" :icon="IconAlertTriangle" accent="#fb923c">
+        <DashboardCard title="ماهیت ریسک" subtitle="تفکیک تهدید و فرصت" :icon="IconAlertTriangle">
           <TypeSplit :data="summary.byType" />
         </DashboardCard>
-        <DashboardCard title="توزیع مالکیت ریسک" subtitle="بار کاری کارشناسان" :icon="IconUser" accent="#2dd4bf">
+        <DashboardCard title="توزیع مالکیت ریسک" subtitle="بار کاری کارشناسان" :icon="IconUser">
           <OwnerPanel :data="data.ownerDistribution" :member-names="memberNames" />
         </DashboardCard>
       </div>
@@ -229,7 +226,6 @@ const bannerItems = computed(() => [
           title="ریسک‌های برتر بر اساس فاز"
           subtitle="تحلیل / پاسخ / پایش"
           :icon="IconBuildingSkyscraper"
-          accent="#8b5cf6"
         >
           <PhaseTabs
             :analysis="data.topAnalysis"
@@ -242,7 +238,6 @@ const bannerItems = computed(() => [
           title="فعالیت‌های اخیر"
           subtitle="آخرین تغییرات ریسک‌ها"
           :icon="IconHistory"
-          accent="#2dd4bf"
         >
           <div class="max-h-96 overflow-y-auto pl-1">
             <RiskList :items="data.recentActivity" show-framework :member-names="memberNames" />
@@ -256,7 +251,6 @@ const bannerItems = computed(() => [
           title="نقشه حرارتی چارچوب‌ها"
           subtitle="پراکندگی سطح ریسک در هر چارچوب"
           :icon="IconLayoutGrid"
-          accent="#0ea5e9"
         >
           <FrameworkHeatmap :heatmap="data.frameworkHeatmap" :overview="data.frameworkOverview" />
         </DashboardCard>
@@ -264,7 +258,6 @@ const bannerItems = computed(() => [
           title="ریسک‌های حدی هر چارچوب"
           subtitle="بیشترین و کمترین امتیاز"
           :icon="IconGitBranch"
-          accent="#f43f5e"
         >
           <FrameworkExtremes :high="data.frameworkHighRisk" :low="data.frameworkLowRisk" />
         </DashboardCard>
@@ -272,7 +265,6 @@ const bannerItems = computed(() => [
           title="توزیع ریسک بر اساس دامنه کنترلی"
           subtitle="دامنه‌های پرتکرار در چارچوب‌ها"
           :icon="IconCategory"
-          accent="#8b5cf6"
         >
           <RiskByDomain :data="data.riskByDomain" />
         </DashboardCard>
@@ -284,7 +276,6 @@ const bannerItems = computed(() => [
           title="ریسک‌های دارای تأخیر"
           :subtitle="`${toFa(overdueCount)} مورد — مهلت سپری‌شده`"
           :icon="IconCalendarClock"
-          accent="#f59e0b"
         >
           <div class="max-h-96 overflow-y-auto pl-1">
             <DeadlineList :items="data.overdueRisks" />
@@ -294,7 +285,6 @@ const bannerItems = computed(() => [
           title="دسترسی سریع"
           subtitle="مسیرهای پرکاربرد"
           :icon="IconBook2"
-          accent="#0ea5e9"
         >
           <QuickLinks />
         </DashboardCard>

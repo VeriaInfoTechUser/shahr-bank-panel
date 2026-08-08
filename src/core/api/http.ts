@@ -62,12 +62,15 @@ function createHttpClient(): AxiosInstance {
       const requestId = (error.config as AxiosRequestConfig & { requestId?: string })?.requestId;
       const endpoint = error.config?.url ?? 'unknown';
       const method = (error.config?.method ?? 'GET').toUpperCase();
+      // درخواست‌های پس‌زمینه/اختیاری (مثل lookup اسامی) نباید برای کاربر توست خطا نمایش دهند
+      const silent =
+        (error.config as AxiosRequestConfig & { silent?: boolean })?.silent === true;
 
       const normalized = handleApiError(error, {
         requestId: requestId ?? 'unknown',
         endpoint,
         method,
-        showToast: true,
+        showToast: !silent,
       });
 
       const userId = getCookie('utn') ? 'authenticated' : null;

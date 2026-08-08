@@ -1,3 +1,4 @@
+import { theme } from "@/config/theme"
 import type { RiskLevel, RiskState, RiskType } from "./types"
 
 export const levelLabels: Record<RiskLevel, string> = {
@@ -22,22 +23,43 @@ export const typeLabels: Record<RiskType, string> = {
   opportunity: "فرصت",
 }
 
-/** رنگ متناظر هر سطح ریسک */
+/** رنگ متناظر هر سطح ریسک — از تم مرکزی (src/config/theme.ts) */
 export const levelColors: Record<RiskLevel, string> = {
-  critical: "#f43f5e",
-  high: "#fb923c",
-  medium: "#facc15",
-  low: "#34d399",
+  critical: theme.status.critical,
+  high: theme.status.high,
+  medium: theme.status.medium,
+  low: theme.status.low,
 }
 
+/** رنگ متناظر هر وضعیت چرخه عمر — از تم مرکزی */
 export const stateColors: Record<RiskState, string> = {
-  draft: "#94a3b8",
-  registered: "#60a5fa",
-  analysis: "#a78bfa",
-  response: "#22d3ee",
-  monitoring: "#2dd4bf",
-  closed: "#34d399",
-  archived: "#64748b",
+  draft: theme.status.draft,
+  registered: theme.status.registered,
+  analysis: theme.status.analysis,
+  response: theme.status.response,
+  monitoring: theme.status.monitoring,
+  closed: theme.status.closed,
+  archived: theme.status.archived,
+}
+
+/** رنگ متناظر ماهیت ریسک — از تم مرکزی */
+export const typeColors: Record<RiskType, string> = {
+  threat: theme.status.threat,
+  opportunity: theme.status.opportunity,
+}
+
+/** تبدیل HEX به سه‌تایی RGB (برای ساخت rgba با شفافیت) */
+export function hexToRgb(hex: string): [number, number, number] {
+  const m = hex.replace("#", "")
+  const full = m.length === 3 ? m.split("").map((c) => c + c).join("") : m
+  const n = parseInt(full, 16)
+  return [(n >> 16) & 255, (n >> 8) & 255, n & 255]
+}
+
+/** ساخت رشته rgba از رنگ تم با شفافیت دلخواه */
+export function withAlpha(hex: string, alpha: number): string {
+  const [r, g, b] = hexToRgb(hex)
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`
 }
 
 const faNum = new Intl.NumberFormat("fa-IR")

@@ -3,13 +3,13 @@ import { computed } from "vue"
 import VChart from "vue-echarts"
 import "../echarts"
 import { chartFont, tooltipStyle, splitLineColor } from "../echarts"
-import { toFa } from "../helpers"
+import { toFa, levelColors } from "../helpers"
 import type { ScoreRange } from "../types"
 
 const props = defineProps<{ data: ScoreRange[] }>()
 
-/** رنگ هر بازه امتیاز از کم‌خطر تا پرخطر */
-const rangeColors = ["#34d399", "#facc15", "#fb923c", "#f43f5e"]
+/** رنگ هر بازه امتیاز از کم‌خطر تا پرخطر — از تم مرکزی (سطح‌های ریسک) */
+const rangeColors = [levelColors.low, levelColors.medium, levelColors.high, levelColors.critical]
 
 const option = computed(() => ({
   grid: { top: 16, right: 16, bottom: 24, left: 8, containLabel: true },

@@ -199,6 +199,25 @@ export const theme = {
     rejected: '#ef4444',
     done: '#0ea5e9',
     cancelled: '#64748b',
+
+    // ── Risk levels (سطح ریسک) ──────────────────────────────────────────
+    critical: '#f43f5e',
+    high: '#fb923c',
+    medium: '#facc15',
+    low: '#34d399',
+
+    // ── Risk lifecycle states (وضعیت چرخه عمر ریسک) ─────────────────────
+    draft: '#94a3b8',
+    registered: '#60a5fa',
+    analysis: '#a78bfa',
+    response: '#22d3ee',
+    monitoring: '#2dd4bf',
+    closed: '#34d399',
+    archived: '#64748b',
+
+    // ── Risk types (ماهیت ریسک) ─────────────────────────────────────────
+    threat: '#f43f5e',
+    opportunity: '#2dd4bf',
   } as const,
 
   /**

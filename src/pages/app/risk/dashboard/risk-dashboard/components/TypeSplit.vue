@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from "vue"
-import { typeLabels, toFa } from "../helpers"
+import { typeLabels, toFa, typeColors } from "../helpers"
 import type { CountByType } from "../types"
 import { IconAlertTriangle, IconTrendingUp } from "@tabler/icons-vue"
 
@@ -9,8 +9,8 @@ const props = defineProps<{ data: CountByType[] }>()
 const total = computed(() => props.data.reduce((s, d) => s + d.count, 0))
 
 const meta = {
-  threat: { color: "#f43f5e", icon: IconAlertTriangle },
-  opportunity: { color: "#34d399", icon: IconTrendingUp },
+  threat: { color: typeColors.threat, icon: IconAlertTriangle },
+  opportunity: { color: typeColors.opportunity, icon: IconTrendingUp },
 } as const
 
 const rows = computed(() =>

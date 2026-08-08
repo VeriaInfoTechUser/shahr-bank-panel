@@ -141,7 +141,7 @@ export async function fetchMemberLightListCached(ermRepo: ErmRepo): Promise<unkn
   if (memberLightListCache !== null) return memberLightListCache;
   if (!memberLightListInflight) {
     memberLightListInflight = ermRepo
-      .memberLightList({ ...DROPDOWN_LIST_PARAMS })
+      .memberLightList({ ...DROPDOWN_LIST_PARAMS }, { silent: true })
       .then((res) => {
         memberLightListCache = res;
         return res;

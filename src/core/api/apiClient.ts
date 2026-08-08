@@ -14,8 +14,15 @@ export class ApiClient {
     return httpRequest<T>(config);
   }
 
-  async post<T>(endpoint: string, body?: unknown): Promise<T> {
+  async post<T>(
+    endpoint: string,
+    body?: unknown,
+    options?: { silent?: boolean }
+  ): Promise<T> {
     const config: AxiosRequestConfig = { method: 'POST', url: endpoint, data: body };
+    if (options?.silent) {
+      (config as AxiosRequestConfig & { silent?: boolean }).silent = true;
+    }
     return httpRequest<T>(config);
   }
 

@@ -1,8 +1,9 @@
-// export const base_url = 'https://esg-core.veriainfotech.com/';
-// export const base_url = 'http://localhost:8085/';
-export const base_url = 'https://rastak-oauth.webx.ir/';
-// export const grc_base_url = 'https://rastak-core.webx.ir/api/v1';
-export const grc_base_url = 'http://localhost:3000/api/v1/';
+/**
+ * API base URLs — driven by environment variables (see .env.example).
+ * These are baked into the bundle at build time by Vite.
+ */
+export const base_url = import.meta.env.VITE_BASE_URL || 'https://rastak-oauth.webx.ir/';
+export const grc_base_url = import.meta.env.VITE_GRC_BASE_URL || 'http://localhost:3000/api/v1/';
 
 export const setting = {
   wallet: {

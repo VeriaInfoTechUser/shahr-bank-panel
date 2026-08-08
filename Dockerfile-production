@@ -1,10 +1,33 @@
+# Production image — multi-stage build:
+#   1. build stage: install deps, inject API endpoints (build args), `vite build`
+#   2. web stage: serve the static bundle with nginx (SPA fallback, gzip, caching)
+#
+# Build with custom endpoints:
+#   docker build -f Dockerfile-production \
+#                --build-arg VITE_BASE_URL=https://api.example.com/ \
+#                --build-arg VITE_GRC_BASE_URL=https://grc.example.com/api/v1/ \
+#                -t admin-panel:prod .
 FROM node:20.18.0-alpine AS build
 
 WORKDIR /app
+
 COPY package*.json ./
-RUN npm install
+# npm ci: reproducible install from the lockfile
+RUN npm ci
+
+ARG VITE_BASE_URL
+ARG VITE_GRC_BASE_URL
+ENV VITE_BASE_URL=$VITE_BASE_URL \
+    VITE_GRC_BASE_URL=$VITE_GRC_BASE_URL
+
 COPY . .
 RUN npm run build
 
-FROM scratch AS web
-COPY --from=build /app/dist /
+FROM nginx:1.27-alpine
+
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY --from=build /app/dist /usr/share/nginx/html
+
+EXPOSE 80
+
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 CMD wget -q -O /dev/null http://127.0.0.1/

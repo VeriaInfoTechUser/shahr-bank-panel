@@ -1,0 +1,28 @@
+# Dependencies
+node_modules
+
+# Build output
+dist
+
+# Env files — endpoints are injected via --build-arg, never baked from local .env
+.env
+.env.*
+!.env.example
+
+# VCS / tooling
+.git
+.github
+.freebuff
+.context
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS / editor
+.DS_Store
+.vscode
+.idea
+
+# Vite cache
+.vite

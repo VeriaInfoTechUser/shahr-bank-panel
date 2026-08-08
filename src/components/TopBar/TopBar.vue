@@ -58,10 +58,9 @@ const initials = computed(() => {
           </span>
           <span class="hidden md:flex flex-col leading-none min-w-0">
             <span
-                class="max-w-[240px] truncate text-sm font-extrabold text-text-primary lg:text-base"
+                class="max-w-[340px] truncate text-sm font-extrabold text-text-primary lg:text-base"
                 :title="$t('title.web-title-short')"
             >{{ $t("title.web-title-short") }}</span>
-            <span class="text-[10px] font-semibold tracking-[0.18em] text-primary mt-0.5">GNC PLATFORM</span>
           </span>
         </RouterLink>
         <!-- END: Logo + brand badge -->

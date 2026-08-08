@@ -415,7 +415,7 @@ function go(name: string) {
     <!-- ===== Header ===== -->
     <header class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
       <div class="min-w-0 max-w-3xl">
-        <h1 class="text-xl font-extrabold leading-relaxed text-text-primary md:text-2xl md:leading-relaxed">
+        <h1 class="text-base   font-extrabold leading-relaxed  text-primary md:text-base md:leading-relaxed">
           {{ t('dashboard-page.subtitle') }}
         </h1>
       </div>

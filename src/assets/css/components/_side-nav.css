@@ -114,29 +114,15 @@
       /* First level */
       & > .side-menu {
         &.side-menu--active {
-          background-image: linear-gradient(135deg, rgb(var(--color-primary)) 0%, rgb(var(--color-primary-hover)) 100%);
+          background-color: rgb(var(--color-primary));
           color: white;
-          z-index: 10;
-          box-shadow: 0 6px 16px -6px rgb(var(--color-primary) / 50%);
-          &::before {
-            content: "";
-            position: absolute;
-            inset-inline-start: -2px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 4px;
-            height: 56%;
-            border-radius: 999px;
-            background: rgba(255, 255, 255, 0.92);
-            box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
-          }
+          box-shadow: 0 4px 12px -4px rgb(var(--color-primary) / 40%);
           .side-menu__icon {
             color: white;
-            background-color: theme("colors.white" / 18%);
+            background-color: theme("colors.white" / 15%);
           }
           .side-menu__title {
             font-weight: theme("fontWeight.semibold");
-            z-index: 10;
           }
           .side-menu__sub-icon {
             color: theme("colors.white" / 80%);
@@ -181,17 +167,6 @@
             background-color: rgb(var(--color-primary) / 10%);
             color: rgb(var(--color-primary));
             box-shadow: none;
-            &::before {
-              content: "";
-              position: absolute;
-              inset-inline-start: -1px;
-              top: 50%;
-              transform: translateY(-50%);
-              width: 3px;
-              height: 45%;
-              border-radius: 999px;
-              background: rgb(var(--color-primary));
-            }
             .side-menu__title {
               font-weight: theme("fontWeight.semibold");
             }
@@ -240,17 +215,6 @@
                 &.side-menu--active {
                   background-color: rgb(var(--color-primary) / 10%);
                   color: rgb(var(--color-primary));
-                  &::before {
-                    content: "";
-                    position: absolute;
-                    inset-inline-start: -1px;
-                    top: 50%;
-                    transform: translateY(-50%);
-                    width: 3px;
-                    height: 45%;
-                    border-radius: 999px;
-                    background: rgb(var(--color-primary));
-                  }
                   .side-menu__title {
                     font-weight: theme("fontWeight.semibold");
                   }

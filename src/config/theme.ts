@@ -320,7 +320,7 @@ export const theme = {
     buttonHeight: 40,
     inputHeight: 32,
     headerHeight: 64,
-    sidebarWidth: 260,
+    sidebarWidth: 212,
     sidebarCollapsedWidth: 74,
     cardRadius: 12,
     modalRadius: 12,

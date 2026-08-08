@@ -1,15 +1,27 @@
 <script setup lang="ts">
 import { computed } from "vue"
 import VChart from "vue-echarts"
-import "../echarts"
-import { chartFont, tooltipStyle, splitLineColor } from "../echarts"
-import { toFa, levelColors } from "../helpers"
-import type { ScoreRange } from "../types"
+import "./echarts"
+import { chartFont, tooltipStyle, splitLineColor } from "./echarts"
+import { toFa } from "./helpers"
 
-const props = defineProps<{ data: ScoreRange[] }>()
+interface ScoreRange {
+  range: string
+  count: number
+}
 
-/** رنگ هر بازه امتیاز از کم‌خطر تا پرخطر — از تم مرکزی (سطح‌های ریسک) */
-const rangeColors = [levelColors.low, levelColors.medium, levelColors.high, levelColors.critical]
+const props = withDefaults(
+  defineProps<{
+    data: ScoreRange[]
+    /** تعیین رنگ هر بازه — بر اساس برچسب بازه و/یا ایندکس */
+    colorFor: (range: string, index: number) => string
+    /** واژه مورد شمارش در تول‌تیپ (ریسک / وظیفه / …) */
+    itemWord?: string
+  }>(),
+  {
+    itemWord: "ریسک",
+  },
+)
 
 const option = computed(() => ({
   grid: { top: 16, right: 16, bottom: 24, left: 8, containLabel: true },
@@ -18,7 +30,7 @@ const option = computed(() => ({
     axisPointer: { type: "shadow" },
     ...tooltipStyle,
     formatter: (p: { name: string; value: number }[]) =>
-      `بازه امتیاز ${p[0].name}<br/>${toFa(p[0].value)} ریسک`,
+      `بازه امتیاز ${p[0].name}<br/>${toFa(p[0].value)} ${props.itemWord}`,
   },
   xAxis: {
     type: "category",
@@ -38,7 +50,10 @@ const option = computed(() => ({
       barWidth: "50%",
       data: props.data.map((d, i) => ({
         value: d.count,
-        itemStyle: { color: rangeColors[i] ?? "#60a5fa", borderRadius: [6, 6, 0, 0] },
+        itemStyle: {
+          color: props.colorFor(d.range, i),
+          borderRadius: [6, 6, 0, 0],
+        },
       })),
       label: {
         show: true,

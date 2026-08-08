@@ -1,19 +1,19 @@
 <script setup lang="ts">
 import { computed, ref, onMounted } from "vue"
 import type { DashboardData } from "./types"
-import { toFa } from "./helpers"
+import { levelLabels, levelColors, stateLabels, stateColors, toFa } from "./helpers"
 
-import DashboardHeader from "./components/DashboardHeader.vue"
-import DashboardCard from "./components/DashboardCard.vue"
-import StatCard from "./components/StatCard.vue"
+import DashboardHeader from "@/components/dashboard/DashboardHeader.vue"
+import DashboardCard from "@/components/dashboard/DashboardCard.vue"
+import StatCard from "@/components/dashboard/StatCard.vue"
 import MetricBanner from "./components/MetricBanner.vue"
-import LevelDonut from "./components/LevelDonut.vue"
-import StateBar from "./components/StateBar.vue"
+import DonutChart from "@/components/dashboard/DonutChart.vue"
+import StateBar from "@/components/dashboard/StateBar.vue"
 import TypeSplit from "./components/TypeSplit.vue"
 import RiskMatrix from "./components/RiskMatrix.vue"
-import ScoreHistogram from "./components/ScoreHistogram.vue"
+import ScoreHistogram from "@/components/dashboard/ScoreHistogram.vue"
 import CategoryStacked from "./components/CategoryStacked.vue"
-import FrameworkHeatmap from "./components/FrameworkHeatmap.vue"
+import FrameworkHeatmap from "@/components/dashboard/FrameworkHeatmap.vue"
 import OwnerPanel from "./components/OwnerPanel.vue"
 import PhaseTabs from "./components/PhaseTabs.vue"
 import RiskList from "./components/RiskList.vue"
@@ -24,6 +24,8 @@ import DeadlineList from "./components/DeadlineList.vue"
 import QuickLinks from "./components/QuickLinks.vue"
 
 import {
+  IconShieldHalfFilled,
+  IconFilter,
   IconLayersIntersect,
   IconAlertHexagon,
   IconCalendarExclamation,
@@ -54,10 +56,23 @@ const props = defineProps<{
   loading?: boolean
 }>()
 
-defineEmits<{
+const emit = defineEmits<{
   (e: "refresh"): void
   (e: "filter", range: { from: string; to: string }): void
 }>()
+
+const fromDate = ref("")
+const toDate = ref("")
+
+function applyFilter() {
+  emit("filter", { from: fromDate.value, to: toDate.value })
+}
+
+function clearFilter() {
+  fromDate.value = ""
+  toDate.value = ""
+  emit("filter", { from: "", to: "" })
+}
 
 const memberNames = ref<Map<string, string>>(new Map())
 
@@ -109,6 +124,24 @@ const threatCount = computed(
   () => summary.value.byType.find((t) => t.riskType === "threat")?.count ?? 0,
 )
 
+/** رنگ هر بازه امتیاز — از سطح‌های ریسک تم مرکزی */
+const histogramColors = [theme.status.low, theme.status.medium, theme.status.high, theme.status.critical]
+const histogramColorFor = (_range: string, index: number) => histogramColors[index] ?? "#60a5fa"
+
+const heatmapData = computed(() =>
+  props.data.frameworkHeatmap.map((h) => ({
+    frameworkSlug: h.frameworkSlug,
+    frameworkTitle: h.frameworkTitle,
+    key: h.level,
+    count: h.count,
+  })),
+)
+const frameworkSummary = (slug: string, counts: Record<string, number>): string => {
+  const ov = props.data.frameworkOverview.find((o) => o.frameworkSlug === slug)
+  const total = Object.values(counts).reduce((s, c) => s + c, 0)
+  return `${toFa(total)} ریسک · میانگین ${toFa(ov?.avgScore ?? 0)}`
+}
+
 /**
  * نوار شمارنده‌های کلیدی — مشابه بنر متریک در طراحی مرجع.
  * کارت‌های KPI بالا (بحرانی/تأخیر/پایش) را تکرار نمی‌کند؛
@@ -127,7 +160,44 @@ const bannerItems = computed(() => [
 <template>
   <div dir="rtl" class="min-h-screen text-slate-800">
     <div class="mx-auto max-w-[1500px] px-4 py-6 lg:px-8">
-      <DashboardHeader :loading="loading" @refresh="$emit('refresh')" @filter="$emit('filter', $event)" />
+      <DashboardHeader
+        title="داشبورد مدیریت ریسک"
+        subtitle="حاکمیت، مدیریت ریسک و تطبیق (GRC)"
+        :icon="IconShieldHalfFilled"
+        :loading="loading"
+        @refresh="$emit('refresh')"
+      >
+        <template #filters>
+          <IconFilter :size="16" class="text-slate-400" />
+          <label class="text-xs text-slate-500">از:</label>
+          <input
+            v-model="fromDate"
+            type="date"
+            class="rounded-lg border border-slate-200 bg-slate-50 px-2 py-1 text-xs text-slate-700 outline-none focus:border-primary focus:ring-1 focus:ring-primary/30"
+          />
+          <label class="text-xs text-slate-500">تا:</label>
+          <input
+            v-model="toDate"
+            type="date"
+            class="rounded-lg border border-slate-200 bg-slate-50 px-2 py-1 text-xs text-slate-700 outline-none focus:border-primary focus:ring-1 focus:ring-primary/30"
+          />
+          <button
+            type="button"
+            class="rounded-lg bg-primary px-3 py-1 text-xs font-medium text-white transition hover:bg-primary-hover"
+            @click="applyFilter"
+          >
+            اعمال فیلتر
+          </button>
+          <button
+            v-if="fromDate || toDate"
+            type="button"
+            class="rounded-lg bg-slate-100 px-2 py-1 text-xs text-slate-500 transition hover:bg-slate-200"
+            @click="clearFilter"
+          >
+            حذف فیلتر
+          </button>
+        </template>
+      </DashboardHeader>
 
       <!-- ============ KPI row ============ -->
       <div class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
@@ -181,7 +251,7 @@ const bannerItems = computed(() => [
           subtitle="بازه‌بندی امتیاز"
           :icon="IconChartHistogram"
         >
-          <ScoreHistogram :data="data.scoreDistribution" />
+          <ScoreHistogram :data="data.scoreDistribution" :color-for="histogramColorFor" item-word="ریسک" />
         </DashboardCard>
       </div>
 
@@ -207,10 +277,21 @@ const bannerItems = computed(() => [
       <!-- ============ Status donuts row ============ -->
       <div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <DashboardCard title="توزیع بر اساس سطح ریسک" subtitle="پراکندگی شدت ریسک‌ها" :icon="IconPalette">
-          <LevelDonut :data="summary.byLevel" />
+          <DonutChart
+            :data="summary.byLevel.map((d) => ({ key: d.level, count: d.count }))"
+            :labels="levelLabels"
+            :colors="levelColors"
+            item-word="مورد"
+            center-label="سطح‌بندی‌شده"
+          />
         </DashboardCard>
         <DashboardCard title="وضعیت چرخه عمر" subtitle="تعداد ریسک در هر مرحله" :icon="IconGitBranch">
-          <StateBar :data="summary.byState" />
+          <StateBar
+            :data="summary.byState"
+            :labels="stateLabels"
+            :colors="stateColors"
+            item-word="مورد"
+          />
         </DashboardCard>
         <DashboardCard title="ماهیت ریسک" subtitle="تفکیک تهدید و فرصت" :icon="IconAlertTriangle">
           <TypeSplit :data="summary.byType" />
@@ -252,7 +333,13 @@ const bannerItems = computed(() => [
           subtitle="پراکندگی سطح ریسک در هر چارچوب"
           :icon="IconLayoutGrid"
         >
-          <FrameworkHeatmap :heatmap="data.frameworkHeatmap" :overview="data.frameworkOverview" />
+          <FrameworkHeatmap
+            :data="heatmapData"
+            :keys="['critical', 'high', 'medium', 'low']"
+            :labels="levelLabels"
+            :colors="levelColors"
+            :summary="frameworkSummary"
+          />
         </DashboardCard>
         <DashboardCard
           title="ریسک‌های حدی هر چارچوب"

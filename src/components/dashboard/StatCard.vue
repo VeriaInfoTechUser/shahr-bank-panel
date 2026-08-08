@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { Component } from "vue"
-import { toFa } from "../helpers"
+import { toFa } from "./helpers"
 
 defineProps<{
   label: string
@@ -8,13 +8,13 @@ defineProps<{
   icon: Component
   accent: string
   hint?: string
+  /** پسوند نمایش‌داده‌شده کنار مقدار (مثل ٪) */
+  suffix?: string
 }>()
 </script>
 
 <template>
-  <div
-    class="relative overflow-hidden rounded-xl border border-slate-200/80 bg-white p-3.5 shadow-sm"
-  >
+  <div class="relative overflow-hidden rounded-xl border border-slate-200/80 bg-white p-3.5 shadow-sm">
     <span
       class="absolute inset-y-0 right-0 w-0.5"
       :style="{ backgroundColor: accent }"
@@ -23,7 +23,9 @@ defineProps<{
     <div class="flex items-center justify-between gap-3">
       <div class="min-w-0">
         <p class="truncate text-xs font-medium text-slate-500">{{ label }}</p>
-        <p class="mt-1 text-2xl font-extrabold text-slate-900">{{ toFa(value) }}</p>
+        <p class="mt-1 text-2xl font-extrabold text-slate-900">
+          {{ toFa(value) }}<span v-if="suffix" class="mr-0.5 text-base font-bold">{{ suffix }}</span>
+        </p>
         <p v-if="hint" class="mt-1 truncate text-[11px] text-slate-400">{{ hint }}</p>
       </div>
       <span

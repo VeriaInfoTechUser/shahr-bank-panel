@@ -1,16 +1,24 @@
 <script setup lang="ts">
-import { computed, ref, onMounted } from "vue"
+import { computed, ref, onMounted, watch } from "vue"
 import type { DashboardData } from "./types"
-import { toFa } from "./helpers"
+import {
+  answerLabels,
+  answerColors,
+  answerOrder,
+  stateLabels,
+  stateColors,
+  stateOrder,
+  toFa,
+} from "./helpers"
 
-import DashboardHeader from "./components/DashboardHeader.vue"
-import DashboardCard from "./components/DashboardCard.vue"
-import StatCard from "./components/StatCard.vue"
-import AnswerDonut from "./components/AnswerDonut.vue"
-import StateBar from "./components/StateBar.vue"
-import ScoreHistogram from "./components/ScoreHistogram.vue"
+import DashboardHeader from "@/components/dashboard/DashboardHeader.vue"
+import DashboardCard from "@/components/dashboard/DashboardCard.vue"
+import StatCard from "@/components/dashboard/StatCard.vue"
+import DonutChart from "@/components/dashboard/DonutChart.vue"
+import StateBar from "@/components/dashboard/StateBar.vue"
+import ScoreHistogram from "@/components/dashboard/ScoreHistogram.vue"
 import FrameworkScores from "./components/FrameworkScores.vue"
-import FrameworkHeatmap from "./components/FrameworkHeatmap.vue"
+import FrameworkHeatmap from "@/components/dashboard/FrameworkHeatmap.vue"
 import DomainStacked from "./components/DomainStacked.vue"
 import PlanScatter from "./components/PlanScatter.vue"
 import PlanTaskStates from "./components/PlanTaskStates.vue"
@@ -34,21 +42,49 @@ import {
   IconUser,
   IconUsers,
   IconActivity,
+  IconCircleCheck,
+  IconFilter,
 } from "@tabler/icons-vue"
 
 import { theme } from "@/config/theme"
 import { ermRepo } from "@/core/repositories/ermRepo"
 import { fetchMemberLightListCached } from "@/core/erm/ruleAuthorTypeOptionsCache"
+import { grcRepo } from "@/core/repositories/grcRepo"
 
 const props = defineProps<{
   data: DashboardData
   loading?: boolean
 }>()
 
-defineEmits<{
+const emit = defineEmits<{
   (e: "refresh"): void
   (e: "filter", planSlug: string): void
 }>()
+
+interface PlanOption {
+  slug: string
+  title: string
+}
+
+const plans = ref<PlanOption[]>([])
+const selectedPlan = ref("")
+
+onMounted(async () => {
+  try {
+    const res = await grcRepo.planList({ limit: 200 })
+    const list = (res?.data?.list ?? res?.data ?? []) as Record<string, unknown>[]
+    plans.value = list.map((p) => ({
+      slug: String(p.slug ?? ""),
+      title: String(p.title ?? ""),
+    }))
+  } catch {
+    // silently ignore
+  }
+})
+
+watch(selectedPlan, (val) => {
+  emit("filter", val)
+})
 
 const memberNames = ref<Map<string, string>>(new Map())
 
@@ -80,12 +116,61 @@ onMounted(async () => {
 
 const summary = computed(() => props.data.summary)
 const overdueCount = computed(() => props.data.overdueTasks.length)
+
+/** رنگ هر بازه امتیاز تطبیق: ۰ خاکستری (شروع‌نشده) تا ۱۰۰ سبز — از تم مرکزی */
+const scoreRangeColors: Record<string, string> = {
+  "0": theme.status.draft,
+  "1-25": theme.status.critical,
+  "26-50": theme.status.high,
+  "51-75": theme.status.medium,
+  "76-100": theme.status.low,
+}
+const histogramColorFor = (range: string) => scoreRangeColors[range] ?? "#60a5fa"
+
+const heatmapData = computed(() =>
+  props.data.frameworkHeatmap.map((h) => ({
+    frameworkSlug: h.frameworkSlug,
+    frameworkTitle: h.frameworkTitle,
+    key: h.answer,
+    count: h.count,
+  })),
+)
+const frameworkSummary = (_slug: string, counts: Record<string, number>): string =>
+  `${toFa(Object.values(counts).reduce((s, c) => s + c, 0))} وظیفه`
 </script>
 
 <template>
   <div dir="rtl" class="min-h-screen text-slate-800">
     <div class="mx-auto max-w-[1500px] px-4 py-6 lg:px-8">
-      <DashboardHeader :loading="loading" @refresh="$emit('refresh')" @filter="$emit('filter', $event)" />
+      <DashboardHeader
+        title="داشبورد تطبیق"
+        subtitle="حاکمیت، مدیریت ریسک و تطبیق (GRC)"
+        :icon="IconCircleCheck"
+        :loading="loading"
+        @refresh="$emit('refresh')"
+      >
+        <template #filters>
+          <IconFilter :size="16" class="text-slate-400" />
+          <label class="text-xs text-slate-500">برنامه:</label>
+          <select
+            v-model="selectedPlan"
+            class="rounded-lg border border-slate-200 bg-slate-50 px-2 py-1 text-xs text-slate-700 outline-none focus:border-primary focus:ring-1 focus:ring-primary/30"
+          >
+            <option value="">همه برنامه‌ها</option>
+            <option v-for="plan in plans" :key="plan.slug" :value="plan.slug">
+              {{ plan.title }}
+            </option>
+          </select>
+          <button
+            v-if="selectedPlan"
+            type="button"
+            class="rounded-lg bg-slate-100 px-2 py-1 text-xs text-slate-500 transition hover:bg-slate-200"
+            @click="selectedPlan = ''"
+          >
+            حذف فیلتر
+          </button>
+        </template>
+      </DashboardHeader>
 
       <!-- KPI row -->
       <div class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
@@ -123,13 +208,26 @@ const overdueCount = computed(() => props.data.overdueTasks.length)
       <!-- distributions -->
       <div class="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-3">
         <DashboardCard title="وضعیت تطبیق وظایف" subtitle="تفکیک پاسخ‌های ارزیابی" :icon="IconChartDonut">
-          <AnswerDonut :data="summary.tasksByAnswer" />
+          <DonutChart
+            :data="summary.tasksByAnswer.map((d) => ({ key: d.answer, count: d.count }))"
+            :labels="answerLabels"
+            :colors="answerColors"
+            :order="answerOrder"
+            item-word="وظیفه"
+            center-label="کل وظایف"
+          />
         </DashboardCard>
         <DashboardCard title="وضعیت چرخه کاری" subtitle="تعداد وظیفه در هر وضعیت" :icon="IconGitBranch">
-          <StateBar :data="summary.tasksByState" />
+          <StateBar
+            :data="summary.tasksByState"
+            :labels="stateLabels"
+            :colors="stateColors"
+            :order="stateOrder"
+            item-word="وظیفه"
+          />
         </DashboardCard>
         <DashboardCard title="توزیع امتیاز تطبیق" subtitle="بازه‌بندی امتیاز وظایف" :icon="IconChartHistogram">
-          <ScoreHistogram :data="data.scoreDistribution" />
+          <ScoreHistogram :data="data.scoreDistribution" :color-for="histogramColorFor" item-word="وظیفه" />
         </DashboardCard>
       </div>
 
@@ -144,7 +242,13 @@ const overdueCount = computed(() => props.data.overdueTasks.length)
           <FrameworkScores :data="data.frameworkCompliance" />
         </DashboardCard>
         <DashboardCard class="lg:col-span-2" title="نقشه حرارتی چارچوب‌ها" subtitle="پراکندگی پاسخ‌ها در هر چارچوب" :icon="IconGrid3x3">
-          <FrameworkHeatmap :heatmap="data.frameworkHeatmap" />
+          <FrameworkHeatmap
+            :data="heatmapData"
+            :keys="answerOrder"
+            :labels="answerLabels"
+            :colors="answerColors"
+            :summary="frameworkSummary"
+          />
         </DashboardCard>
       </div>
 

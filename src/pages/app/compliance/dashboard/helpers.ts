@@ -1,5 +1,15 @@
 import { theme } from "@/config/theme"
 import type { ComplianceAnswer, TaskState } from "./types"
+import {
+  toFa,
+  toPct,
+  toJalali,
+  daysUntil,
+  personLabel,
+} from "@/components/dashboard/helpers"
+
+/** ابزارهای عمومی از کامپوننت‌های مشترک داشبورد */
+export { toFa, toPct, toJalali, daysUntil, personLabel }
 
 export const answerLabels: Record<ComplianceAnswer, string> = {
   not_started: "شروع‌نشده",
@@ -43,45 +53,3 @@ export const answerOrder: ComplianceAnswer[] = [
 
 /** ترتیب نمایش وضعیت‌ها */
 export const stateOrder: TaskState[] = ["todo", "in_progress", "done", "approved", "rejected"]
-
-const faNum = new Intl.NumberFormat("fa-IR", { maximumFractionDigits: 1 })
-
-/** تبدیل عدد به ارقام فارسی */
-export function toFa(n: number | null | undefined): string {
-  if (n === null || n === undefined) return "—"
-  return faNum.format(n)
-}
-
-/** نمایش درصد با علامت ٪ */
-export function toPct(n: number | null | undefined): string {
-  if (n === null || n === undefined) return "—"
-  return `${faNum.format(Math.round(n * 10) / 10)}٪`
-}
-
-/** تبدیل تاریخ میلادی ISO به نمایش شمسی */
-export function toJalali(iso: string | null): string {
-  if (!iso) return "—"
-  try {
-    return new Intl.DateTimeFormat("fa-IR", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    }).format(new Date(iso))
-  } catch {
-    return "—"
-  }
-}
-
-/** تعداد روز مانده تا مهلت (منفی یعنی گذشته) */
-export function daysUntil(iso: string | null): number | null {
-  if (!iso) return null
-  const diff = new Date(iso).getTime() - Date.now()
-  return Math.ceil(diff / (1000 * 60 * 60 * 24))
-}
-
-/** نمایش شخص (مالک/مسئول) بر اساس شناسه */
-export function personLabel(id: string | null | undefined, memberNames?: Map<string, string>): string {
-  if (!id) return "نامشخص"
-  if (memberNames?.has(id)) return memberNames.get(id)!
-  return `کارشناس ${toFa(Number(id))}`
-}

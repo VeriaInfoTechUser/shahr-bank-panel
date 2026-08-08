@@ -39,6 +39,41 @@ ChartJS.register(
     DoughnutController,
 );
 
+/**
+ * Custom plugin: draws the value at the end of each horizontal bar
+ * (like the risk dashboard's StateBar) — RTL-aware.
+ */
+const barValueLabelsPlugin = {
+  id: 'barValueLabels',
+  afterDatasetsDraw(chart: any) {
+    const { ctx } = chart;
+    const isDark = document.documentElement.classList.contains('dark');
+    const labelColor = isDark ? '#cbd5e1' : '#475569';
+    ctx.save();
+    chart.data.datasets.forEach((dataset: any, di: number) => {
+      if (dataset.barValueLabels === false) return;
+      const meta = chart.getDatasetMeta(di);
+      if (!meta.data || meta.type !== 'bar') return;
+      meta.data.forEach((bar: any, i: number) => {
+        const value = dataset.data[i];
+        if (value == null || value === 0) return;
+        ctx.font = "600 10px 'Vazirmatn Variable', Vazirmatn, sans-serif";
+        ctx.fillStyle = labelColor;
+        ctx.textBaseline = 'middle';
+        if (bar.x > bar.base) {
+          ctx.textAlign = 'left';
+          ctx.fillText(String(value), bar.x + 5, bar.y);
+        } else {
+          ctx.textAlign = 'right';
+          ctx.fillText(String(value), bar.x - 5, bar.y);
+        }
+      });
+    });
+    ctx.restore();
+  },
+};
+ChartJS.register(barValueLabelsPlugin);
+
 const { t } = useI18n();
 const route = useRoute();
 const router = useRouter();
@@ -1013,25 +1048,42 @@ const globalComparisonAvg = computed<number | null>(() => {
 });
 
 // ---------- capital comparison bar (overview tab), with optional comparison dataset ----------
+/**
+ * For the “previous period” bars we reuse each item's own color at a lower
+ * opacity, so both periods stay in the same color family and read clearly as
+ * two periods of the same entity.
+ */
+function compareFillFor(color: string): string {
+  return hexToRgba(color, 0.32);
+}
+
 const capitalBarData = computed(() => {
+  const comparing = hasComparison.value;
   const datasets: any[] = [
     {
       label: t('reports.sustainability-score'),
       data: capitals.value.map((c) => round1(c.score)),
       backgroundColor: capitals.value.map((c) => c.maturity.color),
       borderRadius: 6,
-      barThickness: 20,
+      barThickness: comparing ? 12 : 18,
+      barPercentage: 0.92,
+      categoryPercentage: comparing ? 0.72 : 0.9,
+      maxBarThickness: 22,
     },
   ];
-  if (hasComparison.value) {
+  if (comparing) {
     datasets.push({
       label: t('reports.comparison-score'),
       data: capitals.value.map((c) => (c.comparison?.value != null ? round1(c.comparison.value) : null)),
-      backgroundColor: 'transparent',
-      borderColor: '#94a3b8',
+      backgroundColor: capitals.value.map((c) => compareFillFor(c.maturity.color)),
+      borderColor: capitals.value.map((c) => hexToRgba(c.maturity.color, 0.55)),
       borderWidth: 1.5,
       borderRadius: 6,
-      barThickness: 20,
+      barThickness: 12,
+      barPercentage: 0.92,
+      categoryPercentage: 0.72,
+      maxBarThickness: 22,
+      barValueLabels: false,
     });
   }
   return {
@@ -1042,13 +1094,32 @@ const capitalBarData = computed(() => {
 const barOptionsHorizontal = {
   indexAxis: 'y' as const,
   maintainAspectRatio: false,
+  layout: { padding: { right: 6 } },
   scales: {
-    x: { min: 0, max: 100, grid: { color: 'rgba(148, 163, 184, 0.15)' }, ticks: { font: { size: 10 } } },
-    y: { grid: { display: false }, ticks: { font: { size: 11 } } },
+    x: {
+      min: 0,
+      max: 100,
+      grid: { color: 'rgba(148, 163, 184, 0.12)' },
+      border: { display: false },
+      ticks: { font: { size: 10 }, color: '#94a3b8', padding: 4 },
+    },
+    y: {
+      grid: { display: false },
+      border: { display: false },
+      ticks: { font: { size: 11 }, color: '#475569' },
+    },
   },
   plugins: {
-    legend: { display: true, position: 'bottom' as const, labels: { boxWidth: 10, font: { size: 10 } } },
-    tooltip: { callbacks: { label: (ctx: any) => ` ${ctx.dataset.label}: ${round1(ctx.raw)} / 100` } },
+    legend: { display: true, position: 'bottom' as const, labels: { boxWidth: 10, boxHeight: 10, font: { size: 10 }, padding: 14 } },
+    tooltip: {
+      backgroundColor: 'rgba(15, 23, 42, 0.9)',
+      padding: 10,
+      cornerRadius: 8,
+      titleFont: { size: 11 },
+      bodyFont: { size: 11 },
+      displayColors: false,
+      callbacks: { label: (ctx: any) => ` ${ctx.dataset.label}: ${round1(ctx.raw)} / 100` },
+    },
   },
 };
 
@@ -1064,13 +1135,31 @@ const riskDonutOptions = {
 const riskBarOptions = {
   indexAxis: 'y' as const,
   maintainAspectRatio: false,
+  layout: { padding: { right: 6 } },
   scales: {
-    x: { beginAtZero: true, grid: { color: 'rgba(148, 163, 184, 0.15)' }, ticks: { font: { size: 10 } } },
-    y: { grid: { display: false }, ticks: { font: { size: 11 } } },
+    x: {
+      beginAtZero: true,
+      grid: { color: 'rgba(148, 163, 184, 0.12)' },
+      border: { display: false },
+      ticks: { font: { size: 10 }, color: '#94a3b8', padding: 4 },
+    },
+    y: {
+      grid: { display: false },
+      border: { display: false },
+      ticks: { font: { size: 11 }, color: '#475569' },
+    },
   },
   plugins: {
     legend: { display: false },
-    tooltip: { callbacks: { label: (ctx: any) => ` ${ctx.dataset.label ?? ctx.label}: ${ctx.raw}` } },
+    tooltip: {
+      backgroundColor: 'rgba(15, 23, 42, 0.9)',
+      padding: 10,
+      cornerRadius: 8,
+      titleFont: { size: 11 },
+      bodyFont: { size: 11 },
+      displayColors: false,
+      callbacks: { label: (ctx: any) => ` ${ctx.dataset.label ?? ctx.label}: ${ctx.raw} ریسک` },
+    },
   },
 };
 
@@ -1132,24 +1221,32 @@ const componentsInCapital = computed<ComponentWithDomain[]>(() => {
 });
 const componentBarData = computed(() => {
   const list = componentsInCapital.value.slice(0, 12);
+  const comparing = hasComparison.value;
   const datasets: any[] = [
     {
       label: t('reports.sustainability-score'),
       data: list.map((c) => round1(c.score)),
       backgroundColor: list.map((c) => c.maturity.color),
-      borderRadius: 6,
-      barThickness: 14,
+      borderRadius: 5,
+      barThickness: comparing ? 9 : 13,
+      barPercentage: 0.92,
+      categoryPercentage: comparing ? 0.7 : 0.88,
+      maxBarThickness: 16,
     },
   ];
-  if (hasComparison.value) {
+  if (comparing) {
     datasets.push({
       label: t('reports.comparison-score'),
       data: list.map((c) => (c.comparison?.value != null ? round1(c.comparison.value) : null)),
-      backgroundColor: 'transparent',
-      borderColor: '#94a3b8',
+      backgroundColor: list.map((c) => compareFillFor(c.maturity.color)),
+      borderColor: list.map((c) => hexToRgba(c.maturity.color, 0.55)),
       borderWidth: 1.5,
-      borderRadius: 6,
-      barThickness: 14,
+      borderRadius: 5,
+      barThickness: 9,
+      barPercentage: 0.92,
+      categoryPercentage: 0.7,
+      maxBarThickness: 16,
+      barValueLabels: false,
     });
   }
   return {
@@ -1830,7 +1927,8 @@ function goToRisk(slug?: string | null) {
             <div v-if="portfolioRisks.total > 0" class="space-y-4">
               <div class="flex flex-wrap items-center gap-2">
                 <span
-                    class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-rose-50 text-rose-500 dark:bg-rose-900/30 dark:text-rose-300"
+                    class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl"
+                    :style="{ backgroundColor: theme.status.critical + '1a', color: theme.status.critical }"
                 >
                   <Lucide icon="ShieldAlert" class="h-5 w-5" />
                 </span>
@@ -1847,54 +1945,54 @@ function goToRisk(slug?: string | null) {
               <!-- KPI row (risk-dashboard StatCard style) -->
               <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
                 <div class="relative overflow-hidden rounded-xl border border-slate-200/80 bg-white p-3.5 shadow-sm dark:border-slate-700 dark:bg-slate-800">
-                  <span class="absolute inset-y-0 right-0 w-0.5 bg-slate-400 dark:bg-slate-500" aria-hidden="true" />
+                  <span class="absolute inset-y-0 right-0 w-0.5" :style="{ backgroundColor: theme.status.done }" aria-hidden="true" />
                   <div class="flex items-center justify-between gap-3">
                     <div class="min-w-0">
                       <p class="truncate text-xs font-medium text-slate-500 dark:text-slate-400">{{ t('reports.total-risks') }}</p>
                       <p class="mt-1 text-2xl font-extrabold text-slate-900 dark:text-white">{{ portfolioRisks.total }}</p>
                     </div>
-                    <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-500 dark:bg-slate-700 dark:text-slate-300">
+                    <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg" :style="{ backgroundColor: theme.status.done + '1a', color: theme.status.done }">
                       <Lucide icon="ListTodo" class="h-5 w-5" />
                     </span>
                   </div>
                 </div>
                 <div class="relative overflow-hidden rounded-xl border border-slate-200/80 bg-white p-3.5 shadow-sm dark:border-slate-700 dark:bg-slate-800">
-                  <span class="absolute inset-y-0 right-0 w-0.5 bg-emerald-400 dark:bg-emerald-500" aria-hidden="true" />
+                  <span class="absolute inset-y-0 right-0 w-0.5" :style="{ backgroundColor: theme.status.monitoring }" aria-hidden="true" />
                   <div class="flex items-center justify-between gap-3">
                     <div class="min-w-0">
                       <p class="truncate text-xs font-medium text-slate-500 dark:text-slate-400">{{ t('reports.active-risks') }}</p>
-                      <p class="mt-1 text-2xl font-extrabold text-emerald-600 dark:text-emerald-400">{{ portfolioRisks.active }}</p>
+                      <p class="mt-1 text-2xl font-extrabold text-slate-900 dark:text-white">{{ portfolioRisks.active }}</p>
                     </div>
-                    <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-emerald-50 text-emerald-500 dark:bg-emerald-900/30 dark:text-emerald-300">
+                    <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg" :style="{ backgroundColor: theme.status.monitoring + '1a', color: theme.status.monitoring }">
                       <Lucide icon="Activity" class="h-5 w-5" />
                     </span>
                   </div>
                 </div>
                 <div class="relative overflow-hidden rounded-xl border border-slate-200/80 bg-white p-3.5 shadow-sm dark:border-slate-700 dark:bg-slate-800">
-                  <span class="absolute inset-y-0 right-0 w-0.5 bg-slate-300 dark:bg-slate-600" aria-hidden="true" />
+                  <span class="absolute inset-y-0 right-0 w-0.5" :style="{ backgroundColor: theme.status.archived }" aria-hidden="true" />
                   <div class="flex items-center justify-between gap-3">
                     <div class="min-w-0">
                       <p class="truncate text-xs font-medium text-slate-500 dark:text-slate-400">{{ t('reports.archived-risks') }}</p>
-                      <p class="mt-1 text-2xl font-extrabold text-slate-500 dark:text-slate-400">{{ portfolioRisks.archived }}</p>
+                      <p class="mt-1 text-2xl font-extrabold text-slate-900 dark:text-white">{{ portfolioRisks.archived }}</p>
                     </div>
-                    <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-400 dark:bg-slate-700 dark:text-slate-400">
+                    <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg" :style="{ backgroundColor: theme.status.archived + '1a', color: theme.status.archived }">
                       <Lucide icon="Archive" class="h-5 w-5" />
                     </span>
                   </div>
                 </div>
                 <div class="relative overflow-hidden rounded-xl border border-slate-200/80 bg-white p-3.5 shadow-sm dark:border-slate-700 dark:bg-slate-800">
-                  <span class="absolute inset-y-0 right-0 w-0.5 bg-rose-400 dark:bg-rose-500" aria-hidden="true" />
+                  <span class="absolute inset-y-0 right-0 w-0.5" :style="{ backgroundColor: theme.status.critical }" aria-hidden="true" />
                   <div class="flex items-center justify-between gap-3">
                     <div class="min-w-0">
                       <p class="truncate text-xs font-medium text-slate-500 dark:text-slate-400">
                         {{ t('reports.high-level-risks') }} + {{ t('reports.critical-risks') }}
                       </p>
-                      <p class="mt-1 text-2xl font-extrabold text-rose-600 dark:text-rose-400">{{ portfolioRiskCriticalHigh }}</p>
+                      <p class="mt-1 text-2xl font-extrabold text-slate-900 dark:text-white">{{ portfolioRiskCriticalHigh }}</p>
                       <p class="mt-1 truncate text-xs text-slate-400">
-                        {{ t('reports.risk-level-critical') }}: <b class="text-rose-500">{{ portfolioRiskCritical }}</b>
+                        {{ t('reports.risk-level-critical') }}: <b :style="{ color: theme.status.critical }">{{ portfolioRiskCritical }}</b>
                       </p>
                     </div>
-                    <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-rose-50 text-rose-500 dark:bg-rose-900/30 dark:text-rose-300">
+                    <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg" :style="{ backgroundColor: theme.status.critical + '1a', color: theme.status.critical }">
                       <Lucide icon="ShieldAlert" class="h-5 w-5" />
                     </span>
                   </div>
@@ -1918,10 +2016,14 @@ function goToRisk(slug?: string | null) {
                     </div>
                   </header>
                   <div class="flex-1">
-                    <div class="h-[240px]">
-                      <Doughnut v-if="riskLevelBuckets.length" :data="riskLevelDonutData" :options="riskDonutOptions" />
-                      <p v-else class="py-10 text-center text-xs text-slate-400">{{ t('reports.no-risk-data') }}</p>
+                    <div v-if="riskLevelBuckets.length" class="relative h-[240px]">
+                      <Doughnut :data="riskLevelDonutData" :options="riskDonutOptions" />
+                      <div class="pointer-events-none absolute inset-x-0 top-[38%] -translate-y-1/2 text-center">
+                        <p class="text-2xl font-extrabold text-slate-900 dark:text-white">{{ portfolioRisks.total }}</p>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">{{ t('reports.risks') }}</p>
+                      </div>
                     </div>
+                    <p v-else class="py-10 text-center text-xs text-slate-400">{{ t('reports.no-risk-data') }}</p>
                   </div>
                 </section>
                 <section class="flex flex-col rounded-xl border border-slate-200/80 bg-white p-3.5 shadow-sm lg:col-span-3 dark:border-slate-700 dark:bg-slate-800">
@@ -1948,7 +2050,9 @@ function goToRisk(slug?: string | null) {
               <!-- risk heatmap: capital × level (table UI, matches the other tabs) -->
               <div v-if="riskHeatmapByCapital.length" class="rounded-xl border border-slate-200/80 bg-white p-3.5 shadow-sm transition-shadow hover:shadow-md dark:border-slate-700 dark:bg-slate-800">
                 <div class="mb-3 flex flex-wrap items-center gap-2">
-                  <Lucide icon="Grid3x3" class="h-4 w-4 text-rose-500" />
+                  <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-500 dark:bg-slate-700 dark:text-slate-300">
+                    <Lucide icon="Grid3x3" class="h-4 w-4" />
+                  </span>
                   <h3 class="text-sm font-semibold text-slate-900 dark:text-white">{{ t('reports.risk-heatmap-by-capital') }}</h3>
                 </div>
                 <div class="overflow-x-auto">
@@ -2272,12 +2376,17 @@ function goToRisk(slug?: string | null) {
             <!-- RISK OVERVIEW (per capital, appended risk data) -->
             <div
                 v-if="capitalRiskSummary && capitalRiskSummary.total > 0"
-                class="lg:col-span-12 rounded-xl border border-rose-100 bg-rose-50/40 p-5 dark:border-rose-900/30 dark:bg-rose-900/10"
+                class="lg:col-span-12 rounded-xl border border-slate-200/80 bg-white p-3.5 shadow-sm dark:border-slate-700 dark:bg-slate-800"
             >
               <div class="mb-3 flex flex-wrap items-center gap-2">
-                <Lucide icon="ShieldAlert" class="h-4 w-4 text-rose-500" />
+                <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-500 dark:bg-slate-700 dark:text-slate-300">
+                  <Lucide icon="ShieldAlert" class="h-4 w-4" />
+                </span>
                 <h3 class="text-sm font-semibold text-slate-900 dark:text-white">{{ t('reports.risk-overview') }}</h3>
-                <span class="rounded-full bg-rose-50 px-2 py-0.5 text-[10px] font-semibold text-rose-700 dark:bg-rose-900/30 dark:text-rose-300">
+                <span
+                    class="rounded-full px-2 py-0.5 text-[10px] font-semibold"
+                    :style="{ backgroundColor: theme.status.critical + '1a', color: theme.status.critical }"
+                >
                   {{ capitalRiskSummary.total }}
                 </span>
               </div>
@@ -2285,14 +2394,20 @@ function goToRisk(slug?: string | null) {
               <div class="grid grid-cols-1 gap-5 lg:grid-cols-12">
                 <div class="lg:col-span-5">
                   <h4 class="mb-2 text-xs font-medium text-slate-500 dark:text-slate-400">{{ t('reports.risks-by-level') }}</h4>
-                  <div class="h-[220px] rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800">
-                    <Doughnut v-if="capitalRiskLevelDonutData.labels.length" :data="capitalRiskLevelDonutData" :options="riskDonutOptions" />
+                  <div class="rounded-xl border border-slate-200/80 bg-white p-3.5 shadow-sm dark:border-slate-700 dark:bg-slate-800">
+                    <div v-if="capitalRiskLevelDonutData.labels.length" class="relative h-[220px]">
+                      <Doughnut :data="capitalRiskLevelDonutData" :options="riskDonutOptions" />
+                      <div class="pointer-events-none absolute inset-x-0 top-[38%] -translate-y-1/2 text-center">
+                        <p class="text-2xl font-extrabold text-slate-900 dark:text-white">{{ capitalRiskSummary.total }}</p>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">{{ t('reports.risks') }}</p>
+                      </div>
+                    </div>
                     <p v-else class="py-10 text-center text-xs text-slate-400">{{ t('reports.no-risk-data') }}</p>
                   </div>
                 </div>
                 <div class="lg:col-span-7">
                   <h4 class="mb-2 text-xs font-medium text-slate-500 dark:text-slate-400">{{ t('reports.risks-by-state') }}</h4>
-                  <div class="rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-800">
+                  <div class="rounded-xl border border-slate-200/80 bg-white p-3.5 shadow-sm dark:border-slate-700 dark:bg-slate-800">
                     <div :style="{ height: Math.max(capitalRiskStateBarData.labels.length * 30, 180) + 'px' }">
                       <Bar v-if="capitalRiskStateBarData.labels.length" :data="capitalRiskStateBarData" :options="riskBarOptions" />
                       <p v-else class="py-10 text-center text-xs text-slate-400">{{ t('reports.no-risk-data') }}</p>
@@ -2302,9 +2417,11 @@ function goToRisk(slug?: string | null) {
               </div>
 
               <!-- risk heatmap: domain × level (table UI) -->
-              <div v-if="riskHeatmapByDomain.length" class="mt-4 overflow-x-auto rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-800">
+              <div v-if="riskHeatmapByDomain.length" class="mt-4 overflow-x-auto rounded-xl border border-slate-200/80 bg-white p-3.5 shadow-sm dark:border-slate-700 dark:bg-slate-800">
                 <div class="mb-3 flex flex-wrap items-center gap-2">
-                  <Lucide icon="Grid3x3" class="h-4 w-4 text-rose-500" />
+                  <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-500 dark:bg-slate-700 dark:text-slate-300">
+                    <Lucide icon="Grid3x3" class="h-4 w-4" />
+                  </span>
                   <h4 class="text-xs font-semibold text-slate-700 dark:text-white">{{ t('reports.risk-heatmap-by-domain') }}</h4>
                 </div>
                 <table class="w-full min-w-[560px] text-xs">
@@ -2472,14 +2589,14 @@ function goToRisk(slug?: string | null) {
                         <p v-else class="px-3 py-2 text-[11px] text-slate-400">{{ t('reports.no-indicator-data') }}</p>
 
                         <!-- risk list for this capability -->
-                        <div v-if="cap2.risks && cap2.risks.risks.length" class="mt-2 overflow-x-auto rounded-lg bg-rose-50/40 dark:bg-rose-900/10">
+                        <div v-if="cap2.risks && cap2.risks.risks.length" class="mt-2 overflow-x-auto rounded-lg border border-slate-200/60 bg-slate-50/70 dark:border-slate-700 dark:bg-slate-700/30">
                           <div class="flex items-center gap-1.5 px-3 py-2 text-[11px] font-semibold text-slate-600 dark:text-slate-300">
-                            <Lucide icon="ShieldAlert" class="h-3.5 w-3.5 text-rose-500" />
+                            <Lucide icon="ShieldAlert" class="h-3.5 w-3.5 text-slate-400" />
                             {{ t('reports.capability-risks') }} ({{ cap2.risks.summary.total }})
                           </div>
                           <table class="w-full min-w-[860px] text-[11px]">
                             <thead>
-                            <tr class="border-b border-rose-100 text-right text-[10px] uppercase tracking-wide text-slate-400 dark:border-rose-900/30">
+                            <tr class="border-b border-slate-100 text-right text-[10px] uppercase tracking-wide text-slate-400 dark:border-slate-700">
                               <th class="px-3 py-1.5 font-medium">{{ t('reports.risk-title') }}</th>
                               <th class="px-3 py-1.5 font-medium">{{ t('reports.type') }}</th>
                               <th class="px-3 py-1.5 text-center font-medium">{{ t('reports.level') }}</th>
@@ -2496,7 +2613,7 @@ function goToRisk(slug?: string | null) {
                             <tr
                                 v-for="risk in cap2.risks.risks"
                                 :key="risk.slug"
-                                class="border-b border-rose-50 last:border-0 dark:border-rose-900/20"
+                                class="border-b border-slate-100/70 last:border-0 dark:border-slate-800"
                             >
                               <td class="px-3 py-1.5">
                                 <button

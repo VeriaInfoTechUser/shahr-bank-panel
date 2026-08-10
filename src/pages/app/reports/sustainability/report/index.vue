@@ -1822,6 +1822,7 @@ async function downloadPDF() {
   border-radius: 7px;
   cursor: pointer;
   transition: all 0.2s;
+  white-space: nowrap;
 }
 .seg button.active {
   background: #fff;
@@ -1914,6 +1915,7 @@ async function downloadPDF() {
 }
 .setup-label-row .setup-label { margin-bottom: 0; }
 .setup-hint { font-size: 10.5px; color: #94a3b8; margin-top: 8px; line-height: 1.8; }
+.seg.seg-wide { display: flex; width: 100%; }
 .seg-wide button { flex: 1; }
 .year-strip {
   display: flex;

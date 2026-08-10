@@ -264,9 +264,9 @@ export const useSideMenuStore = defineStore("sideMenu", {
                 title: "menu.maturity",
                 subMenu: [
                     {
-                        icon: "LayoutDashboard",
-                        pageName: "app-maturity-dashboard",
-                        title: "menu.maturity-dashboard",
+                        icon: "FileText",
+                        pageName: "app-maturity-report",
+                        title: "menu.maturity-report",
                     },
                     {
                         icon: "ListChecks",
@@ -274,9 +274,9 @@ export const useSideMenuStore = defineStore("sideMenu", {
                         title: "menu.maturity-capabilities",
                     },
                     {
-                        icon: "FileText",
-                        pageName: "app-maturity-report",
-                        title: "menu.maturity-report",
+                        icon: "LayoutDashboard",
+                        pageName: "app-maturity-dashboard",
+                        title: "menu.maturity-dashboard",
                     },
                 ],
             },

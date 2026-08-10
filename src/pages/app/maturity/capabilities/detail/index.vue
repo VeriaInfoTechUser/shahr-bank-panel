@@ -9,6 +9,7 @@ import Lucide from '@/base-components/Lucide';
 import { maturityRepo } from '@/core/repositories/maturityRepo';
 import { useQuery } from '@/core/composables/useQuery';
 import { toFa } from '@/components/dashboard/helpers';
+import { toPersianDigits } from '@/utils/persianDigits';
 import { levelColor, levelLabelKey } from '../../levels';
 import {
   IconArrowRight,
@@ -64,7 +65,7 @@ const accentGap = '#dc2626';
 const historicalBars = computed<{ labels: string[]; series: BarSeries[] }>(() => {
   const list = detail.value?.historical ?? [];
   return {
-    labels: list.map((p) => toFa(p.period)),
+    labels: list.map((p) => toPersianDigits(p.period)),
     series: [
       {
         name: t('maturity.score'),

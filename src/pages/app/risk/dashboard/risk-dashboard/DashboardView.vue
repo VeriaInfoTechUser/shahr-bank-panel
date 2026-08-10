@@ -21,7 +21,6 @@ import RiskByDomain from "./components/RiskByDomain.vue"
 import FrameworkExtremes from "./components/FrameworkExtremes.vue"
 import TopDrivers from "./components/TopDrivers.vue"
 import DeadlineList from "./components/DeadlineList.vue"
-import QuickLinks from "./components/QuickLinks.vue"
 
 import {
   IconShieldHalfFilled,
@@ -44,7 +43,6 @@ import {
   IconLayoutGrid,
   IconHistory,
   IconCalendarClock,
-  IconBook2,
 } from "@tabler/icons-vue"
 
 import { ermRepo } from "@/core/repositories/ermRepo"
@@ -357,8 +355,8 @@ const bannerItems = computed(() => [
         </DashboardCard>
       </div>
 
-      <!-- ============ Deadlines + quick links ============ -->
-      <div class="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-2">
+      <!-- ============ Deadlines ============ -->
+      <div class="mt-4 grid grid-cols-1 gap-4">
         <DashboardCard
           title="ریسک‌های دارای تأخیر"
           :subtitle="`${toFa(overdueCount)} مورد — مهلت سپری‌شده`"
@@ -367,13 +365,6 @@ const bannerItems = computed(() => [
           <div class="max-h-96 overflow-y-auto pl-1">
             <DeadlineList :items="data.overdueRisks" />
           </div>
-        </DashboardCard>
-        <DashboardCard
-          title="دسترسی سریع"
-          subtitle="مسیرهای پرکاربرد"
-          :icon="IconBook2"
-        >
-          <QuickLinks />
         </DashboardCard>
       </div>
 

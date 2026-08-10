@@ -47,7 +47,7 @@
               ? 'border-indigo-300 bg-indigo-50 text-indigo-600 dark:border-indigo-800 dark:bg-indigo-900/20 dark:text-indigo-400'
               : 'border-slate-200 bg-white text-slate-500 hover:bg-slate-50 dark:border-darkmode-600 dark:bg-darkmode-800 dark:text-slate-400 dark:hover:bg-darkmode-700'"
             @click="selectYear(y)"
-        >{{ y }}</button>
+        >{{ faYear(y) }}</button>
       </div>
 
       <!-- step 3a: quarter -->
@@ -85,6 +85,7 @@
 import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue';
 import { useI18n } from 'vue-i18n';
 import Lucide from '@/base-components/Lucide';
+import { isPersianDigitLocale, toPersianDigits } from '@/utils/persianDigits';
 
 /**
  * Compact period selector with a wizard-style dropdown panel.
@@ -107,7 +108,7 @@ const props = defineProps({
 });
 const emit = defineEmits(['update:modelValue']);
 
-const { t } = useI18n();
+const { t, locale } = useI18n();
 const rootRef = ref<HTMLElement | null>(null);
 const open = ref(false);
 
@@ -133,7 +134,16 @@ const effectiveType = computed(() => {
   return type.value;
 });
 
-const years = computed<number[]>(() => [year.value - 1, year.value, year.value + 1]);
+/** بازه پیش‌فرض سال‌ها: ۱۲ سال قبل تا ۱ سال بعد (داده‌های قدیمی هم قابل انتخاب باشند). */
+const years = computed<number[]>(() => {
+  const cy = new Date().getFullYear();
+  return Array.from({ length: 14 }, (_, i) => cy - 12 + i);
+});
+
+/** نمایش سال با ارقام فارسی در لوکال fa و لاتین در بقیه (بدون جداکننده هزارگان). */
+function faYear(y: number): string {
+  return isPersianDigitLocale(locale.value) ? toPersianDigits(y) : String(y);
+}
 
 function syncFromModel() {
   const v = props.modelValue as { type?: string; startDate?: string } | null;

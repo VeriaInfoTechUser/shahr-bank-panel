@@ -9,6 +9,7 @@ import PeriodSelectPanel from '@/components/PeriodSelectPanel.vue';
 import { maturityRepo } from '@/core/repositories/maturityRepo';
 import { useQuery } from '@/core/composables/useQuery';
 import { toFa } from '@/components/dashboard/helpers';
+import { toPersianDigits } from '@/utils/persianDigits';
 import { levelColor, levelLabelKey } from '../levels';
 import {
   IconGauge,
@@ -135,7 +136,7 @@ const distributionDonut = computed(() =>
 const trendBars = computed<{ labels: string[]; series: BarSeries[] }>(() => {
   const list = d.value?.trend ?? [];
   return {
-    labels: list.map((p) => toFa(p.period)),
+    labels: list.map((p) => toPersianDigits(p.period)),
     series: [
       {
         name: t('maturity.score'),
@@ -191,7 +192,7 @@ function trendKey(tr: string): string {
           <PeriodSelectPanel
             v-model="period"
             :placeholder="t('maturity.period')"
-            :label="period ? `${t('reports.period-type.yearly')} · ${toFa(period.startDate.slice(0, 4))}` : ''"
+            :label="period ? `${t('reports.period-type.yearly')} · ${toPersianDigits(period.startDate.slice(0, 4))}` : ''"
             :types="['YEARLY']"
           />
         </div>

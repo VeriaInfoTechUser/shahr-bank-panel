@@ -376,12 +376,7 @@ onMounted(() => {
               <span class="truncate font-semibold text-text-secondary" :title="$t('title.web-title-short')">{{ $t('title.web-title-short') }}</span>
               <span class="shrink-0 text-text-disabled">·</span>
               <span>{{ $t('panel.footer-version') }}</span>
-              <span class="text-text-disabled">·</span>
-              <button class="transition-colors hover:text-primary">{{ $t('panel.footer-support') }}</button>
-              <span class="text-text-disabled">·</span>
-              <button class="transition-colors hover:text-primary">{{ $t('panel.footer-privacy') }}</button>
             </div>
-            <span>© ۱۴۰۳ {{ $t('panel.footer-copyright') }}</span>
           </div>
         </footer>
         <!-- END: Footer -->
